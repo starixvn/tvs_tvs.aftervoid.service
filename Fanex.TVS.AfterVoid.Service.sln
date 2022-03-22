@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32228.343
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sources", "Sources", "{44DAFA98-A13D-4A33-8773-EFE2083193EA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.TVS.AfterVoid.Service", "Sources\Fanex.TVS.AfterVoid.Service\Fanex.TVS.AfterVoid.Service.csproj", "{FA65737B-53D0-4CCA-8192-89067ACD3F1B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FA65737B-53D0-4CCA-8192-89067ACD3F1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA65737B-53D0-4CCA-8192-89067ACD3F1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA65737B-53D0-4CCA-8192-89067ACD3F1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA65737B-53D0-4CCA-8192-89067ACD3F1B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FA65737B-53D0-4CCA-8192-89067ACD3F1B} = {44DAFA98-A13D-4A33-8773-EFE2083193EA}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2A92875C-1C82-448C-AEF1-400E115B3557}
+	EndGlobalSection
+EndGlobal
