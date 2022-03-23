@@ -1,0 +1,68 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using Fanex.Logging;
+using Fanex.Logging.Sentry;
+using Fanex.TVS.AfterVoid.Core.Models;
+using Fanex.TVS.AfterVoid.Core.Services;
+using Fanex.TVS.AfterVoid.Service.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Quartz;
+using Quartz.Impl;
+using Sentry;
+
+namespace Fanex.TVS.AfterVoid.Service.Extensions
+{
+    public static class ServiceCollectionExtensions
+    {
+        public static void LoadConfig(this IServiceCollection services)
+        {
+            Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
+
+            var text = File.ReadAllText("appsettings.json");
+            AppConfigService.AppConfig = JsonConvert.DeserializeObject<ConfigSettingModel>(text);
+        }
+
+        public static void RegisterSentry(this IServiceCollection services, IConfiguration configuration)
+        {
+            LogManager
+                .SetDefaultLogCategory(configuration.GetSection("CategorySentryLog").Value)
+                .Use(new List<ILogEngine>
+                {
+                    new SentryLogging(new SentryEngineOptions
+                    {
+                        Dsn = new Dsn(configuration.GetSection("SentryClientKey").Value)
+                    })
+                });
+        }
+
+        public static void RegisterInternalServices(this IServiceCollection services)
+        {
+            services.AddSingleton<LoggingService, LoggingServiceImp>();
+            services.AddSingleton<AfterVoidService, AfterVoidServiceImp>();
+            services.AddSingleton<AfterVoidJob>();
+
+            OnebookUMInitializer.InitializeUMClientManager();
+            OnebookUMInitializer.RegisterServiceCollection(services);
+        }
+
+        public static void StartScheduler(this IServiceCollection services)
+        {
+            var serviceProvider = services.BuildServiceProvider();
+            var scheduler = StdSchedulerFactory.GetDefaultScheduler().Result;
+            scheduler.JobFactory = new AfterVoidJobFactory(serviceProvider);
+
+            var job = JobBuilder.Create<AfterVoidJob>().Build();
+            var trigger = TriggerBuilder.Create()
+                .WithIdentity("AfterVoidService", "AfterVoidService")
+                .StartNow()
+                .WithSimpleSchedule(x => x.WithIntervalInSeconds(60).RepeatForever())
+                .Build();
+
+            scheduler.ScheduleJob(job, trigger).Wait();
+            scheduler.Start().Wait();
+        }
+    }
+}

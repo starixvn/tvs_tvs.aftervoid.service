@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sources", "Sources", "{44DA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.TVS.AfterVoid.Service", "Sources\Fanex.TVS.AfterVoid.Service\Fanex.TVS.AfterVoid.Service.csproj", "{FA65737B-53D0-4CCA-8192-89067ACD3F1B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.TVS.AfterVoid.Core", "Sources\Fanex.TVS.AfterVoid.Core\Fanex.TVS.AfterVoid.Core.csproj", "{6804D28D-A00E-4DF5-B6EF-679E91F4EA3B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,12 +19,17 @@ Global
 		{FA65737B-53D0-4CCA-8192-89067ACD3F1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA65737B-53D0-4CCA-8192-89067ACD3F1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA65737B-53D0-4CCA-8192-89067ACD3F1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6804D28D-A00E-4DF5-B6EF-679E91F4EA3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6804D28D-A00E-4DF5-B6EF-679E91F4EA3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6804D28D-A00E-4DF5-B6EF-679E91F4EA3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6804D28D-A00E-4DF5-B6EF-679E91F4EA3B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FA65737B-53D0-4CCA-8192-89067ACD3F1B} = {44DAFA98-A13D-4A33-8773-EFE2083193EA}
+		{6804D28D-A00E-4DF5-B6EF-679E91F4EA3B} = {44DAFA98-A13D-4A33-8773-EFE2083193EA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2A92875C-1C82-448C-AEF1-400E115B3557}

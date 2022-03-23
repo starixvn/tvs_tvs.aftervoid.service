@@ -1,0 +1,45 @@
+﻿using System;
+using Fanex.Logging;
+using Fanex.Logging.Extensions;
+using Fanex.Logging.Extensions.Database;
+
+namespace Fanex.TVS.AfterVoid.Core.Services
+{
+    public interface LoggingService
+    {
+        void Error(string message, Exception exception);
+
+        void Error(Exception exception);
+
+        void Info(string message);
+    }
+
+    public class LoggingServiceImp : LoggingService
+    {
+        public void Error(string message, Exception exception)
+        {
+            var logException = new Exception(message, exception);
+            HandleException(logException);
+        }
+
+        public void Error(Exception exception)
+        {
+            HandleException(exception);
+        }
+
+        public void Info(string message)
+        {
+            LogService.Info(message);
+        }
+
+        private void HandleException(Exception ex)
+        {
+            var logMessage = new LogMessage(ex.Message)
+                .AddSection("Database Info", DatabaseInfoGetters.GetDbExceptionInfo(ex))
+                .AddSection("Server Info", CommonInfoGetters.GetServerInfo())
+                .AddSection("Exception Info", CommonInfoGetters.GetExceptionInfo(ex.InnerException))
+                .ToString();
+            LogService.Error(logMessage);
+        }
+    }
+}
