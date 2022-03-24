@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Fanex.Data;
 using Fanex.Data.Repository;
 using Fanex.Data.SqlServer;
@@ -75,10 +76,10 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
             OnebookUMInitializer.RegisterServiceCollection(services);
         }
 
-        public static void StartScheduler(this IServiceCollection services)
+        public static async Task StartScheduler(this IServiceCollection services)
         {
             var serviceProvider = services.BuildServiceProvider();
-            var scheduler = StdSchedulerFactory.GetDefaultScheduler().Result;
+            var scheduler = await StdSchedulerFactory.GetDefaultScheduler();
             scheduler.JobFactory = new AfterVoidJobFactory(serviceProvider);
 
             var job = JobBuilder.Create<AfterVoidJob>().Build();
@@ -88,8 +89,8 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
                 .WithSimpleSchedule(x => x.WithIntervalInSeconds(2).RepeatForever())
                 .Build();
 
-            scheduler.ScheduleJob(job, trigger).Wait();
-            scheduler.Start().Wait();
+            await scheduler.ScheduleJob(job, trigger);
+            await scheduler.Start();
         }
     }
 }

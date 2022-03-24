@@ -68,21 +68,15 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             };
             var (requests, requestEvents, _) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(criteria);
 
+            var firstRequest = requests.FirstOrDefault();
             var viewModel = new RequestDetailViewModel
             {
-                Request = requests.FirstOrDefault()
+                Request = firstRequest,
+                EventByMatch = (firstRequest.IssueTypeId == IssueTypeConstant.DangerAccepted || firstRequest.IssueTypeId == IssueTypeConstant.WrongHDP
+                    || firstRequest.IssueTypeId == IssueTypeConstant.Wrong1stHDP)
+                    ? requestEvents.FirstOrDefault(x => x.MatchId == matchId)
+                    : requestEvents.FirstOrDefault()
             };
-
-            if (viewModel.Request.IssueTypeId == IssueTypeConstant.DangerAccepted
-                || viewModel.Request.IssueTypeId == IssueTypeConstant.WrongHDP
-                || viewModel.Request.IssueTypeId == IssueTypeConstant.Wrong1stHDP)
-            {
-                viewModel.EventByMatch = requestEvents.FirstOrDefault(x => x.MatchId == matchId);
-            }
-            else
-            {
-                viewModel.EventByMatch = requestEvents.FirstOrDefault();
-            }
 
             return viewModel;
         }
@@ -111,7 +105,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
         public async Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int messageId)
         {
-            var afterVoidHistory = new VoidBetAutomationInfo()
+            var afterVoidHistory = new VoidBetAutomationInfo
             {
                 MessageId = messageId
             };
@@ -157,18 +151,22 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                 SessionId = sessionId,
                 RequestId = requestId,
                 VoidingHistoryId = voidingHistoryId,
-                StatusId = statusId,
-                IsRunExternalService = afterVoidHistory?.IsRunExternalService,
-                MessageId = afterVoidHistory?.MessageId,
-                ReasonId = afterVoidHistory?.ReasonId,
-                IsSentBatchMessage = afterVoidHistory?.IsSentBatchMessage,
-                IsSentMessageToAdminSite = afterVoidHistory?.IsSentMessageToAdminSite,
-                IsInsertedVoidedTransaction = afterVoidHistory?.IsInsertedVoidedTransaction,
-                IsUpdatedVoidingHistory = afterVoidHistory?.IsUpdatedVoidingHistory,
-                IsSentEmail = afterVoidHistory?.IsSentEmail,
-                IsSentLetsTalk = afterVoidHistory?.IsSentLetsTalk,
-                VoidResults = afterVoidHistory?.VoidResults
+                StatusId = statusId
             };
+
+            if (afterVoidHistory != null)
+            {
+                criteria.IsRunExternalService = afterVoidHistory.IsRunExternalService;
+                criteria.MessageId = afterVoidHistory.MessageId;
+                criteria.ReasonId = afterVoidHistory.ReasonId;
+                criteria.IsSentBatchMessage = afterVoidHistory.IsSentBatchMessage;
+                criteria.IsSentMessageToAdminSite = afterVoidHistory.IsSentMessageToAdminSite;
+                criteria.IsInsertedVoidedTransaction = afterVoidHistory.IsInsertedVoidedTransaction;
+                criteria.IsUpdatedVoidingHistory = afterVoidHistory.IsUpdatedVoidingHistory;
+                criteria.IsSentEmail = afterVoidHistory.IsSentEmail;
+                criteria.IsSentLetsTalk = afterVoidHistory.IsSentLetsTalk;
+                criteria.VoidResults = afterVoidHistory.VoidResults;
+            }
 
             await repository.ExecuteAsync(criteria);
         }

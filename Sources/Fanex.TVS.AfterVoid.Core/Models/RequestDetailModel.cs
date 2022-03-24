@@ -72,7 +72,7 @@ namespace Fanex.TVS.AfterVoid.Core.Models
         public int AwayId { get; set; }
         public string TransIds { get; set; }
 
-        [JsonConverter(typeof(ClientDateJsonConverter))]
+        [JsonConverter(typeof(ClientDateGMT8JsonConverter))]
         public DateTime KickOffTime { get; set; }
 
         public int? HTHomeScore { get; set; }

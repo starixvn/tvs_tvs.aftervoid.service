@@ -37,7 +37,7 @@ namespace Fanex.TVS.AfterVoid.Core.Utilities
                 return MessageContentType.VoidAbnormal;
             }
 
-            if (messageContent.ToLower().Contains("kindly double check your statement again"))
+            if (messageContent.ToLowerInvariant().Contains("kindly double check your statement again"))
             {
                 return MessageContentType.VoidSettled;
             }
@@ -57,8 +57,8 @@ namespace Fanex.TVS.AfterVoid.Core.Utilities
 
         public static bool IsAbnormalBetMixParlay(int issueTypeId, int? filterBy)
         {
-            var FILTER_BY_MIX_PARLAY = 1;
-            return IssueTypeConstant.AbnormalBet == issueTypeId && filterBy == FILTER_BY_MIX_PARLAY;
+            const int filterByMixParlay = 1;
+            return IssueTypeConstant.AbnormalBet == issueTypeId && filterBy == filterByMixParlay;
         }
 
         public static bool IsAbnormalAccount(int issueTypeId)

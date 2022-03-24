@@ -3,8 +3,10 @@ using Newtonsoft.Json;
 
 namespace Fanex.TVS.AfterVoid.Core.Utilities
 {
-    public class ClientDateJsonConverter : JsonConverter
+    public class ClientDateGMT8JsonConverter : JsonConverter
     {
+        private const int OffsetHours = 12;
+
         public override bool CanConvert(Type objectType)
         {
             return objectType == typeof(DateTime);
@@ -18,7 +20,7 @@ namespace Fanex.TVS.AfterVoid.Core.Utilities
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var dateTime = (DateTime)value;
-            dateTime = dateTime.AddHours(12);
+            dateTime = dateTime.AddHours(OffsetHours);
             writer.WriteValue(dateTime);
         }
     }

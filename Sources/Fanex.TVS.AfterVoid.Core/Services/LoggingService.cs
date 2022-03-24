@@ -32,12 +32,12 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             LogService.Info(message);
         }
 
-        private void HandleException(Exception ex)
+        private static void HandleException(Exception exception)
         {
-            var logMessage = new LogMessage(ex.Message)
-                .AddSection("Database Info", DatabaseInfoGetters.GetDbExceptionInfo(ex))
+            var logMessage = new LogMessage(exception.Message)
+                .AddSection("Database Info", DatabaseInfoGetters.GetDbExceptionInfo(exception))
                 .AddSection("Server Info", CommonInfoGetters.GetServerInfo())
-                .AddSection("Exception Info", CommonInfoGetters.GetExceptionInfo(ex.InnerException))
+                .AddSection("Exception Info", CommonInfoGetters.GetExceptionInfo(exception.InnerException))
                 .ToString();
             LogService.Error(logMessage);
         }

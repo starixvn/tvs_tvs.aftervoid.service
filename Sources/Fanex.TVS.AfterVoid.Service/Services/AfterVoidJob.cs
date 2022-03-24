@@ -28,7 +28,10 @@ namespace Fanex.TVS.AfterVoid.Service.Services
                 {
                     AppConfigService.AppConfig.OnProcessing = true;
 
-                    if (!maintenanceService.IsUnderMaintenance()) await afterVoidService.Execute();
+                    if (!await maintenanceService.IsUnderMaintenanceAsync())
+                    {
+                        await afterVoidService.Execute();
+                    }
 
                     AppConfigService.AppConfig.OnProcessing = false;
                 }

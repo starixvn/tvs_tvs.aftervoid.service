@@ -25,7 +25,7 @@ namespace Fanex.TVS.AfterVoid.Service
             services.RegisterFanexData(Configuration);
             services.RegisterSentry(Configuration);
             services.RegisterInternalServices();
-            services.StartScheduler();
+            services.StartScheduler().Wait();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
