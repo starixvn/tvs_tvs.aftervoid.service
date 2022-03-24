@@ -1,0 +1,12 @@
+{
+  "ServerUri": "https://sonarqube.nexdev.net/",
+  "Organization": null,
+  "ProjectKey": "TVS.AfterVoid.Service",
+  "ProjectName": "OLYMPUS / TVS.AfterVoid.Service",
+  "Profiles": {
+    "CSharp": {
+      "ProfileKey": "cs-sonar-way-80515",
+      "ProfileTimestamp": "2021-12-16T15:13:27Z"
+    }
+  }
+}
