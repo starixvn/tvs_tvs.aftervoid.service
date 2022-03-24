@@ -1,0 +1,216 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Fanex.Data.Repository;
+using Fanex.TVS.AfterVoid.Core.Constants;
+using Fanex.TVS.AfterVoid.Core.Criteria;
+using Fanex.TVS.AfterVoid.Core.Models;
+using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
+
+namespace Fanex.TVS.AfterVoid.Core.Services
+{
+    public interface VoidBetAutomationService
+    {
+        Task<AutomationStatistic> GetVoidBetAutomationStatistic();
+
+        Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId);
+
+        Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int voidingHistoryId);
+
+        Task UpdateServiceStatusByVoidingHistory(int requestId, int voidingHistoryId, int statusId);
+
+        Task UpdateServiceStatusBySession(int sessionId, int statusId);
+
+        Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int messageId);
+
+        Task UpdateMessageIdBySession(int sessionId, int messageId);
+
+        Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory);
+
+        Task UpdateAllAfterVoidSteps(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory);
+
+        Task UpdateEmailResultByVoidingHistory(int requestId, int voidingHistoryId, string content);
+
+        Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsForSendEmail(int voidingHistoryId);
+
+        Task<VoidDataXmlModel> GetVoidDataFromVoidingHistory(int voidingHistoryId);
+
+        Task<Match> GetMatchInfo(int matchId);
+
+        Task UpdateTicketVoidingHistory(int voidingHistoryId, byte statusId, int reasonId, int messageId);
+    }
+
+    public class VoidBetAutomationServiceImp : VoidBetAutomationService
+    {
+        private readonly IDynamicRepository repository;
+
+        public VoidBetAutomationServiceImp(IDynamicRepository repository)
+        {
+            this.repository = repository;
+        }
+
+        public async Task<AutomationStatistic> GetVoidBetAutomationStatistic()
+        {
+            var (requestUpdateStatus, requestRunAfterVoid) = await repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidBetAutomationInfo>(new GetAllVoidBetAutomationInfoCriteria());
+            return new AutomationStatistic
+            {
+                RequestsWillUpdateStatus = requestUpdateStatus,
+                RequestsWillRunAfterVoid = requestRunAfterVoid
+            };
+        }
+
+        public async Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId)
+        {
+            var criteria = new SelectRequestCriteria
+            {
+                RequestId = requestId
+            };
+            var (requests, requestEvents, _) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(criteria);
+
+            var viewModel = new RequestDetailViewModel
+            {
+                Request = requests.FirstOrDefault()
+            };
+
+            if (viewModel.Request.IssueTypeId == IssueTypeConstant.DangerAccepted
+                || viewModel.Request.IssueTypeId == IssueTypeConstant.WrongHDP
+                || viewModel.Request.IssueTypeId == IssueTypeConstant.Wrong1stHDP)
+            {
+                viewModel.EventByMatch = requestEvents.FirstOrDefault(x => x.MatchId == matchId);
+            }
+            else
+            {
+                viewModel.EventByMatch = requestEvents.FirstOrDefault();
+            }
+
+            return viewModel;
+        }
+
+        public async Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int voidingHistoryId)
+        {
+            var criteria = new GetRequestSimpleInfoCriteria
+            {
+                RequestId = requestId,
+                VoidingHistoryId = voidingHistoryId
+            };
+            var request = await repository.GetAsync<RequestSimpleInfo>(criteria);
+
+            return request;
+        }
+
+        public async Task UpdateServiceStatusByVoidingHistory(int requestId, int voidingHistoryId, int statusId)
+        {
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateStatusByVoidingHistory, null, requestId, voidingHistoryId, statusId, null);
+        }
+
+        public async Task UpdateServiceStatusBySession(int sessionId, int statusId)
+        {
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateStatusBySession, sessionId, null, null, statusId, null);
+        }
+
+        public async Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int messageId)
+        {
+            var afterVoidHistory = new VoidBetAutomationInfo()
+            {
+                MessageId = messageId
+            };
+
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateMessageIdByVoidingHistory, null, requestId, voidingHistoryId, null, afterVoidHistory);
+        }
+
+        public async Task UpdateMessageIdBySession(int sessionId, int messageId)
+        {
+            var afterVoidHistory = new VoidBetAutomationInfo
+            {
+                MessageId = messageId
+            };
+
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateMessageIdBySession, sessionId, null, null, null, afterVoidHistory);
+        }
+
+        public async Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory)
+        {
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateAfterVoidStep, null, requestId, voidingHistoryId, null, afterVoidHistory);
+        }
+
+        public async Task UpdateAllAfterVoidSteps(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory)
+        {
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateAllAfterVoidSteps, null, requestId, voidingHistoryId, null, afterVoidHistory);
+        }
+
+        public async Task UpdateEmailResultByVoidingHistory(int requestId, int voidingHistoryId, string content)
+        {
+            var afterVoidHistory = new VoidBetAutomationInfo
+            {
+                VoidResults = content
+            };
+
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateEmailsResultByVoidingHistory, null, requestId, voidingHistoryId, null, afterVoidHistory);
+        }
+
+        private async Task UpdateVoidBetAutomationServiceInfo(int updateType, int? sessionId, int? requestId, int? voidingHistoryId, int? statusId, VoidBetAutomationInfo afterVoidHistory)
+        {
+            var criteria = new UpdateVoidBetAutomationInfoCriteria
+            {
+                UpdateType = updateType,
+                SessionId = sessionId,
+                RequestId = requestId,
+                VoidingHistoryId = voidingHistoryId,
+                StatusId = statusId,
+                IsRunExternalService = afterVoidHistory?.IsRunExternalService,
+                MessageId = afterVoidHistory?.MessageId,
+                ReasonId = afterVoidHistory?.ReasonId,
+                IsSentBatchMessage = afterVoidHistory?.IsSentBatchMessage,
+                IsSentMessageToAdminSite = afterVoidHistory?.IsSentMessageToAdminSite,
+                IsInsertedVoidedTransaction = afterVoidHistory?.IsInsertedVoidedTransaction,
+                IsUpdatedVoidingHistory = afterVoidHistory?.IsUpdatedVoidingHistory,
+                IsSentEmail = afterVoidHistory?.IsSentEmail,
+                IsSentLetsTalk = afterVoidHistory?.IsSentLetsTalk,
+                VoidResults = afterVoidHistory?.VoidResults
+            };
+
+            await repository.ExecuteAsync(criteria);
+        }
+
+        public async Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsForSendEmail(int voidingHistoryId)
+        {
+            var criteria = new GetTicketsEmailCriteria
+            {
+                VoidingHistoryId = voidingHistoryId
+            };
+
+            var tickets = await repository.FetchAsync<TicketEmailModel>(criteria);
+
+            return tickets;
+        }
+
+        public async Task<VoidDataXmlModel> GetVoidDataFromVoidingHistory(int voidingHistoryId)
+        {
+            var criteria = new GetVoidingHistoryCriteria
+            {
+                VoidingHistoryId = voidingHistoryId
+            };
+
+            return await repository.GetAsync<VoidDataXmlModel>(criteria);
+        }
+
+        public async Task<Match> GetMatchInfo(int matchId)
+        {
+            return await repository.GetAsync<Match>(new GetMatchInfoCriteria { MatchId = matchId, IsMatch3rd = false });
+        }
+
+        public async Task UpdateTicketVoidingHistory(int voidingHistoryId, byte statusId, int reasonId, int messageId)
+        {
+            var command = new UpdateHistoryCommand
+            {
+                VoidingHistoryId = voidingHistoryId,
+                StatusId = statusId,
+                ReasonId = reasonId,
+                MessageId = messageId
+            };
+
+            await repository.ExecuteAsync(command);
+        }
+    }
+}
