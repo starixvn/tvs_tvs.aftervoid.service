@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Fanex.Data;
+using Fanex.Data.SqlServer;
 using Fanex.Logging;
 using Fanex.Logging.Sentry;
 using Fanex.TVS.AfterVoid.Core.Models;
@@ -36,6 +39,24 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
                         Dsn = new Dsn(configuration.GetSection("SentryClientKey").Value)
                     })
                 });
+        }
+
+        public static void RegisterFanexData(this IServiceCollection services, IConfiguration configuration)
+        {
+            var connections = configuration.GetSection("ConnectionStrings")
+                .GetChildren()
+                .AsEnumerable()
+                .ToDictionary(
+                    x => x.Key,
+                    y => new ConnectionConfiguration(y.Key, y.Value)
+                );
+
+            DbSettingProviderManager
+                .StartNewSession()
+                .Use(connections)
+                .WithSqlServer()
+                .UseDefaultDbSettingProvider(configuration.GetSection("StoredProcedurePath").Value)
+                .Run();
         }
 
         public static void RegisterInternalServices(this IServiceCollection services)
