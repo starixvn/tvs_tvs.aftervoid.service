@@ -1,0 +1,304 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="BetID" xml:space="preserve">
+    <value>Bet ID: </value>
+  </data>
+  <data name="Bettype" xml:space="preserve">
+    <value>Bet Type</value>
+  </data>
+  <data name="BetTypeXml" xml:space="preserve">
+    <value>&lt;BetType Id="{0}" BetTeam="{1}" Set="{2}" Game="{3}" Value="{4}" Goal="{5}" BetOption="{6}" /&gt;</value>
+  </data>
+  <data name="ByBetID" xml:space="preserve">
+    <value>By BetID(s)</value>
+  </data>
+  <data name="ByMatchID" xml:space="preserve">
+    <value>By MatchID</value>
+  </data>
+  <data name="CashOut" xml:space="preserve">
+    <value>Cash Out</value>
+  </data>
+  <data name="CsdRecovery" xml:space="preserve">
+    <value>CSD Recovery</value>
+  </data>
+  <data name="EmailFrom" xml:space="preserve">
+    <value>沙巴体育通知 | Saba Sports Notice</value>
+  </data>
+  <data name="Events" xml:space="preserve">
+    <value>Events</value>
+  </data>
+  <data name="FileNameExportExcel" xml:space="preserve">
+    <value>Ticket_Listing_for_Bettype{0}_{1}</value>
+  </data>
+  <data name="ForMoreDetails" xml:space="preserve">
+    <value>For more details:</value>
+  </data>
+  <data name="From_BetID" xml:space="preserve">
+    <value>From BetID</value>
+  </data>
+  <data name="Internet" xml:space="preserve">
+    <value>Internet</value>
+  </data>
+  <data name="ItQa" xml:space="preserve">
+    <value>IT QA</value>
+  </data>
+  <data name="ItSupport" xml:space="preserve">
+    <value>IT Support</value>
+  </data>
+  <data name="Licensee" xml:space="preserve">
+    <value>Licensee</value>
+  </data>
+  <data name="LicenseTypeXml" xml:space="preserve">
+    <value>&lt;LicenseType Id="{0}" LicenseName ="{1}" Value="{2}" /&gt;</value>
+  </data>
+  <data name="MessageTemplateItemXml" xml:space="preserve">
+    <value>&lt;Item InputType="{0}" Name="{1}" OrderBy="{2}" JsonValue="{3}"/&gt;</value>
+  </data>
+  <data name="NumberGameNo" xml:space="preserve">
+    <value>Number Game No. </value>
+  </data>
+  <data name="OperatorXml" xml:space="preserve">
+    <value>&lt;r OperatorId="{0}" Type="{1}" /&gt;</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="RealCurrency" xml:space="preserve">
+    <value>Real Currency - </value>
+  </data>
+  <data name="RecoverParlaySettledMessage" xml:space="preserve">
+    <value>The selected ticket(s) will be returned to 'Running' status, please re-settle the match to calculate them again.</value>
+  </data>
+  <data name="SettledBet" xml:space="preserve">
+    <value>The selected ticket(s) will return to "Running" status, please resettle the match(es) to calculate it again.
+    </value>
+  </data>
+  <data name="SMP_Selection" xml:space="preserve">
+    <value>&lt;div&gt;&lt;span class="selection-smp"&gt;{0}&lt;/span&gt;&lt;/div&gt;</value>
+  </data>
+  <data name="SMP_Selection_Result" xml:space="preserve">
+    <value>&lt;div&gt;&lt;span class="selection-smp"&gt;{0}&lt;/span&gt; - &lt;span class="selection-result"&gt;{1}&lt;/span&gt;&lt;/div&gt;</value>
+  </data>
+  <data name="Subject_RecoveredBetReport" xml:space="preserve">
+    <value>Recovered Bet Report ({0})</value>
+  </data>
+  <data name="Subject_RecoveredBetReportIt" xml:space="preserve">
+    <value>{0}Recovered Bet Report ({1})</value>
+  </data>
+  <data name="Subject_RecoveredCashOut" xml:space="preserve">
+    <value>Recovered Cash Out Transaction Report ({0})</value>
+  </data>
+  <data name="Subject_RecoveredCashOutIt" xml:space="preserve">
+    <value>{0}Recovered Cash Out Transaction Report ({1})</value>
+  </data>
+  <data name="Subject_RecoveredNumberGame" xml:space="preserve">
+    <value>Recovered Number Game Bet Report ({0})</value>
+  </data>
+  <data name="Subject_RecoveredNumberGameIt" xml:space="preserve">
+    <value>{0}Recovered Number Game Bet Report ({1})</value>
+  </data>
+  <data name="Subject_RecoveredParlay" xml:space="preserve">
+    <value>Recovered Parlay Bet Report ({0})</value>
+  </data>
+  <data name="Subject_RecoveredParlayIt" xml:space="preserve">
+    <value>{0}Recovered Parlay Bet Report ({1})</value>
+  </data>
+  <data name="Subject_RecoveredVirtualSports" xml:space="preserve">
+    <value>Recovered Virtual Sports Bets Report ({0})</value>
+  </data>
+  <data name="Subject_RecoveredVirtualSportsIt" xml:space="preserve">
+    <value>{0}Recovered Virtual Sports Bets Report ({1})</value>
+  </data>
+  <data name="Subject_VoidedAbnormalBetsReport" xml:space="preserve">
+    <value>[{0}] - [重要] 作废非正规注单报表 | [IMPORTANT] Voided Abnormal Bets Report ({1})</value>
+  </data>
+  <data name="Subject_VoidedAbnormalBetsReportIt" xml:space="preserve">
+    <value>{0}[{1}] - [重要] 作废非正规注单报表 | [IMPORTANT] Voided Abnormal Bets Report ({2})</value>
+  </data>
+  <data name="Subject_VoidedBetsReportFor" xml:space="preserve">
+    <value>[{0}] - 作废注单报表 | Voided Bets Report ({1})</value>
+  </data>
+  <data name="Subject_VoidedBetsReportForIt" xml:space="preserve">
+    <value>{0}[{1}] - 作废注单报表 | Voided Bets Report ({2})</value>
+  </data>
+  <data name="Subject_VoidedCashOut" xml:space="preserve">
+    <value>Voided Cash Out Transaction Report for {0} ({1})</value>
+  </data>
+  <data name="Subject_VoidedCashOutIt" xml:space="preserve">
+    <value>{0}Voided Cash Out Transaction Report for {1} ({2})</value>
+  </data>
+  <data name="Subject_VoidedNumberGame" xml:space="preserve">
+    <value>Voided Number Game Bets Report for {0} | 作废百练赛注单报表 {0} ({1})</value>
+  </data>
+  <data name="Subject_VoidedNumberGameIt" xml:space="preserve">
+    <value>{0}Voided Number Game Bets Report for {1} ({2})</value>
+  </data>
+  <data name="Subject_VoidedVirtualSports" xml:space="preserve">
+    <value>Voided Virtual Sports Bets Report for {0} ({1})</value>
+  </data>
+  <data name="Subject_VoidedVirtualSportsIt" xml:space="preserve">
+    <value>{0}Voided Virtual Sports Bets Report for {1} ({2})</value>
+  </data>
+  <data name="TestCurrency" xml:space="preserve">
+    <value>Test Currency - </value>
+  </data>
+  <data name="Tickets_Listing_for_MatchID_Bettype" xml:space="preserve">
+    <value>Tickets Listing for - Match ID: </value>
+  </data>
+  <data name="TransDateTypeXml" xml:space="preserve">
+    <value>&lt;TransDate From="{0:yyyy/MM/dd HH:mm:ss.fff}" To="{1:yyyy/MM/dd HH:mm:ss.fff}" /&gt;</value>
+  </data>
+  <data name="VoidBetDetailsSendMailFail" xml:space="preserve">
+    <value>Failed to send email to {0} site.</value>
+  </data>
+  <data name="VoidBetDetailsSendMailSuccess" xml:space="preserve">
+    <value>Voided bet details for {0} are sent successfully to {1}</value>
+  </data>
+  <data name="VoidBetSendMailFail" xml:space="preserve">
+    <value>Failed to send email to {0} site.</value>
+  </data>
+  <data name="VoidBetSendMailSuccess" xml:space="preserve">
+    <value>Voided bet details for {0} are sent successfully!</value>
+  </data>
+  <data name="Wap" xml:space="preserve">
+    <value>Wap</value>
+  </data>
+  <data name="Warning_Message_VoidBetId" xml:space="preserve">
+    <value>You can only void tickets of Normal Sportsbook, Outright, Mix Parlay (main), System Parlay (main), Number Game, MG-Super Live, Cash Out, Virtual Sports, Virtual Sports 2 (single and main Mix Parlay), Bet Builder and Saba Promotion.</value>
+  </data>
+  <data name="Warning_Message_VoidBetId_UnSettled" xml:space="preserve">
+    <value>You can only void "Unsettled" tickets of Normal Sportsbook, Outright, Mix Parlay (main), System Parlay (main), Number Game, MG-Super Live, Cash Out, Virtual Sports, Virtual Sports 2 (single and main Mix Parlay), Bet Builder and Saba Promotion.</value>
+  </data>
+  <data name="You_can_void_Instantly_Settled" xml:space="preserve">
+    <value>You can void "Instantly Settled" tickets settled by Instant Settlement during live time.</value>
+  </data>
+  <data name="You_can_void_Settled_or_Unsettled_tickets" xml:space="preserve">
+    <value>You can void "Settled" or "Unsettled" tickets.</value>
+  </data>
+  <data name="You_have_no_menu_permission" xml:space="preserve">
+    <value>You have no permission on any Menu</value>
+  </data>
+  <data name="You_only_void_today_tickets" xml:space="preserve">
+    <value>You can only void today tickets.</value>
+  </data>
+  <data name="You_only_void_Unsettled_tickets" xml:space="preserve">
+    <value>You can only void "Unsettled" tickets.</value>
+  </data>
+</root>

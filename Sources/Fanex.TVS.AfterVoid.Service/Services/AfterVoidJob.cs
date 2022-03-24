@@ -20,7 +20,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             this.afterVoidService = afterVoidService;
         }
 
-        public Task Execute(IJobExecutionContext context)
+        public async Task Execute(IJobExecutionContext context)
         {
             try
             {
@@ -28,7 +28,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
                 {
                     AppConfigService.AppConfig.OnProcessing = true;
 
-                    if (!maintenanceService.IsUnderMaintenance()) afterVoidService.Execute();
+                    if (!maintenanceService.IsUnderMaintenance()) await afterVoidService.Execute();
 
                     AppConfigService.AppConfig.OnProcessing = false;
                 }
@@ -38,8 +38,6 @@ namespace Fanex.TVS.AfterVoid.Service.Services
                 AppConfigService.AppConfig.OnProcessing = false;
                 loggingService.Error("AfterVoidJob execute failed!", ex);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

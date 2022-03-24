@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Fanex.Data;
+using Fanex.Data.Repository;
 using Fanex.Data.SqlServer;
 using Fanex.Logging;
 using Fanex.Logging.Sentry;
@@ -61,8 +62,13 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
 
         public static void RegisterInternalServices(this IServiceCollection services)
         {
+            services.AddSingleton<IDynamicRepository, DynamicRepository>();
             services.AddSingleton<LoggingService, LoggingServiceImp>();
             services.AddSingleton<AfterVoidService, AfterVoidServiceImp>();
+            services.AddSingleton<VoidBetAutomationService, VoidBetAutomationServiceImp>();
+            services.AddSingleton<RequestAutoVoidService, RequestAutoVoidServiceImp>();
+            services.AddSingleton<RequestManualVoidService, RequestManualVoidServiceImp>();
+            services.AddSingleton<RequestVoid14Service, RequestVoid14ServiceImp>();
             services.AddSingleton<AfterVoidJob>();
 
             OnebookUMInitializer.InitializeUMClientManager();
@@ -79,7 +85,7 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
             var trigger = TriggerBuilder.Create()
                 .WithIdentity("AfterVoidService", "AfterVoidService")
                 .StartNow()
-                .WithSimpleSchedule(x => x.WithIntervalInSeconds(60).RepeatForever())
+                .WithSimpleSchedule(x => x.WithIntervalInSeconds(2).RepeatForever())
                 .Build();
 
             scheduler.ScheduleJob(job, trigger).Wait();
