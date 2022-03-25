@@ -36,7 +36,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
         Task UpdateEmailResult(VoidBetAutomationInfo automationInfo, IEnumerable<Result> results);
 
-        Task<Tuple<bool, IEnumerable<Result>>> SendLetstalk(VoidBetAutomationInfo automationInfo,
+        Task<(bool, IEnumerable<Result>)> SendLetstalk(VoidBetAutomationInfo automationInfo,
             IEnumerable<TicketEmailModel> emailTickets, Match matchInfo, VoidDataXmlModel voidData);
 
         void WriteLogAfterVoid(IEnumerable<Result> results, VoidBetAutomationInfo automationInfo);
@@ -292,14 +292,14 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             }
         }
 
-        public async Task<Tuple<bool, IEnumerable<Result>>> SendLetstalk(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets, Match matchInfo, VoidDataXmlModel voidData)
+        public async Task<(bool, IEnumerable<Result>)> SendLetstalk(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets, Match matchInfo, VoidDataXmlModel voidData)
         {
             try
             {
                 var results = new List<Result>();
                 if (automationInfo.IsSentLetsTalk == true)
                 {
-                    return new Tuple<bool, IEnumerable<Result>>(true, new List<Result>());
+                    return (true, new List<Result>());
                 }
 
                 var notificationLetstalkModel = new NotificationLetstalkModel
@@ -322,7 +322,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                     results.Add(new Result { ErrorCode = ErrorCode.SendLetstalkFail, ErrorMsg = "Failed to send message via Letstalk." });
                 }
 
-                return new Tuple<bool, IEnumerable<Result>>(true, results);
+                return (true, results);
             }
             catch (Exception exception)
             {
@@ -331,7 +331,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                 await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.WinServiceFailed);
                 notificationService.NotifyFailedRequest(automationInfo.RequestId);
 
-                return new Tuple<bool, IEnumerable<Result>>(false, new List<Result>());
+                return (false, new List<Result>());
             }
         }
 

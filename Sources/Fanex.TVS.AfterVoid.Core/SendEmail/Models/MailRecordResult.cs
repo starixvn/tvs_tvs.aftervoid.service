@@ -1,7 +1,7 @@
-﻿//namespace Fanex.TVS.AfterVoid.Core.SendEmail.Models
+﻿//using Fanex.TVS.AfterVoid.Core.Models;
+
+//namespace Fanex.TVS.AfterVoid.Core.SendEmail.Models
 //{
-//    using DTO;
-//    using MailDeliver.Model;
 //    using Resources;
 
 //    public class MailRecordResult

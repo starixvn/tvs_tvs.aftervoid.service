@@ -94,9 +94,9 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
                 if (!Helper.IsLikelyAbnormalBet(issueTypeId))
                 {
-                    var sentLetstalkResults = await handleAfterVoidStepService.SendLetstalk(serviceInfo, voidedTickets, matchInfo, voidDataXml);
-                    results.AddRange(sentLetstalkResults.Item2);
-                    if (!sentLetstalkResults.Item1)
+                    var (isSentLetstalk, sentLetstalkResults) = await handleAfterVoidStepService.SendLetstalk(serviceInfo, voidedTickets, matchInfo, voidDataXml);
+                    results.AddRange(sentLetstalkResults);
+                    if (!isSentLetstalk)
                     {
                         notificationService.NotifyException(voidDataXml.CreatorName);
                         continue;
