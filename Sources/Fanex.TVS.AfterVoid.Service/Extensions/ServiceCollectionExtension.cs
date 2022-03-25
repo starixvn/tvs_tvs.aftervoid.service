@@ -9,6 +9,7 @@ using Fanex.Data.SqlServer;
 using Fanex.Logging;
 using Fanex.Logging.Sentry;
 using Fanex.TVS.AfterVoid.Core.Models;
+using Fanex.TVS.AfterVoid.Core.SendEmail.Services;
 using Fanex.TVS.AfterVoid.Core.Services;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Microsoft.Extensions.Configuration;
@@ -70,6 +71,14 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
             services.AddSingleton<RequestAutoVoidService, RequestAutoVoidServiceImp>();
             services.AddSingleton<RequestManualVoidService, RequestManualVoidServiceImp>();
             services.AddSingleton<RequestVoid14Service, RequestVoid14ServiceImp>();
+            services.AddSingleton<BetListService, BetListServiceImp>();
+            services.AddSingleton<HandleAfterVoidStepService, HandleAfterVoidStepServiceImp>();
+            services.AddSingleton<MessageItemService, MessageItemServiceImp>();
+            services.AddSingleton<NotificationLetstalkService, NotificationLetstalkServiceImp>();
+            services.AddSingleton<NotificationService, NotificationServiceImp>();
+            services.AddSingleton<SendMessageService, SendMessageServiceImp>();
+            services.AddSingleton<SendEmailService, SendEmailServiceImp>();
+
             services.AddSingleton<AfterVoidJob>();
 
             OnebookUMInitializer.InitializeUMClientManager();
@@ -86,7 +95,7 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
             var trigger = TriggerBuilder.Create()
                 .WithIdentity("AfterVoidService", "AfterVoidService")
                 .StartNow()
-                .WithSimpleSchedule(x => x.WithIntervalInSeconds(2).RepeatForever())
+                .WithSimpleSchedule(x => x.WithIntervalInSeconds(1).RepeatForever())
                 .Build();
 
             await scheduler.ScheduleJob(job, trigger);

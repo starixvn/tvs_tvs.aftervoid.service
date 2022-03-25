@@ -57,8 +57,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             }
             else
             {
-                var issueTypeId = automationStatistic.RequestsWillRunAfterVoid.FirstOrDefault().RequestInfo.Request.IssueTypeId;
-                if (Helper.IsArchivedTicket(issueTypeId))
+                if (Helper.IsArchivedTicket(firstRequest.RequestInfo.Request.IssueTypeId))
                 {
                     await requestVoid14Service.Execute(automationStatistic.RequestsWillRunAfterVoid);
                 }
