@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Fanex.Data;
 using Fanex.Data.Repository;
 using Fanex.Data.SqlServer;
+using Fanex.LetstalkService.Client;
 using Fanex.Logging;
 using Fanex.Logging.Sentry;
 using Fanex.TVS.AfterVoid.Core.Models;
@@ -78,6 +79,7 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
             services.AddSingleton<NotificationService, NotificationServiceImp>();
             services.AddSingleton<SendMessageService, SendMessageServiceImp>();
             services.AddSingleton<SendEmailService, SendEmailServiceImp>();
+            services.AddSingleton<LetstalkClientService, LetstalkClientServiceImp>();
 
             services.AddSingleton<AfterVoidJob>();
 

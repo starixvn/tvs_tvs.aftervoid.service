@@ -28,8 +28,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         public async Task Execute(IEnumerable<VoidBetAutomationInfo> automationInfoList)
         {
             var firstRequest = automationInfoList.FirstOrDefault();
-            var matchId = firstRequest.MatchId;
-            var matchInfo = matchId > 0 ? await voidBetAutomationService.GetMatchInfo(matchId) : null;
+            var matchInfo = firstRequest.MatchId > 0 ? await voidBetAutomationService.GetMatchInfo(firstRequest.MatchId) : null;
             var issueTypeId = firstRequest.RequestInfo.Request.IssueTypeId;
             var filterBy = firstRequest.RequestInfo.EventByMatch.FilterBy;
             var voidDataXml = Helper.IsLikelyAbnormalBet(issueTypeId) ? new VoidDataXmlModel()
@@ -104,14 +103,14 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                 }
 
                 await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(serviceInfo.RequestId, serviceInfo.VoidingHistory, ExecuteStatus.WinServiceDone);
-                results.Insert(0, new Result { ErrorCode = ErrorCode.VoidRequestSuccess, ErrorMsg = GetMessageVoidRequestSuccess(serviceInfo.RequestId, matchId) });
+                results.Insert(0, new Result { ErrorCode = ErrorCode.VoidRequestSuccess, ErrorMsg = GetMessageVoidRequestSuccess(serviceInfo.RequestId, firstRequest.MatchId) });
 
                 await notificationService.NotifyCompletedRequests(serviceInfo.RequestId, serviceInfo.VoidingHistory);
                 handleAfterVoidStepService.WriteLogAfterVoid(results, serviceInfo);
             }
         }
 
-        private string GetMessageVoidRequestSuccess(int requestId, int matchId)
+        private static string GetMessageVoidRequestSuccess(int requestId, int matchId)
         {
             if (matchId > 0)
             {

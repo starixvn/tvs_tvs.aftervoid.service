@@ -108,7 +108,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             };
         }
 
-        private void ReplaceMessageTemplate(TemplateModel model, Match match, bool isHasSettledTicket, int issueTypeId, int? filterBy)
+        private static void ReplaceMessageTemplate(TemplateModel model, Match match, bool isHasSettledTicket, int issueTypeId, int? filterBy)
         {
             model.MsgEnglish = model.MsgEnglish.Replace("{{Sport type}}", match?.SportTypeName);
             model.MsgChineseTraditional = model.MsgChineseTraditional.Replace("{{Sport type}}", match?.SportTypeNameTraditional);
@@ -287,14 +287,9 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             await repository.ExecuteAsync(command);
         }
 
-        private IEnumerable<TicketEmailModel> ExcludeCN88Tickets(IEnumerable<TicketEmailModel> tickets, bool isAbnormalBet)
+        private static IEnumerable<TicketEmailModel> ExcludeCN88Tickets(IEnumerable<TicketEmailModel> tickets, bool isAbnormalBet)
         {
-            if (isAbnormalBet)
-            {
-                return tickets.Where(x => !x.Site.ToLowerInvariant().Equals("cn88"));
-            }
-
-            return tickets;
+            return isAbnormalBet ? tickets.Where(x => !x.Site.ToLowerInvariant().Equals("cn88")) : tickets;
         }
 
         public IEnumerable<ReceivedUser> GetListSendMessageDb<T>(IEnumerable<T> tickets) where T : SendMessageDbModel
