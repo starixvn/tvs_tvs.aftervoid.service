@@ -40,74 +40,89 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                 return;
             }
 
-            foreach (var serviceInfo in automationInfoList)
+            foreach (var automationInfo in automationInfoList)
             {
-                var results = new List<Result>();
-                var voidedTickets = await voidBetAutomationService.GetVoidedTicketsForSendEmail(serviceInfo.VoidingHistory);
-
-                if (serviceInfo.StatusId == ExecuteStatus.WinServiceDone)
-                {
-                    continue;
-                }
-
-                var voidedReason = await handleAfterVoidStepService.CreateVoidedReason(serviceInfo, matchInfo?.SportType ?? 0, null);
-                if (voidedReason == null || voidedReason.ReasonId == 0)
-                {
-                    continue;
-                }
-
-                var isSentBatchMessage = await handleAfterVoidStepService.SendBatchMessage(serviceInfo, voidedTickets, message.MessageId, null);
-                if (!isSentBatchMessage)
-                {
-                    continue;
-                }
-
-                if (!Helper.IsLikelyAbnormalBet(issueTypeId))
-                {
-                    var isSentMessageToAdminSite = await handleAfterVoidStepService.SendMessageToAdminSite(serviceInfo, message);
-                    if (!isSentMessageToAdminSite)
-                    {
-                        continue;
-                    }
-                }
-
-                var isInsertedVoidedTransaction = await handleAfterVoidStepService.InsertVoidedTransaction(serviceInfo, voidedTickets, message.MessageId, voidedReason.ReasonId);
-                if (!isInsertedVoidedTransaction)
-                {
-                    continue;
-                }
-
-                var isUpdatedVoidingHistory = await handleAfterVoidStepService.UpdateTicketVoidingHistory(serviceInfo, message.MessageId, voidedReason.ReasonId);
-                if (!isUpdatedVoidingHistory)
-                {
-                    continue;
-                }
-
-                var (isSentEmail, sentEmailResults) = await handleAfterVoidStepService.SendEmail(serviceInfo, voidedTickets, matchInfo, voidedReason, message);
-                results.AddRange(sentEmailResults);
-                if (!isSentEmail)
-                {
-                    continue;
-                }
-                await handleAfterVoidStepService.UpdateEmailResult(serviceInfo, sentEmailResults);
-
-                if (!Helper.IsLikelyAbnormalBet(issueTypeId))
-                {
-                    var (isSentLetstalk, sentLetstalkResults) = await handleAfterVoidStepService.SendLetstalk(serviceInfo, voidedTickets, matchInfo, voidDataXml);
-                    results.AddRange(sentLetstalkResults);
-                    if (!isSentLetstalk)
-                    {
-                        notificationService.NotifyException(voidDataXml.CreatorName);
-                        continue;
-                    }
-                }
-
-                await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(serviceInfo.RequestId, serviceInfo.VoidingHistory, ExecuteStatus.WinServiceDone);
-                results.Insert(0, new Result { ErrorCode = ErrorCode.VoidRequestSuccess, ErrorMsg = GetMessageVoidRequestSuccess(serviceInfo.RequestId, firstRequest.MatchId) });
-
-                await notificationService.NotifyCompletedRequests(serviceInfo.RequestId, serviceInfo.VoidingHistory);
-                handleAfterVoidStepService.WriteLogAfterVoid(results, serviceInfo);
+                await RunRequestOneByOne(automationInfo, firstRequest.MatchId, matchInfo, message, voidDataXml);
             }
+        }
+
+        public async Task RunRequestOneByOne(VoidBetAutomationInfo automationInfo, int matchId, Match matchInfo, Message message, VoidDataXmlModel voidDataXml)
+        {
+            if (automationInfo.StatusId == ExecuteStatus.WinServiceDone)
+            {
+                return;
+            }
+
+            var voidedReason = await handleAfterVoidStepService.CreateVoidedReason(automationInfo, GetSportTypeId(matchInfo), null);
+            if (IsNotHaveVoidedReason(voidedReason))
+            {
+                return;
+            }
+
+            var voidedTickets = await voidBetAutomationService.GetVoidedTicketsForSendEmail(automationInfo.VoidingHistory);
+            var isSentBatchMessage = await handleAfterVoidStepService.SendBatchMessage(automationInfo, voidedTickets, message.MessageId, null);
+            if (!isSentBatchMessage)
+            {
+                return;
+            }
+
+            if (!Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
+            {
+                var isSentMessageToAdminSite = await handleAfterVoidStepService.SendMessageToAdminSite(automationInfo, message);
+                if (!isSentMessageToAdminSite)
+                {
+                    return;
+                }
+            }
+
+            var isInsertedVoidedTransaction = await handleAfterVoidStepService.InsertVoidedTransaction(automationInfo, voidedTickets, message.MessageId, voidedReason.ReasonId);
+            if (!isInsertedVoidedTransaction)
+            {
+                return;
+            }
+
+            var isUpdatedVoidingHistory = await handleAfterVoidStepService.UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId);
+            if (!isUpdatedVoidingHistory)
+            {
+                return;
+            }
+
+            var (isSentEmail, sentEmailResults) = await handleAfterVoidStepService.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
+            if (!isSentEmail)
+            {
+                return;
+            }
+            var results = new List<Result>();
+            results.AddRange(sentEmailResults);
+            await handleAfterVoidStepService.UpdateEmailResult(automationInfo, sentEmailResults);
+
+            if (!Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
+            {
+                var (isSentLetstalk, sentLetstalkResults) = await handleAfterVoidStepService.SendLetstalk(automationInfo, voidedTickets, matchInfo, voidDataXml);
+                results.AddRange(sentLetstalkResults);
+                if (!isSentLetstalk)
+                {
+                    notificationService.NotifyException(voidDataXml.CreatorName);
+                    return;
+                }
+            }
+
+            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.WinServiceDone);
+
+            results.Insert(0, new Result { ErrorCode = ErrorCode.VoidRequestSuccess, ErrorMsg = GetMessageVoidRequestSuccess(automationInfo.RequestId, matchId) });
+
+            await notificationService.NotifyCompletedRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
+            handleAfterVoidStepService.WriteLogAfterVoid(results, automationInfo);
+        }
+
+        private static bool IsNotHaveVoidedReason(VoidedReason voidedReason)
+        {
+            return voidedReason == null || voidedReason.ReasonId == 0;
+        }
+
+        private static int GetSportTypeId(Match matchInfo)
+        {
+            return matchInfo?.SportType ?? 0;
         }
 
         private static string GetMessageVoidRequestSuccess(int requestId, int matchId)
