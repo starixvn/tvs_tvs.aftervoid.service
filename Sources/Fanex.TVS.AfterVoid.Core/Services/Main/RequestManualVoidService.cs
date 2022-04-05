@@ -4,7 +4,7 @@ using Fanex.TVS.AfterVoid.Core.Constants;
 using Fanex.TVS.AfterVoid.Core.Models;
 using Fanex.TVS.AfterVoid.Core.Utilities;
 
-namespace Fanex.TVS.AfterVoid.Core.Services
+namespace Fanex.TVS.AfterVoid.Core.Services.Main
 {
     public interface RequestManualVoidService
     {
@@ -17,7 +17,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         private readonly HandleAfterVoidStepService handleAfterVoidStepService;
         private readonly NotificationSignalRService notificationSignalRService;
 
-        public RequestManualVoidServiceImp(VoidBetAutomationService voidBetAutomationService, HandleAfterVoidStepService handleAfterVoidStepService, NotificationSignalRService notificationSignalRService)
+        public RequestManualVoidServiceImp(VoidBetAutomationService voidBetAutomationService, HandleAfterVoidStepService handleAfterVoidStepService,
+            NotificationSignalRService notificationSignalRService)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.handleAfterVoidStepService = handleAfterVoidStepService;

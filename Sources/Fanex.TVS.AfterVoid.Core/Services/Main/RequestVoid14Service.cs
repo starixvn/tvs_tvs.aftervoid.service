@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Core.Constants;
 using Fanex.TVS.AfterVoid.Core.Models;
 
-namespace Fanex.TVS.AfterVoid.Core.Services
+namespace Fanex.TVS.AfterVoid.Core.Services.Main
 {
     public interface RequestVoid14Service
     {

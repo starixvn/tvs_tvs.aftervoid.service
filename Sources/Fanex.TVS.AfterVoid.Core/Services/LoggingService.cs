@@ -11,6 +11,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
         void Error(Exception exception);
 
+        void Error(string message);
+
         void Info(string message);
     }
 
@@ -25,6 +27,11 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         public void Error(Exception exception)
         {
             HandleException(exception);
+        }
+
+        public void Error(string message)
+        {
+            LogService.Error(message);
         }
 
         public void Info(string message)

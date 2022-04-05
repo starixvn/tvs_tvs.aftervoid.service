@@ -24,6 +24,7 @@ namespace Fanex.TVS.AfterVoid.Service
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.RegisterFanexData(Configuration);
             services.RegisterSentry(Configuration);
+            services.RegisterFanexCaching();
             services.RegisterInternalServices();
             services.StartScheduler().Wait();
         }

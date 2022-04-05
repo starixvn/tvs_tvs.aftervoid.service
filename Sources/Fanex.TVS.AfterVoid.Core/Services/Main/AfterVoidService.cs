@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Core.Models;
 using Fanex.TVS.AfterVoid.Core.Utilities;
 
-namespace Fanex.TVS.AfterVoid.Core.Services
+namespace Fanex.TVS.AfterVoid.Core.Services.Main
 {
     public interface AfterVoidService
     {
@@ -19,26 +19,29 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         private readonly RequestManualVoidService requestManualVoidService;
         private readonly RequestVoid14Service requestVoid14Service;
         private readonly LoggingService loggingService;
+        private readonly NotificationSignalRService notificationSignalRService;
 
         public AfterVoidServiceImp(VoidBetAutomationService voidBetAutomationService,
             RequestAutoVoidService requestAutoVoidService,
             RequestManualVoidService requestManualVoidService,
             RequestVoid14Service requestVoid14Service,
-            LoggingService loggingService)
+            LoggingService loggingService,
+            NotificationSignalRService notificationSignalRService)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.requestAutoVoidService = requestAutoVoidService;
             this.requestManualVoidService = requestManualVoidService;
             this.requestVoid14Service = requestVoid14Service;
             this.loggingService = loggingService;
+            this.notificationSignalRService = notificationSignalRService;
         }
 
         public async Task Execute()
         {
             var automationStatistic = await voidBetAutomationService.GetVoidBetAutomationStatistic();
 
-            NotifyRunningRequests(automationStatistic.RequestsWillUpdateStatus);
-            await NotifyFailedRequests(automationStatistic.RequestsWillUpdateStatus);
+            await notificationSignalRService.UpdateRunningStatusForRequests(automationStatistic.RequestsWillUpdateStatus);
+            await notificationSignalRService.UpdateFailedStatusForRequests(automationStatistic.RequestsWillUpdateStatus);
 
             if (automationStatistic.RequestsWillRunAfterVoid == null || !automationStatistic.RequestsWillRunAfterVoid.Any())
             {
@@ -68,16 +71,6 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             }
 
             loggingService.Info($"End - Session: {firstRequest.SessionId} - Total Request: {automationStatistic.RequestsWillRunAfterVoid.Count()} - " + DateTime.Now);
-        }
-
-        private void NotifyRunningRequests(IEnumerable<VoidBetAutomationInfo> requestsWillUpdateStatus)
-        {
-            // TODO
-        }
-
-        private async Task NotifyFailedRequests(IEnumerable<VoidBetAutomationInfo> requestsWillUpdateStatus)
-        {
-            // TODO
         }
     }
 }

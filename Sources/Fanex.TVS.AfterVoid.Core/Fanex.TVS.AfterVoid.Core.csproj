@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="Extend.Extension.TN" Version="1.0.0.1" />
     <PackageReference Include="Fanex.BetList.Core" Version="2.111.4" />
+    <PackageReference Include="Fanex.Caching.AspNetCore" Version="2.2.3-beta2" />
     <PackageReference Include="Fanex.Common" Version="1.1.0.1" />
     <PackageReference Include="Fanex.Data.Repository" Version="4.2.2" />
     <PackageReference Include="Fanex.LetstalkService.Client" Version="1.0.0.15" />

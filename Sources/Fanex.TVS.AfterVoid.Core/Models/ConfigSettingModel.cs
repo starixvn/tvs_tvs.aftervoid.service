@@ -18,6 +18,13 @@ namespace Fanex.TVS.AfterVoid.Core.Models
 
         public bool IsPRODEnvironment { get; set; }
 
+        public string TicketVoidingSystemUrl { get; set; }
+
+        public string RedisServer { get; set; }
+        public string RedisPort { get; set; }
+        public string RedisPassword { get; set; }
+        public string RedisAppName { get; set; }
+
         public UMClientConfiguration UMConfig { get; set; }
     }
 }
