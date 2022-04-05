@@ -42,17 +42,17 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
             foreach (var automationInfo in automationInfoList)
             {
-                await RunRequestOneByOne(automationInfo, firstRequest.MatchId, matchInfo, message, voidDataXml);
+                if (automationInfo.StatusId == ExecuteStatus.WinServiceDone)
+                {
+                    continue;
+                }
+
+                await RunMainSteps(automationInfo, firstRequest.MatchId, matchInfo, message, voidDataXml);
             }
         }
 
-        public async Task RunRequestOneByOne(VoidBetAutomationInfo automationInfo, int matchId, Match matchInfo, Message message, VoidDataXmlModel voidDataXml)
+        private async Task RunMainSteps(VoidBetAutomationInfo automationInfo, int matchId, Match matchInfo, Message message, VoidDataXmlModel voidDataXml)
         {
-            if (automationInfo.StatusId == ExecuteStatus.WinServiceDone)
-            {
-                return;
-            }
-
             var voidedReason = await handleAfterVoidStepService.CreateVoidedReason(automationInfo, GetSportTypeId(matchInfo), null);
             if (IsNotHaveVoidedReason(voidedReason))
             {
@@ -92,26 +92,24 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             {
                 return;
             }
-            var results = new List<Result>();
-            results.AddRange(sentEmailResults);
+
             await handleAfterVoidStepService.UpdateEmailResult(automationInfo, sentEmailResults);
 
+            IEnumerable<Result> sentLetstalkResults = null;
             if (!Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
             {
-                var (isSentLetstalk, sentLetstalkResults) = await handleAfterVoidStepService.SendLetstalk(automationInfo, voidedTickets, matchInfo, voidDataXml);
-                results.AddRange(sentLetstalkResults);
+                bool isSentLetstalk;
+                (isSentLetstalk, sentLetstalkResults) = await handleAfterVoidStepService.SendLetstalk(automationInfo, voidedTickets, matchInfo, voidDataXml);
                 if (!isSentLetstalk)
                 {
-                    notificationService.NotifyException(voidDataXml.CreatorName);
                     return;
                 }
             }
 
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.WinServiceDone);
 
-            results.Insert(0, new Result { ErrorCode = ErrorCode.VoidRequestSuccess, ErrorMsg = GetMessageVoidRequestSuccess(automationInfo.RequestId, matchId) });
-
             await notificationService.NotifyCompletedRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
+            var results = handleAfterVoidStepService.CreateResultList(sentEmailResults, sentLetstalkResults, null, automationInfo.RequestId, matchId);
             handleAfterVoidStepService.WriteLogAfterVoid(results, automationInfo);
         }
 
@@ -123,16 +121,6 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         private static int GetSportTypeId(Match matchInfo)
         {
             return matchInfo?.SportType ?? 0;
-        }
-
-        private static string GetMessageVoidRequestSuccess(int requestId, int matchId)
-        {
-            if (matchId > 0)
-            {
-                return $"Request ID: {requestId} Match ID: {matchId} voided successfully!";
-            }
-
-            return $"Request ID: {requestId} voided successfully!";
         }
     }
 }

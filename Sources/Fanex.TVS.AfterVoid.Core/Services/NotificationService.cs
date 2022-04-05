@@ -14,6 +14,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         void NotifyException(string userName);
 
         Task NotifyCompletedRequests(int requestId, int voidingHistoryId);
+
+        void NotifyVoidResult(IEnumerable<Result> results, string userName);
     }
 
     public class NotificationServiceImp : NotificationService
@@ -34,6 +36,11 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         }
 
         public Task NotifyCompletedRequests(int requestId, int voidingHistoryId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void NotifyVoidResult(IEnumerable<Result> results, string userName)
         {
             throw new NotImplementedException();
         }

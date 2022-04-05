@@ -18,6 +18,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
         Task<bool> RunExternalService(VoidBetAutomationInfo automationInfo);
 
+        Task<Message> CreateMessageIdForManualVoid(VoidBetAutomationInfo automationInfo, VoidDataXmlModel voidData);
+
         Task<VoidedReason> CreateVoidedReason(VoidBetAutomationInfo automationInfo, int sportType,
             VoidDataXmlModel voidData);
 
@@ -40,6 +42,9 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             IEnumerable<TicketEmailModel> emailTickets, Match matchInfo, VoidDataXmlModel voidData);
 
         void WriteLogAfterVoid(IEnumerable<Result> results, VoidBetAutomationInfo automationInfo);
+
+        IEnumerable<Result> CreateResultList(IEnumerable<Result> sentEmailResults,
+            IEnumerable<Result> sentLetstalkResults, string negativeBalanceUsers, int requestId, int matchId);
     }
 
     public class HandleAfterVoidStepServiceImp : HandleAfterVoidStepService
@@ -118,6 +123,38 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                 notificationService.NotifyFailedRequest(automationInfo.RequestId);
 
                 return false;
+            }
+        }
+
+        public async Task<Message> CreateMessageIdForManualVoid(VoidBetAutomationInfo automationInfo, VoidDataXmlModel voidData)
+        {
+            try
+            {
+                Message message;
+                if (automationInfo.MessageId != null)
+                {
+                    message = await sendMessageService.GetMessage(automationInfo.MessageId.Value);
+                }
+                else
+                {
+                    var matchInfo = automationInfo.MatchId > 0 ? await voidBetAutomationService.GetMatchInfo(automationInfo.MatchId) : null;
+
+                    message = sendMessageService.InitializeMessageContentForManualVoid(voidData);
+                    message.MessageId = await sendMessageService.InsertMessage(message, automationInfo.MatchId, matchInfo?.LeagueGroupId, automationInfo.RequestInfo.Request.IssueTypeId);
+                    await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistory, new VoidBetAutomationInfo { MessageId = message.MessageId });
+                }
+
+                return message;
+            }
+            catch (Exception exception)
+            {
+                loggingService.Error(
+                    $"ERROR: {nameof(CreateMessageIdForManualVoid)} - SessionId: {automationInfo.SessionId} - VDHistoryId: {automationInfo.VoidingHistory} - RequestId: {automationInfo.RequestId}",
+                    exception);
+                await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.WinServiceFailed);
+                notificationService.NotifyFailedRequest(automationInfo.RequestId);
+
+                return null;
             }
         }
 
@@ -346,6 +383,30 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             }
 
             loggingService.Info(logBuilder.ToString());
+        }
+
+        public IEnumerable<Result> CreateResultList(IEnumerable<Result> sentEmailResults, IEnumerable<Result> sentLetstalkResults, string negativeBalanceUsers, int requestId, int matchId)
+        {
+            var results = new List<Result>();
+            results.AddRange(sentEmailResults);
+            results.AddRange(sentLetstalkResults ?? new List<Result>());
+            if (!string.IsNullOrEmpty(negativeBalanceUsers))
+            {
+                results.Add(new Result { ErrorCode = ErrorCode.NegativeBalanceUsers, ErrorMsg = negativeBalanceUsers });
+            }
+            results.Insert(0, new Result { ErrorCode = ErrorCode.VoidRequestSuccess, ErrorMsg = GetMessageVoidRequestSuccess(requestId, matchId) });
+
+            return results;
+        }
+
+        private static string GetMessageVoidRequestSuccess(int requestId, int matchId)
+        {
+            if (matchId > 0)
+            {
+                return $"Request ID: {requestId} Match ID: {matchId} voided successfully!";
+            }
+
+            return $"Request ID: {requestId} voided successfully!";
         }
     }
 }
