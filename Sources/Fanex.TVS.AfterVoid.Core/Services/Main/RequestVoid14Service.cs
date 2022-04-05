@@ -44,29 +44,29 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
             var voidedReason = await handleAfterVoidStepService.CreateVoidedReason(automationInfo, 0, voidDataXml);
             if (voidedReason == null || voidedReason.ReasonId == 0)
             {
-                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
+                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                 return;
             }
 
             var isInsertedVoidedTransaction = await handleAfterVoidStepService.InsertVoidedTransaction(automationInfo, voidedTickets, 0, voidedReason.ReasonId);
             if (!isInsertedVoidedTransaction)
             {
-                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
+                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                 return;
             }
 
             var isUpdatedVoidingHistory = await handleAfterVoidStepService.UpdateTicketVoidingHistory(automationInfo, 0, voidedReason.ReasonId);
             if (!isUpdatedVoidingHistory)
             {
-                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
+                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                 return;
             }
 
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.WinServiceDone);
 
-            await notificationSignalRService.NotifyCompletedRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
+            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
             var results = handleAfterVoidStepService.CreateResultList(null, null, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, 0);
-            notificationSignalRService.NotifyVoidResult(results, voidDataXml.CreatorName);
+            await notificationSignalRService.NotifyVoidResultToUser(voidDataXml.CreatorName, results);
             handleAfterVoidStepService.WriteLogAfterVoid(results, automationInfo);
         }
     }

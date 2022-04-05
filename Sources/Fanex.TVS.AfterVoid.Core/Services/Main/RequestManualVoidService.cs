@@ -46,21 +46,21 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
             var messageContent = await handleAfterVoidStepService.CreateMessageIdForManualVoid(automationInfo, voidDataXml);
             if (IsNotHaveMessage(messageContent))
             {
-                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
+                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                 return;
             }
 
             var voidedReason = await handleAfterVoidStepService.CreateVoidedReason(automationInfo, 0, voidDataXml);
             if (IsNotHaveVoidedReason(voidedReason))
             {
-                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
+                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                 return;
             }
 
             var isSentBatchMessage = await handleAfterVoidStepService.SendBatchMessage(automationInfo, voidedTickets, messageContent.MessageId, voidDataXml);
             if (!isSentBatchMessage)
             {
-                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
+                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                 return;
             }
 
@@ -69,7 +69,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
                 var isSentMessageToAdminSite = await handleAfterVoidStepService.SendMessageToAdminSite(automationInfo, messageContent);
                 if (!isSentMessageToAdminSite)
                 {
-                    notificationSignalRService.NotifyException(voidDataXml.CreatorName);
+                    await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                     return;
                 }
             }
@@ -77,14 +77,14 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
             var isInsertedVoidedTransaction = await handleAfterVoidStepService.InsertVoidedTransaction(automationInfo, voidedTickets, messageContent.MessageId, voidedReason.ReasonId);
             if (!isInsertedVoidedTransaction)
             {
-                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
+                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                 return;
             }
 
             var isUpdatedVoidingHistory = await handleAfterVoidStepService.UpdateTicketVoidingHistory(automationInfo, messageContent.MessageId, voidedReason.ReasonId);
             if (!isUpdatedVoidingHistory)
             {
-                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
+                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                 return;
             }
 
@@ -92,7 +92,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
             var (isSentEmail, sentEmailResults) = await handleAfterVoidStepService.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, messageContent);
             if (!isSentEmail)
             {
-                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
+                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                 return;
             }
             await handleAfterVoidStepService.UpdateEmailResult(automationInfo, sentEmailResults);
@@ -100,15 +100,15 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
             var (isSentLetstalk, sentLetstalkResults) = await handleAfterVoidStepService.SendLetstalk(automationInfo, voidedTickets, matchInfo, voidDataXml);
             if (!isSentLetstalk)
             {
-                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
+                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                 return;
             }
 
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.WinServiceDone);
 
-            await notificationSignalRService.NotifyCompletedRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
+            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
             var results = handleAfterVoidStepService.CreateResultList(sentEmailResults, sentLetstalkResults, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, automationInfo.MatchId);
-            notificationSignalRService.NotifyVoidResult(results, voidDataXml.CreatorName);
+            await notificationSignalRService.NotifyVoidResultToUser(voidDataXml.CreatorName, results);
             handleAfterVoidStepService.WriteLogAfterVoid(results, automationInfo);
         }
 

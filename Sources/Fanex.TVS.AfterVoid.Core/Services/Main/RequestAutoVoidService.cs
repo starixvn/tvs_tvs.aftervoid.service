@@ -109,7 +109,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
 
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.WinServiceDone);
 
-            await notificationSignalRService.NotifyCompletedRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
+            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
             var results = handleAfterVoidStepService.CreateResultList(sentEmailResults, sentLetstalkResults, null, automationInfo.RequestId, matchId);
             handleAfterVoidStepService.WriteLogAfterVoid(results, automationInfo);
         }

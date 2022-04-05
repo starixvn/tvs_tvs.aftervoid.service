@@ -14,6 +14,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         Task SignalRUpdateRequestStatusToAllUsers(IEnumerable<RequestStatus> status);
 
         Task SignalRNotifyErrorMessageToUser(string userName, string message);
+
+        Task SignalRNotifyVoidResultToUser(string userName, IEnumerable<Result> results);
     }
 
     public class TicketVoidingSystemApiImp : TicketVoidingSystemApi
@@ -56,6 +58,19 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         {
             const string actionName = "SignalRApi/NotifyErrorMessageToUser";
             var response = await httpClient.PostAsJsonAsync(actionName, new { userName, message });
+            if (response.IsSuccessStatusCode)
+            {
+                return;
+            }
+
+            loggingService.Error($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
+                                 $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
+        }
+
+        public async Task SignalRNotifyVoidResultToUser(string userName, IEnumerable<Result> results)
+        {
+            const string actionName = "SignalRApi/NotifyVoidResultToUser";
+            var response = await httpClient.PostAsJsonAsync(actionName, new { userName, results });
             if (response.IsSuccessStatusCode)
             {
                 return;

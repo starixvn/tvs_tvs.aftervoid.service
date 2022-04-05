@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Fanex.Caching;
 using Fanex.TVS.AfterVoid.Core.Constants;
 using Fanex.TVS.AfterVoid.Core.Models;
+using Fanex.TVS.AfterVoid.Core.Resources;
 
 namespace Fanex.TVS.AfterVoid.Core.Services
 {
@@ -16,11 +17,11 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
         Task UpdateFailedStatusForRequest(int requestId);
 
-        void NotifyException(string userName);
+        Task UpdateCompletedStatusForRequests(int requestId, int voidingHistoryId);
 
-        Task NotifyCompletedRequests(int requestId, int voidingHistoryId);
+        Task NotifyVoidResultToUser(string userName, IEnumerable<Result> results);
 
-        void NotifyVoidResult(IEnumerable<Result> results, string userName);
+        Task NotifyErrorWhenExecuteAfterVoidServiceToUser(string userName);
     }
 
     public class NotificationSignalRServiceImp : NotificationSignalRService
@@ -49,9 +50,10 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             }
         }
 
-        public Task UpdateFailedStatusForRequest(int requestId)
+        public async Task UpdateFailedStatusForRequest(int requestId)
         {
-            throw new NotImplementedException();
+            var failedRequests = new List<RequestStatus> { new() { RequestId = requestId, Status = RequestStatusConstant.Failed } };
+            await ticketVoidingSystemApi.SignalRUpdateRequestStatusToAllUsers(failedRequests);
         }
 
         public async Task UpdateFailedStatusForRequests(IEnumerable<VoidBetAutomationInfo> requestsWillUpdateStatus)
@@ -64,6 +66,13 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                 await ticketVoidingSystemApi.SignalRUpdateRequestStatusToAllUsers(requestStatusList);
                 await NotifyVoidFailedMessage(failedRequests);
             }
+        }
+
+        public async Task UpdateCompletedStatusForRequests(int requestId, int voidingHistoryId)
+        {
+            var requestInfo = await voidBetAutomationService.GetRequestSimpleInfo(requestId, voidingHistoryId);
+            var completedRequests = new List<RequestStatus> { new() { RequestId = requestId, Status = RequestStatusConstant.Completed, SimpleInfo = requestInfo } };
+            await ticketVoidingSystemApi.SignalRUpdateRequestStatusToAllUsers(completedRequests);
         }
 
         private async Task NotifyVoidFailedMessage(IEnumerable<VoidBetAutomationInfo> failedRequests)
@@ -99,29 +108,27 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             }
         }
 
-        private string GetMessageVoidRequestFailed(int requestId, int matchId)
+        private static string GetMessageVoidRequestFailed(int requestId, int matchId)
         {
-            if (matchId > 0)
+            return matchId > 0 ? $"Failed to void Request ID: {requestId} Match ID: {matchId}" : $"Failed to void Request ID: {requestId}";
+        }
+
+        public async Task NotifyVoidResultToUser(string userName, IEnumerable<Result> results)
+        {
+            await ticketVoidingSystemApi.SignalRNotifyVoidResultToUser(userName, results);
+        }
+
+        public async Task NotifyErrorWhenExecuteAfterVoidServiceToUser(string userName)
+        {
+            var results = new List<Result>
             {
-                return $"Failed to void Request ID: {requestId} Match ID: {matchId}";
-            }
-
-            return $"Failed to void Request ID: {requestId}";
-        }
-
-        public void NotifyException(string userName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task NotifyCompletedRequests(int requestId, int voidingHistoryId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void NotifyVoidResult(IEnumerable<Result> results, string userName)
-        {
-            throw new NotImplementedException();
+                new()
+                {
+                    ErrorCode = ErrorCode.ExceptionWhenRunAfterVoid,
+                    ErrorMsg = Messages.ExceptionWhenRunAfterVoid
+                }
+            };
+            await NotifyVoidResultToUser(userName, results);
         }
     }
 }
