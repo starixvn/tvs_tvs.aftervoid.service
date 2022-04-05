@@ -5,7 +5,7 @@ using Fanex.TVS.AfterVoid.Core.Models;
 
 namespace Fanex.TVS.AfterVoid.Core.Services
 {
-    public interface NotificationService
+    public interface NotificationSignalRService
     {
         void NotifyFailedRequest(int requestId);
 
@@ -18,7 +18,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         void NotifyVoidResult(IEnumerable<Result> results, string userName);
     }
 
-    public class NotificationServiceImp : NotificationService
+    public class NotificationSignalRServiceImp : NotificationSignalRService
     {
         public void NotifyFailedRequest(int requestId)
         {

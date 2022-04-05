@@ -15,13 +15,13 @@ namespace Fanex.TVS.AfterVoid.Core.Services
     {
         private readonly VoidBetAutomationService voidBetAutomationService;
         private readonly HandleAfterVoidStepService handleAfterVoidStepService;
-        private readonly NotificationService notificationService;
+        private readonly NotificationSignalRService notificationSignalRService;
 
-        public RequestManualVoidServiceImp(VoidBetAutomationService voidBetAutomationService, HandleAfterVoidStepService handleAfterVoidStepService, NotificationService notificationService)
+        public RequestManualVoidServiceImp(VoidBetAutomationService voidBetAutomationService, HandleAfterVoidStepService handleAfterVoidStepService, NotificationSignalRService notificationSignalRService)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.handleAfterVoidStepService = handleAfterVoidStepService;
-            this.notificationService = notificationService;
+            this.notificationSignalRService = notificationSignalRService;
         }
 
         public async Task Execute(IEnumerable<VoidBetAutomationInfo> automationInfoList)
@@ -45,21 +45,21 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             var messageContent = await handleAfterVoidStepService.CreateMessageIdForManualVoid(automationInfo, voidDataXml);
             if (IsNotHaveMessage(messageContent))
             {
-                notificationService.NotifyException(voidDataXml.CreatorName);
+                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
                 return;
             }
 
             var voidedReason = await handleAfterVoidStepService.CreateVoidedReason(automationInfo, 0, voidDataXml);
             if (IsNotHaveVoidedReason(voidedReason))
             {
-                notificationService.NotifyException(voidDataXml.CreatorName);
+                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
                 return;
             }
 
             var isSentBatchMessage = await handleAfterVoidStepService.SendBatchMessage(automationInfo, voidedTickets, messageContent.MessageId, voidDataXml);
             if (!isSentBatchMessage)
             {
-                notificationService.NotifyException(voidDataXml.CreatorName);
+                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
                 return;
             }
 
@@ -68,7 +68,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                 var isSentMessageToAdminSite = await handleAfterVoidStepService.SendMessageToAdminSite(automationInfo, messageContent);
                 if (!isSentMessageToAdminSite)
                 {
-                    notificationService.NotifyException(voidDataXml.CreatorName);
+                    notificationSignalRService.NotifyException(voidDataXml.CreatorName);
                     return;
                 }
             }
@@ -76,14 +76,14 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             var isInsertedVoidedTransaction = await handleAfterVoidStepService.InsertVoidedTransaction(automationInfo, voidedTickets, messageContent.MessageId, voidedReason.ReasonId);
             if (!isInsertedVoidedTransaction)
             {
-                notificationService.NotifyException(voidDataXml.CreatorName);
+                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
                 return;
             }
 
             var isUpdatedVoidingHistory = await handleAfterVoidStepService.UpdateTicketVoidingHistory(automationInfo, messageContent.MessageId, voidedReason.ReasonId);
             if (!isUpdatedVoidingHistory)
             {
-                notificationService.NotifyException(voidDataXml.CreatorName);
+                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
                 return;
             }
 
@@ -91,7 +91,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             var (isSentEmail, sentEmailResults) = await handleAfterVoidStepService.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, messageContent);
             if (!isSentEmail)
             {
-                notificationService.NotifyException(voidDataXml.CreatorName);
+                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
                 return;
             }
             await handleAfterVoidStepService.UpdateEmailResult(automationInfo, sentEmailResults);
@@ -99,15 +99,15 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             var (isSentLetstalk, sentLetstalkResults) = await handleAfterVoidStepService.SendLetstalk(automationInfo, voidedTickets, matchInfo, voidDataXml);
             if (!isSentLetstalk)
             {
-                notificationService.NotifyException(voidDataXml.CreatorName);
+                notificationSignalRService.NotifyException(voidDataXml.CreatorName);
                 return;
             }
 
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.WinServiceDone);
 
-            await notificationService.NotifyCompletedRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
+            await notificationSignalRService.NotifyCompletedRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
             var results = handleAfterVoidStepService.CreateResultList(sentEmailResults, sentLetstalkResults, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, automationInfo.MatchId);
-            notificationService.NotifyVoidResult(results, voidDataXml.CreatorName);
+            notificationSignalRService.NotifyVoidResult(results, voidDataXml.CreatorName);
             handleAfterVoidStepService.WriteLogAfterVoid(results, automationInfo);
         }
 

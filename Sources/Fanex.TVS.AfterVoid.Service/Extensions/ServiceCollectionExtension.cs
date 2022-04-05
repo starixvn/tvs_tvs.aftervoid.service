@@ -76,7 +76,7 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
             services.AddSingleton<HandleAfterVoidStepService, HandleAfterVoidStepServiceImp>();
             services.AddSingleton<MessageItemService, MessageItemServiceImp>();
             services.AddSingleton<NotificationLetstalkService, NotificationLetstalkServiceImp>();
-            services.AddSingleton<NotificationService, NotificationServiceImp>();
+            services.AddSingleton<NotificationSignalRService, NotificationSignalRServiceImp>();
             services.AddSingleton<SendMessageService, SendMessageServiceImp>();
             services.AddSingleton<SendEmailService, SendEmailServiceImp>();
             services.AddSingleton<LetstalkClientService, LetstalkClientServiceImp>();

@@ -16,13 +16,13 @@ namespace Fanex.TVS.AfterVoid.Core.Services
     {
         private readonly VoidBetAutomationService voidBetAutomationService;
         private readonly HandleAfterVoidStepService handleAfterVoidStepService;
-        private readonly NotificationService notificationService;
+        private readonly NotificationSignalRService notificationSignalRService;
 
-        public RequestAutoVoidServiceImp(VoidBetAutomationService voidBetAutomationService, HandleAfterVoidStepService handleAfterVoidStepService, NotificationService notificationService)
+        public RequestAutoVoidServiceImp(VoidBetAutomationService voidBetAutomationService, HandleAfterVoidStepService handleAfterVoidStepService, NotificationSignalRService notificationSignalRService)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.handleAfterVoidStepService = handleAfterVoidStepService;
-            this.notificationService = notificationService;
+            this.notificationSignalRService = notificationSignalRService;
         }
 
         public async Task Execute(IEnumerable<VoidBetAutomationInfo> automationInfoList)
@@ -108,7 +108,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.WinServiceDone);
 
-            await notificationService.NotifyCompletedRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
+            await notificationSignalRService.NotifyCompletedRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
             var results = handleAfterVoidStepService.CreateResultList(sentEmailResults, sentLetstalkResults, null, automationInfo.RequestId, matchId);
             handleAfterVoidStepService.WriteLogAfterVoid(results, automationInfo);
         }
