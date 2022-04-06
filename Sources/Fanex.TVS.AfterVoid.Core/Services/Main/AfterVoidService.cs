@@ -48,10 +48,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
                 return;
             }
 
-            foreach (var request in automationStatistic.RequestsWillRunAfterVoid)
-            {
-                request.RequestInfo = await voidBetAutomationService.GetRequestById(request.RequestId, request.MatchId);
-            }
+            await UpdateRequestInfo(automationStatistic.RequestsWillRunAfterVoid);
 
             var firstRequest = automationStatistic.RequestsWillRunAfterVoid.FirstOrDefault();
             if (firstRequest.IsAutoVoid)
@@ -60,17 +57,30 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
             }
             else
             {
-                if (Helper.IsArchivedTicket(firstRequest.RequestInfo.Request.IssueTypeId))
-                {
-                    await requestVoid14Service.Execute(automationStatistic.RequestsWillRunAfterVoid);
-                }
-                else
-                {
-                    await requestManualVoidService.Execute(automationStatistic.RequestsWillRunAfterVoid);
-                }
+                await ExecuteForManualVoid(firstRequest.RequestInfo.Request.IssueTypeId, automationStatistic.RequestsWillRunAfterVoid);
             }
 
             loggingService.Info($"End - Session: {firstRequest.SessionId} - Total Request: {automationStatistic.RequestsWillRunAfterVoid.Count()} - " + DateTime.Now);
+        }
+
+        private async Task UpdateRequestInfo(IEnumerable<VoidBetAutomationInfo> automationInfoList)
+        {
+            foreach (var automationInfo in automationInfoList)
+            {
+                automationInfo.RequestInfo = await voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId);
+            }
+        }
+
+        private async Task ExecuteForManualVoid(int issueTypeId, IEnumerable<VoidBetAutomationInfo> automationInfoList)
+        {
+            if (Helper.IsArchivedTicket(issueTypeId))
+            {
+                await requestVoid14Service.Execute(automationInfoList);
+            }
+            else
+            {
+                await requestManualVoidService.Execute(automationInfoList);
+            }
         }
     }
 }

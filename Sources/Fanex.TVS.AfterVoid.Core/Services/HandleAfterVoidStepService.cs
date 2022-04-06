@@ -52,17 +52,17 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         private readonly VoidBetAutomationService voidBetAutomationService;
         private readonly SendMessageService sendMessageService;
         private readonly NotificationSignalRService notificationSignalRService;
-        private readonly SendEmailService sendEmailService;
+        private readonly AfterVoidEmailService afterVoidEmailService;
         private readonly NotificationLetstalkService notificationLetstalkService;
         private readonly LoggingService loggingService;
 
         public HandleAfterVoidStepServiceImp(VoidBetAutomationService voidBetAutomationService, SendMessageService sendMessageService,
-            NotificationSignalRService notificationSignalRService, SendEmailService sendEmailService, NotificationLetstalkService notificationLetstalkService, LoggingService loggingService)
+            NotificationSignalRService notificationSignalRService, AfterVoidEmailService afterVoidEmailService, NotificationLetstalkService notificationLetstalkService, LoggingService loggingService)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.sendMessageService = sendMessageService;
             this.notificationSignalRService = notificationSignalRService;
-            this.sendEmailService = sendEmailService;
+            this.afterVoidEmailService = afterVoidEmailService;
             this.notificationLetstalkService = notificationLetstalkService;
             this.loggingService = loggingService;
         }
@@ -304,7 +304,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                     return (true, new List<Result>());
                 }
 
-                var results = await sendEmailService.Execute(automationInfo, emailTickets, matchInfo, reason, message);
+                var results = await afterVoidEmailService.Execute(automationInfo, emailTickets, matchInfo, reason, message);
                 await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistory, new VoidBetAutomationInfo { IsSentEmail = true });
 
                 return (true, results);

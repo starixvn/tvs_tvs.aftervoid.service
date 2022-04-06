@@ -35,8 +35,7 @@ namespace Fanex.TVS.AfterVoid.Core.SendEmail.Extensions
             return GetNegativeBalanceUsers(model, group, filter, model.ViewModel);
         }
 
-        private static string GetNegativeBalanceUsers<U>
-            (MailModel<U> model, EmailGroup group, Func<U, string> filter, MailViewModel viewModel)
+        private static string GetNegativeBalanceUsers<U>(MailModel<U> model, EmailGroup group, Func<U, string> filter, MailViewModel viewModel)
         {
             if (group == EmailGroup.CashOut)
             {

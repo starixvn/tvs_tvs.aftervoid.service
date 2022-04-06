@@ -20,7 +20,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
     public class TicketVoidingSystemApiImp : TicketVoidingSystemApi
     {
-        private static readonly HttpClient httpClient = new HttpClient();
+        private static readonly HttpClient httpClient = new();
         private readonly LoggingService loggingService;
 
         public TicketVoidingSystemApiImp(LoggingService loggingService)

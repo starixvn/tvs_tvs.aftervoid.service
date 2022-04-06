@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Fanex.Caching;
 using Fanex.Caching.Redis;
 using Fanex.Data;
 using Fanex.Data.Repository;
@@ -15,6 +14,7 @@ using Fanex.TVS.AfterVoid.Core.Models;
 using Fanex.TVS.AfterVoid.Core.SendEmail.Services;
 using Fanex.TVS.AfterVoid.Core.Services;
 using Fanex.TVS.AfterVoid.Core.Services.Main;
+using Fanex.TVS.AfterVoid.Core.Utilities.AutoMapper;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -90,6 +90,20 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
             OnebookUMInitializer.RegisterServiceCollection(services);
         }
 
+        public static void RegisterFanexCaching(this IServiceCollection services)
+        {
+            services.AddRedisCache(options => new RedisCacheOptions
+            {
+                ConnectionString = $"{ AppConfigService.AppConfig.RedisServer}:{AppConfigService.AppConfig.RedisPort},password={AppConfigService.AppConfig.RedisPassword},defaultDatabase=3",
+                ApplicationName = AppConfigService.AppConfig.RedisAppName
+            });
+        }
+
+        public static void RegisterAutoMapper(this IServiceCollection services)
+        {
+            services.AddAutoMapper(typeof(OrganizationProfile));
+        }
+
         public static async Task StartScheduler(this IServiceCollection services)
         {
             var serviceProvider = services.BuildServiceProvider();
@@ -105,15 +119,6 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
 
             await scheduler.ScheduleJob(job, trigger);
             await scheduler.Start();
-        }
-
-        public static void RegisterFanexCaching(this IServiceCollection services)
-        {
-            services.AddRedisCache(options => new RedisCacheOptions
-            {
-                ConnectionString = $"{ AppConfigService.AppConfig.RedisServer}:{AppConfigService.AppConfig.RedisPort},password={AppConfigService.AppConfig.RedisPassword},defaultDatabase=3",
-                ApplicationName = AppConfigService.AppConfig.RedisAppName
-            });
         }
     }
 }
