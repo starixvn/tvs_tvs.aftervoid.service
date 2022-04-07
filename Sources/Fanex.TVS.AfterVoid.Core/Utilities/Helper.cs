@@ -97,16 +97,16 @@ namespace Fanex.TVS.AfterVoid.Core.Utilities
             return string.Empty;
         }
 
+        public static T DeserializeObjectFromFile<T>(string filePath)
+        {
+            var path = GetFilePath(filePath);
+            var jsonString = File.ReadAllText(path);
+            return JsonConvert.DeserializeObject<T>(jsonString);
+        }
+
         private static string GetFilePath(string path)
         {
             return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
-        }
-
-        public static T DeserializeObject<T>(string jsonPath)
-        {
-            var path = GetFilePath(jsonPath);
-            var jsonString = File.ReadAllText(path);
-            return JsonConvert.DeserializeObject<T>(jsonString);
         }
     }
 }

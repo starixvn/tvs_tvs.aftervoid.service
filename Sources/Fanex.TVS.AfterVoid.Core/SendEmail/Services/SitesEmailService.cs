@@ -6,6 +6,7 @@ using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Core.Models;
 using Fanex.TVS.AfterVoid.Core.SendEmail.Constants;
 using Fanex.TVS.AfterVoid.Core.SendEmail.Criteria;
+using Fanex.TVS.AfterVoid.Core.Services;
 using Fanex.TVS.AfterVoid.Core.Utilities;
 
 namespace Fanex.TVS.AfterVoid.Core.SendEmail.Services
@@ -59,8 +60,8 @@ namespace Fanex.TVS.AfterVoid.Core.SendEmail.Services
 
         private static void HandleEmailConfiguration(List<SiteEmail> sites)
         {
-            var jsonPath = ConfigurationManager.AppSettings["MailingList"];
-            var specialSites = Helper.DeserializeObject<List<SiteEmail>>(jsonPath);
+            var jsonPath = AppConfigService.AppConfig.MailingList;
+            var specialSites = Helper.DeserializeObjectFromFile<List<SiteEmail>>(jsonPath);
             // 9999999 convert to hex (Underscores should be used to make large numbers readable -- code smell)
             const int SiteId = 0x98967F;
             var specialSite = specialSites.Single(x => x.SiteId == SiteId);

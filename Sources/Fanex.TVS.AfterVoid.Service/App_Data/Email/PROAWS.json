@@ -1,0 +1,58 @@
+﻿[
+  {
+    "SiteId": 1000001,
+    "Site": "IT QA",
+    "ToList": "qa@starixvn.com",
+    "CcList": "",
+    "BccList": ""
+  },
+  {
+    "SiteId": 1000002,
+    "Site": "IT Support",
+    "ToList": "qa@starixvn.com",
+    "CcList": "",
+    "BccList": ""
+  },
+  {
+    "SiteId": 1000004,
+    "Site": "CSD Recovery",
+    "ToList": "qa@starixvn.com",
+    "CcList": "",
+    "BccList": ""
+  },
+  {
+    "SiteId": 1000005,
+    "Site": "BetFair",
+    "ToList": "qa@starixvn.com",
+    "CcList": "",
+    "BccList": ""
+  },
+  {
+    "SiteId": 1000007,
+    "Site": "BetTrade",
+    "ToList": "qa@starixvn.com",
+    "CcList": "",
+    "BccList": ""
+  },
+  {
+    "SiteId": 1000008,
+    "Site": "Cash Out",
+    "ToList": "qa@starixvn.com",
+    "CcList": "",
+    "BccList": ""
+  },
+  {
+    "SiteId": 1000009,
+    "Site": "spondemo",
+    "ToList": "qa@starixvn.com",
+    "CcList": "",
+    "BccList": ""
+  },
+  {
+    "SiteId": 9999999,
+    "Site": "EmailConfiguration",
+    "ToList": "",
+    "CcList": "qa@starixvn.com",
+    "BccList": ""
+  }
+]

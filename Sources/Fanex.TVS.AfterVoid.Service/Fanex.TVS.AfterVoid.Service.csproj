@@ -17,11 +17,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Fanex.BetList.Core.RemotingRef" Version="1.1.0.1" />
     <PackageReference Include="Fanex.Caching.AspNetCore" Version="2.2.3-beta2" />
     <PackageReference Include="Fanex.Caching.Redis.AspNetCore" Version="2.2.3-beta2" />
     <PackageReference Include="Fanex.Data.SqlServer" Version="4.2.2" />
     <PackageReference Include="Fanex.Logging" Version="2.0.1" />
     <PackageReference Include="Fanex.Logging.Sentry" Version="1.0.6" />
+    <PackageReference Include="Fanex.RemotingRef" Version="1.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.15" />
     <PackageReference Include="ONEbook.UM" Version="3.1.3" />
     <PackageReference Include="ONEbook.UM.Transport" Version="3.1.1" />
@@ -34,6 +36,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Fanex.TVS.AfterVoid.Core\Fanex.TVS.AfterVoid.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="App_Data\Email\" />
   </ItemGroup>
 
 </Project>

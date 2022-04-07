@@ -20,10 +20,11 @@ namespace Fanex.TVS.AfterVoid.Core.Models
 
         public string TicketVoidingSystemUrl { get; set; }
 
-        public string RedisServer { get; set; }
-        public string RedisPort { get; set; }
-        public string RedisPassword { get; set; }
-        public string RedisAppName { get; set; }
+        public string AppMailId { get; set; }
+        public string AppMailAddress { get; set; }
+        public string MailingList { get; set; }
+
+        public string FanexRemotingRefServiceUrl { get; set; }
 
         public UMClientConfiguration UMConfig { get; set; }
     }

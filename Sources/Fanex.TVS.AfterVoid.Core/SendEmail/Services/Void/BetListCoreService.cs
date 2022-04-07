@@ -57,7 +57,7 @@ namespace Fanex.TVS.AfterVoid.Core.SendEmail.Services.Void
             ticket.BetId = item.IsMixParlay ? default : item.BetId;
             ticket.WalletType = item.WalletType.SetWalletType(item.RefCode);
             ticket.RefCode = 0;
-            ticket.SettlementStatus = item.IsMixParlay ? default(byte) : item.SettlementStatus;
+            ticket.SettlementStatus = item.IsMixParlay ? default : item.SettlementStatus;
             UpdateTicketWithMatch(ticket, match);
 
             return ticket;

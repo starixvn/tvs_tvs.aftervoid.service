@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Fanex.BetList.Core;
+using Fanex.BetList.Core.RemotingRef;
 using Fanex.Caching.Redis;
 using Fanex.Data;
 using Fanex.Data.Repository;
@@ -10,6 +12,8 @@ using Fanex.Data.SqlServer;
 using Fanex.LetstalkService.Client;
 using Fanex.Logging;
 using Fanex.Logging.Sentry;
+using Fanex.MailDeliver.MailClient;
+using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Core.Models;
 using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
 using Fanex.TVS.AfterVoid.Core.SendEmail.Services;
@@ -110,6 +114,22 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
         public static void RegisterFanexCaching(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddRedisCache(configuration.GetSection("FanexCachingRedis"));
+        }
+
+        public static void RegisterMailService(this IServiceCollection services)
+        {
+            AppSettings.AppMailId = AppConfigService.AppConfig.AppMailId;
+            AppSettings.AppMailAddress = AppConfigService.AppConfig.AppMailAddress;
+        }
+
+        public static void RegisterRemotingRef(this IServiceCollection services)
+        {
+            RefDataTypeContainer
+                .ConnectTo(new Uri(AppConfigService.AppConfig.FanexRemotingRefServiceUrl))
+                .FromApplication(AppConfigService.AppConfig.ServiceName)
+                .RegisterSupportedLanguages("en-US", "zh-TW", "zh-CN", "zh-Hans");
+
+            BetListManager.RegisterRemotingRef(new CacheRef());
         }
 
         public static void RegisterAutoMapper(this IServiceCollection services)
