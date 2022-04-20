@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Core.Constants;
+using Fanex.TVS.AfterVoid.Core.Extensions;
 using Fanex.TVS.AfterVoid.Core.Models;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Extensions;
 using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Services;
 
 namespace Fanex.TVS.AfterVoid.Core.Services
 {

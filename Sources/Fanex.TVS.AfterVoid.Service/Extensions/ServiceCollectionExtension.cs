@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Fanex.BetList.Core;
-using Fanex.BetList.Core.RemotingRef;
 using Fanex.Caching.Redis;
 using Fanex.Data;
 using Fanex.Data.Repository;
@@ -13,13 +11,7 @@ using Fanex.LetstalkService.Client;
 using Fanex.Logging;
 using Fanex.Logging.Sentry;
 using Fanex.MailDeliver.MailClient;
-using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Core.Models;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Services;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Services.Subject;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Services.Void;
-using Fanex.TVS.AfterVoid.Core.SendEmail.ViewModels;
 using Fanex.TVS.AfterVoid.Core.Services;
 using Fanex.TVS.AfterVoid.Core.Services.Main;
 using Fanex.TVS.AfterVoid.Core.Utilities.AutoMapper;
@@ -83,27 +75,14 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
             services.AddSingleton<RequestAutoVoidService, RequestAutoVoidServiceImp>();
             services.AddSingleton<RequestManualVoidService, RequestManualVoidServiceImp>();
             services.AddSingleton<RequestVoid14Service, RequestVoid14ServiceImp>();
-            services.AddSingleton<BetListService, BetListServiceImp>();
             services.AddSingleton<HandleAfterVoidStepService, HandleAfterVoidStepServiceImp>();
             services.AddSingleton<MessageItemService, MessageItemServiceImp>();
             services.AddSingleton<NotificationLetstalkService, NotificationLetstalkServiceImp>();
             services.AddSingleton<NotificationSignalRService, NotificationSignalRServiceImp>();
             services.AddSingleton<SendMessageService, SendMessageServiceImp>();
-            services.AddSingleton<SendEmailService, SendEmailServiceImp>();
             services.AddSingleton<LetstalkClientService, LetstalkClientServiceImp>();
             services.AddSingleton<TicketVoidingSystemApi, TicketVoidingSystemApiImp>();
             services.AddSingleton<AfterVoidEmailService, AfterVoidEmailServiceImp>();
-
-            // Email service
-            services.AddSingleton<IBetListCoreService, BetListCoreService>();
-            services.AddSingleton<RecordVoidService<TicketEmailViewModel, TicketEmailModel>, RecordService>();
-            services.AddSingleton<ITicketService, TicketService>();
-            services.AddSingleton<SubjectService, SubjectServiceImp>();
-            services.AddSingleton(typeof(EmailVoidService<,>), typeof(EmailVoidServiceImp<,>));
-            services.AddSingleton<SitesEmailService, SitesEmailServiceImp>();
-            services.AddSingleton<MailMessageService, MailMessageServiceImp>();
-            services.AddSingleton<SendEmailService, SendEmailServiceImp>();
-            services.AddSingleton<TemplateEmailService, TemplateEmailServiceImp>();
 
             services.AddSingleton<AfterVoidJob>();
 
@@ -120,16 +99,6 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
         {
             AppSettings.AppMailId = AppConfigService.AppConfig.AppMailId;
             AppSettings.AppMailAddress = AppConfigService.AppConfig.AppMailAddress;
-        }
-
-        public static void RegisterRemotingRef(this IServiceCollection services)
-        {
-            RefDataTypeContainer
-                .ConnectTo(new Uri(AppConfigService.AppConfig.FanexRemotingRefServiceUrl))
-                .FromApplication(AppConfigService.AppConfig.ServiceName)
-                .RegisterSupportedLanguages("en-US", "zh-TW", "zh-CN", "zh-Hans");
-
-            BetListManager.RegisterRemotingRef(new CacheRef());
         }
 
         public static void RegisterAutoMapper(this IServiceCollection services)

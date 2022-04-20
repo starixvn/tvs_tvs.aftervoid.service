@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Fanex.BetList.Core.Entities;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
 
 namespace Fanex.TVS.AfterVoid.Core.Utilities.AutoMapper
 {
@@ -8,7 +6,7 @@ namespace Fanex.TVS.AfterVoid.Core.Utilities.AutoMapper
     {
         public OrganizationProfile()
         {
-            CreateMap<TicketEmailModel, Ticket>();
+            //CreateMap<TicketEmailModel, Ticket>();
         }
     }
 }
