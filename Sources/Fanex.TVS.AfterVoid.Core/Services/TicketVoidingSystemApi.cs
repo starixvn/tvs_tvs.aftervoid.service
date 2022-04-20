@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Core.Models;
+using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
 
 namespace Fanex.TVS.AfterVoid.Core.Services
 {
@@ -16,6 +17,9 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         Task SignalRNotifyErrorMessageToUser(string userName, string message);
 
         Task SignalRNotifyVoidResultToUser(string userName, IEnumerable<Result> results);
+
+        Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message,
+            int issueTypeId, string negativeBalanceUsers);
     }
 
     public class TicketVoidingSystemApiImp : TicketVoidingSystemApi
@@ -78,6 +82,22 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
             loggingService.Error($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
                                  $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
+        }
+
+        public async Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message,
+            int issueTypeId, string negativeBalanceUsers)
+        {
+            const string actionName = "SendEmail/Send";
+            var response = await httpClient.PostAsJsonAsync(actionName, new { emailTickets, match, reason, message, issueTypeId, negativeBalanceUsers });
+            if (response.IsSuccessStatusCode)
+            {
+                var responseData = await response.Content.ReadAsAsync<IEnumerable<Result>>();
+                return (true, responseData);
+            }
+
+            loggingService.Error($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
+                                 $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
+            return (false, null);
         }
     }
 }
