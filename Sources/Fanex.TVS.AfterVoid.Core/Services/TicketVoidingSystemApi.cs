@@ -18,6 +18,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
         Task SignalRNotifyVoidResultToUser(string userName, IEnumerable<Result> results);
 
+        Task<string> BetListGetSportTypeName(int sportType, string languageCode);
+
         Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message,
             int issueTypeId, string negativeBalanceUsers);
     }
@@ -82,6 +84,21 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
             loggingService.Error($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
                                  $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
+        }
+
+        public async Task<string> BetListGetSportTypeName(int sportType, string languageCode)
+        {
+            const string actionName = "BetListCore/GetSportTypeName";
+            var response = await httpClient.PostAsJsonAsync(actionName, new { sportType, languageCode });
+            if (response.IsSuccessStatusCode)
+            {
+                var responseData = await response.Content.ReadAsAsync<string>();
+                return responseData;
+            }
+
+            loggingService.Error($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
+                                 $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
+            return string.Empty;
         }
 
         public async Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message,

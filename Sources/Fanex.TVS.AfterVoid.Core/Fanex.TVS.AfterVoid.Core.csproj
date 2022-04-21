@@ -38,10 +38,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="SendEmail\Models\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="Resources\Labels.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
