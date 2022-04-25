@@ -20,7 +20,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
         Task<string> BetListGetSportTypeName(int sportType, string languageCode);
 
-        Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message,
+        Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason voidedReason, Message message,
             int issueTypeId, string negativeBalanceUsers);
     }
 
@@ -50,7 +50,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         public async Task SignalRUpdateRequestStatusToAllUsers(IEnumerable<RequestStatus> status)
         {
             const string actionName = "SignalRApi/UpdateRequestStatusToAllUsers";
-            var response = await httpClient.PostAsJsonAsync(actionName, status);
+            var response = await httpClient.PostAsJsonAsync(actionName, new { status });
             if (response.IsSuccessStatusCode)
             {
                 return;
@@ -101,11 +101,11 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             return string.Empty;
         }
 
-        public async Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message,
+        public async Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason voidedReason, Message message,
             int issueTypeId, string negativeBalanceUsers)
         {
             const string actionName = "SendEmail/Send";
-            var response = await httpClient.PostAsJsonAsync(actionName, new { emailTickets, match, reason, message, issueTypeId, negativeBalanceUsers });
+            var response = await httpClient.PostAsJsonAsync(actionName, new { emailTickets, match, voidedReason, message, issueTypeId, negativeBalanceUsers });
             if (response.IsSuccessStatusCode)
             {
                 var responseData = await response.Content.ReadAsAsync<IEnumerable<Result>>();
