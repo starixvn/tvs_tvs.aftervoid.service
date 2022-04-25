@@ -11,6 +11,7 @@ using Fanex.LetstalkService.Client;
 using Fanex.Logging;
 using Fanex.Logging.Sentry;
 using Fanex.MailDeliver.MailClient;
+using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Core.Models;
 using Fanex.TVS.AfterVoid.Core.Services;
 using Fanex.TVS.AfterVoid.Core.Services.Main;
@@ -93,6 +94,14 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
         public static void RegisterFanexCaching(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddRedisCache(configuration.GetSection("FanexCachingRedis"));
+        }
+
+        public static void RegisterRemotingRef(this IServiceCollection services)
+        {
+            RefDataTypeContainer
+                .ConnectTo(new Uri(AppConfigService.AppConfig.FanexRemotingRefServiceUrl))
+                .FromApplication(AppConfigService.AppConfig.ServiceName)
+                .RegisterSupportedLanguages("en-US", "zh-TW", "zh-CN", "zh-Hans");
         }
 
         public static void RegisterMailService(this IServiceCollection services)
