@@ -13,5 +13,7 @@
         public const int ArchivedTicket = 17;
         public const int WrongHDP = 4;
         public const int Wrong1stHDP = 5;
+        public const int WrongOU = 6;
+        public const int Wrong1stOU = 7;
     }
 }

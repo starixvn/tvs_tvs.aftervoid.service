@@ -71,8 +71,11 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             var viewModel = new RequestDetailViewModel
             {
                 Request = firstRequest,
-                EventByMatch = (firstRequest.IssueTypeId == IssueTypeConstant.DangerAccepted || firstRequest.IssueTypeId == IssueTypeConstant.WrongHDP
-                    || firstRequest.IssueTypeId == IssueTypeConstant.Wrong1stHDP)
+                EventByMatch = (firstRequest.IssueTypeId == IssueTypeConstant.DangerAccepted
+                    || firstRequest.IssueTypeId == IssueTypeConstant.WrongHDP
+                    || firstRequest.IssueTypeId == IssueTypeConstant.Wrong1stHDP
+                    || firstRequest.IssueTypeId == IssueTypeConstant.WrongOU
+                    || firstRequest.IssueTypeId == IssueTypeConstant.Wrong1stOU)
                     ? requestEvents.FirstOrDefault(x => x.MatchId == matchId)
                     : requestEvents.FirstOrDefault()
             };
