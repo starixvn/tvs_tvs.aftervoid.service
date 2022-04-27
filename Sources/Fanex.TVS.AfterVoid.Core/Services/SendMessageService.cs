@@ -108,55 +108,9 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             };
         }
 
-        private static void ReplaceMessageTemplate(TemplateModel model, Match match, bool isHasSettledTicket, int issueTypeId, int? filterBy)
-        {
-            model.MsgEnglish = model.MsgEnglish.Replace("{{Sport type}}", match?.SportTypeName);
-            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace("{{Sport type}}", match?.SportTypeNameTraditional);
-            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace("{{Sport type}}", match?.SportTypeNameSimplified);
-            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace("{{Sport type}}", match?.SportTypeNameNewSimplified);
-
-            model.MsgEnglish = model.MsgEnglish.Replace("{{Home team name}}", match?.HomeName);
-            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace("{{Home team name}}", match?.HomeNameTraditional);
-            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace("{{Home team name}}", match?.HomeNameSimplified);
-            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace("{{Home team name}}", match?.HomeNameNewSimplified);
-
-            model.MsgEnglish = model.MsgEnglish.Replace("{{Away team name}}", match?.AwayName);
-            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace("{{Away team name}}", match?.AwayNameTraditional);
-            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace("{{Away team name}}", match?.AwayNameSimplified);
-            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace("{{Away team name}}", match?.AwayNameNewSimplified);
-
-            model.MsgEnglish = model.MsgEnglish.Replace("{{League name}}", match?.LeagueName);
-            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace("{{League name}}", match?.LeagueNameTraditional);
-            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace("{{League name}}", match?.LeagueNameSimplified);
-            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace("{{League name}}", match?.LeagueNameNewSimplified);
-
-            model.MsgEnglish = model.MsgEnglish.Replace("{{Event Date}}", match?.EventDate.ToString("dd/MM"));
-            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace("{{Event Date}}", match?.EventDate.ToString("dd/MM"));
-            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace("{{Event Date}}", match?.EventDate.ToString("dd/MM"));
-            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace("{{Event Date}}", match?.EventDate.ToString("dd/MM"));
-
-            string checkStatmentEnglish = isHasSettledTicket ? "Kindly double check your statement again. " : "";
-            string checkStatmentChineseTraditional = isHasSettledTicket ? "請重新檢查您的帳目. " : "";
-            string checkStatmentChineseSimplified = isHasSettledTicket ? "请重新检查您的帐目. " : "";
-            string checkStatmentChineseNewSimplified = isHasSettledTicket ? "请重新检查您的帐目. " : "";
-            model.MsgEnglish = model.MsgEnglish.Replace("{{CheckStatement}}", checkStatmentEnglish);
-            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace("{{CheckStatement}}", checkStatmentChineseTraditional);
-            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace("{{CheckStatement}}", checkStatmentChineseSimplified);
-            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace("{{CheckStatement}}", checkStatmentChineseNewSimplified);
-
-            string parlayEnglish = Helper.IsAbnormalBetMixParlay(issueTypeId, filterBy) ? "[Parlay]" : "";
-            string parlayChineseTraditional = Helper.IsAbnormalBetMixParlay(issueTypeId, filterBy) ? "[串關]" : "";
-            string parlayChineseSimplified = Helper.IsAbnormalBetMixParlay(issueTypeId, filterBy) ? "[串关]" : "";
-            string parlayChineseNewSimplified = Helper.IsAbnormalBetMixParlay(issueTypeId, filterBy) ? "[串关]" : "";
-            model.MsgEnglish = model.MsgEnglish.Replace("{{Parlay}}", parlayEnglish);
-            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace("{{Parlay}}", parlayChineseTraditional);
-            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace("{{Parlay}}", parlayChineseSimplified);
-            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace("{{Parlay}}", parlayChineseNewSimplified);
-        }
-
         public Message InitializeMessageContentForManualVoid(VoidDataXmlModel voidData)
         {
-            return new Message
+            return new()
             {
                 ContentChineseTraditional = voidData.ContentChineseTraditional,
                 ContentChineseSimplified = voidData.ContentChineseSimplified,
@@ -306,6 +260,89 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                 SagUserName = item.SagUserName,
                 TransId = item.TransId
             });
+        }
+
+        private static void ReplaceMessageTemplate(TemplateModel model, Match match, bool isHasSettledTicket, int issueTypeId, int? filterBy)
+        {
+            ReplaceSportType(model, match);
+            ReplaceHomeTeam(model, match);
+            ReplaceAwayTeam(model, match);
+            ReplaceLeagueName(model, match);
+            ReplaceEventDate(model, match);
+            ReplaceCheckStatement(model, isHasSettledTicket);
+            ReplaceParlay(model, issueTypeId, filterBy);
+        }
+
+        private static void ReplaceSportType(TemplateModel model, Match match)
+        {
+            const string sportTypePlaceholder = "{{Sport type}}";
+            model.MsgEnglish = model.MsgEnglish.Replace(sportTypePlaceholder, match?.SportTypeName);
+            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(sportTypePlaceholder, match?.SportTypeNameTraditional);
+            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(sportTypePlaceholder, match?.SportTypeNameSimplified);
+            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(sportTypePlaceholder, match?.SportTypeNameNewSimplified);
+        }
+
+        private static void ReplaceHomeTeam(TemplateModel model, Match match)
+        {
+            const string homeTeamPlaceholder = "{{Home team name}}";
+            model.MsgEnglish = model.MsgEnglish.Replace(homeTeamPlaceholder, match?.HomeName);
+            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(homeTeamPlaceholder, match?.HomeNameTraditional);
+            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(homeTeamPlaceholder, match?.HomeNameSimplified);
+            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(homeTeamPlaceholder, match?.HomeNameNewSimplified);
+        }
+
+        private static void ReplaceAwayTeam(TemplateModel model, Match match)
+        {
+            const string awayTeamPlaceholder = "{{Away team name}}";
+            model.MsgEnglish = model.MsgEnglish.Replace(awayTeamPlaceholder, match?.AwayName);
+            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(awayTeamPlaceholder, match?.AwayNameTraditional);
+            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(awayTeamPlaceholder, match?.AwayNameSimplified);
+            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(awayTeamPlaceholder, match?.AwayNameNewSimplified);
+        }
+
+        private static void ReplaceLeagueName(TemplateModel model, Match match)
+        {
+            const string leagueNamePlaceholder = "{{League name}}";
+            model.MsgEnglish = model.MsgEnglish.Replace(leagueNamePlaceholder, match?.LeagueName);
+            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(leagueNamePlaceholder, match?.LeagueNameTraditional);
+            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(leagueNamePlaceholder, match?.LeagueNameSimplified);
+            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(leagueNamePlaceholder, match?.LeagueNameNewSimplified);
+        }
+
+        private static void ReplaceEventDate(TemplateModel model, Match match)
+        {
+            const string eventDatePlaceholder = "{{Event Date}}";
+            const string eventDateFormat = "dd/MM";
+            model.MsgEnglish = model.MsgEnglish.Replace(eventDatePlaceholder, match?.EventDate.ToString(eventDateFormat));
+            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(eventDatePlaceholder, match?.EventDate.ToString(eventDateFormat));
+            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(eventDatePlaceholder, match?.EventDate.ToString(eventDateFormat));
+            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(eventDatePlaceholder, match?.EventDate.ToString(eventDateFormat));
+        }
+
+        private static void ReplaceCheckStatement(TemplateModel model, bool isHasSettledTicket)
+        {
+            const string checkStatementPlaceholder = "{{CheckStatement}}";
+            var checkStatementEnglish = isHasSettledTicket ? "Kindly double check your statement again. " : "";
+            var checkStatementChineseTraditional = isHasSettledTicket ? "請重新檢查您的帳目. " : "";
+            var checkStatementChineseSimplified = isHasSettledTicket ? "请重新检查您的帐目. " : "";
+            var checkStatementChineseNewSimplified = isHasSettledTicket ? "请重新检查您的帐目. " : "";
+            model.MsgEnglish = model.MsgEnglish.Replace(checkStatementPlaceholder, checkStatementEnglish);
+            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(checkStatementPlaceholder, checkStatementChineseTraditional);
+            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(checkStatementPlaceholder, checkStatementChineseSimplified);
+            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(checkStatementPlaceholder, checkStatementChineseNewSimplified);
+        }
+
+        private static void ReplaceParlay(TemplateModel model, int issueTypeId, int? filterBy)
+        {
+            const string parlayPlaceholder = "{{Parlay}}";
+            var parlayEnglish = Helper.IsAbnormalBetMixParlay(issueTypeId, filterBy) ? "[Parlay]" : "";
+            var parlayChineseTraditional = Helper.IsAbnormalBetMixParlay(issueTypeId, filterBy) ? "[串關]" : "";
+            var parlayChineseSimplified = Helper.IsAbnormalBetMixParlay(issueTypeId, filterBy) ? "[串关]" : "";
+            var parlayChineseNewSimplified = Helper.IsAbnormalBetMixParlay(issueTypeId, filterBy) ? "[串关]" : "";
+            model.MsgEnglish = model.MsgEnglish.Replace(parlayPlaceholder, parlayEnglish);
+            model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(parlayPlaceholder, parlayChineseTraditional);
+            model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(parlayPlaceholder, parlayChineseSimplified);
+            model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(parlayPlaceholder, parlayChineseNewSimplified);
         }
     }
 }

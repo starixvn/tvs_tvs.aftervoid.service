@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Fanex.Caching;
@@ -64,9 +63,16 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
             if (failedRequests.Any())
             {
-                var requestStatusList = failedRequests.Select(x => new RequestStatus { RequestId = x.RequestId, Status = RequestStatusConstant.Failed });
-                await ticketVoidingSystemApi.SignalRUpdateRequestStatusToAllUsers(requestStatusList);
-                await NotifyVoidFailedMessage(failedRequests);
+                var (_, jsonCacheResult) = await cacheService.TryGetAsync<string>(FanexCacheConstant.FailedRequestNotified);
+                var failedRequestNotified = jsonCacheResult == null ? new List<CacheFailedRequestNotified>()
+                    : JsonConvert.DeserializeObject<List<CacheFailedRequestNotified>>(jsonCacheResult);
+
+                var requestNotNotify = failedRequests.Where(x =>
+                    !failedRequestNotified.Any(y => y.RequestId == x.RequestId && y.VoidingHistoryId == x.VoidingHistory));
+
+                await UpdateFailedStatusForRequestsNotNotify(requestNotNotify);
+                await NotifyVoidFailedMessage(requestNotNotify);
+                await UpdateCacheFailedRequestNotified(failedRequestNotified, requestNotNotify);
             }
         }
 
@@ -77,15 +83,21 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             await ticketVoidingSystemApi.SignalRUpdateRequestStatusToAllUsers(completedRequests);
         }
 
-        private async Task NotifyVoidFailedMessage(IEnumerable<VoidBetAutomationInfo> failedRequests)
+        private async Task UpdateFailedStatusForRequestsNotNotify(IEnumerable<VoidBetAutomationInfo> requestNotNotify)
         {
-            var (_, jsonCacheResult) = await cacheService.TryGetAsync<string>(FanexCacheConstant.FailedRequestNotified);
-            var failedRequestNotified = jsonCacheResult == null ? new List<CacheFailedRequestNotified>()
-                : JsonConvert.DeserializeObject<IList<CacheFailedRequestNotified>>(jsonCacheResult);
-            foreach (var request in failedRequests)
+            if (requestNotNotify.Any())
             {
-                if (request.IsAutoVoid || failedRequestNotified.Any(x =>
-                    x.RequestId == request.RequestId && x.VoidingHistoryId == request.VoidingHistory))
+                var requests = requestNotNotify.Select(x => new RequestStatus
+                { RequestId = x.RequestId, Status = RequestStatusConstant.Failed });
+                await ticketVoidingSystemApi.SignalRUpdateRequestStatusToAllUsers(requests);
+            }
+        }
+
+        private async Task NotifyVoidFailedMessage(IEnumerable<VoidBetAutomationInfo> requestNotNotify)
+        {
+            foreach (var request in requestNotNotify)
+            {
+                if (request.IsAutoVoid)
                 {
                     continue;
                 }
@@ -97,24 +109,30 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
                 await ticketVoidingSystemApi.SignalRNotifyErrorMessageToUser(voidDataXml.CreatorName,
                     GetMessageVoidRequestFailed(request.RequestId, request.MatchId));
-
-                failedRequestNotified.Add(new CacheFailedRequestNotified
-                {
-                    RequestId = request.RequestId,
-                    VoidingHistoryId = request.VoidingHistory
-                });
-
-                var serializedJsonCache = JsonConvert.SerializeObject(failedRequestNotified);
-                var cachePolicy = new CacheItemOptions().SetSlidingExpiration(TimeSpan.FromHours(24));
-                await cacheService.SetAsync(FanexCacheConstant.FailedRequestNotified, serializedJsonCache,
-                    cachePolicy);
-                loggingService.Info("Total items in cache FailedRequestNotified: " + failedRequestNotified.Count());
             }
         }
 
         private static string GetMessageVoidRequestFailed(int requestId, int matchId)
         {
             return matchId > 0 ? $"Failed to void Request ID: {requestId} Match ID: {matchId}" : $"Failed to void Request ID: {requestId}";
+        }
+
+        private async Task UpdateCacheFailedRequestNotified(List<CacheFailedRequestNotified> failedRequestNotified, IEnumerable<VoidBetAutomationInfo> requestNotNotify)
+        {
+            if (requestNotNotify.Any())
+            {
+                var beforeCount = failedRequestNotified.Count;
+                failedRequestNotified.AddRange(requestNotNotify.Select(x => new CacheFailedRequestNotified
+                {
+                    RequestId = x.RequestId,
+                    VoidingHistoryId = x.VoidingHistory
+                }));
+                var serializedJsonCache = JsonConvert.SerializeObject(failedRequestNotified);
+                var cachePolicy = new CacheItemOptions().SetSlidingExpiration(TimeSpan.FromHours(24));
+                await cacheService.SetAsync(FanexCacheConstant.FailedRequestNotified, serializedJsonCache,
+                    cachePolicy);
+                loggingService.Info($"Total items in cache FailedRequestNotified - Before: {beforeCount} - After: {failedRequestNotified.Count}");
+            }
         }
 
         public async Task NotifyVoidResultToUser(string userName, IEnumerable<Result> results)
