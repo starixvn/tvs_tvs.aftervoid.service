@@ -1,4 +1,5 @@
 using Fanex.TVS.AfterVoid.Service.Extensions;
+using Fanex.TVS.AfterVoid.Service.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -30,6 +31,7 @@ namespace Fanex.TVS.AfterVoid.Service
             services.RegisterAutoMapper();
             services.RegisterInternalServices();
             services.StartScheduler().Wait();
+            services.AddHostedService<CustomLifetimeService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
