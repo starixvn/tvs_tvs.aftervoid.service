@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Fanex.Common;
 using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Core.Constants;
 
 namespace Fanex.TVS.AfterVoid.Core.Utilities
 {
+    [ExcludeFromCodeCoverage]
     public static class RemotingWrapper
     {
         public static string GetBettype(object betTypeId, string language)
