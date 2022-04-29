@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using Fanex.Logging;
 using Fanex.Logging.Extensions;
 using Fanex.Logging.Extensions.Database;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Fanex.TVS.AfterVoid.Service.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static class ExceptionMiddlewareExtensions
     {
         public static void ConfigureExceptionHandler(this IApplicationBuilder app)
@@ -17,7 +19,7 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
             {
                 appError.Run(async context =>
                 {
-                    context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "application/json";
                     var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
                     if (contextFeature != null)

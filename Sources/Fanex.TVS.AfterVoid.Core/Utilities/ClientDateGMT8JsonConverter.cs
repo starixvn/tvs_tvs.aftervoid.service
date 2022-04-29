@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace Fanex.TVS.AfterVoid.Core.Utilities
 {
+    [ExcludeFromCodeCoverage]
     public class ClientDateGMT8JsonConverter : JsonConverter
     {
         private const int OffsetHours = 12;

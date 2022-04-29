@@ -4,6 +4,10 @@
     <TargetFramework>net5.0</TargetFramework>
     <CodeAnalysisRuleSet>..\..\.sonarlint\tvs.aftervoid.servicecsharp.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+    
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute" />
+    </ItemGroup>
 
   <ItemGroup>
     <None Remove="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.xml" />

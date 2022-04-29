@@ -45,7 +45,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             throw new ExternalException("ticketVoidingSystemApi.SendEmail");
         }
 
-        public async Task<SubIssueType> GetSubIssueTypeById(int subId)
+        private async Task<SubIssueType> GetSubIssueTypeById(int subId)
         {
             var subIssueTypes = await repository.FetchAsync<SubIssueType>(new GetSubIssueTypeCriteria());
 
