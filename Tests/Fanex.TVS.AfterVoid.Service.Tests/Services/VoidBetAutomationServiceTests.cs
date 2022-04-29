@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
+using Fanex.TVS.AfterVoid.Core.Constants;
 using Fanex.TVS.AfterVoid.Core.Criteria;
 using Fanex.TVS.AfterVoid.Core.Models;
 using NSubstitute;
@@ -23,17 +24,61 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
                 .Returns((expected.RequestsWillUpdateStatus, expected.RequestsWillRunAfterVoid));
 
             var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
-
             var actual = await voidBetAutomationService.GetVoidBetAutomationStatistic();
+
             Assert.StrictEqual(expected.RequestsWillUpdateStatus, actual.RequestsWillUpdateStatus);
             Assert.StrictEqual(expected.RequestsWillRunAfterVoid, actual.RequestsWillRunAfterVoid);
         }
 
-        //[Fact()]
-        //public void GetRequestByIdTest()
-        //{
-        //    Assert.True(false, "This test needs an implementation");
-        //}
+        [Fact()]
+        public async Task GetRequestById_ReturnDataEventWithExpectedMatch()
+        {
+            var fakeRequests = new List<RequestModel>
+            {
+                new() {IssueTypeId = IssueTypeConstant.DangerAccepted},
+                new() {IssueTypeId = IssueTypeConstant.AbnormalBet}
+            };
+            var fakeRequestEvents = new List<RequestEventModel>
+            {
+                new() {MatchId = 100},
+                new() {MatchId = 113}
+            };
+
+            var repository = Substitute.For<IDynamicRepository>();
+            repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(Arg.Any<SelectRequestCriteria>())
+                .Returns((fakeRequests, fakeRequestEvents, null));
+
+            var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+            var actual = await voidBetAutomationService.GetRequestById(0, 113);
+
+            Assert.StrictEqual(fakeRequests[0], actual.Request);
+            Assert.StrictEqual(fakeRequestEvents[1], actual.EventByMatch);
+        }
+
+        [Fact()]
+        public async Task GetRequestById_ReturnDataWithFirstEvent()
+        {
+            var fakeRequests = new List<RequestModel>
+            {
+                new() {IssueTypeId = IssueTypeConstant.AbnormalBet},
+                new() {IssueTypeId = IssueTypeConstant.DangerAccepted}
+            };
+            var fakeRequestEvents = new List<RequestEventModel>
+            {
+                new() {MatchId = 100},
+                new() {MatchId = 113}
+            };
+
+            var repository = Substitute.For<IDynamicRepository>();
+            repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(Arg.Any<SelectRequestCriteria>())
+                .Returns((fakeRequests, fakeRequestEvents, null));
+
+            var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+            var actual = await voidBetAutomationService.GetRequestById(0, 113);
+
+            Assert.StrictEqual(fakeRequests[0], actual.Request);
+            Assert.StrictEqual(fakeRequestEvents[0], actual.EventByMatch);
+        }
 
         //[Fact()]
         //public void GetRequestSimpleInfoTest()

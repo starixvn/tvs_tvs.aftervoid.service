@@ -28,6 +28,7 @@ namespace Fanex.TVS.AfterVoid.Service
             services.RegisterFanexCaching(Configuration);
             services.RegisterRemotingRef();
             services.RegisterMailService();
+            services.RegisterLetstalk();
             services.RegisterAutoMapper();
             services.RegisterInternalServices();
             services.StartScheduler().Wait();

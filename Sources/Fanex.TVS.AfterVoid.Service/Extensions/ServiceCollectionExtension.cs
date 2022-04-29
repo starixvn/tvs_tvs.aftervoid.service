@@ -110,6 +110,11 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
             AppSettings.AppMailAddress = AppConfigService.AppConfig.AppMailAddress;
         }
 
+        public static void RegisterLetstalk(this IServiceCollection services)
+        {
+            LetstalkService.Core.Services.AppConfigService.Config.LetstalkServiceApi = AppConfigService.AppConfig.LetstalkServiceApi;
+        }
+
         public static void RegisterAutoMapper(this IServiceCollection services)
         {
             services.AddAutoMapper(typeof(OrganizationProfile));
