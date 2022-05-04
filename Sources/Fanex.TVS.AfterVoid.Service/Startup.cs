@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Microsoft.AspNetCore.Builder;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Fanex.TVS.AfterVoid.Service
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public Startup(IConfiguration configuration)

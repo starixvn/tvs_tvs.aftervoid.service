@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Core.Services;
 using Fanex.TVS.AfterVoid.Core.Services.Main;
@@ -7,6 +8,7 @@ using Quartz;
 
 namespace Fanex.TVS.AfterVoid.Service.Services
 {
+    [ExcludeFromCodeCoverage]
     public class AfterVoidJob : IJob
     {
         private readonly AfterVoidService afterVoidService;

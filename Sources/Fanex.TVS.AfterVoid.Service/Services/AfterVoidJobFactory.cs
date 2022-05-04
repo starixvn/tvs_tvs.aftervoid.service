@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Quartz.Spi;
 
 namespace Fanex.TVS.AfterVoid.Service.Services
 {
+    [ExcludeFromCodeCoverage]
     public class AfterVoidJobFactory : IJobFactory
     {
         private readonly IServiceProvider serviceProvider;

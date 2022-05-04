@@ -1,4 +1,5 @@
-﻿using Fanex.Caching;
+﻿using System.Diagnostics.CodeAnalysis;
+using Fanex.Caching;
 using Fanex.TVS.AfterVoid.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using ONEbook.UM;
@@ -8,6 +9,7 @@ using ONEbook.UM.Transport;
 
 namespace Fanex.TVS.AfterVoid.Service.Services
 {
+    [ExcludeFromCodeCoverage]
     public static class OnebookUMInitializer
     {
         public static void InitializeUMClientManager()

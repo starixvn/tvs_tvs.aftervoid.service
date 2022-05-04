@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Core.Services;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Fanex.TVS.AfterVoid.Service.Services
 {
+    [ExcludeFromCodeCoverage]
     public class CustomLifetimeService : IHostedService
     {
         private readonly LoggingService loggingService;
