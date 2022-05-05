@@ -35,6 +35,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
         }
     }
 
+    [ExcludeFromCodeCoverage]
     public class HttpContextHelper : IHttpContextHelper
     {
         public string GetSession(string key)
