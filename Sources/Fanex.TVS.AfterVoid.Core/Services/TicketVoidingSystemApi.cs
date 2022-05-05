@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             int issueTypeId, string negativeBalanceUsers);
     }
 
+    [ExcludeFromCodeCoverage]
     public class TicketVoidingSystemApiImp : TicketVoidingSystemApi
     {
         private static readonly HttpClient httpClient = new();
