@@ -110,7 +110,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             content.AppendLine($"Voided by: {model.UserName}");
             content.AppendLine($"(Settled ticket: Single Count: {model.SingleCount}, Instant OU: {model.InstantOUCount}, Cash Out: {model.CashOutCount}, Parlay Count: {model.ParlayCount}");
             content.AppendLine($"Outstanding: Single Count: {model.OutstandingSingleCount}, Parlay Count: {model.OutstandingParlayCount})");
-            if ($"{content.ToString()}{userNames}".Length > maxContent)
+            if ($"{content}{userNames}".Length > maxContent)
             {
                 messages.AddRange(GenerateMultipleContent(content, members));
             }
@@ -123,7 +123,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
         private static LetstalkModel CreateLetstalkModel(string content)
         {
-            return new LetstalkModel
+            return new()
             {
                 TargetName = "Special-Delete",
                 Subject = "Void Settled Bet Notification",
