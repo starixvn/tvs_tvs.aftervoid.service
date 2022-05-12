@@ -2,7 +2,6 @@
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Fanex.TVS.AfterVoid.Core.Models;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
 
 namespace Fanex.TVS.AfterVoid.Core.Extensions
 {

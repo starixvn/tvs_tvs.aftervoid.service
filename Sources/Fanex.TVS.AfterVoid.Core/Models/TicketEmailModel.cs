@@ -1,7 +1,6 @@
 ﻿using System;
-using Fanex.TVS.AfterVoid.Core.Models;
 
-namespace Fanex.TVS.AfterVoid.Core.SendEmail.Models
+namespace Fanex.TVS.AfterVoid.Core.Models
 {
     public class TicketEmailModel : EmailSupport, SendMessageDbModel
     {

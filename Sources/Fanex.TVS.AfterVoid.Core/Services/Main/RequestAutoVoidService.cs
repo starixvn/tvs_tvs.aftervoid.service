@@ -96,15 +96,10 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
 
             await handleAfterVoidStepService.UpdateEmailResult(automationInfo, sentEmailResults);
 
-            IEnumerable<Result> sentLetstalkResults = null;
-            if (!Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
+            var (isSentLetstalk, sentLetstalkResults) = await handleAfterVoidStepService.SendLetstalk(automationInfo, voidedTickets, matchInfo, voidDataXml);
+            if (!isSentLetstalk)
             {
-                bool isSentLetstalk;
-                (isSentLetstalk, sentLetstalkResults) = await handleAfterVoidStepService.SendLetstalk(automationInfo, voidedTickets, matchInfo, voidDataXml);
-                if (!isSentLetstalk)
-                {
-                    return;
-                }
+                return;
             }
 
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.WinServiceDone);

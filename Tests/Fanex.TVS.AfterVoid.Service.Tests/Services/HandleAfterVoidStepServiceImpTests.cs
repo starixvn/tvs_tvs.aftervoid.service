@@ -480,13 +480,13 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var fakeVoidData = Builder<VoidDataXmlModel>.CreateNew().Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             var notificationLetstalkService = Substitute.For<NotificationLetstalkService>();
-            notificationLetstalkService.Send(Arg.Any<NotificationLetstalkModel>(), Arg.Any<IEnumerable<TicketEmailModel>>()).Returns(false);
+            notificationLetstalkService.SendToSettledBetGroup(Arg.Any<NotificationLetstalkModel>(), Arg.Any<IEnumerable<TicketEmailModel>>()).Returns(false);
             var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, null, null, notificationLetstalkService, null);
 
             var (actualStatus, actualResults) = await service.SendLetstalk(fakeAutomationInfo, fakeEmails, default, fakeVoidData);
 
             notificationLetstalkService.Received(1)
-                .Send(Arg.Any<NotificationLetstalkModel>(), Arg.Is<IEnumerable<TicketEmailModel>>(x => x.Equals(fakeEmails)));
+                .SendToSettledBetGroup(Arg.Any<NotificationLetstalkModel>(), Arg.Is<IEnumerable<TicketEmailModel>>(x => x.Equals(fakeEmails)));
             await voidBetAutomationService.Received(1).UpdateAfterVoidStep(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<VoidBetAutomationInfo>());
             Assert.True(actualStatus);
             Assert.Single(actualResults);

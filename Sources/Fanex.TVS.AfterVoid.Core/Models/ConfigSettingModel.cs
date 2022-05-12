@@ -12,7 +12,9 @@ namespace Fanex.TVS.AfterVoid.Core.Models
 
         public string CategorySentryLog { get; set; }
 
-        public string LetstalkGroup { get; set; }
+        public string LetstalkSettledBetGroup { get; set; }
+
+        public string LetstalkAbnormalBetGroup { get; set; }
 
         public string LetstalkServiceApi { get; set; }
 

@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Core.Models;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
 
 namespace Fanex.TVS.AfterVoid.Core.Services
 {
@@ -23,6 +22,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
         Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason voidedReason, Message message,
             int issueTypeId, string negativeBalanceUsers);
+
+        Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId);
     }
 
     [ExcludeFromCodeCoverage]
@@ -111,6 +112,21 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             if (response.IsSuccessStatusCode)
             {
                 var responseData = await response.Content.ReadAsAsync<IEnumerable<Result>>();
+                return (true, responseData);
+            }
+
+            loggingService.Error($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
+                                 $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
+            return (false, null);
+        }
+
+        public async Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId)
+        {
+            const string actionName = "SendLetstalk/GetContentExcelVoidedTicket";
+            var response = await httpClient.PostAsJsonAsync(actionName, new { requestId, matchId, issueTypeId });
+            if (response.IsSuccessStatusCode)
+            {
+                var responseData = await response.Content.ReadAsAsync<byte[]>();
                 return (true, responseData);
             }
 

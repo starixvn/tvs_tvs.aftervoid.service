@@ -27,7 +27,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var letstalkService = Substitute.For<LetstalkClientService>();
             var service = new NotificationLetstalkServiceImp(letstalkService);
 
-            service.Send(default, new List<TicketEmailModel>());
+            service.SendToSettledBetGroup(default, new List<TicketEmailModel>());
 
             letstalkService.DidNotReceiveWithAnyArgs().SendMessage(default);
         }
@@ -42,7 +42,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var letstalkService = Substitute.For<LetstalkClientService>();
             var service = new NotificationLetstalkServiceImp(letstalkService);
 
-            service.Send(fakeNotificationLetstalkModel, fakeTicketEmail);
+            service.SendToSettledBetGroup(fakeNotificationLetstalkModel, fakeTicketEmail);
 
             letstalkService.DidNotReceiveWithAnyArgs().SendMessage(default);
         }
@@ -62,7 +62,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             letstalkService.SendMessage(default).ReturnsForAnyArgs(false);
             var service = new NotificationLetstalkServiceImp(letstalkService);
 
-            var actual = service.Send(fakeNotificationLetstalkModel, fakeTicketEmail);
+            var actual = service.SendToSettledBetGroup(fakeNotificationLetstalkModel, fakeTicketEmail);
 
             letstalkService.ReceivedWithAnyArgs(1).SendMessage(default);
             Assert.False(actual);
@@ -83,7 +83,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             letstalkService.SendMessage(default).ReturnsForAnyArgs(true);
             var service = new NotificationLetstalkServiceImp(letstalkService);
 
-            var actual = service.Send(fakeNotificationLetstalkModel, fakeTicketEmail);
+            var actual = service.SendToSettledBetGroup(fakeNotificationLetstalkModel, fakeTicketEmail);
 
             letstalkService.ReceivedWithAnyArgs(2).SendMessage(default);
             Assert.True(actual);
@@ -99,7 +99,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var letstalkService = Substitute.For<LetstalkClientService>();
             var service = new NotificationLetstalkServiceImp(letstalkService);
 
-            service.Send(fakeNotificationLetstalkModel, fakeTicketEmail);
+            service.SendToSettledBetGroup(fakeNotificationLetstalkModel, fakeTicketEmail);
 
             letstalkService.DidNotReceiveWithAnyArgs().SendMessage(default);
         }
@@ -122,7 +122,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             letstalkService.SendMessage(default).ReturnsForAnyArgs(true);
             var service = new NotificationLetstalkServiceImp(letstalkService);
 
-            var actual = service.Send(fakeNotificationLetstalkModel, fakeTicketEmail);
+            var actual = service.SendToSettledBetGroup(fakeNotificationLetstalkModel, fakeTicketEmail);
 
             letstalkService.ReceivedWithAnyArgs(1).SendMessage(default);
             Assert.True(actual);
