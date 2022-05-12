@@ -2,7 +2,6 @@
 
 namespace Fanex.TVS.AfterVoid.Core.Models
 {
-    [Serializable]
     public class Result
     {
         public Result()
