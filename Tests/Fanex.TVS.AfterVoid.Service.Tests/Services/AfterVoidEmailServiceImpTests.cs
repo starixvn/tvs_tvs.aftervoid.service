@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Core.Criteria;
 using Fanex.TVS.AfterVoid.Core.Models;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
 using FizzWare.NBuilder;
 using NSubstitute;
 using Xunit;

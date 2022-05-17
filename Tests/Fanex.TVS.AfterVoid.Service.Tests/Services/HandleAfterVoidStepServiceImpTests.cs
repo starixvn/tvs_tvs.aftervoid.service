@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Core.Constants;
 using Fanex.TVS.AfterVoid.Core.Models;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
 using FizzWare.NBuilder;
 using NSubstitute;
 using Xunit;
@@ -476,11 +475,15 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         public async Task SendLetstalk_ReturnNewStatus()
         {
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsSentLetsTalk = false).Build();
+            fakeAutomationInfo.RequestInfo = Builder<RequestDetailViewModel>.CreateNew().Build();
+            fakeAutomationInfo.RequestInfo.EventByMatch = Builder<RequestEventModel>.CreateNew().Build();
+            fakeAutomationInfo.RequestInfo.Request = Builder<RequestModel>.CreateNew().Build();
             var fakeEmails = Builder<TicketEmailModel>.CreateListOfSize(2).Build();
             var fakeVoidData = Builder<VoidDataXmlModel>.CreateNew().Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             var notificationLetstalkService = Substitute.For<NotificationLetstalkService>();
             notificationLetstalkService.SendToSettledBetGroup(Arg.Any<NotificationLetstalkModel>(), Arg.Any<IEnumerable<TicketEmailModel>>()).Returns(false);
+            notificationLetstalkService.SendToAbnormalBetGroup(Arg.Any<NotificationLetstalkModel>(), Arg.Any<IEnumerable<TicketEmailModel>>()).Returns(false);
             var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, null, null, notificationLetstalkService, null);
 
             var (actualStatus, actualResults) = await service.SendLetstalk(fakeAutomationInfo, fakeEmails, default, fakeVoidData);
