@@ -30,6 +30,13 @@ RUN apt-get update && apt-get install -y libfontconfig1
 RUN apt-get install smbclient -y
 RUN apt update && apt install fonts-indic -y
 
+# Don’t run as root
+RUN adduser --disabled-password \
+  --home /app \
+  --gecos '' dotnetuser && chown -R dotnetuser /app
+USER dotnetuser
+#
+
 ENV TZ="America/La_Paz" 
 
 WORKDIR /app
