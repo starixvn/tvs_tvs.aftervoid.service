@@ -344,8 +344,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                 var notificationLetstalkModel = new NotificationLetstalkModel
                 {
                     Match = matchInfo,
-                    UserName = voidData.CreatorName,
-                    DecidedBy = voidData.DecidedBy,
+                    UserName = automationInfo.RequestInfo.Request.VoidedBy,
+                    DecidedBy = automationInfo.RequestInfo.Request.DecidedBy,
                     VoidFromTime = voidData.VoidFromTime,
                     VoidToTime = voidData.VoidToTime,
                     VoidFromDate = voidData.VoidFromDate,
@@ -357,15 +357,11 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                     RequestedBy = automationInfo.RequestInfo.Request.RequestedBy
                 };
 
-                var isSendLetstalkSettledBet = true;
+                var isSendLetstalkSettledBet = notificationLetstalkService.SendToSettledBetGroup(notificationLetstalkModel, emailTickets);
                 var isSendLetstalkAbnormalBet = true;
                 if (Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
                 {
                     isSendLetstalkAbnormalBet = await notificationLetstalkService.SendToAbnormalBetGroup(notificationLetstalkModel, emailTickets);
-                }
-                else
-                {
-                    isSendLetstalkSettledBet = notificationLetstalkService.SendToSettledBetGroup(notificationLetstalkModel, emailTickets);
                 }
 
                 await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistory, new VoidBetAutomationInfo { IsSentLetsTalk = true });

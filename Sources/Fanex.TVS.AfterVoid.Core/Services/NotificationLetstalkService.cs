@@ -37,7 +37,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                 return true;
             }
 
-            UpdateNotificationLetstalkModel(tickets, model);
+            UpdateNotificationLetstalkModel(tickets, model, true);
             var contents = model.IsMemberTemplate ? CreateMessageContentWithMemberTemplate(tickets, model) : CreateMessageContent(model);
             if (contents.Count == 0)
             {
@@ -58,12 +58,13 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
         public async Task<bool> SendToAbnormalBetGroup(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets)
         {
-            if (!tickets.Any())
+            var creditTickets = tickets.Where(x => x.IsCredit);
+            if (!creditTickets.Any())
             {
                 return true;
             }
 
-            UpdateNotificationLetstalkModel(tickets, model);
+            UpdateNotificationLetstalkModel(creditTickets, model, false);
             var letstalkModel = await CreateLetstalkModelAbnormalBet(model);
             var isSentSuccessfully = letstalkService.SendMessage(letstalkModel);
             if (!isSentSuccessfully)
@@ -250,21 +251,21 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             };
         }
 
-        private static void UpdateNotificationLetstalkModel(IEnumerable<TicketEmailModel> tickets, NotificationLetstalkModel model)
+        private static void UpdateNotificationLetstalkModel(IEnumerable<TicketEmailModel> tickets, NotificationLetstalkModel model, bool isCheckSettledTicket)
         {
-            model.SingleCount = tickets.Where(IsValidSettledSingleTicket).Count(ticket => !ticket.IsInstantSettlementTicket);
+            model.SingleCount = tickets.Where(ticket => IsValidSettledSingleTicket(ticket, isCheckSettledTicket)).Count(ticket => !ticket.IsInstantSettlementTicket);
             model.CashOutCount = tickets.Count(ticket => ticket.IsCashOut);
-            model.InstantOUCount = tickets.Where(IsValidSettledSingleTicket).Count(ticket => ticket.IsInstantSettlementTicket);
-            model.ParlayCount = tickets.Count(ticket => IsValidSettledParlayTicket(ticket, false));
+            model.InstantOUCount = tickets.Where(ticket => IsValidSettledSingleTicket(ticket, isCheckSettledTicket)).Count(ticket => ticket.IsInstantSettlementTicket);
+            model.ParlayCount = tickets.Count(ticket => IsValidSettledParlayTicket(ticket, !model.IsMemberTemplate, isCheckSettledTicket));
             model.OutstandingSingleCount = tickets.Count(ticket => !ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
             model.OutstandingParlayCount = tickets.Count(ticket => ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
         }
 
-        private static bool IsValidSettledSingleTicket(TicketEmailModel ticket)
+        private static bool IsValidSettledSingleTicket(TicketEmailModel ticket, bool isCheckSettledTicket)
         {
             var result = !ticket.BetTypeId.IsParlay()
                          && !ticket.IsCashOut
-                         && ticket.Status.IsSettled();
+                         && (!isCheckSettledTicket || ticket.Status.IsSettled());
             if (AppConfigService.AppConfig.IsPRODEnvironment)
             {
                 return result && ticket.Currency != currency20;
@@ -272,10 +273,11 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             return result;
         }
 
-        private static bool IsValidSettledParlayTicket(TicketEmailModel ticket, bool isCheckSubParlay)
+        private static bool IsValidSettledParlayTicket(TicketEmailModel ticket, bool isCheckSubParlay, bool isCheckSettledTicket)
         {
+            var isCheckSettledParlayTicket = (!isCheckSettledTicket || ticket.Status.IsSettled());
             var result = isCheckSubParlay ? ticket.IsMixParlay && ticket.SubStatus.IsSettled()
-                : ticket.BetTypeId.IsParlay() && ticket.Status.IsSettled();
+                : ticket.BetTypeId.IsParlay() && isCheckSettledParlayTicket;
             if (AppConfigService.AppConfig.IsPRODEnvironment)
             {
                 return result && ticket.Currency != currency20;
