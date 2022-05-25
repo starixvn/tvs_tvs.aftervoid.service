@@ -43,6 +43,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             httpClient.BaseAddress = new Uri(AppConfigService.AppConfig.TicketVoidingSystemUrl);
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.Timeout = TimeSpan.FromMinutes(10);
         }
 
         public HttpClient GetHttpClient()
