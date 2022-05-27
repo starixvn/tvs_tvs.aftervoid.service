@@ -84,7 +84,6 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
             services.AddSingleton<NotificationSignalRService, NotificationSignalRServiceImp>();
             services.AddSingleton<SendMessageService, SendMessageServiceImp>();
             services.AddSingleton<LetstalkClientService, LetstalkClientServiceImp>();
-            services.AddSingleton<TicketVoidingSystemApi, TicketVoidingSystemApiImp>();
             services.AddSingleton<AfterVoidEmailService, AfterVoidEmailServiceImp>();
 
             services.AddSingleton<AfterVoidJob>();
