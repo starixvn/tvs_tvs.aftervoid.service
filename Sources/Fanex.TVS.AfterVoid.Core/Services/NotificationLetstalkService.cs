@@ -1,44 +1,51 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Fanex.LetstalkService.Client;
 using Fanex.LetstalkService.Core.Models;
+using Fanex.TVS.AfterVoid.Core.Constants;
 using Fanex.TVS.AfterVoid.Core.Extensions;
 using Fanex.TVS.AfterVoid.Core.Models;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
 
 namespace Fanex.TVS.AfterVoid.Core.Services
 {
     public interface NotificationLetstalkService
     {
-        bool Send(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets);
+        bool SendToSettledBetGroup(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets);
+
+        Task<bool> SendToAbnormalBetGroup(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets);
     }
 
     public class NotificationLetstalkServiceImp : NotificationLetstalkService
     {
         private readonly LetstalkClientService letstalkService;
+        private readonly AfterVoidEmailService afterVoidEmailService;
         private const int maxContent = 1024;
         private const int currency20 = 20;
 
-        public NotificationLetstalkServiceImp(LetstalkClientService letstalkService)
+        public NotificationLetstalkServiceImp(LetstalkClientService letstalkService, AfterVoidEmailService afterVoidEmailService)
         {
             this.letstalkService = letstalkService;
+            this.afterVoidEmailService = afterVoidEmailService;
         }
 
-        public bool Send(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets)
+        public bool SendToSettledBetGroup(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets)
         {
             if (!tickets.Any())
             {
                 return true;
             }
-            var contents = model.IsMemberTemplate ? CreateMessageContentWithMemberTemplate(tickets, model) : CreateMessageContent(tickets, model);
+
+            UpdateNotificationLetstalkModel(tickets, model, true);
+            var contents = model.IsMemberTemplate ? CreateMessageContentWithMemberTemplate(tickets, model) : CreateMessageContent(model);
             if (contents.Count == 0)
             {
                 return true;
             }
             foreach (var item in contents)
             {
-                var letstalkModel = CreateLetstalkModel(item);
+                var letstalkModel = CreateLetstalkModelSettledBet(item);
                 var isSentSuccessfully = letstalkService.SendMessage(letstalkModel);
                 if (!isSentSuccessfully)
                 {
@@ -49,25 +56,35 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             return true;
         }
 
-        private static List<string> CreateMessageContent(IEnumerable<TicketEmailModel> tickets, NotificationLetstalkModel model)
+        public async Task<bool> SendToAbnormalBetGroup(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets)
         {
-            var singleTickets = tickets.Where(ticket => !ticket.IsMixParlay && IsValidSettledSingleTicket(ticket));
-            var singleCount = singleTickets.Count(ticket => !ticket.IsInstantSettlementTicket);
-            var cashOutCount = tickets.Count(ticket => ticket.IsCashOut);
-            var instantOUCount = singleTickets.Count(ticket => ticket.IsInstantSettlementTicket);
-            var parlayCount = tickets.Count(ticket => IsValidSettledParlayTicket(ticket, true));
-            if (singleCount == 0 && parlayCount == 0 && cashOutCount == 0)
+            var creditTickets = tickets.Where(x => x.IsCredit);
+            if (!creditTickets.Any())
+            {
+                return true;
+            }
+
+            UpdateNotificationLetstalkModel(creditTickets, model, false);
+            var letstalkModel = await CreateLetstalkModelAbnormalBet(model);
+            var isSentSuccessfully = letstalkService.SendMessage(letstalkModel);
+            if (!isSentSuccessfully)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static List<string> CreateMessageContent(NotificationLetstalkModel model)
+        {
+            if (model.SingleCount == 0 && model.ParlayCount == 0 && model.CashOutCount == 0)
             {
                 return new List<string>();
             }
-            model.SingleCount = singleCount;
-            model.CashOutCount = cashOutCount;
-            model.InstantOUCount = instantOUCount;
-            model.ParlayCount = parlayCount;
-            StringBuilder content = new StringBuilder();
+            var content = new StringBuilder();
             content.AppendLine($"Match ID: {model.Match.MatchId}");
-            content.AppendLine($"Event Date: {model.Match.EventDate.ToString("dd MMMM yyyy")}");
-            content.AppendLine($"Kick Off: {model.Match.KickOffTime.ToString("h:mm tt")}");
+            content.AppendLine($"Event Date: {model.Match.EventDate:dd MMMM yyyy}");
+            content.AppendLine($"Kick Off: {model.Match.KickOffTime:h:mm tt}");
             content.AppendLine($"League: {model.Match.LeagueName}");
             content.AppendLine($"Match: {model.Match.MatchEvent}");
             if (!string.IsNullOrEmpty(model.DecidedBy))
@@ -83,25 +100,14 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         private static List<string> CreateMessageContentWithMemberTemplate(IEnumerable<TicketEmailModel> tickets, NotificationLetstalkModel model)
         {
             var messages = new List<string>();
-            var singleTickets = tickets.Where(IsValidSettledSingleTicket);
-            var singleCount = singleTickets.Count(ticket => !ticket.IsInstantSettlementTicket);
-            var cashOutCount = tickets.Count(ticket => ticket.IsCashOut);
-            var instantOUCount = singleTickets.Count(ticket => ticket.IsInstantSettlementTicket);
-            var parlayCount = tickets.Count(ticket => IsValidSettledParlayTicket(ticket, false));
-            if (singleCount == 0 && parlayCount == 0 && cashOutCount == 0)
+            if (model.SingleCount == 0 && model.ParlayCount == 0 && model.CashOutCount == 0)
             {
                 return new List<string>();
             }
-            model.SingleCount = singleCount;
-            model.CashOutCount = cashOutCount;
-            model.InstantOUCount = instantOUCount;
-            model.ParlayCount = parlayCount;
-            model.OutstandingSingleCount = tickets.Count(ticket => !ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
-            model.OutstandingParlayCount = tickets.Count(ticket => ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
             var members = tickets.Where(ticket => ticket.Status.IsSettled()).Select(item => item.UserName).Distinct();
             var userNames = $"Username: {string.Join(", ", members)}";
 
-            StringBuilder content = new StringBuilder();
+            var content = new StringBuilder();
             content.AppendLine($"Void Date: {model.VoidFromDate} - {model.VoidToDate}");
             if (!string.IsNullOrEmpty(model.DecidedBy))
             {
@@ -121,38 +127,15 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             return messages;
         }
 
-        private static LetstalkModel CreateLetstalkModel(string content)
+        private static LetstalkModel CreateLetstalkModelSettledBet(string content)
         {
             return new()
             {
                 TargetName = "Special-Delete",
                 Subject = "Void Settled Bet Notification",
                 Content = content,
-                Group = AppConfigService.AppConfig.LetstalkGroup
+                Group = AppConfigService.AppConfig.LetstalkSettledBetGroup
             };
-        }
-
-        private static bool IsValidSettledSingleTicket(TicketEmailModel ticket)
-        {
-            var result = !ticket.BetTypeId.IsParlay()
-                        && !ticket.IsCashOut
-                        && ticket.Status.IsSettled();
-            if (AppConfigService.AppConfig.IsPRODEnvironment)
-            {
-                return result && ticket.Currency != currency20;
-            }
-            return result;
-        }
-
-        private static bool IsValidSettledParlayTicket(TicketEmailModel ticket, bool isCheckSubParlay)
-        {
-            var result = isCheckSubParlay ? ticket.IsMixParlay && ticket.SubStatus.IsSettled()
-                                    : ticket.BetTypeId.IsParlay() && ticket.Status.IsSettled();
-            if (AppConfigService.AppConfig.IsPRODEnvironment)
-            {
-                return result && ticket.Currency != currency20;
-            }
-            return result;
         }
 
         private static IEnumerable<string> GenerateMultipleContent(StringBuilder content, IEnumerable<string> members)
@@ -178,6 +161,169 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             }
             results.Add(tempContent);
             return results;
+        }
+
+        private static string CreateMessageAbnormalBetContent(NotificationLetstalkModel model)
+        {
+            if (model.SingleCount == 0 && model.ParlayCount == 0 && model.CashOutCount == 0)
+            {
+                return string.Empty;
+            }
+
+            switch (model.IssueTypeId)
+            {
+                case IssueTypeConstant.AbnormalBet when model.FilterBy == null:
+                case IssueTypeConstant.AbnormalBetRealMember:
+                    return CreateMessageContentAbnormalBetWithMatch(model);
+
+                case IssueTypeConstant.AbnormalBet when model.FilterBy == 1:
+                    return CreateMessageContentAbnormalBetWithNoneMatch(model);
+
+                default:
+                    return string.Empty;
+            }
+        }
+
+        private static string CreateMessageContentAbnormalBetWithMatch(NotificationLetstalkModel model)
+        {
+            var content = new StringBuilder();
+            content.AppendLine($"Request ID: {model.RequestId}");
+            content.AppendLine($"Match ID: {model.Match.MatchId}");
+            content.AppendLine($"Event Date: {model.Match.EventDate:dd MMMM yyyy}");
+            content.AppendLine($"Kick Off: {model.Match.KickOffTime:h:mm tt}");
+            content.AppendLine($"League: {model.Match.LeagueName}");
+            content.AppendLine($"Match: {model.Match.MatchEvent}");
+            if (!string.IsNullOrEmpty(model.DecidedBy))
+            {
+                content.AppendLine($"Decided by: {model.DecidedBy}");
+            }
+            content.AppendLine($"Requested by: {model.RequestedBy}");
+            content.AppendLine($"Voided by: {model.UserName}");
+
+            return content.ToString();
+        }
+
+        private static string CreateMessageContentAbnormalBetWithNoneMatch(NotificationLetstalkModel model)
+        {
+            var content = new StringBuilder();
+            content.AppendLine($"Request ID: {model.RequestId}");
+            if (!string.IsNullOrEmpty(model.DecidedBy))
+            {
+                content.AppendLine($"Decided by: {model.DecidedBy}");
+            }
+            content.AppendLine($"Requested by: {model.RequestedBy}");
+            content.AppendLine($"Voided by: {model.UserName}");
+
+            return content.ToString();
+        }
+
+        private async Task<LetstalkModel> CreateLetstalkModelAbnormalBet(NotificationLetstalkModel model)
+        {
+            var subject = GetSubjectLetstalkModel(model);
+            var content = CreateMessageAbnormalBetContent(model);
+            var attachments = await afterVoidEmailService.GetContentExcelVoidedTicket(model.RequestId,
+                model.Match?.MatchId ?? 29, model.IssueTypeId);
+            return new LetstalkModel
+            {
+                TargetName = "TVS-Void-Abnormal-Bets",
+                Subject = subject,
+                Content = content,
+                Group = AppConfigService.AppConfig.LetstalkAbnormalBetGroup,
+                LetstalkAttachments = new List<LetstalkAttachment>
+                {
+                    new()
+                    {
+                        FileName = $"Req.{model.RequestId}_TVS_DeleteBet.xlsx",
+                        Bytes = attachments
+                    }
+                }
+            };
+        }
+
+        private static string GetSubjectLetstalkModel(NotificationLetstalkModel model)
+        {
+            return model.IssueTypeId switch
+            {
+                IssueTypeConstant.AbnormalBet when model.FilterBy == null => "Void Abnormal Bet Notification",
+                IssueTypeConstant.AbnormalBetRealMember => "Void AB (Real Member) Notification",
+                IssueTypeConstant.AbnormalBet when model.FilterBy == 1 => "Void Abnormal Bet Notification - Mix Parlay",
+                _ => string.Empty
+            };
+        }
+
+        private static void UpdateNotificationLetstalkModel(IEnumerable<TicketEmailModel> tickets, NotificationLetstalkModel model, bool isSettledGroup)
+        {
+            if (isSettledGroup)
+            {
+                model.SingleCount = tickets.Where(IsValidSettledSingleTicket).Count(ticket => !ticket.IsInstantSettlementTicket);
+                model.InstantOUCount = tickets.Where(IsValidSettledSingleTicket).Count(ticket => ticket.IsInstantSettlementTicket);
+                model.ParlayCount = tickets.Count(ticket => IsValidSettledParlayTicket(ticket, !model.IsMemberTemplate));
+            }
+            else
+            {
+                model.SingleCount = tickets.Where(IsValidSingleTicketAbnormalBetGroup).Count(ticket => !ticket.IsInstantSettlementTicket);
+                model.InstantOUCount = tickets.Where(IsValidSingleTicketAbnormalBetGroup).Count(ticket => ticket.IsInstantSettlementTicket);
+                model.ParlayCount = tickets.Count(IsValidParlayTicketAbnormalBetGroup);
+            }
+            model.CashOutCount = tickets.Count(IsValidCashOutTicket);
+            model.OutstandingSingleCount = tickets.Count(ticket => !ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
+            model.OutstandingParlayCount = tickets.Count(ticket => ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
+        }
+
+        private static bool IsValidSettledSingleTicket(TicketEmailModel ticket)
+        {
+            var result = !ticket.BetTypeId.IsParlay()
+                         && !ticket.IsCashOut
+                         && ticket.Status.IsSettled();
+            if (AppConfigService.AppConfig.IsPRODEnvironment)
+            {
+                return result && ticket.Currency != currency20;
+            }
+
+            return result;
+        }
+
+        private static bool IsValidSettledParlayTicket(TicketEmailModel ticket, bool isCheckSubParlay)
+        {
+            var result = isCheckSubParlay ? ticket.IsMixParlay && ticket.SubStatus.IsSettled()
+                : ticket.BetTypeId.IsParlay() && ticket.Status.IsSettled();
+            if (AppConfigService.AppConfig.IsPRODEnvironment)
+            {
+                return result && ticket.Currency != currency20;
+            }
+
+            return result;
+        }
+
+        private static bool IsValidSingleTicketAbnormalBetGroup(TicketEmailModel ticket)
+        {
+            var result = !ticket.BetTypeId.IsParlay() && !ticket.IsCashOut;
+            if (AppConfigService.AppConfig.IsPRODEnvironment)
+            {
+                return result && ticket.Currency != currency20;
+            }
+
+            return result;
+        }
+
+        private static bool IsValidParlayTicketAbnormalBetGroup(TicketEmailModel ticket)
+        {
+            if (AppConfigService.AppConfig.IsPRODEnvironment)
+            {
+                return ticket.IsMixParlay && ticket.Currency != currency20;
+            }
+
+            return ticket.IsMixParlay;
+        }
+
+        private static bool IsValidCashOutTicket(TicketEmailModel ticket)
+        {
+            if (AppConfigService.AppConfig.IsPRODEnvironment)
+            {
+                return ticket.IsCashOut && ticket.Currency != currency20;
+            }
+
+            return ticket.IsCashOut;
         }
     }
 }

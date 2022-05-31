@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Fanex.TVS.AfterVoid.Core.Services;
 using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Microsoft.AspNetCore.Builder;
@@ -25,6 +26,7 @@ namespace Fanex.TVS.AfterVoid.Service
             services.LoadConfig();
             services.AddControllers();
             services.AddRazorPages().AddRazorRuntimeCompilation();
+            services.AddHttpClient<TicketVoidingSystemApi, TicketVoidingSystemApiImp>();
             services.RegisterFanexData(Configuration);
             services.RegisterSentry(Configuration);
             services.RegisterFanexCaching(Configuration);

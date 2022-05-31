@@ -6,11 +6,27 @@
   </PropertyGroup>
     
   <ItemGroup>
+    <None Remove="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.AWS.xml" />
+    <None Remove="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.LOCAL.xml" />
+    <None Remove="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.PROD.xml" />
+    <None Remove="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.SIT.xml" />
     <None Remove="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.xml" />
   </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="..\..\.sonarlint\tvs.aftervoid.service\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+    <Content Include="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.AWS.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.LOCAL.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.PROD.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.SIT.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

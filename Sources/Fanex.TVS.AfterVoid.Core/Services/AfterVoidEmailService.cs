@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Core.Criteria;
 using Fanex.TVS.AfterVoid.Core.Models;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
 using Fanex.TVS.AfterVoid.Core.Utilities;
 
 namespace Fanex.TVS.AfterVoid.Core.Services
@@ -13,6 +12,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services
     public interface AfterVoidEmailService
     {
         Task<IEnumerable<Result>> Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message);
+
+        Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId);
     }
 
     public class AfterVoidEmailServiceImp : AfterVoidEmailService
@@ -43,6 +44,17 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             }
 
             throw new ExternalException("ticketVoidingSystemApi.SendEmail");
+        }
+
+        public async Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId)
+        {
+            var (isSentEmail, results) = await ticketVoidingSystemApi.GetContentExcelVoidedTicket(requestId, matchId, issueTypeId);
+            if (isSentEmail)
+            {
+                return results;
+            }
+
+            throw new ExternalException("ticketVoidingSystemApi.GetContentExcelVoidedTicket");
         }
 
         private async Task<SubIssueType> GetSubIssueTypeById(int subId)

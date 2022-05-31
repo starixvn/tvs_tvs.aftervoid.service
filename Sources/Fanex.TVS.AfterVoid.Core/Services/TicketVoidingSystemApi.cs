@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Net.Mime;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Fanex.Logging;
 using Fanex.TVS.AfterVoid.Core.Models;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
 
 namespace Fanex.TVS.AfterVoid.Core.Services
 {
     public interface TicketVoidingSystemApi
     {
-        HttpClient GetHttpClient();
-
         Task SignalRUpdateRequestStatusToAllUsers(IEnumerable<RequestStatus> status);
 
         Task SignalRNotifyErrorMessageToUser(string userName, string message);
@@ -23,83 +23,90 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
         Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason voidedReason, Message message,
             int issueTypeId, string negativeBalanceUsers);
+
+        Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId);
     }
 
     [ExcludeFromCodeCoverage]
     public class TicketVoidingSystemApiImp : TicketVoidingSystemApi
     {
-        private static readonly HttpClient httpClient = new();
-        private readonly LoggingService loggingService;
+        private readonly HttpClient httpClient;
 
-        public TicketVoidingSystemApiImp(LoggingService loggingService)
+        public TicketVoidingSystemApiImp(HttpClient client)
         {
-            SetupClientDefault();
-            this.loggingService = loggingService;
-        }
-
-        private static void SetupClientDefault()
-        {
+            httpClient = client;
             httpClient.BaseAddress = new Uri(AppConfigService.AppConfig.TicketVoidingSystemUrl);
-            httpClient.DefaultRequestHeaders.Accept.Clear();
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.Timeout = TimeSpan.FromMinutes(5);
+            httpClient.DefaultRequestHeaders.Clear();
+            httpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Json);
         }
 
-        public HttpClient GetHttpClient()
+        private StringContent CreateRequestStringContent<T>(T data)
         {
-            return httpClient;
+            var dataJson = new StringContent(
+                JsonSerializer.Serialize(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }),
+                Encoding.UTF8,
+                MediaTypeNames.Application.Json);
+
+            return dataJson;
+        }
+
+        private static async Task<T> DeserializeResponseStream<T>(HttpResponseMessage response)
+        {
+            await using var responseStream = await response.Content.ReadAsStreamAsync();
+            return await JsonSerializer.DeserializeAsync<T>(responseStream);
         }
 
         public async Task SignalRUpdateRequestStatusToAllUsers(IEnumerable<RequestStatus> status)
         {
             const string actionName = "SignalRApi/UpdateRequestStatusToAllUsers";
-            var response = await httpClient.PostAsJsonAsync(actionName, new { status });
+            using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { status }));
             if (response.IsSuccessStatusCode)
             {
                 return;
             }
 
-            loggingService.Error($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
-                                 $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
+            await LogService.ErrorAsync($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
+                             $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
         }
 
         public async Task SignalRNotifyErrorMessageToUser(string userName, string message)
         {
             const string actionName = "SignalRApi/NotifyErrorMessageToUser";
-            var response = await httpClient.PostAsJsonAsync(actionName, new { userName, message });
+            using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { userName, message }));
             if (response.IsSuccessStatusCode)
             {
                 return;
             }
 
-            loggingService.Error($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
-                                 $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
+            await LogService.ErrorAsync($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
+                                        $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
         }
 
         public async Task SignalRNotifyVoidResultToUser(string userName, IEnumerable<Result> results)
         {
             const string actionName = "SignalRApi/NotifyVoidResultToUser";
-            var response = await httpClient.PostAsJsonAsync(actionName, new { userName, results });
+            using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { userName, results }));
             if (response.IsSuccessStatusCode)
             {
                 return;
             }
 
-            loggingService.Error($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
-                                 $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
+            await LogService.ErrorAsync($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
+                                        $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
         }
 
         public async Task<string> BetListGetSportTypeName(int sportType, string languageCode)
         {
             const string actionName = "BetListCore/GetSportTypeName";
-            var response = await httpClient.PostAsJsonAsync(actionName, new { sportType, languageCode });
+            using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { sportType, languageCode }));
             if (response.IsSuccessStatusCode)
             {
-                var responseData = await response.Content.ReadAsAsync<string>();
-                return responseData;
+                return await DeserializeResponseStream<string>(response);
             }
 
-            loggingService.Error($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
-                                 $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
+            await LogService.ErrorAsync($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
+                                        $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
             return string.Empty;
         }
 
@@ -107,15 +114,30 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             int issueTypeId, string negativeBalanceUsers)
         {
             const string actionName = "SendEmail/Send";
-            var response = await httpClient.PostAsJsonAsync(actionName, new { emailTickets, match, voidedReason, message, issueTypeId, negativeBalanceUsers });
+            using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { emailTickets, match, voidedReason, message, issueTypeId, negativeBalanceUsers }));
             if (response.IsSuccessStatusCode)
             {
-                var responseData = await response.Content.ReadAsAsync<IEnumerable<Result>>();
+                var responseData = await DeserializeResponseStream<IEnumerable<Result>>(response);
                 return (true, responseData);
             }
 
-            loggingService.Error($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
-                                 $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
+            await LogService.ErrorAsync($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
+                                        $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
+            return (false, null);
+        }
+
+        public async Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId)
+        {
+            const string actionName = "SendLetstalk/GetContentExcelVoidedTicket";
+            using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { requestId, matchId, issueTypeId }));
+            if (response.IsSuccessStatusCode)
+            {
+                var responseData = await DeserializeResponseStream<byte[]>(response);
+                return (true, responseData);
+            }
+
+            await LogService.ErrorAsync($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
+                                        $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
             return (false, null);
         }
     }

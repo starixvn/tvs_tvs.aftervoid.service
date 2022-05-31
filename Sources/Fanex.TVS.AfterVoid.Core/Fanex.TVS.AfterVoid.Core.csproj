@@ -6,12 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="SendEmail\Criteria\**" />
-    <Compile Remove="SendEmail\Services\**" />
-    <EmbeddedResource Remove="SendEmail\Criteria\**" />
-    <EmbeddedResource Remove="SendEmail\Services\**" />
-    <None Remove="SendEmail\Criteria\**" />
-    <None Remove="SendEmail\Services\**" />
+    <Compile Remove="SendEmail\**" />
+    <EmbeddedResource Remove="SendEmail\**" />
+    <None Remove="SendEmail\**" />
   </ItemGroup>
 
   <ItemGroup>

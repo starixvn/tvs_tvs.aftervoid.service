@@ -1,7 +1,6 @@
 ﻿using System;
-using Fanex.TVS.AfterVoid.Core.Models;
 
-namespace Fanex.TVS.AfterVoid.Core.SendEmail.Models
+namespace Fanex.TVS.AfterVoid.Core.Models
 {
     public class TicketEmailModel : EmailSupport, SendMessageDbModel
     {
@@ -58,6 +57,7 @@ namespace Fanex.TVS.AfterVoid.Core.SendEmail.Models
         public string EmailGroup { get; set; }
         public string Site { get; set; }
         public bool IsCashOut { get; set; }
+        public bool IsCredit { get; set; }
         public bool IsItSupport { get; set; }
         public bool IsITSupportCreatedRequest { get; set; }
         public int Currency { get; set; }

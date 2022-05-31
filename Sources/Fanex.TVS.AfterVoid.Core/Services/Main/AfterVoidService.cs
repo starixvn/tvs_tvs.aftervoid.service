@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Core.Models;
@@ -38,6 +39,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
 
         public async Task Execute()
         {
+            var stopwatch = Stopwatch.StartNew();
             var automationStatistic = await voidBetAutomationService.GetVoidBetAutomationStatistic();
 
             await notificationSignalRService.UpdateRunningStatusForRequests(automationStatistic.RequestsWillUpdateStatus);
@@ -60,7 +62,12 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
                 await ExecuteForManualVoid(firstRequest.RequestInfo.Request.IssueTypeId, automationStatistic.RequestsWillRunAfterVoid);
             }
 
-            loggingService.Info($"End - Session: {firstRequest.SessionId} - Total Request: {automationStatistic.RequestsWillRunAfterVoid.Count()} - " + DateTime.Now);
+            loggingService.Info(
+                $"End - Session: {firstRequest.SessionId} - "
+                + $"Total Request: {automationStatistic.RequestsWillRunAfterVoid.Count()} - "
+                + $"Execute Time: {stopwatch.ElapsedMilliseconds} ms - "
+                + $"{DateTime.Now}"
+                );
         }
 
         private async Task UpdateRequestInfo(IEnumerable<VoidBetAutomationInfo> automationInfoList)

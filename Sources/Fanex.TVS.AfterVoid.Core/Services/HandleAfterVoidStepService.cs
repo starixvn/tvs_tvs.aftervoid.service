@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Core.Constants;
 using Fanex.TVS.AfterVoid.Core.Extensions;
 using Fanex.TVS.AfterVoid.Core.Models;
-using Fanex.TVS.AfterVoid.Core.SendEmail.Models;
+using Fanex.TVS.AfterVoid.Core.Utilities;
 
 namespace Fanex.TVS.AfterVoid.Core.Services
 {
@@ -57,7 +57,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         private readonly LoggingService loggingService;
 
         public HandleAfterVoidStepServiceImp(VoidBetAutomationService voidBetAutomationService, SendMessageService sendMessageService,
-            NotificationSignalRService notificationSignalRService, AfterVoidEmailService afterVoidEmailService, NotificationLetstalkService notificationLetstalkService, LoggingService loggingService)
+            NotificationSignalRService notificationSignalRService, AfterVoidEmailService afterVoidEmailService,
+            NotificationLetstalkService notificationLetstalkService, LoggingService loggingService)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.sendMessageService = sendMessageService;
@@ -343,19 +344,29 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                 var notificationLetstalkModel = new NotificationLetstalkModel
                 {
                     Match = matchInfo,
-                    UserName = voidData.CreatorName,
-                    DecidedBy = voidData.DecidedBy,
+                    UserName = automationInfo.RequestInfo.Request.VoidedBy,
+                    DecidedBy = automationInfo.RequestInfo.Request.DecidedBy,
                     VoidFromTime = voidData.VoidFromTime,
                     VoidToTime = voidData.VoidToTime,
                     VoidFromDate = voidData.VoidFromDate,
                     VoidToDate = voidData.VoidToDate,
-                    IsMemberTemplate = !(matchInfo?.MatchId > 0)
+                    IsMemberTemplate = !(matchInfo?.MatchId > 0),
+                    IssueTypeId = automationInfo.RequestInfo.Request.IssueTypeId,
+                    FilterBy = automationInfo.RequestInfo.EventByMatch.FilterBy,
+                    RequestId = automationInfo.RequestId,
+                    RequestedBy = automationInfo.RequestInfo.Request.RequestedBy
                 };
 
-                var isSendLetstalk = notificationLetstalkService.Send(notificationLetstalkModel, emailTickets);
+                var isSendLetstalkSettledBet = notificationLetstalkService.SendToSettledBetGroup(notificationLetstalkModel, emailTickets);
+                var isSendLetstalkAbnormalBet = true;
+                if (Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
+                {
+                    isSendLetstalkAbnormalBet = await notificationLetstalkService.SendToAbnormalBetGroup(notificationLetstalkModel, emailTickets);
+                }
+
                 await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistory, new VoidBetAutomationInfo { IsSentLetsTalk = true });
 
-                if (!isSendLetstalk)
+                if (!isSendLetstalkSettledBet || !isSendLetstalkAbnormalBet)
                 {
                     results.Add(new Result { ErrorCode = ErrorCode.SendLetstalkFail, ErrorMsg = "Failed to send message via Letstalk." });
                 }

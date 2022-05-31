@@ -1,4 +1,4 @@
-﻿namespace Fanex.TVS.AfterVoid.Core.SendEmail.Models
+﻿namespace Fanex.TVS.AfterVoid.Core.Models
 {
     public interface EmailSupport
     {
@@ -13,12 +13,5 @@
         bool IsITSupportCreatedRequest { get; set; }
 
         int Currency { get; set; }
-    }
-
-    public interface EmailRecoverSupport
-    {
-        bool IsItSupport { get; set; }
-
-        string CurrencyCode { get; set; }
     }
 }

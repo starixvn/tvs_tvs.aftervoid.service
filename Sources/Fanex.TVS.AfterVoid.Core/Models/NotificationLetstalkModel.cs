@@ -16,5 +16,10 @@
         public int OutstandingSingleCount { get; set; }
         public int OutstandingParlayCount { get; set; }
         public bool IsMemberTemplate { get; set; }
+        public int IssueTypeId { get; set; }
+        public int? FilterBy { get; set; }
+        public int RequestId { get; set; }
+        public string RequestedBy { get; set; }
+        public int MatchId { get; set; }
     }
 }
