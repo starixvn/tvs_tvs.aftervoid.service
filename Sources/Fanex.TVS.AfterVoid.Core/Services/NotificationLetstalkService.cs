@@ -174,17 +174,17 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             {
                 case IssueTypeConstant.AbnormalBet when model.FilterBy == null:
                 case IssueTypeConstant.AbnormalBetRealMember:
-                    return CreateMessageContentWithMatch(model);
+                    return CreateMessageContentAbnormalBetWithMatch(model);
 
                 case IssueTypeConstant.AbnormalBet when model.FilterBy == 1:
-                    return CreateMessageContentWithNoneMatch(model);
+                    return CreateMessageContentAbnormalBetWithNoneMatch(model);
 
                 default:
                     return string.Empty;
             }
         }
 
-        private static string CreateMessageContentWithMatch(NotificationLetstalkModel model)
+        private static string CreateMessageContentAbnormalBetWithMatch(NotificationLetstalkModel model)
         {
             var content = new StringBuilder();
             content.AppendLine($"Request ID: {model.RequestId}");
@@ -203,7 +203,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             return content.ToString();
         }
 
-        private static string CreateMessageContentWithNoneMatch(NotificationLetstalkModel model)
+        private static string CreateMessageContentAbnormalBetWithNoneMatch(NotificationLetstalkModel model)
         {
             var content = new StringBuilder();
             content.AppendLine($"Request ID: {model.RequestId}");
@@ -251,38 +251,79 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             };
         }
 
-        private static void UpdateNotificationLetstalkModel(IEnumerable<TicketEmailModel> tickets, NotificationLetstalkModel model, bool isCheckSettledTicket)
+        private static void UpdateNotificationLetstalkModel(IEnumerable<TicketEmailModel> tickets, NotificationLetstalkModel model, bool isSettledGroup)
         {
-            model.SingleCount = tickets.Where(ticket => IsValidSettledSingleTicket(ticket, isCheckSettledTicket)).Count(ticket => !ticket.IsInstantSettlementTicket);
-            model.CashOutCount = tickets.Count(ticket => ticket.IsCashOut);
-            model.InstantOUCount = tickets.Where(ticket => IsValidSettledSingleTicket(ticket, isCheckSettledTicket)).Count(ticket => ticket.IsInstantSettlementTicket);
-            model.ParlayCount = tickets.Count(ticket => IsValidSettledParlayTicket(ticket, !model.IsMemberTemplate, isCheckSettledTicket));
+            if (isSettledGroup)
+            {
+                model.SingleCount = tickets.Where(IsValidSettledSingleTicket).Count(ticket => !ticket.IsInstantSettlementTicket);
+                model.InstantOUCount = tickets.Where(IsValidSettledSingleTicket).Count(ticket => ticket.IsInstantSettlementTicket);
+                model.ParlayCount = tickets.Count(ticket => IsValidSettledParlayTicket(ticket, !model.IsMemberTemplate));
+            }
+            else
+            {
+                model.SingleCount = tickets.Where(IsValidSingleTicketAbnormalBetGroup).Count(ticket => !ticket.IsInstantSettlementTicket);
+                model.InstantOUCount = tickets.Where(IsValidSingleTicketAbnormalBetGroup).Count(ticket => ticket.IsInstantSettlementTicket);
+                model.ParlayCount = tickets.Count(IsValidParlayTicketAbnormalBetGroup);
+            }
+            model.CashOutCount = tickets.Count(IsValidCashOutTicket);
             model.OutstandingSingleCount = tickets.Count(ticket => !ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
             model.OutstandingParlayCount = tickets.Count(ticket => ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
         }
 
-        private static bool IsValidSettledSingleTicket(TicketEmailModel ticket, bool isCheckSettledTicket)
+        private static bool IsValidSettledSingleTicket(TicketEmailModel ticket)
         {
             var result = !ticket.BetTypeId.IsParlay()
                          && !ticket.IsCashOut
-                         && (!isCheckSettledTicket || ticket.Status.IsSettled());
+                         && ticket.Status.IsSettled();
             if (AppConfigService.AppConfig.IsPRODEnvironment)
             {
                 return result && ticket.Currency != currency20;
             }
+
             return result;
         }
 
-        private static bool IsValidSettledParlayTicket(TicketEmailModel ticket, bool isCheckSubParlay, bool isCheckSettledTicket)
+        private static bool IsValidSettledParlayTicket(TicketEmailModel ticket, bool isCheckSubParlay)
         {
-            var isCheckSettledParlayTicket = (!isCheckSettledTicket || ticket.Status.IsSettled());
             var result = isCheckSubParlay ? ticket.IsMixParlay && ticket.SubStatus.IsSettled()
-                : ticket.BetTypeId.IsParlay() && isCheckSettledParlayTicket;
+                : ticket.BetTypeId.IsParlay() && ticket.Status.IsSettled();
             if (AppConfigService.AppConfig.IsPRODEnvironment)
             {
                 return result && ticket.Currency != currency20;
             }
+
             return result;
+        }
+
+        private static bool IsValidSingleTicketAbnormalBetGroup(TicketEmailModel ticket)
+        {
+            var result = !ticket.BetTypeId.IsParlay() && !ticket.IsCashOut;
+            if (AppConfigService.AppConfig.IsPRODEnvironment)
+            {
+                return result && ticket.Currency != currency20;
+            }
+
+            return result;
+        }
+
+        private static bool IsValidParlayTicketAbnormalBetGroup(TicketEmailModel ticket)
+        {
+            if (AppConfigService.AppConfig.IsPRODEnvironment)
+            {
+                return ticket.IsMixParlay && ticket.Currency != currency20;
+            }
+
+            return ticket.IsMixParlay;
+        }
+
+        private static bool IsValidCashOutTicket(TicketEmailModel ticket)
+        {
+            if (AppConfigService.AppConfig.IsPRODEnvironment)
+            {
+                return ticket.IsCashOut && ticket.Currency != currency20;
+            }
+
+            return ticket.IsCashOut;
         }
     }
 }
