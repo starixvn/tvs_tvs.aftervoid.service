@@ -104,6 +104,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
                 return;
             }
 
+            await handleAfterVoidStepService.CallCashOutApi(automationInfo, voidedTickets);
+
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.WinServiceDone);
 
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.VoidingHistory);

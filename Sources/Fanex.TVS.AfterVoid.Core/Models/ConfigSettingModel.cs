@@ -22,6 +22,8 @@ namespace Fanex.TVS.AfterVoid.Core.Models
 
         public string TicketVoidingSystemUrl { get; set; }
 
+        public string JackTimeCashOutUrl { get; set; }
+
         public string AppMailId { get; set; }
         public string AppMailAddress { get; set; }
         public string MailingList { get; set; }

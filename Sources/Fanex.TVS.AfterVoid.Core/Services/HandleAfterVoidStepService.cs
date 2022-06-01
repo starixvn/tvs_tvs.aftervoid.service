@@ -18,6 +18,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
         Task<bool> RunExternalService(VoidBetAutomationInfo automationInfo);
 
+        Task CallCashOutApi(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets);
+
         Task<Message> CreateMessageIdForManualVoid(VoidBetAutomationInfo automationInfo, VoidDataXmlModel voidData);
 
         Task<VoidedReason> CreateVoidedReason(VoidBetAutomationInfo automationInfo, int sportType,
@@ -55,10 +57,11 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         private readonly AfterVoidEmailService afterVoidEmailService;
         private readonly NotificationLetstalkService notificationLetstalkService;
         private readonly LoggingService loggingService;
+        private readonly CashOutApi cashOutApi;
 
         public HandleAfterVoidStepServiceImp(VoidBetAutomationService voidBetAutomationService, SendMessageService sendMessageService,
             NotificationSignalRService notificationSignalRService, AfterVoidEmailService afterVoidEmailService,
-            NotificationLetstalkService notificationLetstalkService, LoggingService loggingService)
+            NotificationLetstalkService notificationLetstalkService, LoggingService loggingService, CashOutApi cashOutApi)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.sendMessageService = sendMessageService;
@@ -66,6 +69,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             this.afterVoidEmailService = afterVoidEmailService;
             this.notificationLetstalkService = notificationLetstalkService;
             this.loggingService = loggingService;
+            this.cashOutApi = cashOutApi;
         }
 
         public async Task<Message> CreateMessageIdForAllRequests(IEnumerable<VoidBetAutomationInfo> automationInfoList, Match matchInfo, int sessionId,
@@ -125,6 +129,30 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                 await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
                 return false;
+            }
+        }
+
+        public async Task CallCashOutApi(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets)
+        {
+            try
+            {
+                if (automationInfo.IsRunExternalService == true)
+                {
+                    return;
+                }
+                var basketballCashOutTickets = emailTickets.Where(x => x.IsCashOut && x.SportType == SportTypeConstant.Basketball);
+                if (!basketballCashOutTickets.Any())
+                {
+                    return;
+                }
+                var requestModel = new CashOutApiModel { VoidBetInfos = basketballCashOutTickets.Select(x => new VoidBetInfo { TransId = x.TransId.ToString(), CustId = x.CustId.ToString() }) };
+                await cashOutApi.VoidBet(requestModel);
+                await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistory, new VoidBetAutomationInfo { IsRunExternalService = true });
+            }
+            catch (Exception exception)
+            {
+                loggingService.Error(
+                    $"ERROR: {nameof(CallCashOutApi)} - SessionId: {automationInfo.SessionId} - VDHistoryId: {automationInfo.VoidingHistory} - RequestId: {automationInfo.RequestId}", exception);
             }
         }
 
