@@ -310,10 +310,10 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         {
             if (AppConfigService.AppConfig.IsPRODEnvironment)
             {
-                return ticket.IsMixParlay && ticket.Currency != currency20;
+                return ticket.BetTypeId.IsParlay() && ticket.Currency != currency20;
             }
 
-            return ticket.IsMixParlay;
+            return ticket.BetTypeId.IsParlay();
         }
 
         private static bool IsValidCashOutTicket(TicketEmailModel ticket)
