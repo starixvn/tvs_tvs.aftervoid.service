@@ -66,6 +66,10 @@ namespace Fanex.TVS.AfterVoid.Core.Services
 
             UpdateNotificationLetstalkModel(creditTickets, model, false);
             var letstalkModel = await CreateLetstalkModelAbnormalBet(model);
+            if (string.IsNullOrWhiteSpace(letstalkModel.Content))
+            {
+                return true;
+            }
             var isSentSuccessfully = letstalkService.SendMessage(letstalkModel);
             if (!isSentSuccessfully)
             {
