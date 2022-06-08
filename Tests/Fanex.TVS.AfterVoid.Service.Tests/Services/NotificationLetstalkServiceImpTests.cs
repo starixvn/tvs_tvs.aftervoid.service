@@ -16,7 +16,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         private void SetupTestEnv()
         {
             RefDataTypeContainer
-                .ConnectTo(new Uri("http://ha.nexdev.net:7258/Main/"))
+                .ConnectTo(new Uri("http://letstalk-webapi.playthefun.com/"))
                 .FromApplication("NAP-SpecialDelete-LOCAL")
                 .RegisterSupportedLanguages("en-US", "zh-TW", "zh-CN");
         }
