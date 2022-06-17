@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Fanex.LetstalkService.Client;
 using Fanex.RemotingRef;
@@ -16,7 +17,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         private void SetupTestEnv()
         {
             RefDataTypeContainer
-                .ConnectTo(new Uri("http://letstalk-webapi.playthefun.com/"))
+                .ConnectTo(new Uri("http://remotingref-api.nexdev.net/main/"))
                 .FromApplication("NAP-SpecialDelete-LOCAL")
                 .RegisterSupportedLanguages("en-US", "zh-TW", "zh-CN");
         }
@@ -109,11 +110,13 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             letstalkService.DidNotReceiveWithAnyArgs().SendMessage(default);
         }
 
-        [Fact()]
-        public void SendToSettledBetGroup_WhenRequestNotHaveUsername_ShouldRunLetstalkServiceSuccess()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void SendToSettledBetGroup_WhenRequestNotHaveUsername_ShouldRunLetstalkServiceSuccess(bool isPRODEnvironment)
         {
             SetupTestEnv();
-            AppConfigService.AppConfig = new ConfigSettingModel() { IsPRODEnvironment = true };
+            AppConfigService.AppConfig = new ConfigSettingModel() { IsPRODEnvironment = isPRODEnvironment };
             var fakeMatch = Builder<Match>.CreateNew().Build();
             var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = false).Build();
             fakeNotificationLetstalkModel.Match = fakeMatch;
@@ -147,13 +150,12 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         }
 
         [Theory]
-        [InlineData(11, null)]
-        [InlineData(15, null)]
-        [InlineData(11, 1)]
-        [InlineData(10, null)]
-        public async Task SendToAbnormalBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceFail(int issueId, int? filterBy)
+        [InlineData(11, null, true)]
+        [InlineData(15, null, true)]
+        [InlineData(11, 1, false)]
+        public async Task SendToAbnormalBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceFail(int issueId, int? filterBy, bool IsPRODEnvironment)
         {
-            AppConfigService.AppConfig = new ConfigSettingModel() { IsPRODEnvironment = false };
+            AppConfigService.AppConfig = new ConfigSettingModel() { IsPRODEnvironment = IsPRODEnvironment };
             var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
             fakeNotificationLetstalkModel.IssueTypeId = issueId;
             fakeNotificationLetstalkModel.FilterBy = filterBy;
@@ -173,6 +175,47 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
 
             letstalkService.ReceivedWithAnyArgs(1).SendMessage(default);
             Assert.False(actual);
+        }
+
+        [Fact()]
+        public async Task SendToAbnormalBetGroup_ShouldReturnTrueWhenHaveNotContent()
+        {
+            AppConfigService.AppConfig = new ConfigSettingModel() { IsPRODEnvironment = false };
+            var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(10)
+                .Random(2).With(x => x.IsCredit = true)
+                .Build();
+            var letstalkService = Substitute.For<LetstalkClientService>();
+            var afterVoidEmailService = Substitute.For<AfterVoidEmailService>();
+            var service = new NotificationLetstalkServiceImp(letstalkService, afterVoidEmailService);
+
+            var actual = await service.SendToAbnormalBetGroup(new NotificationLetstalkModel(), fakeTicketEmail);
+
+            Assert.True(actual);
+        }
+
+        [Fact()]
+        public async Task SendToAbnormalBetGroup_ShouldReturnTrue()
+        {
+            AppConfigService.AppConfig = new ConfigSettingModel() { IsPRODEnvironment = false };
+            var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
+            fakeNotificationLetstalkModel.IssueTypeId = 11;
+            fakeNotificationLetstalkModel.FilterBy = 1;
+            fakeNotificationLetstalkModel.Match = new Match();
+            var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(10)
+                .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
+                .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = true)
+                .Random(2).With(x => x.IsCashOut = true)
+                .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = true).And(x => x.Status = TicketStatus.Won).And(x => x.BetTypeId = 29)
+                .Build();
+            var letstalkService = Substitute.For<LetstalkClientService>();
+            letstalkService.SendMessage(default).ReturnsForAnyArgs(true);
+            var afterVoidEmailService = Substitute.For<AfterVoidEmailService>();
+            var service = new NotificationLetstalkServiceImp(letstalkService, afterVoidEmailService);
+
+            var actual = await service.SendToAbnormalBetGroup(fakeNotificationLetstalkModel, fakeTicketEmail);
+
+            letstalkService.ReceivedWithAnyArgs(1).SendMessage(default);
+            Assert.True(actual);
         }
     }
 }

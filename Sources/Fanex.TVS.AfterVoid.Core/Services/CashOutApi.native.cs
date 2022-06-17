@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
@@ -14,6 +15,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         Task VoidBet(CashOutApiModel requestModel);
     }
 
+    [ExcludeFromCodeCoverage]
     public class CashOutApiImp : CashOutApi
     {
         private readonly HttpClient httpClient;

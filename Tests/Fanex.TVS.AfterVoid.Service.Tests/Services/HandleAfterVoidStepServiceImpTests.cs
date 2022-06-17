@@ -24,7 +24,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var sendMessageService = Substitute.For<SendMessageService>();
             sendMessageService.GetMessage(Arg.Any<int>()).Returns(fakeMessage);
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
 
             var actual = await service.CreateMessageIdForAllRequests(fakeAutomationList, null, fakeSessionId, false, 0, null);
 
@@ -45,7 +45,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             sendMessageService.InitializeMessageContentForAutoVoid(default, default, default, default).ReturnsForAnyArgs(fakeMessage);
             sendMessageService.InsertMessage(default, default, default, default).ReturnsForAnyArgs(fakeMessageId);
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
 
             var actual = await service.CreateMessageIdForAllRequests(fakeAutomationList, null, fakeSessionId, false, 0, null);
 
@@ -63,7 +63,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var loggingService = Substitute.For<LoggingService>();
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService, null);
 
             var actual = await service.CreateMessageIdForAllRequests(fakeAutomationList, null, fakeSessionId, false, 0, null);
 
@@ -82,7 +82,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var fakeMessage = Builder<Message>.CreateNew().With(x => x.MessageId = fakeMessageId).Build();
             var sendMessageService = Substitute.For<SendMessageService>();
             sendMessageService.GetMessage(Arg.Any<int>()).Returns(fakeMessage);
-            var service = new HandleAfterVoidStepServiceImp(null, sendMessageService, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(null, sendMessageService, null, null, null, null, null);
 
             var actual = await service.CreateMessageIdForManualVoid(fakeAutomationInfo, null);
 
@@ -105,7 +105,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             sendMessageService.InsertMessage(default, default, default, default).ReturnsForAnyArgs(fakeMessageId);
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatchInfo);
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
 
             var actual = await service.CreateMessageIdForManualVoid(fakeAutomationInfo, null);
 
@@ -120,7 +120,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var loggingService = Substitute.For<LoggingService>();
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService, null);
 
             var actual = await service.CreateMessageIdForManualVoid(fakeAutomationInfo, null);
 
@@ -140,7 +140,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var fakeVoidedReason = Builder<VoidedReason>.CreateNew().With(x => x.ReasonId = fakeReasonId).Build();
             var sendMessageService = Substitute.For<SendMessageService>();
             sendMessageService.GetVoidedReason(default).ReturnsForAnyArgs(fakeVoidedReason);
-            var service = new HandleAfterVoidStepServiceImp(null, sendMessageService, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(null, sendMessageService, null, null, null, null, null);
 
             var actual = await service.CreateVoidedReason(fakeAutomationInfo, 0, null);
 
@@ -160,7 +160,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             sendMessageService.InitializeVoidReason(default, default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
             sendMessageService.InsertReason(default, default).ReturnsForAnyArgs(fakeReasonId);
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null,
+                null, null, null);
 
             var actual = await service.CreateVoidedReason(fakeAutomationInfo, 0, null);
 
@@ -175,7 +176,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var loggingService = Substitute.For<LoggingService>();
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService, null);
 
             var actual = await service.CreateVoidedReason(fakeAutomationInfo, 0, null);
 
@@ -191,7 +192,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         public async Task SendBatchMessage_ShouldReturnOldStatus()
         {
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsSentBatchMessage = true).Build();
-            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null, null);
 
             var actual = await service.SendBatchMessage(fakeAutomationInfo, null, 0, null);
 
@@ -208,7 +209,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             { Request = new RequestModel() { IssueTypeId = 11111 } };
             var sendMessageService = Substitute.For<SendMessageService>();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
 
             var actual = await service.SendBatchMessage(fakeAutomationInfo, fakeEmails, 0, fakeVoidData);
 
@@ -224,7 +225,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var loggingService = Substitute.For<LoggingService>();
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService, null);
 
             var actual = await service.SendBatchMessage(fakeAutomationInfo, null, 0, null);
 
@@ -240,7 +241,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         public async Task SendMessageToAdminSite_ReturnOldStatus()
         {
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsSentMessageToAdminSite = true).Build();
-            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null, null);
 
             var actual = await service.SendMessageToAdminSite(fakeAutomationInfo, null);
 
@@ -254,7 +255,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsSentMessageToAdminSite = false).Build();
             var sendMessageService = Substitute.For<SendMessageService>();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
 
             var actual = await service.SendMessageToAdminSite(fakeAutomationInfo, fakeMessage);
 
@@ -270,7 +271,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var loggingService = Substitute.For<LoggingService>();
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService, null);
 
             var actual = await service.SendMessageToAdminSite(fakeAutomationInfo, null);
 
@@ -286,7 +287,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         public async Task InsertVoidedTransaction_ReturnOldStatus()
         {
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsInsertedVoidedTransaction = true).Build();
-            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null, null);
 
             var actual = await service.InsertVoidedTransaction(fakeAutomationInfo, null, 0, 0);
 
@@ -305,7 +306,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             };
             var sendMessageService = Substitute.For<SendMessageService>();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
 
             var actual = await service.InsertVoidedTransaction(fakeAutomationInfo, fakeEmails, 0, 0);
 
@@ -322,7 +323,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var loggingService = Substitute.For<LoggingService>();
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService, null);
 
             var actual = await service.InsertVoidedTransaction(fakeAutomationInfo, null, 0, 0);
 
@@ -338,7 +339,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         public async Task UpdateTicketVoidingHistory_ReturnOldStatus()
         {
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsUpdatedVoidingHistory = true).Build();
-            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null, null);
 
             var actual = await service.UpdateTicketVoidingHistory(fakeAutomationInfo, 0, 0);
 
@@ -350,7 +351,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         {
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsUpdatedVoidingHistory = false).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, null, null, null, null, null);
 
             var actual = await service.UpdateTicketVoidingHistory(fakeAutomationInfo, 0, 0);
 
@@ -368,7 +369,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             voidBetAutomationService.When(x => x.UpdateTicketVoidingHistory(Arg.Any<int>(), Arg.Any<byte>(), Arg.Any<int>(), Arg.Any<int>()))
                 .Do(x => throw new Exception());
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService, null);
 
             var actual = await service.UpdateTicketVoidingHistory(fakeAutomationInfo, 0, 0);
 
@@ -384,7 +385,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         public async Task SendEmail_ReturnOldStatus()
         {
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsSentEmail = true).Build();
-            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null, null);
 
             var (actualStatus, actualResults) = await service.SendEmail(fakeAutomationInfo, null, null, null, null);
 
@@ -402,7 +403,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             afterVoidEmailService.Execute(Arg.Is<VoidBetAutomationInfo>(x => x.Equals(fakeAutomationInfo)),
                 Arg.Any<IEnumerable<TicketEmailModel>>(), Arg.Any<Match>(), Arg.Any<VoidedReason>(),
                 Arg.Any<Message>()).Returns(fakeResults);
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, null, afterVoidEmailService, null, null);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, null, afterVoidEmailService, null, null, null);
 
             var (actualStatus, actualResults) = await service.SendEmail(fakeAutomationInfo, default, default, default, default);
 
@@ -418,7 +419,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var loggingService = Substitute.For<LoggingService>();
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService, null);
 
             var (actualStatus, actualResults) = await service.SendEmail(fakeAutomationInfo, default, default, default, default);
 
@@ -436,7 +437,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         {
             var fakeResults = Builder<Result>.CreateListOfSize(3).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, null, null, null, null, null);
 
             await service.UpdateEmailResult(default, fakeResults);
 
@@ -450,7 +451,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().Build();
             var fakeResults = Builder<Result>.CreateListOfSize(3).Random(1).With(x => x.ErrorCode = ErrorCode.SendEmailToLicenseeSuccess).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, null, null, null, null, null);
 
             await service.UpdateEmailResult(fakeAutomationInfo, fakeResults);
 
@@ -463,7 +464,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         public async Task SendLetstalk_ReturnOldStatus()
         {
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsSentLetsTalk = true).Build();
-            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null, null);
 
             var (actualStatus, actualResults) = await service.SendLetstalk(fakeAutomationInfo, default, default, default);
 
@@ -484,7 +485,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var notificationLetstalkService = Substitute.For<NotificationLetstalkService>();
             notificationLetstalkService.SendToSettledBetGroup(Arg.Any<NotificationLetstalkModel>(), Arg.Any<IEnumerable<TicketEmailModel>>()).Returns(false);
             notificationLetstalkService.SendToAbnormalBetGroup(Arg.Any<NotificationLetstalkModel>(), Arg.Any<IEnumerable<TicketEmailModel>>()).Returns(false);
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, null, null, notificationLetstalkService, null);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, null, null, notificationLetstalkService, null, null);
 
             var (actualStatus, actualResults) = await service.SendLetstalk(fakeAutomationInfo, fakeEmails, default, fakeVoidData);
 
@@ -503,7 +504,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var loggingService = Substitute.For<LoggingService>();
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService);
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService, null);
 
             var (actualStatus, actualResults) = await service.SendLetstalk(fakeAutomationInfo, default, default, default);
 
@@ -522,7 +523,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().Build();
             var fakeResults = Builder<Result>.CreateListOfSize(3).Build();
             var loggingService = Substitute.For<LoggingService>();
-            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, loggingService);
+            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, loggingService, null);
 
             service.WriteLogAfterVoid(fakeResults, fakeAutomationInfo);
 
@@ -534,13 +535,75 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         public void CreateResultList_ReturnExpectedResults()
         {
             var fakeNegativeBalanceUsers = "abc,xxx";
-            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null);
+            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null, null);
 
             var actual = service.CreateResultList(null, null, fakeNegativeBalanceUsers, 1, 1);
 
             Assert.Equal(2, actual.Count());
             Assert.Contains(actual, x => x.ErrorCode == ErrorCode.NegativeBalanceUsers);
             Assert.Contains(actual, x => x.ErrorCode == ErrorCode.VoidRequestSuccess);
+        }
+
+        [Fact()]
+        public async Task CallCashOutApi_ReturnWhenIsRunExternalServiceTrue()
+        {
+            var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsRunExternalService = true).Build();
+            var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
+            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null, null);
+
+            await service.CallCashOutApi(fakeAutomationInfo, null);
+
+            await voidBetAutomationService.DidNotReceiveWithAnyArgs().UpdateAfterVoidStep(1, 1, null);
+        }
+
+        [Fact()]
+        public async Task CallCashOutApi_ReturnWhenHaveNotBasketballCashOutTickets()
+        {
+            var fakeEmails = Builder<TicketEmailModel>.CreateListOfSize(2)
+                .All().With(x => x.IsCashOut = false).With(x => x.SportType = SportTypeConstant.Basketball).Build();
+            var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsRunExternalService = false).Build();
+            var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
+            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null, null);
+
+            await service.CallCashOutApi(fakeAutomationInfo, fakeEmails);
+
+            await voidBetAutomationService.DidNotReceiveWithAnyArgs().UpdateAfterVoidStep(1, 1, null);
+        }
+
+        [Fact()]
+        public async Task CallCashOutApi_CalledUpdateAfterVoidStep()
+        {
+            var fakeEmails = Builder<TicketEmailModel>.CreateListOfSize(2)
+                .All().With(x => x.IsCashOut = true).With(x => x.SportType = SportTypeConstant.Basketball).Build();
+
+            var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsRunExternalService = false).Build();
+            var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
+            var cashOutApi = Substitute.For<CashOutApi>();
+            var service = new HandleAfterVoidStepServiceImp(voidBetAutomationService, null, null, null, null, null, cashOutApi);
+
+            await service.CallCashOutApi(fakeAutomationInfo, fakeEmails);
+
+            await voidBetAutomationService.Received(1).UpdateAfterVoidStep(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<VoidBetAutomationInfo>());
+        }
+
+        [Fact()]
+        public async Task CallCashOutApi_ThrowException()
+        {
+            var fakeEmails = Builder<TicketEmailModel>.CreateListOfSize(2)
+                .All().With(x => x.IsCashOut = true).With(x => x.SportType = SportTypeConstant.Basketball).Build();
+
+            var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsRunExternalService = false).Build();
+            var cashOutApi = Substitute.For<CashOutApi>();
+            var service = new HandleAfterVoidStepServiceImp(null, null, null, null, null, null, cashOutApi);
+
+            try
+            {
+                await service.CallCashOutApi(fakeAutomationInfo, fakeEmails);
+            }
+            catch (Exception e)
+            {
+                Assert.NotNull(e);
+            }
         }
     }
 }

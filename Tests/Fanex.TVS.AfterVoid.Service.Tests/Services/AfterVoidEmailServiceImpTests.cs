@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Core.Criteria;
@@ -65,6 +66,36 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
 
             await Assert.ThrowsAsync<ExternalException>(async () =>
                  await service.Execute(fakeAutomationInfo, fakeTicketEmails, fakeMatch, fakeReason, fakeMessage));
+        }
+
+        [Fact()]
+        public async Task GetContentExcelVoidedTicket_ReturnTrue()
+        {
+            var ticketVoidingSystemApi = Substitute.For<TicketVoidingSystemApi>();
+            ticketVoidingSystemApi.GetContentExcelVoidedTicket(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>()).Returns((true, new byte[1]));
+            var service = new AfterVoidEmailServiceImp(ticketVoidingSystemApi, null);
+
+            var actual = await service.GetContentExcelVoidedTicket(1, 1, 1);
+
+            await ticketVoidingSystemApi.Received(1).GetContentExcelVoidedTicket(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>());
+            Assert.Single(actual);
+        }
+
+        [Fact()]
+        public async Task GetContentExcelVoidedTicket_ThrowException()
+        {
+            var ticketVoidingSystemApi = Substitute.For<TicketVoidingSystemApi>();
+            ticketVoidingSystemApi.GetContentExcelVoidedTicket(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>()).Returns((false, new byte[1]));
+            var service = new AfterVoidEmailServiceImp(ticketVoidingSystemApi, null);
+
+            try
+            {
+                await service.GetContentExcelVoidedTicket(1, 1, 1);
+            }
+            catch (Exception exception)
+            {
+                Assert.NotNull(exception);
+            }
         }
     }
 }
