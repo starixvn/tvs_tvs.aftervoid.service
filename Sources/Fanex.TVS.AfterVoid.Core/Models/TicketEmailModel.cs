@@ -30,6 +30,7 @@ namespace Fanex.TVS.AfterVoid.Core.Models
         public string RefNo { get; set; }
         public string ShowTime { get; set; }
         public int SportTypeId { get; set; }
+        public int SportType { get; set; }
         public decimal Stake { get; set; }
         public string Status { get; set; }
         public DateTime TransDate { get; set; }

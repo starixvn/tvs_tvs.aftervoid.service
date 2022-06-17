@@ -27,6 +27,7 @@ namespace Fanex.TVS.AfterVoid.Service
             services.AddControllers();
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddHttpClient<TicketVoidingSystemApi, TicketVoidingSystemApiImp>();
+            services.AddHttpClient<CashOutApi, CashOutApiImp>();
             services.RegisterFanexData(Configuration);
             services.RegisterSentry(Configuration);
             services.RegisterFanexCaching(Configuration);
