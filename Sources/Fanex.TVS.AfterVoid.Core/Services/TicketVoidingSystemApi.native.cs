@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
@@ -55,6 +56,20 @@ namespace Fanex.TVS.AfterVoid.Core.Services
         {
             await using var responseStream = await response.Content.ReadAsStreamAsync();
             return await JsonSerializer.DeserializeAsync<T>(responseStream);
+        }
+
+        private static async Task LogResponseStream(HttpResponseMessage response)
+        {
+            try
+            {
+                var responseString = await response.Content.ReadAsStringAsync();
+                await LogService.InfoAsync("LogResponseStream" +
+                                            $"{Environment.NewLine}Response:{Environment.NewLine}{responseString}");
+            }
+            catch (Exception e)
+            {
+                await LogService.ErrorAsync("LogResponseStream", e);
+            }
         }
 
         public async Task SignalRUpdateRequestStatusToAllUsers(IEnumerable<RequestStatus> status)
@@ -117,8 +132,14 @@ namespace Fanex.TVS.AfterVoid.Core.Services
             using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { emailTickets, match, voidedReason, message, issueTypeId, negativeBalanceUsers }));
             if (response.IsSuccessStatusCode)
             {
+                await LogResponseStream(response);
                 var responseData = await DeserializeResponseStream<IEnumerable<Result>>(response);
-                return (true, responseData);
+                if (responseData != null && responseData.Any())
+                {
+                    return (true, responseData);
+                }
+
+                return (false, null);
             }
 
             await LogService.ErrorAsync($"{AppConfigService.AppConfig.TicketVoidingSystemUrl}{actionName}" +
