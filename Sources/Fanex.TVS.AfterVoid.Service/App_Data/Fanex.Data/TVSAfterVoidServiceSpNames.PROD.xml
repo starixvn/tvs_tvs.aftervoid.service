@@ -1,4 +1,5 @@
-﻿<Functions>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Functions>
     <Function Name="Send Email after Auto Void">
         <Setting Key="NAP_SpecialDelete_Message_Select" SpName="NAP_SpecialDelete_Message_Select" DbName="DBMSG.bodb_Message.bodbAdminNet" TimeOut="600" />
         <Setting Key="NAP_SpecialDelete_Message_Insert" SpName="NAP_SpecialDelete_Message_Insert" DbName="DBMSG.bodb_Message.bodbAdminNet" TimeOut="600" />
