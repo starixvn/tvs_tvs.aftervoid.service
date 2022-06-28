@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using TicketVoidingSystem.Core.SignalR;
 
 namespace Fanex.TVS.AfterVoid.Service
 {
@@ -35,6 +35,7 @@ namespace Fanex.TVS.AfterVoid.Service
             services.RegisterMailService();
             services.RegisterLetstalk();
             services.RegisterAutoMapper();
+            services.RegisterSignalR(Configuration);
             services.RegisterInternalServices();
             services.StartScheduler().Wait();
             services.AddHostedService<CustomLifetimeService>();
@@ -43,26 +44,18 @@ namespace Fanex.TVS.AfterVoid.Service
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-
+            app.UseDeveloperExceptionPage();
             app.UseHttpsRedirection();
-
             app.ConfigureExceptionHandler();
-
             app.UseRouting();
 
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapHub<NotificationHub>("/SignalR/NotificationHub");
+            });
         }
     }
 }

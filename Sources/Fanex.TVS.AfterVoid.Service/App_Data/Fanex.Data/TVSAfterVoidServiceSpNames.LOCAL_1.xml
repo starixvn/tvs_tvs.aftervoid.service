@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Functions>
+    <Function Name="Send Email after Auto Void">
+        <Setting Key="NAP_SpecialDelete_Message_Select" SpName="NAP_SpecialDelete_Message_Select" DbName="DBMSG.bodb_Message.bodbAdminNet" TimeOut="600" />
+        <Setting Key="NAP_SpecialDelete_Message_Insert" SpName="NAP_SpecialDelete_Message_Insert" DbName="DBMSG.bodb_Message.bodbAdminNet" TimeOut="600" />
+        <Setting Key="NAP_SpecialDelete_MatchInfo_Select" SpName="NAP_SpecialDelete_MatchInfo_Select" DbName="DBPRO.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_ReasonTemplate_Select" SpName="TicketVoiding_ReasonTemplate_Select" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_MessageTemplate_Select" SpName="TicketVoiding_MessageTemplate_Select" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_Email_VoidedTicket_Select" SpName="TicketVoiding_Email_VoidedTicket_Select" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_Email_OperatorInfo_Select" SpName="TicketVoiding_Email_OperatorInfo_Select" DbName="DBCUST.SiteConfig.bodbAdminNet" TimeOut="600" />
+        <Setting Key="Dot_Admin_message_new_insert" SpName="Dot_Admin_message_new_insert" DbName="DBONUSER.ON_USER.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_Reason_Select" SpName="TicketVoiding_Reason_Select" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_Reason_Insert" SpName="TicketVoiding_Reason_Insert" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_VoidedTransaction_Insert" SpName="TicketVoiding_VoidedTransaction_Insert" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="NAP_SpecialDelete_BatchMessage_Upload" SpName="NAP_SpecialDelete_BatchMessage_Upload" DbName="DBMSG.bodb_Message.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_VoidingHistory_Select" SpName="TicketVoiding_VoidingHistory_Select" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_VoidingHistory_Update" SpName="TicketVoiding_VoidingHistory_Update" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_MessageTemplate_SubIssueType_Select" SpName="TicketVoiding_MessageTemplate_SubIssueType_Select" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_Request_Select" SpName="TicketVoiding_Request_Select" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_RequestInfo_Select" SpName="TicketVoiding_RequestInfo_Select" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="SpecialDelete_MailingList_Select" SpName="SpecialDelete_MailingList_Select" DbName="DBOIC.bodb_OIC.bodbAdminNet" TimeOut="600" />
+
+        <Setting Key="TicketVoiding_VoidBetAutomation_Service_SelectAll" SpName="TicketVoiding_VoidBetAutomation_Service_SelectAll" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_VoidBetAutomation_Service_Upd" SpName="TicketVoiding_VoidBetAutomation_Service_Upd" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+    </Function>
+</Functions>

@@ -69,6 +69,17 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
                 .Run();
         }
 
+        public static void RegisterSignalR(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSignalR().AddStackExchangeRedis(options =>
+            {
+                options.Configuration.EndPoints.Add(configuration.GetSection("RedisConfig:EndPoint").Value);
+                options.Configuration.Password = configuration.GetSection("RedisConfig:Password").Value;
+                options.Configuration.DefaultDatabase = int.Parse(configuration.GetSection("RedisConfig:DefaultDatabase").Value);
+                options.Configuration.ChannelPrefix = configuration.GetSection("RedisConfig:ChannelPrefix").Value;
+            });
+        }
+
         public static void RegisterInternalServices(this IServiceCollection services)
         {
             services.AddSingleton<IDynamicRepository, DynamicRepository>();
