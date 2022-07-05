@@ -5,7 +5,9 @@ using Fanex.Caching;
 using Fanex.TVS.AfterVoid.Core.Constants;
 using Fanex.TVS.AfterVoid.Core.Models;
 using FizzWare.NBuilder;
+using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
+using TicketVoidingSystem.Core.SignalR;
 using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Core.Services.Tests
@@ -17,12 +19,14 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         {
             var fakeRequestsWillUpdateStatus = new List<VoidBetAutomationInfo>();
             var ticketVoidingSystemApi = Substitute.For<TicketVoidingSystemApi>();
-            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, default, default, default);
+            var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
+            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, default, default, default, hubContext);
 
             await service.UpdateRunningStatusForRequests(fakeRequestsWillUpdateStatus);
 
             await ticketVoidingSystemApi.DidNotReceive()
                  .SignalRUpdateRequestStatusToAllUsers(Arg.Any<IEnumerable<RequestStatus>>());
+            await hubContext.Clients.All.DidNotReceiveWithAnyArgs().updateRequestStatus(Arg.Any<IEnumerable<RequestStatus>>());
         }
 
         [Fact()]
@@ -32,12 +36,14 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
                 .Random(1).With(x => x.StatusId = ExecuteStatus.DBJobRunning)
                 .Random(1).With(x => x.StatusId = ExecuteStatus.DBJobDone).Build();
             var ticketVoidingSystemApi = Substitute.For<TicketVoidingSystemApi>();
-            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, default, default, default);
+            var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
+            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, default, default, default, hubContext);
 
             await service.UpdateRunningStatusForRequests(fakeRequestsWillUpdateStatus);
 
             await ticketVoidingSystemApi.Received(1)
                 .SignalRUpdateRequestStatusToAllUsers(Arg.Any<IEnumerable<RequestStatus>>());
+            await hubContext.Clients.All.Received(1).updateRequestStatus(Arg.Any<IEnumerable<RequestStatus>>());
         }
 
         [Fact()]
@@ -45,13 +51,16 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         {
             var fakeRequestId = 113;
             var ticketVoidingSystemApi = Substitute.For<TicketVoidingSystemApi>();
-            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, default, default, default);
+            var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
+            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, default, default, default, hubContext);
 
             await service.UpdateFailedStatusForRequest(fakeRequestId);
 
             await ticketVoidingSystemApi.Received(1)
                 .SignalRUpdateRequestStatusToAllUsers(Arg.Is<IEnumerable<RequestStatus>>(x => x.Count() == 1
                    && x.Any(y => y.RequestId == fakeRequestId)));
+            await hubContext.Clients.All.Received(1).updateRequestStatus(Arg.Is<IEnumerable<RequestStatus>>(x => x.Count() == 1
+                && x.Any(y => y.RequestId == fakeRequestId)));
         }
 
         [Fact()]
@@ -59,7 +68,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         {
             var fakeRequestsWillUpdateStatus = new List<VoidBetAutomationInfo>();
             var cacheService = Substitute.For<ICache>();
-            var service = new NotificationSignalRServiceImp(default, default, cacheService, default);
+            var service = new NotificationSignalRServiceImp(default, default, cacheService, default, default);
 
             await service.UpdateFailedStatusForRequests(fakeRequestsWillUpdateStatus);
 
@@ -83,7 +92,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             cacheService.TryGetAsync<string>(Arg.Is<string>(x => x == FanexCacheConstant.FailedRequestNotified))
                 .Returns((false, null));
             var loggingService = Substitute.For<LoggingService>();
-            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, voidBetAutomationService, cacheService, loggingService);
+            var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
+            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, voidBetAutomationService, cacheService, loggingService, hubContext);
 
             await service.UpdateFailedStatusForRequests(fakeRequestsWillUpdateStatus);
 
@@ -92,9 +102,11 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
                 .TryGetAsync<string>(Arg.Is<string>(x => x == FanexCacheConstant.FailedRequestNotified));
             await ticketVoidingSystemApi.Received(1)
                 .SignalRUpdateRequestStatusToAllUsers(Arg.Any<IEnumerable<RequestStatus>>());
+            await hubContext.Clients.All.Received(1).updateRequestStatus(Arg.Any<IEnumerable<RequestStatus>>());
             await voidBetAutomationService.Received(1).GetVoidDataFromVoidingHistory(Arg.Any<int>());
             await ticketVoidingSystemApi.Received(1)
                 .SignalRNotifyErrorMessageToUser(Arg.Is<string>(x => x == fakeVoidDataXml.CreatorName), Arg.Any<string>());
+            await hubContext.Clients.User(fakeVoidDataXml.CreatorName).Received(1).showErrorMessage(Arg.Any<string>());
             await cacheService.Received(1)
                 .SetAsync(Arg.Is<string>(x => x == FanexCacheConstant.FailedRequestNotified), Arg.Any<string>(), Arg.Any<CacheItemOptions>());
             loggingService.Received(1).Info(Arg.Any<string>());
@@ -109,7 +121,8 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             voidBetAutomationService.GetRequestSimpleInfo(default, default).ReturnsForAnyArgs(fakeRequestSimple);
             var ticketVoidingSystemApi = Substitute.For<TicketVoidingSystemApi>();
-            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, voidBetAutomationService, default, default);
+            var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
+            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, voidBetAutomationService, default, default, hubContext);
 
             await service.UpdateCompletedStatusForRequests(fakeRequestId, fakeVoidingHistoryId);
 
@@ -118,6 +131,9 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             await ticketVoidingSystemApi.Received(1)
                 .SignalRUpdateRequestStatusToAllUsers(Arg.Is<IEnumerable<RequestStatus>>(x => x.Count() == 1
                     && x.Any(y => y.RequestId == fakeRequestId)));
+
+            await hubContext.Clients.All.Received(1).updateRequestStatus(Arg.Is<IEnumerable<RequestStatus>>(x => x.Count() == 1
+                && x.Any(y => y.RequestId == fakeRequestId)));
         }
 
         [Fact()]
@@ -126,12 +142,15 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
             var fakeUsername = "aaaxxx";
             var fakeResults = Builder<Result>.CreateListOfSize(3).Build();
             var ticketVoidingSystemApi = Substitute.For<TicketVoidingSystemApi>();
-            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, default, default, default);
+            var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
+            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, default, default, default, hubContext);
 
             await service.NotifyVoidResultToUser(fakeUsername, fakeResults);
 
             await ticketVoidingSystemApi.Received(1)
                 .SignalRNotifyVoidResultToUser(Arg.Is<string>(x => x == fakeUsername), Arg.Is<IEnumerable<Result>>(x => x == fakeResults));
+            await hubContext.Clients.User(fakeUsername).Received(1)
+                .showVoidResult(Arg.Is<IEnumerable<Result>>(x => Equals(x, fakeResults)));
         }
 
         [Fact()]
@@ -139,13 +158,16 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Tests
         {
             var fakeUsername = "aaaxxx";
             var ticketVoidingSystemApi = Substitute.For<TicketVoidingSystemApi>();
-            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, default, default, default);
+            var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
+            var service = new NotificationSignalRServiceImp(ticketVoidingSystemApi, default, default, default, hubContext);
 
             await service.NotifyErrorWhenExecuteAfterVoidServiceToUser(fakeUsername);
 
             await ticketVoidingSystemApi.Received(1)
                 .SignalRNotifyVoidResultToUser(Arg.Is<string>(x => x == fakeUsername),
                     Arg.Is<IEnumerable<Result>>(x => x.Count() == 1 && x.Any(y => y.ErrorCode == ErrorCode.ExceptionWhenRunAfterVoid)));
+            await hubContext.Clients.User(fakeUsername).Received(1)
+                .showVoidResult(Arg.Is<IEnumerable<Result>>(x => x.Count() == 1 && x.Any(y => y.ErrorCode == ErrorCode.ExceptionWhenRunAfterVoid)));
         }
     }
 }

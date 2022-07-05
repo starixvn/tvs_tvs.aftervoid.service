@@ -43,8 +43,6 @@ namespace Fanex.TVS.AfterVoid.Core.Services.Main
 
             foreach (var automationInfo in automationInfoList)
             {
-                if (automationInfo.RequestId != 67043)
-                    continue;
                 if (automationInfo.StatusId == ExecuteStatus.WinServiceDone)
                 {
                     continue;
