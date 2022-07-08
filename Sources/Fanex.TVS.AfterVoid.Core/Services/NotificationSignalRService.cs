@@ -160,6 +160,7 @@ namespace Fanex.TVS.AfterVoid.Core.Services
                     ErrorMsg = Messages.ExceptionWhenRunAfterVoid
                 }
             };
+
             await NotifyVoidResultToUser(userName, results);
         }
     }

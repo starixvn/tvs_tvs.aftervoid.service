@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fanex.Caching.AspNetCore" Version="2.2.2" />
+    <PackageReference Include="Fanex.Caching.AspNetCore" Version="2.2.3-beta2" />
     <PackageReference Include="Fanex.Caching.Redis.AspNetCore" Version="2.2.3-beta2" />
     <PackageReference Include="Fanex.Data.SqlServer" Version="4.2.2" />
     <PackageReference Include="Fanex.Logging" Version="2.0.1" />
