@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using Fanex.Common;
 using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Core.Constants;
 
@@ -26,7 +25,7 @@ namespace Fanex.TVS.AfterVoid.Core.Utilities
 
         public static string GetLeagueName(object leagueId, string language)
         {
-            return new RemotingRefService().GetLeagueName(Converter.ToString2(leagueId), language, string.Empty);
+            return new RemotingRefService().GetLeagueName(ToString(leagueId), language, string.Empty);
         }
 
         public static string GetBFName(int id)
@@ -36,12 +35,12 @@ namespace Fanex.TVS.AfterVoid.Core.Utilities
 
         public static string GetOddsTypeName(object oddsType)
         {
-            return new RemotingRefService().GetOddsTypeName(Converter.ToString2(oddsType), LanguageCode.English);
+            return new RemotingRefService().GetOddsTypeName(ToString(oddsType), LanguageCode.English);
         }
 
         public static string GetTeamName(object teamId, string language)
         {
-            return new RemotingRefService().GetTeamName(Converter.ToString2(teamId), language, string.Empty);
+            return new RemotingRefService().GetTeamName(ToString(teamId), language, string.Empty);
         }
 
         public static string[] GetComboParlayName(string betTeam, string betCheck, decimal handicap1, decimal handicap2)
@@ -57,6 +56,16 @@ namespace Fanex.TVS.AfterVoid.Core.Utilities
         public static string GetSportName(string sportTypeId, string languageCode)
         {
             return new RemotingRefService().GetSportName(sportTypeId, languageCode);
+        }
+
+        private static string ToString(object item)
+        {
+            if (!ReferenceEquals(item, null) && item != DBNull.Value)
+            {
+                return item.ToString();
+            }
+
+            return string.Empty;
         }
     }
 }
