@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 
-namespace Fanex.TVS.AfterVoid.Service.Extensions
+namespace Fanex.TVS.AfterVoid.Website.Extensions
 {
     [ExcludeFromCodeCoverage]
     public static class ExceptionMiddlewareExtensions

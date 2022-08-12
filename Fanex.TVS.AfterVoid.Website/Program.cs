@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace Fanex.TVS.AfterVoid.Service
+namespace Fanex.TVS.AfterVoid.Website
 {
     [ExcludeFromCodeCoverage]
     public static class Program

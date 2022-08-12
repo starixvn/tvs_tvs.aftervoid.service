@@ -7,7 +7,7 @@ using ONEbook.UM.Helpers;
 using ONEbook.UM.Services;
 using ONEbook.UM.Transport;
 
-namespace Fanex.TVS.AfterVoid.Service.Services
+namespace Fanex.TVS.AfterVoid.Website.Services
 {
     [ExcludeFromCodeCoverage]
     public static class OnebookUMInitializer

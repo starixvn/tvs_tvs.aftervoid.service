@@ -6,7 +6,7 @@ using Fanex.TVS.AfterVoid.Service.Services.Main;
 using ONEbook.UM.Services;
 using Quartz;
 
-namespace Fanex.TVS.AfterVoid.Service.Services
+namespace Fanex.TVS.AfterVoid.Website.Jobs
 {
     [ExcludeFromCodeCoverage]
     public class AfterVoidJob : IJob

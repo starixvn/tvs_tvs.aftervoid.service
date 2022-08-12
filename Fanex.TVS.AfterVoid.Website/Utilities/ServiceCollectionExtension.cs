@@ -17,6 +17,7 @@ using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.Main;
 using Fanex.TVS.AfterVoid.Service.Utilities.AutoMapper;
+using Fanex.TVS.AfterVoid.Website.Jobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -24,7 +25,7 @@ using Quartz;
 using Quartz.Impl;
 using Sentry;
 
-namespace Fanex.TVS.AfterVoid.Service.Extensions
+namespace Fanex.TVS.AfterVoid.Website.Utilities
 {
     [ExcludeFromCodeCoverage]
     public static class ServiceCollectionExtensions
@@ -131,21 +132,21 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
             services.AddAutoMapper(typeof(OrganizationProfile));
         }
 
-        public static async Task StartScheduler(this IServiceCollection services)
-        {
-            var serviceProvider = services.BuildServiceProvider();
-            var scheduler = await StdSchedulerFactory.GetDefaultScheduler();
-            scheduler.JobFactory = new AfterVoidJobFactory(serviceProvider);
+        //public static async Task StartScheduler(this IServiceCollection services)
+        //{
+        //    var serviceProvider = services.BuildServiceProvider();
+        //    var scheduler = await StdSchedulerFactory.GetDefaultScheduler();
+        //    scheduler.JobFactory = new AfterVoidJobFactory(serviceProvider);
 
-            var job = JobBuilder.Create<AfterVoidJob>().Build();
-            var trigger = TriggerBuilder.Create()
-                .WithIdentity("AfterVoidService", "AfterVoidService")
-                .StartNow()
-                .WithSimpleSchedule(x => x.WithIntervalInSeconds(1).RepeatForever())
-                .Build();
+        //    var job = JobBuilder.Create<AfterVoidJob>().Build();
+        //    var trigger = TriggerBuilder.Create()
+        //        .WithIdentity("AfterVoidService", "AfterVoidService")
+        //        .StartNow()
+        //        .WithSimpleSchedule(x => x.WithIntervalInSeconds(1).RepeatForever())
+        //        .Build();
 
-            await scheduler.ScheduleJob(job, trigger);
-            await scheduler.Start();
-        }
+        //    await scheduler.ScheduleJob(job, trigger);
+        //    await scheduler.Start();
+        //}
     }
 }

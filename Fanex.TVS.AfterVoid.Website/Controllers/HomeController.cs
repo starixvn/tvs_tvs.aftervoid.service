@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Fanex.TVS.AfterVoid.Service.Controllers
+namespace Fanex.TVS.AfterVoid.Website.Controllers
 {
     public class HomeController : Controller
     {

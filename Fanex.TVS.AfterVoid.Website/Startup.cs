@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TicketVoidingSystem.Core.SignalR;
 
-namespace Fanex.TVS.AfterVoid.Service
+namespace Fanex.TVS.AfterVoid.Website
 {
     [ExcludeFromCodeCoverage]
     public class Startup
@@ -36,8 +36,7 @@ namespace Fanex.TVS.AfterVoid.Service
             services.RegisterAutoMapper();
             services.RegisterSignalR(Configuration);
             services.RegisterInternalServices();
-            services.StartScheduler().Wait();
-            services.AddHostedService<CustomLifetimeService>();
+            services.RegisterQuartzScheduler();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
