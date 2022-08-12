@@ -1,0 +1,60 @@
+using System.Diagnostics.CodeAnalysis;
+using Fanex.TVS.AfterVoid.Service.Services;
+using Fanex.TVS.AfterVoid.Service.Extensions;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using TicketVoidingSystem.Core.SignalR;
+
+namespace Fanex.TVS.AfterVoid.Service
+{
+    [ExcludeFromCodeCoverage]
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.LoadConfig();
+            services.AddControllers();
+            services.AddRazorPages().AddRazorRuntimeCompilation();
+            services.AddHttpClient<TicketVoidingSystemApi, TicketVoidingSystemApiImp>();
+            services.AddHttpClient<CashOutApi, CashOutApiImp>();
+            services.RegisterFanexData(Configuration);
+            services.RegisterSentry(Configuration);
+            services.RegisterFanexCaching(Configuration);
+            services.RegisterRemotingRef();
+            services.RegisterMailService();
+            services.RegisterLetstalk();
+            services.RegisterAutoMapper();
+            services.RegisterSignalR(Configuration);
+            services.RegisterInternalServices();
+            services.StartScheduler().Wait();
+            services.AddHostedService<CustomLifetimeService>();
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            app.UseDeveloperExceptionPage();
+            app.UseHttpsRedirection();
+            app.ConfigureExceptionHandler();
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapHub<NotificationHub>("/SignalR/NotificationHub");
+            });
+        }
+    }
+}

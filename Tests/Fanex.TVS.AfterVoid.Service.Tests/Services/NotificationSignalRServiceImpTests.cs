@@ -2,15 +2,15 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Fanex.Caching;
-using Fanex.TVS.AfterVoid.Core.Constants;
-using Fanex.TVS.AfterVoid.Core.Models;
+using Fanex.TVS.AfterVoid.Service.Constants;
+using Fanex.TVS.AfterVoid.Service.Models;
 using FizzWare.NBuilder;
 using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
 using TicketVoidingSystem.Core.SignalR;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Core.Services.Tests
+namespace Fanex.TVS.AfterVoid.Service.Services.Tests
 {
     public class NotificationSignalRServiceImpTests
     {

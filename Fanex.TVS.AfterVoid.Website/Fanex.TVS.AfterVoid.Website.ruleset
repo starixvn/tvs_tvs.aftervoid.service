@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="SonarQube - OLYMPUS / TVS.AfterVoid.Service Nexcel CSharp" ToolsVersion="16.0">
+  <Include Path="..\..\.sonarlint\tvs.aftervoid.servicecsharp.ruleset" Action="Default" />
+  <Include Path="..\.sonarlint\tvs.aftervoid.servicecsharp.ruleset" Action="Default" />
+</RuleSet>

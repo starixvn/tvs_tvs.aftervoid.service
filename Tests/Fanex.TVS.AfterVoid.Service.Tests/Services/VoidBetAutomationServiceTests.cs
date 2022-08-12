@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
-using Fanex.TVS.AfterVoid.Core.Constants;
-using Fanex.TVS.AfterVoid.Core.Criteria;
-using Fanex.TVS.AfterVoid.Core.Models;
+using Fanex.TVS.AfterVoid.Service.Constants;
+using Fanex.TVS.AfterVoid.Service.Criteria;
+using Fanex.TVS.AfterVoid.Service.Models;
 using NSubstitute;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Core.Services.Tests
+namespace Fanex.TVS.AfterVoid.Service.Services.Tests
 {
     public class VoidBetAutomationServiceTests
     {

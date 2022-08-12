@@ -1,8 +1,8 @@
-﻿using Fanex.TVS.AfterVoid.Core.Models;
+﻿using Fanex.TVS.AfterVoid.Service.Models;
 using FizzWare.NBuilder;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Core.Services.Tests
+namespace Fanex.TVS.AfterVoid.Service.Services.Tests
 {
     public class MessageItemServiceImpTests
     {

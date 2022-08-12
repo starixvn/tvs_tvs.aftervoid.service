@@ -1,5 +1,5 @@
-﻿using Fanex.TVS.AfterVoid.Core.Extensions;
-using Fanex.TVS.AfterVoid.Core.Models;
+﻿using Fanex.TVS.AfterVoid.Service.Extensions;
+using Fanex.TVS.AfterVoid.Service.Models;
 using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Extensions
