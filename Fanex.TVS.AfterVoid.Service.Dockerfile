@@ -1,6 +1,7 @@
 FROM hub.nexdev.net/base/dotnet/core/sdk:5.0.102-ca-patch-buster-slim AS builder
 WORKDIR /src
 
+COPY ./Sources/TicketVoidingSystem ./Sources/TicketVoidingSystem
 COPY ./Sources/Fanex.TVS.AfterVoid.Service ./Sources/Fanex.TVS.AfterVoid.Service
 COPY ./Fanex.TVS.AfterVoid.Website/Fanex.TVS.AfterVoid.Website.csproj ./Fanex.TVS.AfterVoid.Website/Fanex.TVS.AfterVoid.Website.csproj
 

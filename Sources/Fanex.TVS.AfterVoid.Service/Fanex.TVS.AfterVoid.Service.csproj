@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="..\..\.sonarlint\tvs.aftervoid.service\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="Fanex.Caching.AspNetCore" Version="2.2.3-beta2" />
     <PackageReference Include="Fanex.Caching.Redis.AspNetCore" Version="2.2.3-beta2" />
