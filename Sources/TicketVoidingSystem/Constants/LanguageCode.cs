@@ -1,4 +1,4 @@
-﻿namespace Fanex.TVS.AfterVoid.Service.Constants
+﻿namespace TicketVoidingSystem.Constants
 {
     public static class LanguageCode
     {

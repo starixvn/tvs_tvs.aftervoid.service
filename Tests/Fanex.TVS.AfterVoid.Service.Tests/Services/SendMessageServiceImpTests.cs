@@ -7,6 +7,8 @@ using Fanex.TVS.AfterVoid.Service.Models;
 using FizzWare.NBuilder;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
+using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
 using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.Tests
@@ -16,7 +18,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
         [Fact()]
         public async Task InitializeMessageContentForAutoVoid_ShouldReturnExpectedData()
         {
-            var fakeMatch = new Match() { MatchCode = "ppp00" };
+            var fakeMatch = new Match { MatchCode = "ppp00" };
             var fakeIssueTypeId = 111;
             var fakeTemplate = Builder<TemplateModel>.CreateListOfSize(5)
                 .Random(1).With(x => x.TemplateId = 37).Build();
@@ -96,7 +98,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             };
             var repository = Substitute.For<IDynamicRepository>();
             var messageItemService = Substitute.For<MessageItemService>();
-            var ticketVoidingApi = Substitute.For<TicketVoidingSystemApi>();
+            var ticketVoidingApi = Substitute.For<TicketVoidingSystemHttpClientService>();
             var service = new SendMessageServiceImp(repository, messageItemService, ticketVoidingApi);
 
             // Act
@@ -161,16 +163,16 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             var fakeReason = Builder<VoidedReason>.CreateNew().Build();
             var repository = Substitute.For<IDynamicRepository>();
             repository.GetAsync<VoidedReason>(Arg.Any<GetReasonNameCriteria>()).Returns(fakeReason);
-            var ticketVoidingSystemApi = Substitute.For<TicketVoidingSystemApi>();
-            ticketVoidingSystemApi.BetListGetSportTypeName(fakeSportType, Arg.Any<string>()).Returns("a");
-            var service = new SendMessageServiceImp(repository, null, ticketVoidingSystemApi);
+            var ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
+            ticketVoidingSystemHttpClientService.BetListGetSportTypeName(fakeSportType, Arg.Any<string>()).Returns("a");
+            var service = new SendMessageServiceImp(repository, null, ticketVoidingSystemHttpClientService);
 
             var actual = await service.InitializeVoidReason(true, fakeSubIssueType, fakeSportType, null);
 
             Assert.NotNull(actual.ReasonEnglish);
             Assert.NotNull(actual.ReasonChineseSimplified);
             await repository.Received(1).GetAsync<VoidedReason>(Arg.Is<GetReasonNameCriteria>(x => x.SubIssueTypeId == fakeSubIssueType && x.SportType == fakeSportType));
-            await ticketVoidingSystemApi.Received(2).BetListGetSportTypeName(Arg.Is<int>(x => x == fakeSportType), Arg.Any<string>());
+            await ticketVoidingSystemHttpClientService.Received(2).BetListGetSportTypeName(Arg.Is<int>(x => x == fakeSportType), Arg.Any<string>());
         }
 
         [Fact()]

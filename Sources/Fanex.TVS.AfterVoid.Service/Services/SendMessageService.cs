@@ -7,6 +7,9 @@ using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
+using TicketVoidingSystem.Constants;
+using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services
 {
@@ -37,13 +40,13 @@ namespace Fanex.TVS.AfterVoid.Service.Services
     {
         private readonly IDynamicRepository repository;
         private readonly MessageItemService messageItemService;
-        private readonly TicketVoidingSystemApi ticketVoidingSystemApi;
+        private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
 
-        public SendMessageServiceImp(IDynamicRepository repository, MessageItemService messageItemService, TicketVoidingSystemApi ticketVoidingSystemApi)
+        public SendMessageServiceImp(IDynamicRepository repository, MessageItemService messageItemService, TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService)
         {
             this.repository = repository;
             this.messageItemService = messageItemService;
-            this.ticketVoidingSystemApi = ticketVoidingSystemApi;
+            this.ticketVoidingSystemHttpClientService = ticketVoidingSystemHttpClientService;
         }
 
         public async Task SendMessage(IEnumerable<TicketEmailModel> tickets, int messageId, int issueTypeId, int creatorId)
@@ -177,8 +180,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services
                 var sportCS = "";
                 if (sportType > 0)
                 {
-                    sportEn = $"{await ticketVoidingSystemApi.BetListGetSportTypeName(sportType, LanguageCode.English)} - ";
-                    sportCS = $"{await ticketVoidingSystemApi.BetListGetSportTypeName(sportType, LanguageCode.ChineseSimplified)} - ";
+                    sportEn = $"{await ticketVoidingSystemHttpClientService.BetListGetSportTypeName(sportType, LanguageCode.English)} - ";
+                    sportCS = $"{await ticketVoidingSystemHttpClientService.BetListGetSportTypeName(sportType, LanguageCode.ChineseSimplified)} - ";
                 }
                 reason.ReasonEnglish = $"{sportEn}{reason.ReasonEnglish}";
                 reason.ReasonChineseSimplified = $"{sportCS}{reason.ReasonChineseSimplified}";

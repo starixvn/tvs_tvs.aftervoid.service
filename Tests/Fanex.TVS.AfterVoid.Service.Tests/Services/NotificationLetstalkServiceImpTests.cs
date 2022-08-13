@@ -7,6 +7,7 @@ using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using FizzWare.NBuilder;
 using NSubstitute;
+using TicketVoidingSystem.Models;
 using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.Tests

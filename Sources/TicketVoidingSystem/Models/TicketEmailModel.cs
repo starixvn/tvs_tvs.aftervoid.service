@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Fanex.TVS.AfterVoid.Service.Models
+namespace TicketVoidingSystem.Models
 {
     public class TicketEmailModel : EmailSupport, SendMessageDbModel
     {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Models
 {

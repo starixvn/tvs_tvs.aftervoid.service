@@ -1,10 +1,10 @@
 ﻿using System;
-using Fanex.TVS.AfterVoid.Service.Constants;
-using Fanex.TVS.AfterVoid.Service.Resources;
-using Fanex.TVS.AfterVoid.Service.Utilities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+using TicketVoidingSystem.Constants;
+using TicketVoidingSystem.Resources;
+using TicketVoidingSystem.Utilities;
 
-namespace Fanex.TVS.AfterVoid.Service.Models
+namespace TicketVoidingSystem.Models
 {
     public class Match
     {

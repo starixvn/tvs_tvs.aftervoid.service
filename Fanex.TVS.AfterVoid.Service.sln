@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.TVS.AfterVoid.Service
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.TVS.AfterVoid.Website", "Fanex.TVS.AfterVoid.Website\Fanex.TVS.AfterVoid.Website.csproj", "{284B4E00-2D63-4990-8D8A-3ACC7BF524B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketVoidingSystem", "Sources\TicketVoidingSystem\TicketVoidingSystem.csproj", "{2B05BE05-0544-49C0-BDE4-3C7B52F5A550}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{284B4E00-2D63-4990-8D8A-3ACC7BF524B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{284B4E00-2D63-4990-8D8A-3ACC7BF524B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{284B4E00-2D63-4990-8D8A-3ACC7BF524B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B05BE05-0544-49C0-BDE4-3C7B52F5A550}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B05BE05-0544-49C0-BDE4-3C7B52F5A550}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B05BE05-0544-49C0-BDE4-3C7B52F5A550}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B05BE05-0544-49C0-BDE4-3C7B52F5A550}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -38,6 +44,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A12CD976-9F69-494E-B70F-6700BFA4458F} = {B6DB3483-FFD8-407D-B3C0-1074F284C9AE}
 		{977001D9-5E09-4E24-A857-1EDCBE12C589} = {44DAFA98-A13D-4A33-8773-EFE2083193EA}
+		{2B05BE05-0544-49C0-BDE4-3C7B52F5A550} = {44DAFA98-A13D-4A33-8773-EFE2083193EA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2A92875C-1C82-448C-AEF1-400E115B3557}

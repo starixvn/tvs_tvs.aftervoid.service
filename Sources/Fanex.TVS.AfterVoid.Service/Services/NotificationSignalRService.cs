@@ -5,10 +5,12 @@ using System.Threading.Tasks;
 using Fanex.Caching;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
-using Fanex.TVS.AfterVoid.Service.Resources;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
-using TicketVoidingSystem.Core.SignalR;
+using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
+using TicketVoidingSystem.SignalR;
+using TicketVoidingSystem.Resources;
 
 namespace Fanex.TVS.AfterVoid.Service.Services
 {
@@ -29,16 +31,16 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
     public class NotificationSignalRServiceImp : NotificationSignalRService
     {
-        private readonly TicketVoidingSystemApi ticketVoidingSystemApi;
+        private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
         private readonly VoidBetAutomationService voidBetAutomationService;
         private readonly ICache cacheService;
         private readonly LoggingService loggingService;
         private readonly IHubContext<NotificationHub, ClientEvent> hubContext;
 
-        public NotificationSignalRServiceImp(TicketVoidingSystemApi ticketVoidingSystemApi, VoidBetAutomationService voidBetAutomationService,
+        public NotificationSignalRServiceImp(TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService, VoidBetAutomationService voidBetAutomationService,
             ICache cacheService, LoggingService loggingService, IHubContext<NotificationHub, ClientEvent> hubContext)
         {
-            this.ticketVoidingSystemApi = ticketVoidingSystemApi;
+            this.ticketVoidingSystemHttpClientService = ticketVoidingSystemHttpClientService;
             this.voidBetAutomationService = voidBetAutomationService;
             this.cacheService = cacheService;
             this.loggingService = loggingService;
@@ -51,7 +53,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
                 .Select(x => new RequestStatus { RequestId = x.RequestId, Status = RequestStatusConstant.Running });
             if (runningRequests.Any())
             {
-                await ticketVoidingSystemApi.SignalRUpdateRequestStatusToAllUsers(runningRequests);
+                await ticketVoidingSystemHttpClientService.SignalRUpdateRequestStatusToAllUsers(runningRequests);
                 await hubContext.Clients.All.updateRequestStatus(runningRequests);
             }
         }
@@ -59,7 +61,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
         public async Task UpdateFailedStatusForRequest(int requestId)
         {
             var failedRequests = new List<RequestStatus> { new() { RequestId = requestId, Status = RequestStatusConstant.Failed } };
-            await ticketVoidingSystemApi.SignalRUpdateRequestStatusToAllUsers(failedRequests);
+            await ticketVoidingSystemHttpClientService.SignalRUpdateRequestStatusToAllUsers(failedRequests);
             await hubContext.Clients.All.updateRequestStatus(failedRequests);
         }
 
@@ -86,7 +88,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
         {
             var requestInfo = await voidBetAutomationService.GetRequestSimpleInfo(requestId, voidingHistoryId);
             var completedRequests = new List<RequestStatus> { new() { RequestId = requestId, Status = RequestStatusConstant.Completed, SimpleInfo = requestInfo } };
-            await ticketVoidingSystemApi.SignalRUpdateRequestStatusToAllUsers(completedRequests);
+            await ticketVoidingSystemHttpClientService.SignalRUpdateRequestStatusToAllUsers(completedRequests);
             await hubContext.Clients.All.updateRequestStatus(completedRequests);
         }
 
@@ -96,7 +98,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             {
                 var requests = requestNotNotify.Select(x => new RequestStatus
                 { RequestId = x.RequestId, Status = RequestStatusConstant.Failed });
-                await ticketVoidingSystemApi.SignalRUpdateRequestStatusToAllUsers(requests);
+                await ticketVoidingSystemHttpClientService.SignalRUpdateRequestStatusToAllUsers(requests);
                 await hubContext.Clients.All.updateRequestStatus(requests);
             }
         }
@@ -116,7 +118,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
                 }
 
                 var errorMessage = GetMessageVoidRequestFailed(request.RequestId, request.MatchId);
-                await ticketVoidingSystemApi.SignalRNotifyErrorMessageToUser(voidDataXml.CreatorName, errorMessage);
+                await ticketVoidingSystemHttpClientService.SignalRNotifyErrorMessageToUser(voidDataXml.CreatorName, errorMessage);
                 await hubContext.Clients.User(voidDataXml.CreatorName).showErrorMessage(errorMessage);
             }
         }
@@ -146,7 +148,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         public async Task NotifyVoidResultToUser(string userName, IEnumerable<Result> results)
         {
-            await ticketVoidingSystemApi.SignalRNotifyVoidResultToUser(userName, results);
+            await ticketVoidingSystemHttpClientService.SignalRNotifyVoidResultToUser(userName, results);
             await hubContext.Clients.User(userName).showVoidResult(results);
         }
 

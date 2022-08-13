@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TicketVoidingSystem.Core.SignalR;
+using TicketVoidingSystem.Services;
+using TicketVoidingSystem.SignalR;
 
 namespace Fanex.TVS.AfterVoid.Website
 {
@@ -25,8 +26,8 @@ namespace Fanex.TVS.AfterVoid.Website
             services.LoadConfig();
             services.AddControllers();
             services.AddRazorPages().AddRazorRuntimeCompilation();
-            services.AddHttpClient<TicketVoidingSystemApi, TicketVoidingSystemApiImp>();
-            services.AddHttpClient<CashOutApi, CashOutApiImp>();
+            services.AddHttpClient<TicketVoidingSystemHttpClientService, TicketVoidingSystemHttpClientServiceImp>();
+            services.AddHttpClient<CashOutHttpClientService, CashOutHttpClientServiceImp>();
             services.RegisterFanexData(Configuration);
             services.RegisterONEbookUM(Configuration);
             services.RegisterSentry(Configuration);

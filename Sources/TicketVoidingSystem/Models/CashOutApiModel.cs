@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Fanex.TVS.AfterVoid.Service.Models
+namespace TicketVoidingSystem.Models
 {
     public class CashOutApiModel
     {

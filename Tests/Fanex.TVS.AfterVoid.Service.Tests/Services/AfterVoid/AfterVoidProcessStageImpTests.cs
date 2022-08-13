@@ -6,6 +6,8 @@ using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using FizzWare.NBuilder;
 using NSubstitute;
+using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
 using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.Tests
@@ -578,7 +580,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.Tests
 
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsRunExternalService = false).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var cashOutApi = Substitute.For<CashOutApi>();
+            var cashOutApi = Substitute.For<CashOutHttpClientService>();
             var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, null, null, null, null, cashOutApi);
 
             await service.CallCashOutApi(fakeAutomationInfo, fakeEmails);
@@ -593,7 +595,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.Tests
                 .All().With(x => x.IsCashOut = true).With(x => x.SportType = SportTypeConstant.Basketball).Build();
 
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsRunExternalService = false).Build();
-            var cashOutApi = Substitute.For<CashOutApi>();
+            var cashOutApi = Substitute.For<CashOutHttpClientService>();
             var service = new AfterVoidProcessStageImp(null, null, null, null, null, null, cashOutApi);
 
             try

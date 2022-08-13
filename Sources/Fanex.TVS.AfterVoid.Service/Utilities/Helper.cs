@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using Fanex.TVS.AfterVoid.Service.Constants;
-using Fanex.TVS.AfterVoid.Service.Resources;
 using Newtonsoft.Json;
+using TicketVoidingSystem.Resources;
 
 namespace Fanex.TVS.AfterVoid.Service.Utilities
 {

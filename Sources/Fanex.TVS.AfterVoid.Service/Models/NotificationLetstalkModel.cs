@@ -1,4 +1,6 @@
-﻿namespace Fanex.TVS.AfterVoid.Service.Models
+﻿using TicketVoidingSystem.Models;
+
+namespace Fanex.TVS.AfterVoid.Service.Models
 {
     public class NotificationLetstalkModel
     {

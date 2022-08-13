@@ -6,6 +6,8 @@ using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
+using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services
 {
@@ -18,12 +20,12 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
     public class AfterVoidEmailServiceImp : AfterVoidEmailService
     {
-        private readonly TicketVoidingSystemApi ticketVoidingSystemApi;
+        private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
         private readonly IDynamicRepository repository;
 
-        public AfterVoidEmailServiceImp(TicketVoidingSystemApi ticketVoidingSystemApi, IDynamicRepository repository)
+        public AfterVoidEmailServiceImp(TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService, IDynamicRepository repository)
         {
-            this.ticketVoidingSystemApi = ticketVoidingSystemApi;
+            this.ticketVoidingSystemHttpClientService = ticketVoidingSystemHttpClientService;
             this.repository = repository;
         }
 
@@ -36,25 +38,25 @@ namespace Fanex.TVS.AfterVoid.Service.Services
                 reason.ReasonChineseSimplified = $"{reason.ReasonChineseSimplified}({subIssueType.SubIssueTypeNameCS})";
             }
 
-            var (isSentEmail, results) = await ticketVoidingSystemApi.SendEmail(emailTickets, match, reason, message,
+            var (isSentEmail, results) = await ticketVoidingSystemHttpClientService.SendEmail(emailTickets, match, reason, message,
                 automationInfo.RequestInfo.Request.IssueTypeId, automationInfo.NegativeBalanceUsers);
             if (isSentEmail)
             {
                 return results;
             }
 
-            throw new ExternalException("ticketVoidingSystemApi.SendEmail");
+            throw new ExternalException("ticketVoidingSystemHttpClientService.SendEmail");
         }
 
         public async Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId)
         {
-            var (isSentEmail, results) = await ticketVoidingSystemApi.GetContentExcelVoidedTicket(requestId, matchId, issueTypeId);
+            var (isSentEmail, results) = await ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket(requestId, matchId, issueTypeId);
             if (isSentEmail)
             {
                 return results;
             }
 
-            throw new ExternalException("ticketVoidingSystemApi.GetContentExcelVoidedTicket");
+            throw new ExternalException("ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket");
         }
 
         private async Task<SubIssueType> GetSubIssueTypeById(int subId)

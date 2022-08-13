@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Fanex.TVS.AfterVoid.Service.Resources {
+namespace TicketVoidingSystem.Resources {
     using System;
     
     
@@ -22,7 +22,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Labels {
+    public class Labels {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,10 +36,10 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Fanex.TVS.AfterVoid.Service.Resources.Labels", typeof(Labels).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TicketVoidingSystem.Resources.Labels", typeof(Labels).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Bet ID: .
         /// </summary>
-        internal static string BetID {
+        public static string BetID {
             get {
                 return ResourceManager.GetString("BetID", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Bet Type.
         /// </summary>
-        internal static string Bettype {
+        public static string Bettype {
             get {
                 return ResourceManager.GetString("Bettype", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to &lt;BetType Id=&quot;{0}&quot; BetTeam=&quot;{1}&quot; Set=&quot;{2}&quot; Game=&quot;{3}&quot; Value=&quot;{4}&quot; Goal=&quot;{5}&quot; BetOption=&quot;{6}&quot; /&gt;.
         /// </summary>
-        internal static string BetTypeXml {
+        public static string BetTypeXml {
             get {
                 return ResourceManager.GetString("BetTypeXml", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to By BetID(s).
         /// </summary>
-        internal static string ByBetID {
+        public static string ByBetID {
             get {
                 return ResourceManager.GetString("ByBetID", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to By MatchID.
         /// </summary>
-        internal static string ByMatchID {
+        public static string ByMatchID {
             get {
                 return ResourceManager.GetString("ByMatchID", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cash Out.
         /// </summary>
-        internal static string CashOut {
+        public static string CashOut {
             get {
                 return ResourceManager.GetString("CashOut", resourceCulture);
             }
@@ -117,7 +117,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to CSD Recovery.
         /// </summary>
-        internal static string CsdRecovery {
+        public static string CsdRecovery {
             get {
                 return ResourceManager.GetString("CsdRecovery", resourceCulture);
             }
@@ -126,7 +126,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to 沙巴体育通知 | Saba Sports Notice.
         /// </summary>
-        internal static string EmailFrom {
+        public static string EmailFrom {
             get {
                 return ResourceManager.GetString("EmailFrom", resourceCulture);
             }
@@ -135,7 +135,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Events.
         /// </summary>
-        internal static string Events {
+        public static string Events {
             get {
                 return ResourceManager.GetString("Events", resourceCulture);
             }
@@ -144,7 +144,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Ticket_Listing_for_Bettype{0}_{1}.
         /// </summary>
-        internal static string FileNameExportExcel {
+        public static string FileNameExportExcel {
             get {
                 return ResourceManager.GetString("FileNameExportExcel", resourceCulture);
             }
@@ -153,7 +153,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to For more details:.
         /// </summary>
-        internal static string ForMoreDetails {
+        public static string ForMoreDetails {
             get {
                 return ResourceManager.GetString("ForMoreDetails", resourceCulture);
             }
@@ -162,7 +162,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to From BetID.
         /// </summary>
-        internal static string From_BetID {
+        public static string From_BetID {
             get {
                 return ResourceManager.GetString("From_BetID", resourceCulture);
             }
@@ -171,7 +171,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Internet.
         /// </summary>
-        internal static string Internet {
+        public static string Internet {
             get {
                 return ResourceManager.GetString("Internet", resourceCulture);
             }
@@ -180,7 +180,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to IT QA.
         /// </summary>
-        internal static string ItQa {
+        public static string ItQa {
             get {
                 return ResourceManager.GetString("ItQa", resourceCulture);
             }
@@ -189,7 +189,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to IT Support.
         /// </summary>
-        internal static string ItSupport {
+        public static string ItSupport {
             get {
                 return ResourceManager.GetString("ItSupport", resourceCulture);
             }
@@ -198,7 +198,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Licensee.
         /// </summary>
-        internal static string Licensee {
+        public static string Licensee {
             get {
                 return ResourceManager.GetString("Licensee", resourceCulture);
             }
@@ -207,7 +207,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to &lt;LicenseType Id=&quot;{0}&quot; LicenseName =&quot;{1}&quot; Value=&quot;{2}&quot; /&gt;.
         /// </summary>
-        internal static string LicenseTypeXml {
+        public static string LicenseTypeXml {
             get {
                 return ResourceManager.GetString("LicenseTypeXml", resourceCulture);
             }
@@ -216,7 +216,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to &lt;Item InputType=&quot;{0}&quot; Name=&quot;{1}&quot; OrderBy=&quot;{2}&quot; JsonValue=&quot;{3}&quot;/&gt;.
         /// </summary>
-        internal static string MessageTemplateItemXml {
+        public static string MessageTemplateItemXml {
             get {
                 return ResourceManager.GetString("MessageTemplateItemXml", resourceCulture);
             }
@@ -225,7 +225,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Number Game No. .
         /// </summary>
-        internal static string NumberGameNo {
+        public static string NumberGameNo {
             get {
                 return ResourceManager.GetString("NumberGameNo", resourceCulture);
             }
@@ -234,7 +234,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to &lt;r OperatorId=&quot;{0}&quot; Type=&quot;{1}&quot; /&gt;.
         /// </summary>
-        internal static string OperatorXml {
+        public static string OperatorXml {
             get {
                 return ResourceManager.GetString("OperatorXml", resourceCulture);
             }
@@ -243,7 +243,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Phone.
         /// </summary>
-        internal static string Phone {
+        public static string Phone {
             get {
                 return ResourceManager.GetString("Phone", resourceCulture);
             }
@@ -252,7 +252,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Real Currency - .
         /// </summary>
-        internal static string RealCurrency {
+        public static string RealCurrency {
             get {
                 return ResourceManager.GetString("RealCurrency", resourceCulture);
             }
@@ -261,7 +261,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to The selected ticket(s) will be returned to &apos;Running&apos; status, please re-settle the match to calculate them again..
         /// </summary>
-        internal static string RecoverParlaySettledMessage {
+        public static string RecoverParlaySettledMessage {
             get {
                 return ResourceManager.GetString("RecoverParlaySettledMessage", resourceCulture);
             }
@@ -271,7 +271,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         ///   Looks up a localized string similar to The selected ticket(s) will return to &quot;Running&quot; status, please resettle the match(es) to calculate it again.
         ///    .
         /// </summary>
-        internal static string SettledBet {
+        public static string SettledBet {
             get {
                 return ResourceManager.GetString("SettledBet", resourceCulture);
             }
@@ -280,7 +280,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to &lt;div&gt;&lt;span class=&quot;selection-smp&quot;&gt;{0}&lt;/span&gt;&lt;/div&gt;.
         /// </summary>
-        internal static string SMP_Selection {
+        public static string SMP_Selection {
             get {
                 return ResourceManager.GetString("SMP_Selection", resourceCulture);
             }
@@ -289,7 +289,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to &lt;div&gt;&lt;span class=&quot;selection-smp&quot;&gt;{0}&lt;/span&gt; - &lt;span class=&quot;selection-result&quot;&gt;{1}&lt;/span&gt;&lt;/div&gt;.
         /// </summary>
-        internal static string SMP_Selection_Result {
+        public static string SMP_Selection_Result {
             get {
                 return ResourceManager.GetString("SMP_Selection_Result", resourceCulture);
             }
@@ -298,7 +298,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Recovered Bet Report ({0}).
         /// </summary>
-        internal static string Subject_RecoveredBetReport {
+        public static string Subject_RecoveredBetReport {
             get {
                 return ResourceManager.GetString("Subject_RecoveredBetReport", resourceCulture);
             }
@@ -307,7 +307,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to {0}Recovered Bet Report ({1}).
         /// </summary>
-        internal static string Subject_RecoveredBetReportIt {
+        public static string Subject_RecoveredBetReportIt {
             get {
                 return ResourceManager.GetString("Subject_RecoveredBetReportIt", resourceCulture);
             }
@@ -316,7 +316,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Recovered Cash Out Transaction Report ({0}).
         /// </summary>
-        internal static string Subject_RecoveredCashOut {
+        public static string Subject_RecoveredCashOut {
             get {
                 return ResourceManager.GetString("Subject_RecoveredCashOut", resourceCulture);
             }
@@ -325,7 +325,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to {0}Recovered Cash Out Transaction Report ({1}).
         /// </summary>
-        internal static string Subject_RecoveredCashOutIt {
+        public static string Subject_RecoveredCashOutIt {
             get {
                 return ResourceManager.GetString("Subject_RecoveredCashOutIt", resourceCulture);
             }
@@ -334,7 +334,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Recovered Number Game Bet Report ({0}).
         /// </summary>
-        internal static string Subject_RecoveredNumberGame {
+        public static string Subject_RecoveredNumberGame {
             get {
                 return ResourceManager.GetString("Subject_RecoveredNumberGame", resourceCulture);
             }
@@ -343,7 +343,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to {0}Recovered Number Game Bet Report ({1}).
         /// </summary>
-        internal static string Subject_RecoveredNumberGameIt {
+        public static string Subject_RecoveredNumberGameIt {
             get {
                 return ResourceManager.GetString("Subject_RecoveredNumberGameIt", resourceCulture);
             }
@@ -352,7 +352,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Recovered Parlay Bet Report ({0}).
         /// </summary>
-        internal static string Subject_RecoveredParlay {
+        public static string Subject_RecoveredParlay {
             get {
                 return ResourceManager.GetString("Subject_RecoveredParlay", resourceCulture);
             }
@@ -361,7 +361,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to {0}Recovered Parlay Bet Report ({1}).
         /// </summary>
-        internal static string Subject_RecoveredParlayIt {
+        public static string Subject_RecoveredParlayIt {
             get {
                 return ResourceManager.GetString("Subject_RecoveredParlayIt", resourceCulture);
             }
@@ -370,7 +370,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Recovered Virtual Sports Bets Report ({0}).
         /// </summary>
-        internal static string Subject_RecoveredVirtualSports {
+        public static string Subject_RecoveredVirtualSports {
             get {
                 return ResourceManager.GetString("Subject_RecoveredVirtualSports", resourceCulture);
             }
@@ -379,7 +379,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to {0}Recovered Virtual Sports Bets Report ({1}).
         /// </summary>
-        internal static string Subject_RecoveredVirtualSportsIt {
+        public static string Subject_RecoveredVirtualSportsIt {
             get {
                 return ResourceManager.GetString("Subject_RecoveredVirtualSportsIt", resourceCulture);
             }
@@ -388,7 +388,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to [{0}] - [重要] 作废非正规注单报表 | [IMPORTANT] Voided Abnormal Bets Report ({1}).
         /// </summary>
-        internal static string Subject_VoidedAbnormalBetsReport {
+        public static string Subject_VoidedAbnormalBetsReport {
             get {
                 return ResourceManager.GetString("Subject_VoidedAbnormalBetsReport", resourceCulture);
             }
@@ -397,7 +397,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to {0}[{1}] - [重要] 作废非正规注单报表 | [IMPORTANT] Voided Abnormal Bets Report ({2}).
         /// </summary>
-        internal static string Subject_VoidedAbnormalBetsReportIt {
+        public static string Subject_VoidedAbnormalBetsReportIt {
             get {
                 return ResourceManager.GetString("Subject_VoidedAbnormalBetsReportIt", resourceCulture);
             }
@@ -406,7 +406,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to [{0}] - 作废注单报表 | Voided Bets Report ({1}).
         /// </summary>
-        internal static string Subject_VoidedBetsReportFor {
+        public static string Subject_VoidedBetsReportFor {
             get {
                 return ResourceManager.GetString("Subject_VoidedBetsReportFor", resourceCulture);
             }
@@ -415,7 +415,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to {0}[{1}] - 作废注单报表 | Voided Bets Report ({2}).
         /// </summary>
-        internal static string Subject_VoidedBetsReportForIt {
+        public static string Subject_VoidedBetsReportForIt {
             get {
                 return ResourceManager.GetString("Subject_VoidedBetsReportForIt", resourceCulture);
             }
@@ -424,7 +424,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Voided Cash Out Transaction Report for {0} ({1}).
         /// </summary>
-        internal static string Subject_VoidedCashOut {
+        public static string Subject_VoidedCashOut {
             get {
                 return ResourceManager.GetString("Subject_VoidedCashOut", resourceCulture);
             }
@@ -433,7 +433,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to {0}Voided Cash Out Transaction Report for {1} ({2}).
         /// </summary>
-        internal static string Subject_VoidedCashOutIt {
+        public static string Subject_VoidedCashOutIt {
             get {
                 return ResourceManager.GetString("Subject_VoidedCashOutIt", resourceCulture);
             }
@@ -442,7 +442,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Voided Number Game Bets Report for {0} | 作废百练赛注单报表 {0} ({1}).
         /// </summary>
-        internal static string Subject_VoidedNumberGame {
+        public static string Subject_VoidedNumberGame {
             get {
                 return ResourceManager.GetString("Subject_VoidedNumberGame", resourceCulture);
             }
@@ -451,7 +451,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to {0}Voided Number Game Bets Report for {1} ({2}).
         /// </summary>
-        internal static string Subject_VoidedNumberGameIt {
+        public static string Subject_VoidedNumberGameIt {
             get {
                 return ResourceManager.GetString("Subject_VoidedNumberGameIt", resourceCulture);
             }
@@ -460,7 +460,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Voided Virtual Sports Bets Report for {0} ({1}).
         /// </summary>
-        internal static string Subject_VoidedVirtualSports {
+        public static string Subject_VoidedVirtualSports {
             get {
                 return ResourceManager.GetString("Subject_VoidedVirtualSports", resourceCulture);
             }
@@ -469,7 +469,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to {0}Voided Virtual Sports Bets Report for {1} ({2}).
         /// </summary>
-        internal static string Subject_VoidedVirtualSportsIt {
+        public static string Subject_VoidedVirtualSportsIt {
             get {
                 return ResourceManager.GetString("Subject_VoidedVirtualSportsIt", resourceCulture);
             }
@@ -478,7 +478,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Test Currency - .
         /// </summary>
-        internal static string TestCurrency {
+        public static string TestCurrency {
             get {
                 return ResourceManager.GetString("TestCurrency", resourceCulture);
             }
@@ -487,7 +487,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Tickets Listing for - Match ID: .
         /// </summary>
-        internal static string Tickets_Listing_for_MatchID_Bettype {
+        public static string Tickets_Listing_for_MatchID_Bettype {
             get {
                 return ResourceManager.GetString("Tickets_Listing_for_MatchID_Bettype", resourceCulture);
             }
@@ -496,7 +496,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to &lt;TransDate From=&quot;{0:yyyy/MM/dd HH:mm:ss.fff}&quot; To=&quot;{1:yyyy/MM/dd HH:mm:ss.fff}&quot; /&gt;.
         /// </summary>
-        internal static string TransDateTypeXml {
+        public static string TransDateTypeXml {
             get {
                 return ResourceManager.GetString("TransDateTypeXml", resourceCulture);
             }
@@ -505,7 +505,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Failed to send email to {0} site..
         /// </summary>
-        internal static string VoidBetDetailsSendMailFail {
+        public static string VoidBetDetailsSendMailFail {
             get {
                 return ResourceManager.GetString("VoidBetDetailsSendMailFail", resourceCulture);
             }
@@ -514,7 +514,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Voided bet details for {0} are sent successfully to {1}.
         /// </summary>
-        internal static string VoidBetDetailsSendMailSuccess {
+        public static string VoidBetDetailsSendMailSuccess {
             get {
                 return ResourceManager.GetString("VoidBetDetailsSendMailSuccess", resourceCulture);
             }
@@ -523,7 +523,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Failed to send email to {0} site..
         /// </summary>
-        internal static string VoidBetSendMailFail {
+        public static string VoidBetSendMailFail {
             get {
                 return ResourceManager.GetString("VoidBetSendMailFail", resourceCulture);
             }
@@ -532,7 +532,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Voided bet details for {0} are sent successfully!.
         /// </summary>
-        internal static string VoidBetSendMailSuccess {
+        public static string VoidBetSendMailSuccess {
             get {
                 return ResourceManager.GetString("VoidBetSendMailSuccess", resourceCulture);
             }
@@ -541,7 +541,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Wap.
         /// </summary>
-        internal static string Wap {
+        public static string Wap {
             get {
                 return ResourceManager.GetString("Wap", resourceCulture);
             }
@@ -550,7 +550,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to You can only void tickets of Normal Sportsbook, Outright, Mix Parlay (main), System Parlay (main), Number Game, MG-Super Live, Cash Out, Virtual Sports, Virtual Sports 2 (single and main Mix Parlay), Bet Builder and Saba Promotion..
         /// </summary>
-        internal static string Warning_Message_VoidBetId {
+        public static string Warning_Message_VoidBetId {
             get {
                 return ResourceManager.GetString("Warning_Message_VoidBetId", resourceCulture);
             }
@@ -559,7 +559,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to You can only void &quot;Unsettled&quot; tickets of Normal Sportsbook, Outright, Mix Parlay (main), System Parlay (main), Number Game, MG-Super Live, Cash Out, Virtual Sports, Virtual Sports 2 (single and main Mix Parlay), Bet Builder and Saba Promotion..
         /// </summary>
-        internal static string Warning_Message_VoidBetId_UnSettled {
+        public static string Warning_Message_VoidBetId_UnSettled {
             get {
                 return ResourceManager.GetString("Warning_Message_VoidBetId_UnSettled", resourceCulture);
             }
@@ -568,7 +568,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to You can void &quot;Instantly Settled&quot; tickets settled by Instant Settlement during live time..
         /// </summary>
-        internal static string You_can_void_Instantly_Settled {
+        public static string You_can_void_Instantly_Settled {
             get {
                 return ResourceManager.GetString("You_can_void_Instantly_Settled", resourceCulture);
             }
@@ -577,7 +577,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to You can void &quot;Settled&quot; or &quot;Unsettled&quot; tickets..
         /// </summary>
-        internal static string You_can_void_Settled_or_Unsettled_tickets {
+        public static string You_can_void_Settled_or_Unsettled_tickets {
             get {
                 return ResourceManager.GetString("You_can_void_Settled_or_Unsettled_tickets", resourceCulture);
             }
@@ -586,7 +586,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to You have no permission on any Menu.
         /// </summary>
-        internal static string You_have_no_menu_permission {
+        public static string You_have_no_menu_permission {
             get {
                 return ResourceManager.GetString("You_have_no_menu_permission", resourceCulture);
             }
@@ -595,7 +595,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to You can only void today tickets..
         /// </summary>
-        internal static string You_only_void_today_tickets {
+        public static string You_only_void_today_tickets {
             get {
                 return ResourceManager.GetString("You_only_void_today_tickets", resourceCulture);
             }
@@ -604,7 +604,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to You can only void &quot;Unsettled&quot; tickets..
         /// </summary>
-        internal static string You_only_void_Unsettled_tickets {
+        public static string You_only_void_Unsettled_tickets {
             get {
                 return ResourceManager.GetString("You_only_void_Unsettled_tickets", resourceCulture);
             }

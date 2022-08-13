@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Models;
+using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Extensions
 {

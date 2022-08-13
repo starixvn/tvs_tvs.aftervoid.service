@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
+using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 {

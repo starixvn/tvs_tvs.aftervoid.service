@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 using Fanex.TVS.AfterVoid.Service.Extensions;
-using Fanex.TVS.AfterVoid.Service.Utilities;
+using TicketVoidingSystem.Utilities;
 
 namespace Fanex.TVS.AfterVoid.Service.Models
 {

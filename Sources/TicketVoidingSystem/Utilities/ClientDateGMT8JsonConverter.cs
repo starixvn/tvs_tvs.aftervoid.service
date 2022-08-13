@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
-namespace Fanex.TVS.AfterVoid.Service.Utilities
+namespace TicketVoidingSystem.Utilities
 {
     [ExcludeFromCodeCoverage]
     public class ClientDateGMT8JsonConverter : JsonConverter

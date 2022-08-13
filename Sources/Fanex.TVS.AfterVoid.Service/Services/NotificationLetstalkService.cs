@@ -7,6 +7,7 @@ using Fanex.LetstalkService.Core.Models;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Models;
+using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Services
 {

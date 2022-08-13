@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Fanex.RemotingRef;
-using Fanex.TVS.AfterVoid.Service.Constants;
+using TicketVoidingSystem.Constants;
 
-namespace Fanex.TVS.AfterVoid.Service.Utilities
+namespace TicketVoidingSystem.Utilities
 {
     [ExcludeFromCodeCoverage]
     public static class RemotingWrapper

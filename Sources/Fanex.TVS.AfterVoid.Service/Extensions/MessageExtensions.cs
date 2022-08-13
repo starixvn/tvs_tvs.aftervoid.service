@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Fanex.TVS.AfterVoid.Service.Models;
+using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Extensions
 {

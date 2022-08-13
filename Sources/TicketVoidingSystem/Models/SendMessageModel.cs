@@ -1,4 +1,4 @@
-﻿namespace Fanex.TVS.AfterVoid.Service.Models
+﻿namespace TicketVoidingSystem.Models
 {
     public interface SendMessageModel
     {

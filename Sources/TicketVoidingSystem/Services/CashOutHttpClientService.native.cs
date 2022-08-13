@@ -6,24 +6,27 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Fanex.Logging;
-using Fanex.TVS.AfterVoid.Service.Models;
+using Microsoft.Extensions.Configuration;
+using TicketVoidingSystem.Models;
 
-namespace Fanex.TVS.AfterVoid.Service.Services
+namespace TicketVoidingSystem.Services
 {
-    public interface CashOutApi
+    public interface CashOutHttpClientService
     {
         Task VoidBet(CashOutApiModel requestModel);
     }
 
     [ExcludeFromCodeCoverage]
-    public class CashOutApiImp : CashOutApi
+    public class CashOutHttpClientServiceImp : CashOutHttpClientService
     {
         private readonly HttpClient httpClient;
+        private readonly string jackTimeCashOutUrl;
 
-        public CashOutApiImp(HttpClient client)
+        public CashOutHttpClientServiceImp(HttpClient client, IConfiguration configuration)
         {
+            jackTimeCashOutUrl = configuration.GetSection("JackTimeCashOutUrl").Value;
             httpClient = client;
-            httpClient.BaseAddress = new Uri(AppConfigService.AppConfig.JackTimeCashOutUrl);
+            httpClient.BaseAddress = new Uri(jackTimeCashOutUrl);
             httpClient.Timeout = TimeSpan.FromMinutes(5);
             httpClient.DefaultRequestHeaders.Clear();
             httpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Json);
@@ -52,12 +55,12 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             await LogService.ErrorAsync(await CreateLogResponse(actionName, response));
         }
 
-        private static async Task<string> CreateLogResponse(string actionName, HttpResponseMessage response)
+        private async Task<string> CreateLogResponse(string actionName, HttpResponseMessage response)
         {
             var requestContent = response.RequestMessage.Content != null ? await response.RequestMessage.Content.ReadAsStringAsync() : string.Empty;
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            return $"{AppConfigService.AppConfig.JackTimeCashOutUrl}{actionName}" +
+            return $"{jackTimeCashOutUrl}{actionName}" +
                    $"{Environment.NewLine}RequestContent:{Environment.NewLine}{requestContent}" +
                    $"{Environment.NewLine}Response:{Environment.NewLine}{response}" +
                    $"{Environment.NewLine}ResponseContent:{Environment.NewLine}{responseContent}";

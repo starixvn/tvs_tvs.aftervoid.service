@@ -8,6 +8,8 @@ using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
+using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 {
@@ -57,11 +59,11 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
         private readonly AfterVoidEmailService afterVoidEmailService;
         private readonly NotificationLetstalkService notificationLetstalkService;
         private readonly LoggingService loggingService;
-        private readonly CashOutApi cashOutApi;
+        private readonly CashOutHttpClientService cashOutHttpClientService;
 
         public AfterVoidProcessStageImp(VoidBetAutomationService voidBetAutomationService, SendMessageService sendMessageService,
             NotificationSignalRService notificationSignalRService, AfterVoidEmailService afterVoidEmailService,
-            NotificationLetstalkService notificationLetstalkService, LoggingService loggingService, CashOutApi cashOutApi)
+            NotificationLetstalkService notificationLetstalkService, LoggingService loggingService, CashOutHttpClientService cashOutHttpClientService)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.sendMessageService = sendMessageService;
@@ -69,7 +71,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             this.afterVoidEmailService = afterVoidEmailService;
             this.notificationLetstalkService = notificationLetstalkService;
             this.loggingService = loggingService;
-            this.cashOutApi = cashOutApi;
+            this.cashOutHttpClientService = cashOutHttpClientService;
         }
 
         public async Task<Message> CreateMessageIdForAllRequests(IEnumerable<VoidBetAutomationInfo> automationInfoList, Match matchInfo, int sessionId,
@@ -146,7 +148,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
                     return;
                 }
                 var requestModel = new CashOutApiModel { VoidBetInfos = basketballCashOutTickets.Select(x => new VoidBetInfo { TransId = x.TransId.ToString(), CustId = x.CustId.ToString() }) };
-                await cashOutApi.VoidBet(requestModel);
+                await cashOutHttpClientService.VoidBet(requestModel);
                 await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistory, new VoidBetAutomationInfo { IsRunExternalService = true });
             }
             catch (Exception exception)

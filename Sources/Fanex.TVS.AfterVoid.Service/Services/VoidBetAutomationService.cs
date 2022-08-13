@@ -5,6 +5,7 @@ using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Models;
+using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Services
 {

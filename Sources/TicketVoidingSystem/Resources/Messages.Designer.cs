@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Fanex.TVS.AfterVoid.Service.Resources {
+namespace TicketVoidingSystem.Resources {
     using System;
     
     
@@ -22,7 +22,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Messages {
+    public class Messages {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,10 +36,10 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Fanex.TVS.AfterVoid.Service.Resources.Messages", typeof(Messages).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TicketVoidingSystem.Resources.Messages", typeof(Messages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to An unknown error occurred, please contact IT for support..
         /// </summary>
-        internal static string ExceptionWhenRunAfterVoid {
+        public static string ExceptionWhenRunAfterVoid {
             get {
                 return ResourceManager.GetString("ExceptionWhenRunAfterVoid", resourceCulture);
             }
@@ -73,7 +73,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         ///   Looks up a localized string similar to Failed to adjust Net Position of credit Member. Please &lt;span id=&quot;copy-clipboard&quot;&gt;click here to copy all betids into clipboard&lt;/span&gt; or view the following list for those betids in details:
         ///&lt;br/&gt;{0}. &lt;input type=&quot;text&quot; id=&quot;copy-clipboard-value&quot; value=&quot;{0}&quot; style=&quot;display:none&quot; /&gt;.
         /// </summary>
-        internal static string FailAPIRecoverCricket {
+        public static string FailAPIRecoverCricket {
             get {
                 return ResourceManager.GetString("FailAPIRecoverCricket", resourceCulture);
             }
@@ -83,7 +83,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         ///   Looks up a localized string similar to Failed to adjust Net Position of credit Members, consequently their &apos;Match Winner&apos; tickets have not been voided. Please &lt;span id=&quot;copy-clipboard&quot;&gt;click here to copy all betids into clipboard&lt;/span&gt; or view the following list for those betids in details:
         ///&lt;br/&gt;{0}. &lt;input type=&quot;text&quot; id=&quot;copy-clipboard-value&quot; value=&quot;{0}&quot; style=&quot;display:none&quot; /&gt;.
         /// </summary>
-        internal static string FailAPIVoidCricket {
+        public static string FailAPIVoidCricket {
             get {
                 return ResourceManager.GetString("FailAPIVoidCricket", resourceCulture);
             }
@@ -93,7 +93,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         ///   Looks up a localized string similar to Failed to recover some transaction. Please &lt;span id=&quot;copy-clipboard&quot;&gt;click here to copy all betids into clipboard&lt;/span&gt; or view the following list for those betids in details:
         ///&lt;br/&gt;{0}. &lt;input type=&quot;text&quot; id=&quot;copy-clipboard-value&quot; value=&quot;{0}&quot; style=&quot;display:none&quot; /&gt;.
         /// </summary>
-        internal static string FailRecoverCashOutTransaction {
+        public static string FailRecoverCashOutTransaction {
             get {
                 return ResourceManager.GetString("FailRecoverCashOutTransaction", resourceCulture);
             }
@@ -103,7 +103,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         ///   Looks up a localized string similar to Failed to recover some transaction. Please &lt;span id=&quot;copy-clipboard&quot;&gt;click here to copy all betids into clipboard&lt;/span&gt; or view the following list for those betids in details:
         ///&lt;br/&gt;{0}. &lt;input type=&quot;text&quot; id=&quot;copy-clipboard-value&quot; value=&quot;{0}&quot; style=&quot;display:none&quot; /&gt;.
         /// </summary>
-        internal static string FailRecoverTickets {
+        public static string FailRecoverTickets {
             get {
                 return ResourceManager.GetString("FailRecoverTickets", resourceCulture);
             }
@@ -113,7 +113,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         ///   Looks up a localized string similar to Failed to void some transaction. Please &lt;span id=&quot;copy-clipboard&quot;&gt;click here to copy all betids into clipboard&lt;/span&gt; or view the following list for those betids in details:
         ///&lt;br/&gt;{0}. &lt;input type=&quot;text&quot; id=&quot;copy-clipboard-value&quot; value=&quot;{0}&quot; style=&quot;display:none&quot; /&gt;.
         /// </summary>
-        internal static string FailVoidCashOutTransaction {
+        public static string FailVoidCashOutTransaction {
             get {
                 return ResourceManager.GetString("FailVoidCashOutTransaction", resourceCulture);
             }
@@ -123,7 +123,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         ///   Looks up a localized string similar to Failed to void some tickets because you had searched info before member sold/cashed out ticket. Please try a new search or &lt;span id=&quot;copy-clipboard&quot;&gt;click here to copy all betids into clipboard&lt;/span&gt;/view the following list for those betids in details:
         ///&lt;br/&gt;{0}. &lt;input type=&quot;text&quot; id=&quot;copy-clipboard-value&quot; value=&quot;{0}&quot; style=&quot;display:none&quot; /&gt;.
         /// </summary>
-        internal static string FailVoidTickets {
+        public static string FailVoidTickets {
             get {
                 return ResourceManager.GetString("FailVoidTickets", resourceCulture);
             }
@@ -132,7 +132,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Have a problem when sending private message to users. Please inform to IT about this.
         /// </summary>
-        internal static string InformMessageToInternalTeam {
+        public static string InformMessageToInternalTeam {
             get {
                 return ResourceManager.GetString("InformMessageToInternalTeam", resourceCulture);
             }
@@ -141,7 +141,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Bet tickets recovered successfully!.
         /// </summary>
-        internal static string RecoverBetSuccessfully {
+        public static string RecoverBetSuccessfully {
             get {
                 return ResourceManager.GetString("RecoverBetSuccessfully", resourceCulture);
             }
@@ -150,7 +150,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to The selected ticket(s) will be returned to &apos;Running&apos; status..
         /// </summary>
-        internal static string RecoverTicketReturnRunning {
+        public static string RecoverTicketReturnRunning {
             get {
                 return ResourceManager.GetString("RecoverTicketReturnRunning", resourceCulture);
             }
@@ -159,7 +159,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to There is no data..
         /// </summary>
-        internal static string Thereisnodata {
+        public static string Thereisnodata {
             get {
                 return ResourceManager.GetString("Thereisnodata", resourceCulture);
             }
@@ -168,7 +168,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Message has been uploaded successfully!.
         /// </summary>
-        internal static string UpdateBatchMessageSuccess {
+        public static string UpdateBatchMessageSuccess {
             get {
                 return ResourceManager.GetString("UpdateBatchMessageSuccess", resourceCulture);
             }
@@ -177,7 +177,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Failed to upload message for BetID(s): {0}..
         /// </summary>
-        internal static string UpdateBatchMessageUnsuccess {
+        public static string UpdateBatchMessageUnsuccess {
             get {
                 return ResourceManager.GetString("UpdateBatchMessageUnsuccess", resourceCulture);
             }
@@ -186,7 +186,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Please be noted that this action will result the automatically re-settlement of these following match(es): {0}..
         /// </summary>
-        internal static string WarningAutoReSettleMatchs {
+        public static string WarningAutoReSettleMatchs {
             get {
                 return ResourceManager.GetString("WarningAutoReSettleMatchs", resourceCulture);
             }
@@ -195,7 +195,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Please be noted that there are some ticket(s) have just been automatically re-settled: {0}. These other will be returned to &apos;Running&apos; status..
         /// </summary>
-        internal static string WarningAutoReSettleTransIds {
+        public static string WarningAutoReSettleTransIds {
             get {
                 return ResourceManager.GetString("WarningAutoReSettleTransIds", resourceCulture);
             }
@@ -204,7 +204,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Please be noted that this match has been automatically re-calculated and there are some main ticket(s) have just been re-settled: {0}..
         /// </summary>
-        internal static string WarningAutoReSettleTransIdsOfMatch {
+        public static string WarningAutoReSettleTransIdsOfMatch {
             get {
                 return ResourceManager.GetString("WarningAutoReSettleTransIdsOfMatch", resourceCulture);
             }
@@ -213,7 +213,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to This action could lead to a negative amount of Bet Credit of the following customers: {0}. Please be noted!.
         /// </summary>
-        internal static string WarningNegativeBalance {
+        public static string WarningNegativeBalance {
             get {
                 return ResourceManager.GetString("WarningNegativeBalance", resourceCulture);
             }
@@ -222,7 +222,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Please re-calc these Lucky 3 match(es): {0} because this void action could affect other members!.
         /// </summary>
-        internal static string WarningReCalcLucky3Matchs {
+        public static string WarningReCalcLucky3Matchs {
             get {
                 return ResourceManager.GetString("WarningReCalcLucky3Matchs", resourceCulture);
             }
@@ -231,7 +231,7 @@ namespace Fanex.TVS.AfterVoid.Service.Resources {
         /// <summary>
         ///   Looks up a localized string similar to The selected ticket(s) will return to &quot;Running&quot; status, please resettle these Lucky 3 match(es): {0} to calculate it again.
         /// </summary>
-        internal static string WarningRecoverReCaldLucky3Matchs {
+        public static string WarningRecoverReCaldLucky3Matchs {
             get {
                 return ResourceManager.GetString("WarningRecoverReCaldLucky3Matchs", resourceCulture);
             }
