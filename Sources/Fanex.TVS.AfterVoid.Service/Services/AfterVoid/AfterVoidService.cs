@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.Main
+namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 {
     public interface AfterVoidService
     {

@@ -14,7 +14,7 @@ using Fanex.MailDeliver.MailClient;
 using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
-using Fanex.TVS.AfterVoid.Service.Services.Main;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 using Fanex.TVS.AfterVoid.Service.Utilities.AutoMapper;
 using Fanex.TVS.AfterVoid.Website.Jobs;
 using Fanex.TVS.AfterVoid.Website.Jobs.Listener;
@@ -132,7 +132,7 @@ namespace Fanex.TVS.AfterVoid.Website.Utilities
             services.AddSingleton<RequestAutoVoidService, RequestAutoVoidServiceImp>();
             services.AddSingleton<RequestManualVoidService, RequestManualVoidServiceImp>();
             services.AddSingleton<RequestVoid14Service, RequestVoid14ServiceImp>();
-            services.AddSingleton<HandleAfterVoidStepService, HandleAfterVoidStepServiceImp>();
+            services.AddSingleton<AfterVoidProcessStage, AfterVoidProcessStageImp>();
             services.AddSingleton<MessageItemService, MessageItemServiceImp>();
             services.AddSingleton<NotificationLetstalkService, NotificationLetstalkServiceImp>();
             services.AddSingleton<NotificationSignalRService, NotificationSignalRServiceImp>();

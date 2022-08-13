@@ -9,9 +9,9 @@ using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 
-namespace Fanex.TVS.AfterVoid.Service.Services
+namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 {
-    public interface HandleAfterVoidStepService
+    public interface AfterVoidProcessStage
     {
         Task<Message> CreateMessageIdForAllRequests(IEnumerable<VoidBetAutomationInfo> automationInfoList,
             Match matchInfo, int sessionId, bool isHasSettledTicket, int issueTypeId, int? filterBy);
@@ -49,7 +49,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             IEnumerable<Result> sentLetstalkResults, string negativeBalanceUsers, int requestId, int matchId);
     }
 
-    public class HandleAfterVoidStepServiceImp : HandleAfterVoidStepService
+    public class AfterVoidProcessStageImp : AfterVoidProcessStage
     {
         private readonly VoidBetAutomationService voidBetAutomationService;
         private readonly SendMessageService sendMessageService;
@@ -59,7 +59,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
         private readonly LoggingService loggingService;
         private readonly CashOutApi cashOutApi;
 
-        public HandleAfterVoidStepServiceImp(VoidBetAutomationService voidBetAutomationService, SendMessageService sendMessageService,
+        public AfterVoidProcessStageImp(VoidBetAutomationService voidBetAutomationService, SendMessageService sendMessageService,
             NotificationSignalRService notificationSignalRService, AfterVoidEmailService afterVoidEmailService,
             NotificationLetstalkService notificationLetstalkService, LoggingService loggingService, CashOutApi cashOutApi)
         {

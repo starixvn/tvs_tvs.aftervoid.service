@@ -7,7 +7,7 @@ using FizzWare.NBuilder;
 using NSubstitute;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.Main.Tests
+namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.Tests
 {
     public class AfterVoidServiceImpTests
     {

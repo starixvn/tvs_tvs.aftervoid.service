@@ -6,7 +6,7 @@ using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.Main.Tests
+namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.Tests
 {
     public class RequestVoid14ServiceImpTests
     {
@@ -31,7 +31,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Main.Tests
                 .All().With(x => x.StatusId = ExecuteStatus.DBJobDone).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
-            var handleAfterVoidStepService = Substitute.For<HandleAfterVoidStepService>();
+            var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsNullForAnyArgs();
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
             var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
@@ -53,7 +53,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Main.Tests
                 .All().With(x => x.StatusId = ExecuteStatus.DBJobDone).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
-            var handleAfterVoidStepService = Substitute.For<HandleAfterVoidStepService>();
+            var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
             handleAfterVoidStepService.InsertVoidedTransaction(default, default, default, default).ReturnsForAnyArgs(false);
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
@@ -77,7 +77,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Main.Tests
                 .All().With(x => x.StatusId = ExecuteStatus.DBJobDone).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
-            var handleAfterVoidStepService = Substitute.For<HandleAfterVoidStepService>();
+            var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
             handleAfterVoidStepService.InsertVoidedTransaction(default, default, default, default).ReturnsForAnyArgs(true);
             handleAfterVoidStepService.UpdateTicketVoidingHistory(default, default, default).ReturnsForAnyArgs(false);
@@ -103,7 +103,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Main.Tests
                 .All().With(x => x.StatusId = ExecuteStatus.DBJobDone).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
-            var handleAfterVoidStepService = Substitute.For<HandleAfterVoidStepService>();
+            var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
             handleAfterVoidStepService.InsertVoidedTransaction(default, default, default, default).ReturnsForAnyArgs(true);
             handleAfterVoidStepService.UpdateTicketVoidingHistory(default, default, default).ReturnsForAnyArgs(true);
