@@ -5,6 +5,7 @@ using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Models;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Services
@@ -177,14 +178,20 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         public async Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsForSendEmail(int voidingHistoryId)
         {
-            var criteria = new GetTicketsEmailCriteria
+            var ticketsInAllSiteDb = new List<TicketEmailModel>();
+            foreach (var server in SiteDbGroupConstant.ServerList)
             {
-                VoidingHistoryId = voidingHistoryId
-            };
+                var criteria = new GetTicketsEmailCriteria
+                {
+                    SiteDbGroupId = server.Id,
+                    VoidingHistoryId = voidingHistoryId
+                };
 
-            var tickets = await repository.FetchAsync<TicketEmailModel>(criteria);
+                var tickets = await repository.FetchAsync<TicketEmailModel>(criteria);
+                ticketsInAllSiteDb.AddRange(tickets);
+            }
 
-            return tickets;
+            return ticketsInAllSiteDb;
         }
 
         public async Task<VoidDataXmlModel> GetVoidDataFromVoidingHistory(int voidingHistoryId)
