@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Fanex.TVS.AfterVoid.Service.Services;
-using Fanex.TVS.AfterVoid.Service.Extensions;
+using Fanex.TVS.AfterVoid.Website.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +28,7 @@ namespace Fanex.TVS.AfterVoid.Website
             services.AddHttpClient<TicketVoidingSystemApi, TicketVoidingSystemApiImp>();
             services.AddHttpClient<CashOutApi, CashOutApiImp>();
             services.RegisterFanexData(Configuration);
+            services.RegisterONEbookUM(Configuration);
             services.RegisterSentry(Configuration);
             services.RegisterFanexCaching(Configuration);
             services.RegisterRemotingRef();
@@ -44,9 +45,8 @@ namespace Fanex.TVS.AfterVoid.Website
         {
             app.UseDeveloperExceptionPage();
             app.UseHttpsRedirection();
-            app.ConfigureExceptionHandler();
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
             app.UseRouting();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

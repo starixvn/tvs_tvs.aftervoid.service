@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Fanex.Caching.Redis;
 using Fanex.Data;
 using Fanex.Data.Repository;
@@ -18,11 +17,16 @@ using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.Main;
 using Fanex.TVS.AfterVoid.Service.Utilities.AutoMapper;
 using Fanex.TVS.AfterVoid.Website.Jobs;
+using Fanex.TVS.AfterVoid.Website.Jobs.Listener;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using ONEbook.UM.AspNetCore;
+using ONEbook.UM.Configurations;
+using ONEbook.UM.Helpers;
+using ONEbook.UM.Services;
+using ONEbook.UM.Transport;
 using Quartz;
-using Quartz.Impl;
 using Sentry;
 
 namespace Fanex.TVS.AfterVoid.Website.Utilities
@@ -80,27 +84,14 @@ namespace Fanex.TVS.AfterVoid.Website.Utilities
             });
         }
 
-        public static void RegisterInternalServices(this IServiceCollection services)
+        public static void RegisterONEbookUM(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<IDynamicRepository, DynamicRepository>();
-            services.AddSingleton<LoggingService, LoggingServiceImp>();
-            services.AddSingleton<AfterVoidService, AfterVoidServiceImp>();
-            services.AddSingleton<VoidBetAutomationService, VoidBetAutomationServiceImp>();
-            services.AddSingleton<RequestAutoVoidService, RequestAutoVoidServiceImp>();
-            services.AddSingleton<RequestManualVoidService, RequestManualVoidServiceImp>();
-            services.AddSingleton<RequestVoid14Service, RequestVoid14ServiceImp>();
-            services.AddSingleton<HandleAfterVoidStepService, HandleAfterVoidStepServiceImp>();
-            services.AddSingleton<MessageItemService, MessageItemServiceImp>();
-            services.AddSingleton<NotificationLetstalkService, NotificationLetstalkServiceImp>();
-            services.AddSingleton<NotificationSignalRService, NotificationSignalRServiceImp>();
-            services.AddSingleton<SendMessageService, SendMessageServiceImp>();
-            services.AddSingleton<LetstalkClientService, LetstalkClientServiceImp>();
-            services.AddSingleton<AfterVoidEmailService, AfterVoidEmailServiceImp>();
-
-            services.AddSingleton<AfterVoidJob>();
-
-            OnebookUMInitializer.InitializeUMClientManager();
-            OnebookUMInitializer.RegisterServiceCollection(services);
+            services.AddSingleton(new UMClientConfiguration().Initialize(configuration));
+            services.AddSingleton<IUMCacheService, UMCacheService>();
+            services.AddSingleton<IUMRestClient, UMRestClient>();
+            services.AddSingleton<IPHelper, IPHelperImpl>();
+            services.AddSingleton<IHttpContextHelper, CustomHttpContextHelper>();
+            services.AddSingleton<IMaintenanceService, MaintenanceService>();
         }
 
         public static void RegisterFanexCaching(this IServiceCollection services, IConfiguration configuration)
@@ -132,21 +123,64 @@ namespace Fanex.TVS.AfterVoid.Website.Utilities
             services.AddAutoMapper(typeof(OrganizationProfile));
         }
 
-        //public static async Task StartScheduler(this IServiceCollection services)
-        //{
-        //    var serviceProvider = services.BuildServiceProvider();
-        //    var scheduler = await StdSchedulerFactory.GetDefaultScheduler();
-        //    scheduler.JobFactory = new AfterVoidJobFactory(serviceProvider);
+        public static void RegisterInternalServices(this IServiceCollection services)
+        {
+            services.AddSingleton<IDynamicRepository, DynamicRepository>();
+            services.AddSingleton<LoggingService, LoggingServiceImp>();
+            services.AddSingleton<AfterVoidService, AfterVoidServiceImp>();
+            services.AddSingleton<VoidBetAutomationService, VoidBetAutomationServiceImp>();
+            services.AddSingleton<RequestAutoVoidService, RequestAutoVoidServiceImp>();
+            services.AddSingleton<RequestManualVoidService, RequestManualVoidServiceImp>();
+            services.AddSingleton<RequestVoid14Service, RequestVoid14ServiceImp>();
+            services.AddSingleton<HandleAfterVoidStepService, HandleAfterVoidStepServiceImp>();
+            services.AddSingleton<MessageItemService, MessageItemServiceImp>();
+            services.AddSingleton<NotificationLetstalkService, NotificationLetstalkServiceImp>();
+            services.AddSingleton<NotificationSignalRService, NotificationSignalRServiceImp>();
+            services.AddSingleton<SendMessageService, SendMessageServiceImp>();
+            services.AddSingleton<LetstalkClientService, LetstalkClientServiceImp>();
+            services.AddSingleton<AfterVoidEmailService, AfterVoidEmailServiceImp>();
+        }
 
-        //    var job = JobBuilder.Create<AfterVoidJob>().Build();
-        //    var trigger = TriggerBuilder.Create()
-        //        .WithIdentity("AfterVoidService", "AfterVoidService")
-        //        .StartNow()
-        //        .WithSimpleSchedule(x => x.WithIntervalInSeconds(1).RepeatForever())
-        //        .Build();
+        public static void RegisterQuartzScheduler(this IServiceCollection services)
+        {
+            const int maxConcurrencyThread = 10;
+            services.AddTransient<AfterVoidJob>();
 
-        //    await scheduler.ScheduleJob(job, trigger);
-        //    await scheduler.Start();
-        //}
+            services.AddQuartz(q =>
+            {
+                // handy when part of cluster or you want to otherwise identify multiple schedulers
+                q.SchedulerId = "Scheduler-TVS-After-Void-Service";
+                q.UseMicrosoftDependencyInjectionJobFactory();
+
+                // these are the defaults
+                q.UseSimpleTypeLoader();
+                q.UseInMemoryStore();
+                q.UseDefaultThreadPool(tp =>
+                {
+                    tp.MaxConcurrency = maxConcurrencyThread;
+                });
+
+                q.ScheduleJob<AfterVoidJob>(trigger => trigger
+                    .WithIdentity("AfterVoidJob Trigger")
+                    .StartNow()
+                    .WithSimpleSchedule(x => x.WithIntervalInSeconds(1).RepeatForever())
+               );
+
+                q.AddSchedulerListener<CustomSchedulerListener>();
+
+                //// auto-interrupt long-running job
+                //// q.UseJobAutoInterrupt(options =>
+                //// {
+                ////    // this is the default
+                ////    options.DefaultMaxRunTime = TimeSpan.FromMinutes(5);
+                //// });
+            });
+
+            services.AddQuartzHostedService(options =>
+            {
+                // when shutting down we want jobs to complete gracefully
+                options.WaitForJobsToComplete = true;
+            });
+        }
     }
 }

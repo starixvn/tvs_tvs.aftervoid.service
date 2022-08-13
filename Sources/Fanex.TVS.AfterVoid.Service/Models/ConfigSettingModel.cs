@@ -1,6 +1,4 @@
-﻿using ONEbook.UM.Configurations;
-
-namespace Fanex.TVS.AfterVoid.Service.Models
+﻿namespace Fanex.TVS.AfterVoid.Service.Models
 {
     public class ConfigSettingModel
     {
@@ -29,7 +27,5 @@ namespace Fanex.TVS.AfterVoid.Service.Models
         public string MailingList { get; set; }
 
         public string FanexRemotingRefServiceUrl { get; set; }
-
-        public UMClientConfiguration UMConfig { get; set; }
     }
 }
