@@ -61,7 +61,7 @@ namespace TicketVoidingSystem.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An unknown error occurred, please contact IT for support..
+        ///   Looks up a localized string similar to An unknown error occurred, please contact IT for support. (Error: AFTER_VOID_SERVICE).
         /// </summary>
         public static string ExceptionWhenRunAfterVoid {
             get {

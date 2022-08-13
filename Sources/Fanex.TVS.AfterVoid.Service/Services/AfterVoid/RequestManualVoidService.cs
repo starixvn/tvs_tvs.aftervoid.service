@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
@@ -30,7 +31,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
         {
             foreach (var automationInfo in automationInfoList)
             {
-                if (automationInfo.StatusId == ExecuteStatus.WinServiceDone)
+                if (automationInfo.StatusId == ExecuteStatus.Done)
                 {
                     continue;
                 }
@@ -107,7 +108,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 
             await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
 
-            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.WinServiceDone);
+            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.Done);
 
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
             var results = afterVoidProcessStage.CreateResultList(sentEmailResults, sentLetstalkResults, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, automationInfo.MatchId);

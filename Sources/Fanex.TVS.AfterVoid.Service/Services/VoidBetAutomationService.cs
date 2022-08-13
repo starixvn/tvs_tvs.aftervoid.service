@@ -12,7 +12,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 {
     public interface VoidBetAutomationService
     {
-        Task<AutomationStatistic> GetVoidBetAutomationStatistic();
+        Task<IEnumerable<VoidBetAutomationInfo>> GetVoidBetAutomationStatistic();
 
         Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId);
 
@@ -38,7 +38,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         Task<Match> GetMatchInfo(int matchId);
 
-        Task UpdateTicketVoidingHistory(int voidingHistoryId, byte statusId, int reasonId, int messageId);
+        Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId);
     }
 
     public class VoidBetAutomationServiceImp : VoidBetAutomationService
@@ -50,14 +50,10 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             this.repository = repository;
         }
 
-        public async Task<AutomationStatistic> GetVoidBetAutomationStatistic()
+        public async Task<IEnumerable<VoidBetAutomationInfo>> GetVoidBetAutomationStatistic()
         {
-            var (requestUpdateStatus, requestRunAfterVoid) = await repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidBetAutomationInfo>(new GetAllVoidBetAutomationInfoCriteria());
-            return new AutomationStatistic
-            {
-                RequestsWillUpdateStatus = requestUpdateStatus,
-                RequestsWillRunAfterVoid = requestRunAfterVoid
-            };
+            var requestsRunAfterVoid = await repository.FetchAsync<VoidBetAutomationInfo>(new GetAllVoidBetAutomationInfoCriteria());
+            return requestsRunAfterVoid;
         }
 
         public async Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId)
@@ -209,7 +205,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             return await repository.GetAsync<Match>(new GetMatchInfoCriteria { MatchId = matchId, IsMatch3rd = false });
         }
 
-        public async Task UpdateTicketVoidingHistory(int voidingHistoryId, byte statusId, int reasonId, int messageId)
+        public async Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId)
         {
             var command = new UpdateHistoryCommand
             {
