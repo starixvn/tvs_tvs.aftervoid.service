@@ -6,7 +6,7 @@
 
         public int RequestId { get; set; }
 
-        public int VoidingHistory { get; set; }
+        public int VoidingHistoryId { get; set; }
 
         public int StatusId { get; set; }
 

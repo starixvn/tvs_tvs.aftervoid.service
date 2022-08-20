@@ -42,8 +42,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 
         private async Task RunMainSteps(VoidBetAutomationInfo automationInfo)
         {
-            var voidedTickets = await voidBetAutomationService.GetVoidedTicketsForSendEmail(automationInfo.VoidingHistory);
-            var voidDataXml = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistory);
+            var voidedTickets = await voidBetAutomationService.GetVoidedTicketsForSendEmail(automationInfo.VoidingHistoryId);
+            var voidDataXml = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
 
             var messageContent = await afterVoidProcessStage.CreateMessageIdForManualVoid(automationInfo, voidDataXml);
             if (IsNotHaveMessage(messageContent))
@@ -108,9 +108,9 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 
             await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
 
-            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.Done);
+            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
 
-            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
+            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.VoidingHistoryId);
             var results = afterVoidProcessStage.CreateResultList(sentEmailResults, sentLetstalkResults, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, automationInfo.MatchId);
             await notificationSignalRService.NotifyVoidResultToUser(voidDataXml.CreatorName, results);
             afterVoidProcessStage.WriteLogAfterVoid(results, automationInfo);

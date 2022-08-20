@@ -34,7 +34,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             var issueTypeId = firstRequest.RequestInfo.Request.IssueTypeId;
             var filterBy = firstRequest.RequestInfo.EventByMatch.FilterBy;
             var voidDataXml = Helper.IsLikelyAbnormalBet(issueTypeId) ? new VoidDataXmlModel()
-                : await voidBetAutomationService.GetVoidDataFromVoidingHistory(firstRequest.VoidingHistory);
+                : await voidBetAutomationService.GetVoidDataFromVoidingHistory(firstRequest.VoidingHistoryId);
 
             var message = await afterVoidProcessStage.CreateMessageIdForAllRequests(automationInfoList, matchInfo, firstRequest.SessionId, voidDataXml.IsHasSettledTicket, issueTypeId, filterBy);
             if (message == null || message.MessageId == 0)
@@ -61,7 +61,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
                 return;
             }
 
-            var voidedTickets = await voidBetAutomationService.GetVoidedTicketsForSendEmail(automationInfo.VoidingHistory);
+            var voidedTickets = await voidBetAutomationService.GetVoidedTicketsForSendEmail(automationInfo.VoidingHistoryId);
             var isSentBatchMessage = await afterVoidProcessStage.SendBatchMessage(automationInfo, voidedTickets, message.MessageId, null);
             if (!isSentBatchMessage)
             {
@@ -105,9 +105,9 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 
             await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
 
-            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistory, ExecuteStatus.Done);
+            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
 
-            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.VoidingHistory);
+            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.VoidingHistoryId);
             var results = afterVoidProcessStage.CreateResultList(sentEmailResults, sentLetstalkResults, null, automationInfo.RequestId, matchId);
             afterVoidProcessStage.WriteLogAfterVoid(results, automationInfo);
         }
