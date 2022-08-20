@@ -175,13 +175,16 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         public async Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsForSendEmail(int voidingHistoryId)
         {
+            var checkITUser = await CheckRequestOfITUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
             var ticketsInAllSiteDb = new List<TicketEmailModel>();
             foreach (var server in SiteDbGroupConstant.ServerList)
             {
                 var criteria = new GetTicketsEmailCriteria
                 {
                     SiteDbGroupId = server.Id,
-                    VoidingHistoryId = voidingHistoryId
+                    VoidingHistoryId = voidingHistoryId,
+                    IsITSupport = checkITUser.IsITSupport,
+                    IsITSupportCreatedRequest = checkITUser.IsITSupportCreatedRequest
                 };
 
                 var tickets = await repository.FetchAsync<TicketEmailModel>(criteria);
@@ -189,6 +192,17 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             }
 
             return ticketsInAllSiteDb;
+        }
+
+        private async Task<CheckRequestOfITUserModel> CheckRequestOfITUser(int voidingHistoryId)
+        {
+            var criteria = new CheckRequestOfITUserCriteria
+            {
+                VoidingHistoryId = voidingHistoryId
+            };
+
+            var result = await repository.GetAsync<CheckRequestOfITUserModel>(criteria);
+            return result;
         }
 
         public async Task<VoidDataXmlModel> GetVoidDataFromVoidingHistory(int voidingHistoryId)

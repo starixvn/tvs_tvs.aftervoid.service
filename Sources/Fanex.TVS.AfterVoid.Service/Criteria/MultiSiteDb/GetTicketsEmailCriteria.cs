@@ -11,6 +11,9 @@ namespace Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb
     {
         public int VoidingHistoryId { get; set; }
 
+        public bool IsITSupport { get; set; }
+        public bool IsITSupportCreatedRequest { get; set; }
+
         [SpParam(Ignored = true)]
         public int SiteDbGroupId { get; set; }
 
