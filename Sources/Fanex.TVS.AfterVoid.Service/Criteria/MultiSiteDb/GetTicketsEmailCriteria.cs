@@ -9,13 +9,10 @@ namespace Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb
 {
     public class GetTicketsEmailCriteria : CriteriaBase
     {
+        public int SiteDbGroupId { get; set; }
         public int VoidingHistoryId { get; set; }
-
         public bool IsITSupport { get; set; }
         public bool IsITSupportCreatedRequest { get; set; }
-
-        [SpParam(Ignored = true)]
-        public int SiteDbGroupId { get; set; }
 
         public override string GetSettingKey() => SpList.First(x => x.Id == SiteDbGroupId).SpName;
 
