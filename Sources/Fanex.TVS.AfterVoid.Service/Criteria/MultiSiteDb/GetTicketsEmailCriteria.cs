@@ -5,7 +5,7 @@ using Fanex.Data.Repository;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 
-namespace Fanex.TVS.AfterVoid.Service.Criteria
+namespace Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb
 {
     public class GetTicketsEmailCriteria : CriteriaBase
     {
@@ -20,8 +20,8 @@ namespace Fanex.TVS.AfterVoid.Service.Criteria
 
         private static readonly IEnumerable<SiteDbGroupModel> SpList = new List<SiteDbGroupModel>
         {
-            new () {Id = SiteDbGroupConstant.CentralDb, SpName = "CentralDb.TicketVoiding_Email_VoidedTicket_Select"},
-            new () {Id = SiteDbGroupConstant.SiteDb1, SpName = "SiteDb1.TicketVoiding_Email_VoidedTicket_Select"}
+            new () {Id = SiteDbGroupConstant.CentralDb, SpName = "DBCTG.TicketVoiding_Email_VoidedTicket_Select"},
+            new () {Id = SiteDbGroupConstant.SiteDb1, SpName = "DBSIG.TicketVoiding_Email_VoidedTicket_Select"}
         };
     }
 }

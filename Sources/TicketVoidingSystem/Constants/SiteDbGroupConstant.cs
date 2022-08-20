@@ -14,12 +14,12 @@ namespace TicketVoidingSystem.Constants
                 new SiteDbGroupModel
                 {
                     Id = CentralDb,
-                    ServerName = nameof(CentralDb)
+                    ServerName = "DBCTG"
                 },
                 new SiteDbGroupModel
                 {
                     Id = SiteDb1,
-                    ServerName = nameof(SiteDb1)
+                    ServerName = "DBSIG"
                 }
             };
     }
