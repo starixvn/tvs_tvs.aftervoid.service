@@ -384,7 +384,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
                     IssueTypeId = automationInfo.RequestInfo.Request.IssueTypeId,
                     FilterBy = automationInfo.RequestInfo.EventByMatch.FilterBy,
                     RequestId = automationInfo.RequestId,
-                    RequestedBy = automationInfo.RequestInfo.Request.RequestedBy
+                    RequestedBy = automationInfo.RequestInfo.Request.RequestedBy,
+                    VoidingHistoryId = automationInfo.VoidingHistoryId
                 };
 
                 var isSendLetstalkSettledBet = notificationLetstalkService.SendToSettledBetGroup(notificationLetstalkModel, emailTickets);

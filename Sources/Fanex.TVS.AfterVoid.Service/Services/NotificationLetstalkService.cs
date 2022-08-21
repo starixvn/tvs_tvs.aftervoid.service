@@ -227,7 +227,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             var subject = GetSubjectLetstalkModel(model);
             var content = CreateMessageAbnormalBetContent(model);
             var attachments = await afterVoidEmailService.GetContentExcelVoidedTicket(model.RequestId,
-                model.Match?.MatchId ?? 29, model.IssueTypeId);
+                model.Match?.MatchId ?? 29, model.IssueTypeId, model.VoidingHistoryId);
             return new LetstalkModel
             {
                 TargetName = "TVS-Void-Abnormal-Bets",

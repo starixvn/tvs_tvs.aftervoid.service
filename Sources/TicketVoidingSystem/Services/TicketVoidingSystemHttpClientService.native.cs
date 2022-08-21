@@ -26,7 +26,7 @@ namespace TicketVoidingSystem.Services
         Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason voidedReason, Message message,
             int issueTypeId, string negativeBalanceUsers);
 
-        Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId);
+        Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, string voidingHistoryIds);
     }
 
     [ExcludeFromCodeCoverage]
@@ -120,10 +120,10 @@ namespace TicketVoidingSystem.Services
             return (false, null);
         }
 
-        public async Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId)
+        public async Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, string voidingHistoryIds)
         {
             const string actionName = "SendLetstalk/GetContentExcelVoidedTicket";
-            using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { requestId, matchId, issueTypeId }));
+            using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { requestId, matchId, issueTypeId, voidingHistoryIds }));
             if (response.IsSuccessStatusCode)
             {
                 var responseData = await DeserializeResponseStream<byte[]>(response);
