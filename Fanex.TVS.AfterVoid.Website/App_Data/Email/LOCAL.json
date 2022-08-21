@@ -2,42 +2,42 @@
   {
     "SiteId": 1000001,
     "Site": "IT QA",
-    "ToList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;lex.khuat@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com",
+    "ToList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;max.tran@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com",
     "CcList": "",
     "BccList": ""
   },
   {
     "SiteId": 1000002,
     "Site": "IT Support",
-    "ToList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;lex.khuat@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com",
+    "ToList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;max.tran@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com",
     "CcList": "",
     "BccList": ""
   },
   {
     "SiteId": 1000004,
     "Site": "CSD Recovery",
-    "ToList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;lex.khuat@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com",
+    "ToList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;max.tran@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com",
     "CcList": "",
     "BccList": ""
   },
   {
     "SiteId": 1000005,
     "Site": "BetFair",
-    "ToList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;lex.khuat@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com",
+    "ToList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;max.tran@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com",
     "CcList": "",
     "BccList": ""
   },
   {
     "SiteId": 1000008,
     "Site": "Cash Out",
-    "ToList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;lex.khuat@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com",
+    "ToList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;max.tran@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com",
     "CcList": "",
     "BccList": ""
   },
   {
     "SiteId": 1000009,
     "Site": "spondemo",
-    "ToList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;lex.khuat@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com",
+    "ToList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;max.tran@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com",
     "CcList": "",
     "BccList": ""
   },
@@ -46,6 +46,6 @@
     "Site": "EmailConfiguration",
     "ToList": "",
     "CcList": "",
-    "BccList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;lex.khuat@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com"
+    "BccList": "tommy.nguyen@starixvn.com;raymond.le@starixvn.com;max.tran@starixvn.com;kaka.huynh@starixvn.com;zane.trinh@starixvn.com;charles.nguyen@starixvn.com;neil.dao@starixvn.com;harley.nguyen@starixvn.com;jane.dinh@starixvn.com;mike.vu@starixvn.com"
   }
 ]
