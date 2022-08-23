@@ -83,7 +83,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
                 return;
             }
 
-            var isUpdatedVoidingHistory = await afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, messageContent.MessageId, voidedReason.ReasonId);
+            var isUpdatedVoidingHistory = await afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, messageContent.MessageId, voidedReason.ReasonId, voidedTickets);
             if (!isUpdatedVoidingHistory)
             {
                 await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);

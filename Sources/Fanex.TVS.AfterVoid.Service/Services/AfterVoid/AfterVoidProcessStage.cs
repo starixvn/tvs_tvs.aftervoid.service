@@ -36,7 +36,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
         Task<bool> InsertVoidedTransaction(VoidBetAutomationInfo automationInfo,
             IEnumerable<TicketEmailModel> emailTickets, int messageId, int reasonId);
 
-        Task<bool> UpdateTicketVoidingHistory(VoidBetAutomationInfo automationInfo, int messageId, int reasonId);
+        Task<bool> UpdateTicketVoidingHistory(VoidBetAutomationInfo automationInfo, int messageId, int reasonId, IEnumerable<TicketEmailModel> emailTickets);
 
         Task<(bool, IEnumerable<Result>)> SendEmail(VoidBetAutomationInfo automationInfo,
             IEnumerable<TicketEmailModel> emailTickets, Match matchInfo, VoidedReason reason, Message message);
@@ -300,7 +300,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             }
         }
 
-        public async Task<bool> UpdateTicketVoidingHistory(VoidBetAutomationInfo automationInfo, int messageId, int reasonId)
+        public async Task<bool> UpdateTicketVoidingHistory(VoidBetAutomationInfo automationInfo, int messageId, int reasonId, IEnumerable<TicketEmailModel> emailTickets)
         {
             try
             {
@@ -309,7 +309,12 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
                     return true;
                 }
 
-                await voidBetAutomationService.UpdateTicketVoidingHistory(automationInfo.VoidingHistoryId, ExecuteStatus.Done, reasonId, messageId);
+                var transIds = Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId)
+                    ? string.Join(",", emailTickets.Select(x => x.TransId))
+                    : null;
+                DateTime? minWinLostDate = Helper.IsAbnormalAccount(automationInfo.RequestInfo.Request.IssueTypeId) ? emailTickets.Min(x => x.WinLostDate) : null;
+                DateTime? maxWinLostDate = Helper.IsAbnormalAccount(automationInfo.RequestInfo.Request.IssueTypeId) ? emailTickets.Max(x => x.WinLostDate) : null;
+                await voidBetAutomationService.UpdateTicketVoidingHistory(automationInfo.VoidingHistoryId, ExecuteStatus.Done, reasonId, messageId, transIds, minWinLostDate, maxWinLostDate);
                 await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsUpdatedVoidingHistory = true });
 
                 return true;

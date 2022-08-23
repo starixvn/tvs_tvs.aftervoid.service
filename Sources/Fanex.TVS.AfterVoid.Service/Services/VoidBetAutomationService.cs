@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
@@ -39,7 +40,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         Task<Match> GetMatchInfo(int matchId);
 
-        Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId);
+        Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId,
+            string transIds, DateTime? minWinLostDate, DateTime? maxWinLostDate);
     }
 
     public class VoidBetAutomationServiceImp : VoidBetAutomationService
@@ -220,14 +222,18 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             return await repository.GetAsync<Match>(new GetMatchInfoCriteria { MatchId = matchId, IsMatch3rd = false });
         }
 
-        public async Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId)
+        public async Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId,
+            string transIds, DateTime? minWinLostDate, DateTime? maxWinLostDate)
         {
             var command = new UpdateHistoryCommand
             {
                 VoidingHistoryId = voidingHistoryId,
                 StatusId = statusId,
                 ReasonId = reasonId,
-                MessageId = messageId
+                MessageId = messageId,
+                TransIds = transIds,
+                MinWinLostDate = minWinLostDate,
+                MaxWinLostDate = maxWinLostDate
             };
 
             await repository.ExecuteAsync(command);

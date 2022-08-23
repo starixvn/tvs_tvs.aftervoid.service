@@ -42,6 +42,7 @@ namespace TicketVoidingSystem.Models
         public byte WalletType { get; set; }
 
         public string Winlost { get; set; }
+        public DateTime WinLostDate { get; set; }
         public bool IsMixParlay { get; set; }
         public string SubStatus { get; set; }
         public long SubTransId { get; set; }
