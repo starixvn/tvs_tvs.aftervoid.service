@@ -82,7 +82,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services
         {
             var isWrongHdpGroup = issueTypeId is IssueTypeConstant.WrongHDP or IssueTypeConstant.Wrong1stHDP;
             var isWrongOuGroup = issueTypeId is IssueTypeConstant.WrongOU or IssueTypeConstant.Wrong1stOU;
-            return issueTypeId == IssueTypeConstant.DangerAccepted || isWrongHdpGroup || isWrongOuGroup;
+            return issueTypeId is IssueTypeConstant.DangerAccepted or IssueTypeConstant.RedCard
+                   || isWrongHdpGroup || isWrongOuGroup;
         }
 
         public async Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int voidingHistoryId)
