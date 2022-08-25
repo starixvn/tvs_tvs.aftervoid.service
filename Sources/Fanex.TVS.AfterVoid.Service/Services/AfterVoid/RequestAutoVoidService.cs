@@ -33,7 +33,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             var matchInfo = firstRequest.MatchId > 0 ? await voidBetAutomationService.GetMatchInfo(firstRequest.MatchId) : null;
             var issueTypeId = firstRequest.RequestInfo.Request.IssueTypeId;
             var filterBy = firstRequest.RequestInfo.EventByMatch.FilterBy;
-            var voidDataXml = Helper.IsLikelyAbnormalBet(issueTypeId) ? new VoidDataXmlModel()
+            var voidDataXml = Helper.IsLikelyAbnormalBet(issueTypeId) || Helper.IsAbnormalAccount(issueTypeId) ? new VoidDataXmlModel()
                 : await voidBetAutomationService.GetVoidDataFromVoidingHistory(firstRequest.VoidingHistoryId);
 
             var message = await afterVoidProcessStage.CreateMessageIdForAllRequests(automationInfoList, matchInfo, firstRequest.SessionId, voidDataXml.IsHasSettledTicket, issueTypeId, filterBy);

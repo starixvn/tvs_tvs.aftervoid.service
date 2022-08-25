@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
@@ -107,12 +106,7 @@ namespace TicketVoidingSystem.Services
             {
                 await LogResponseStream(response);
                 var responseData = await DeserializeResponseStream<IEnumerable<Result>>(response);
-                if (responseData != null && responseData.Any())
-                {
-                    return (true, responseData);
-                }
-
-                return (false, null);
+                return responseData != null ? (true, responseData) : (false, null);
             }
 
             await LogService.ErrorAsync($"{ticketVoidingSystemUrl}{actionName}" +
