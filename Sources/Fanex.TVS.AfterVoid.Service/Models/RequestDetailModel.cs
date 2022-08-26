@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 using Fanex.TVS.AfterVoid.Service.Extensions;
+using Newtonsoft.Json;
 using TicketVoidingSystem.Utilities;
 
 namespace Fanex.TVS.AfterVoid.Service.Models
