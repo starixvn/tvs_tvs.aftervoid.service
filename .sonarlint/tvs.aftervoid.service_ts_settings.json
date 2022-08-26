@@ -1,0 +1,964 @@
+{
+  "sonarlint.rules": {
+    "typescript:S2589": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1110": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1117": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S1143": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S1264": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S2201": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S2681": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S2685": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S2688": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4622": {
+      "level": "On",
+      "parameters": {
+        "max": "3"
+      },
+      "severity": "Major"
+    },
+    "typescript:S4623": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4624": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S881": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1116": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S1121": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1854": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1862": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S3353": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S4204": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4335": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S4634": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1066": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S3696": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S3923": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S106": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S109": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S138": {
+      "level": "On",
+      "parameters": {
+        "max": "200"
+      },
+      "severity": "Major"
+    },
+    "typescript:S1533": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S1656": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S2068": {
+      "level": "On",
+      "parameters": {
+        "credentialWords": "password,pwd,passwd"
+      },
+      "severity": "Blocker"
+    },
+    "typescript:S2814": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S2933": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4123": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S4124": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4138": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S4139": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S905": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S121": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S1516": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S1764": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1871": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1874": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S2870": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S2871": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S2966": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S1226": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S1523": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S1526": {
+      "level": "On",
+      "severity": "Blocker"
+    },
+    "typescript:S2737": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S3402": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S3516": {
+      "level": "On",
+      "severity": "Blocker"
+    },
+    "typescript:S4043": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1439": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S3616": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4822": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1440": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S3504": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S3981": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4157": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S4158": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S2234": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S122": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1105": {
+      "level": "On",
+      "parameters": {
+        "braceStyle": "1tbs"
+      },
+      "severity": "Minor"
+    },
+    "typescript:S3854": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S4619": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S3799": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4524": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S103": {
+      "level": "On",
+      "parameters": {
+        "maximumLineLength": "180"
+      },
+      "severity": "Major"
+    },
+    "typescript:S105": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S104": {
+      "level": "On",
+      "parameters": {
+        "maximum": "1000"
+      },
+      "severity": "Major"
+    },
+    "typescript:S107": {
+      "level": "On",
+      "parameters": {
+        "maximumFunctionParameters": "7"
+      },
+      "severity": "Major"
+    },
+    "typescript:S108": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1940": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S1301": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S4137": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S1541": {
+      "level": "On",
+      "parameters": {
+        "Threshold": "10"
+      },
+      "severity": "Critical"
+    },
+    "typescript:S4136": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S1821": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S2757": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S117": {
+      "level": "On",
+      "parameters": {
+        "format": "^[_$A-Za-z][$A-Za-z0-9]*$|^[_$A-Z][_$A-Z0-9]+$"
+      },
+      "severity": "Minor"
+    },
+    "typescript:S878": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S3776": {
+      "level": "On",
+      "parameters": {
+        "threshold": "15"
+      },
+      "severity": "Critical"
+    },
+    "typescript:S4621": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S1751": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S3257": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S3533": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S1479": {
+      "level": "On",
+      "parameters": {
+        "maximum": "30"
+      },
+      "severity": "Major"
+    },
+    "typescript:S1192": {
+      "level": "On",
+      "parameters": {
+        "threshold": "3"
+      },
+      "severity": "Critical"
+    },
+    "typescript:S1125": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S3786": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S101": {
+      "level": "On",
+      "parameters": {
+        "format": "^[A-Z][a-zA-Z0-9]*$"
+      },
+      "severity": "Minor"
+    },
+    "typescript:S4324": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S4325": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S4327": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4326": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S4323": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S4322": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S4328": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S3801": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S3699": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S3972": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "typescript:S2123": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4144": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4782": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1438": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S125": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4140": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4143": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4798": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S3863": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S3984": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S4156": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S3626": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "typescript:S4030": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "typescript:S1131": {
+      "level": "Off"
+    },
+    "typescript:S1134": {
+      "level": "Off"
+    },
+    "typescript:S1135": {
+      "level": "Off"
+    },
+    "typescript:S5730": {
+      "level": "Off"
+    },
+    "typescript:S5732": {
+      "level": "Off"
+    },
+    "typescript:S5734": {
+      "level": "Off"
+    },
+    "typescript:S5736": {
+      "level": "Off"
+    },
+    "typescript:S5739": {
+      "level": "Off"
+    },
+    "typescript:S5850": {
+      "level": "Off"
+    },
+    "typescript:S5852": {
+      "level": "Off"
+    },
+    "typescript:S5856": {
+      "level": "Off"
+    },
+    "typescript:S6268": {
+      "level": "Off"
+    },
+    "typescript:S1119": {
+      "level": "Off"
+    },
+    "typescript:S1472": {
+      "level": "Off"
+    },
+    "typescript:S2598": {
+      "level": "Off"
+    },
+    "typescript:S3531": {
+      "level": "Off"
+    },
+    "typescript:S4502": {
+      "level": "Off"
+    },
+    "typescript:S5742": {
+      "level": "Off"
+    },
+    "typescript:S5743": {
+      "level": "Off"
+    },
+    "typescript:S5860": {
+      "level": "Off"
+    },
+    "typescript:S5863": {
+      "level": "Off"
+    },
+    "typescript:S5867": {
+      "level": "Off"
+    },
+    "typescript:S5868": {
+      "level": "Off"
+    },
+    "typescript:S5869": {
+      "level": "Off"
+    },
+    "typescript:S6035": {
+      "level": "Off"
+    },
+    "typescript:S1128": {
+      "level": "Off"
+    },
+    "typescript:S1488": {
+      "level": "Off"
+    },
+    "typescript:S2692": {
+      "level": "Off"
+    },
+    "typescript:S2699": {
+      "level": "Off"
+    },
+    "typescript:S2819": {
+      "level": "Off"
+    },
+    "typescript:S3358": {
+      "level": "Off"
+    },
+    "typescript:S3415": {
+      "level": "Off"
+    },
+    "typescript:S4507": {
+      "level": "Off"
+    },
+    "typescript:S5042": {
+      "level": "Off"
+    },
+    "typescript:S5604": {
+      "level": "Off"
+    },
+    "typescript:S5659": {
+      "level": "Off"
+    },
+    "typescript:S5725": {
+      "level": "Off"
+    },
+    "typescript:S5728": {
+      "level": "Off"
+    },
+    "typescript:S5842": {
+      "level": "Off"
+    },
+    "typescript:S5843": {
+      "level": "Off"
+    },
+    "typescript:S5958": {
+      "level": "Off"
+    },
+    "typescript:S6019": {
+      "level": "Off"
+    },
+    "typescript:S1067": {
+      "level": "Off"
+    },
+    "typescript:S1154": {
+      "level": "Off"
+    },
+    "typescript:S124": {
+      "level": "Off"
+    },
+    "typescript:S126": {
+      "level": "Off"
+    },
+    "typescript:S128": {
+      "level": "Off"
+    },
+    "typescript:S131": {
+      "level": "Off"
+    },
+    "typescript:S134": {
+      "level": "Off"
+    },
+    "typescript:S2137": {
+      "level": "Off"
+    },
+    "typescript:S2245": {
+      "level": "Off"
+    },
+    "typescript:S3330": {
+      "level": "Off"
+    },
+    "typescript:S4423": {
+      "level": "Off"
+    },
+    "typescript:S4426": {
+      "level": "Off"
+    },
+    "typescript:S4784": {
+      "level": "Off"
+    },
+    "typescript:S4787": {
+      "level": "Off"
+    },
+    "typescript:S5542": {
+      "level": "Off"
+    },
+    "typescript:S5547": {
+      "level": "Off"
+    },
+    "typescript:S5757": {
+      "level": "Off"
+    },
+    "typescript:S5759": {
+      "level": "Off"
+    },
+    "typescript:S5876": {
+      "level": "Off"
+    },
+    "typescript:S6079": {
+      "level": "Off"
+    },
+    "typescript:S135": {
+      "level": "Off"
+    },
+    "typescript:S1535": {
+      "level": "Off"
+    },
+    "typescript:S1537": {
+      "level": "Off"
+    },
+    "typescript:S2251": {
+      "level": "Off"
+    },
+    "typescript:S2255": {
+      "level": "Off"
+    },
+    "typescript:S2376": {
+      "level": "Off"
+    },
+    "typescript:S4790": {
+      "level": "Off"
+    },
+    "typescript:S5332": {
+      "level": "Off"
+    },
+    "typescript:S5527": {
+      "level": "Off"
+    },
+    "typescript:S5691": {
+      "level": "Off"
+    },
+    "typescript:S5693": {
+      "level": "Off"
+    },
+    "typescript:S6299": {
+      "level": "Off"
+    },
+    "typescript:S1763": {
+      "level": "Off"
+    },
+    "typescript:S1994": {
+      "level": "Off"
+    },
+    "typescript:S2077": {
+      "level": "Off"
+    },
+    "typescript:S2755": {
+      "level": "Off"
+    },
+    "typescript:S2970": {
+      "level": "Off"
+    },
+    "typescript:S2999": {
+      "level": "Off"
+    },
+    "typescript:S3499": {
+      "level": "Off"
+    },
+    "typescript:S3723": {
+      "level": "Off"
+    },
+    "typescript:S4817": {
+      "level": "Off"
+    },
+    "typescript:S4818": {
+      "level": "Off"
+    },
+    "typescript:S5443": {
+      "level": "Off"
+    },
+    "typescript:S5689": {
+      "level": "Off"
+    },
+    "typescript:S6080": {
+      "level": "Off"
+    },
+    "typescript:S1219": {
+      "level": "Off"
+    },
+    "typescript:S1313": {
+      "level": "Off"
+    },
+    "typescript:S1451": {
+      "level": "Off"
+    },
+    "typescript:S1525": {
+      "level": "Off"
+    },
+    "typescript:S1528": {
+      "level": "Off"
+    },
+    "typescript:S1529": {
+      "level": "Off"
+    },
+    "typescript:S2427": {
+      "level": "Off"
+    },
+    "typescript:S2612": {
+      "level": "Off"
+    },
+    "typescript:S3513": {
+      "level": "Off"
+    },
+    "typescript:S3514": {
+      "level": "Off"
+    },
+    "typescript:S3525": {
+      "level": "Off"
+    },
+    "typescript:S4165": {
+      "level": "Off"
+    },
+    "typescript:S4721": {
+      "level": "Off"
+    },
+    "typescript:S6092": {
+      "level": "Off"
+    },
+    "typescript:S6351": {
+      "level": "Off"
+    },
+    "typescript:S6353": {
+      "level": "Off"
+    },
+    "typescript:S1314": {
+      "level": "Off"
+    },
+    "typescript:S3735": {
+      "level": "Off"
+    },
+    "typescript:S4829": {
+      "level": "Off"
+    },
+    "typescript:S6323": {
+      "level": "Off"
+    },
+    "typescript:S6324": {
+      "level": "Off"
+    },
+    "typescript:S6325": {
+      "level": "Off"
+    },
+    "typescript:S6326": {
+      "level": "Off"
+    },
+    "typescript:S6328": {
+      "level": "Off"
+    },
+    "typescript:S888": {
+      "level": "Off"
+    },
+    "typescript:S4830": {
+      "level": "Off"
+    },
+    "typescript:S5247": {
+      "level": "Off"
+    },
+    "typescript:S2092": {
+      "level": "Off"
+    },
+    "typescript:S5122": {
+      "level": "Off"
+    },
+    "typescript:S6331": {
+      "level": "Off"
+    },
+    "typescript:S3003": {
+      "level": "Off"
+    },
+    "typescript:S3001": {
+      "level": "Off"
+    },
+    "typescript:S1848": {
+      "level": "Off"
+    },
+    "typescript:S2817": {
+      "level": "Off"
+    },
+    "typescript:S1186": {
+      "level": "Off"
+    },
+    "typescript:S3579": {
+      "level": "Off"
+    },
+    "typescript:S2138": {
+      "level": "Off"
+    },
+    "typescript:S139": {
+      "level": "Off"
+    },
+    "typescript:S1774": {
+      "level": "Off"
+    },
+    "typescript:S909": {
+      "level": "Off"
+    },
+    "typescript:S2990": {
+      "level": "Off"
+    },
+    "typescript:S1788": {
+      "level": "Off"
+    },
+    "typescript:S3812": {
+      "level": "Off"
+    },
+    "typescript:S2424": {
+      "level": "Off"
+    },
+    "typescript:S4823": {
+      "level": "Off"
+    },
+    "typescript:S1530": {
+      "level": "Off"
+    },
+    "typescript:S1539": {
+      "level": "Off"
+    },
+    "typescript:S3317": {
+      "level": "Off"
+    },
+    "typescript:S113": {
+      "level": "Off"
+    },
+    "typescript:S3498": {
+      "level": "Off"
+    },
+    "typescript:S1515": {
+      "level": "Off"
+    },
+    "typescript:S2208": {
+      "level": "Off"
+    },
+    "typescript:S100": {
+      "level": "Off"
+    },
+    "typescript:S3512": {
+      "level": "Off"
+    },
+    "typescript:S2260": {
+      "level": "Off"
+    },
+    "typescript:S3524": {
+      "level": "Off"
+    },
+    "typescript:S2310": {
+      "level": "Off"
+    },
+    "typescript:S2392": {
+      "level": "Off"
+    },
+    "typescript:S3973": {
+      "level": "Off"
+    },
+    "typescript:S4023": {
+      "level": "Off"
+    },
+    "typescript:S1441": {
+      "level": "Off"
+    },
+    "typescript:S4275": {
+      "level": "Off"
+    },
+    "common-ts:InsufficientBranchCoverage": {
+      "level": "Off"
+    },
+    "common-ts:DuplicatedBlocks": {
+      "level": "Off"
+    },
+    "common-ts:FailedUnitTests": {
+      "level": "Off"
+    },
+    "common-ts:InsufficientCommentDensity": {
+      "level": "Off"
+    },
+    "common-ts:InsufficientLineCoverage": {
+      "level": "Off"
+    },
+    "common-ts:SkippedUnitTests": {
+      "level": "Off"
+    }
+  }
+}
