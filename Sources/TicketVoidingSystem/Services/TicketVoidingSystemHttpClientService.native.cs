@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
@@ -26,7 +25,7 @@ namespace TicketVoidingSystem.Services
         Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason voidedReason, Message message,
             int issueTypeId, string negativeBalanceUsers);
 
-        Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId);
+        Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, string voidingHistoryIds);
     }
 
     [ExcludeFromCodeCoverage]
@@ -107,12 +106,7 @@ namespace TicketVoidingSystem.Services
             {
                 await LogResponseStream(response);
                 var responseData = await DeserializeResponseStream<IEnumerable<Result>>(response);
-                if (responseData != null && responseData.Any())
-                {
-                    return (true, responseData);
-                }
-
-                return (false, null);
+                return responseData != null ? (true, responseData) : (false, null);
             }
 
             await LogService.ErrorAsync($"{ticketVoidingSystemUrl}{actionName}" +
@@ -120,10 +114,10 @@ namespace TicketVoidingSystem.Services
             return (false, null);
         }
 
-        public async Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId)
+        public async Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, string voidingHistoryIds)
         {
             const string actionName = "SendLetstalk/GetContentExcelVoidedTicket";
-            using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { requestId, matchId, issueTypeId }));
+            using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { requestId, matchId, issueTypeId, voidingHistoryIds }));
             if (response.IsSuccessStatusCode)
             {
                 var responseData = await DeserializeResponseStream<byte[]>(response);

@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ExceptionWhenRunAfterVoid" xml:space="preserve">
-    <value>An unknown error occurred, please contact IT for support.</value>
+    <value>An unknown error occurred, please contact IT for support. (Error: AFTER_VOID_SERVICE)</value>
   </data>
   <data name="FailAPIRecoverCricket" xml:space="preserve">
     <value>Failed to adjust Net Position of credit Member. Please &lt;span id="copy-clipboard"&gt;click here to copy all betids into clipboard&lt;/span&gt; or view the following list for those betids in details:

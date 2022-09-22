@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Fanex.TVS.AfterVoid.Service.Models
+﻿namespace Fanex.TVS.AfterVoid.Service.Models
 {
     public class VoidBetAutomationInfo
     {
@@ -8,7 +6,7 @@ namespace Fanex.TVS.AfterVoid.Service.Models
 
         public int RequestId { get; set; }
 
-        public int VoidingHistory { get; set; }
+        public int VoidingHistoryId { get; set; }
 
         public int StatusId { get; set; }
 
@@ -41,12 +39,5 @@ namespace Fanex.TVS.AfterVoid.Service.Models
         public string VoidResults { get; set; }
 
         public RequestDetailViewModel RequestInfo { get; set; }
-    }
-
-    public class AutomationStatistic
-    {
-        public IEnumerable<VoidBetAutomationInfo> RequestsWillUpdateStatus { get; set; }
-
-        public IEnumerable<VoidBetAutomationInfo> RequestsWillRunAfterVoid { get; set; }
     }
 }

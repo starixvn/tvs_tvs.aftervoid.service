@@ -20,51 +20,45 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
         private readonly RequestManualVoidService requestManualVoidService;
         private readonly RequestVoid14Service requestVoid14Service;
         private readonly LoggingService loggingService;
-        private readonly NotificationSignalRService notificationSignalRService;
 
         public AfterVoidServiceImp(VoidBetAutomationService voidBetAutomationService,
             RequestAutoVoidService requestAutoVoidService,
             RequestManualVoidService requestManualVoidService,
             RequestVoid14Service requestVoid14Service,
-            LoggingService loggingService,
-            NotificationSignalRService notificationSignalRService)
+            LoggingService loggingService)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.requestAutoVoidService = requestAutoVoidService;
             this.requestManualVoidService = requestManualVoidService;
             this.requestVoid14Service = requestVoid14Service;
             this.loggingService = loggingService;
-            this.notificationSignalRService = notificationSignalRService;
         }
 
         public async Task Execute()
         {
             var stopwatch = Stopwatch.StartNew();
-            var automationStatistic = await voidBetAutomationService.GetVoidBetAutomationStatistic();
+            var requestsWillRunAfterVoid = await voidBetAutomationService.GetVoidBetAutomationStatistic();
 
-            await notificationSignalRService.UpdateRunningStatusForRequests(automationStatistic.RequestsWillUpdateStatus);
-            await notificationSignalRService.UpdateFailedStatusForRequests(automationStatistic.RequestsWillUpdateStatus);
-
-            if (automationStatistic.RequestsWillRunAfterVoid == null || !automationStatistic.RequestsWillRunAfterVoid.Any())
+            if (!requestsWillRunAfterVoid.Any())
             {
                 return;
             }
 
-            await UpdateRequestInfo(automationStatistic.RequestsWillRunAfterVoid);
+            await UpdateRequestInfo(requestsWillRunAfterVoid);
 
-            var firstRequest = automationStatistic.RequestsWillRunAfterVoid.FirstOrDefault();
+            var firstRequest = requestsWillRunAfterVoid.FirstOrDefault();
             if (firstRequest.IsAutoVoid)
             {
-                await requestAutoVoidService.Execute(automationStatistic.RequestsWillRunAfterVoid);
+                await requestAutoVoidService.Execute(requestsWillRunAfterVoid);
             }
             else
             {
-                await ExecuteForManualVoid(firstRequest.RequestInfo.Request.IssueTypeId, automationStatistic.RequestsWillRunAfterVoid);
+                await ExecuteForManualVoid(firstRequest.RequestInfo.Request.IssueTypeId, requestsWillRunAfterVoid);
             }
 
             loggingService.Info(
                 $"End - Session: {firstRequest.SessionId} - "
-                + $"Total Request: {automationStatistic.RequestsWillRunAfterVoid.Count()} - "
+                + $"Total Request: {requestsWillRunAfterVoid.Count()} - "
                 + $"Execute Time: {stopwatch.ElapsedMilliseconds} ms - "
                 + $"{DateTime.Now}"
                 );

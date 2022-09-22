@@ -1,17 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Criteria;
+using Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb;
 using Fanex.TVS.AfterVoid.Service.Models;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Services
 {
     public interface VoidBetAutomationService
     {
-        Task<AutomationStatistic> GetVoidBetAutomationStatistic();
+        Task<IEnumerable<VoidBetAutomationInfo>> GetVoidBetAutomationStatistic();
 
         Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId);
 
@@ -37,7 +40,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         Task<Match> GetMatchInfo(int matchId);
 
-        Task UpdateTicketVoidingHistory(int voidingHistoryId, byte statusId, int reasonId, int messageId);
+        Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId,
+            string transIds, DateTime? minWinLostDate, DateTime? maxWinLostDate);
     }
 
     public class VoidBetAutomationServiceImp : VoidBetAutomationService
@@ -49,14 +53,10 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             this.repository = repository;
         }
 
-        public async Task<AutomationStatistic> GetVoidBetAutomationStatistic()
+        public async Task<IEnumerable<VoidBetAutomationInfo>> GetVoidBetAutomationStatistic()
         {
-            var (requestUpdateStatus, requestRunAfterVoid) = await repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidBetAutomationInfo>(new GetAllVoidBetAutomationInfoCriteria());
-            return new AutomationStatistic
-            {
-                RequestsWillUpdateStatus = requestUpdateStatus,
-                RequestsWillRunAfterVoid = requestRunAfterVoid
-            };
+            var requestsRunAfterVoid = await repository.FetchAsync<VoidBetAutomationInfo>(new GetAllVoidBetAutomationInfoCriteria());
+            return requestsRunAfterVoid;
         }
 
         public async Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId)
@@ -82,7 +82,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services
         {
             var isWrongHdpGroup = issueTypeId is IssueTypeConstant.WrongHDP or IssueTypeConstant.Wrong1stHDP;
             var isWrongOuGroup = issueTypeId is IssueTypeConstant.WrongOU or IssueTypeConstant.Wrong1stOU;
-            return issueTypeId == IssueTypeConstant.DangerAccepted || isWrongHdpGroup || isWrongOuGroup;
+            return issueTypeId is IssueTypeConstant.DangerAccepted or IssueTypeConstant.RedCard
+                   || isWrongHdpGroup || isWrongOuGroup;
         }
 
         public async Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int voidingHistoryId)
@@ -177,14 +178,34 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         public async Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsForSendEmail(int voidingHistoryId)
         {
-            var criteria = new GetTicketsEmailCriteria
+            var checkITUser = await CheckRequestOfITUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
+            var ticketsInAllSiteDb = new List<TicketEmailModel>();
+            foreach (var server in SiteDbGroupConstant.ServerList)
+            {
+                var criteria = new GetTicketsEmailCriteria
+                {
+                    SiteDbGroupId = server.Id,
+                    VoidingHistoryId = voidingHistoryId,
+                    IsITSupport = checkITUser.IsITSupport,
+                    IsITSupportCreatedRequest = checkITUser.IsITSupportCreatedRequest
+                };
+
+                var tickets = await repository.FetchAsync<TicketEmailModel>(criteria);
+                ticketsInAllSiteDb.AddRange(tickets);
+            }
+
+            return ticketsInAllSiteDb;
+        }
+
+        private async Task<CheckRequestOfITUserModel> CheckRequestOfITUser(int voidingHistoryId)
+        {
+            var criteria = new CheckRequestOfITUserCriteria
             {
                 VoidingHistoryId = voidingHistoryId
             };
 
-            var tickets = await repository.FetchAsync<TicketEmailModel>(criteria);
-
-            return tickets;
+            var result = await repository.GetAsync<CheckRequestOfITUserModel>(criteria);
+            return result;
         }
 
         public async Task<VoidDataXmlModel> GetVoidDataFromVoidingHistory(int voidingHistoryId)
@@ -202,14 +223,18 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             return await repository.GetAsync<Match>(new GetMatchInfoCriteria { MatchId = matchId, IsMatch3rd = false });
         }
 
-        public async Task UpdateTicketVoidingHistory(int voidingHistoryId, byte statusId, int reasonId, int messageId)
+        public async Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId,
+            string transIds, DateTime? minWinLostDate, DateTime? maxWinLostDate)
         {
             var command = new UpdateHistoryCommand
             {
                 VoidingHistoryId = voidingHistoryId,
                 StatusId = statusId,
                 ReasonId = reasonId,
-                MessageId = messageId
+                MessageId = messageId,
+                TransIds = transIds,
+                MinWinLostDate = minWinLostDate,
+                MaxWinLostDate = maxWinLostDate
             };
 
             await repository.ExecuteAsync(command);
