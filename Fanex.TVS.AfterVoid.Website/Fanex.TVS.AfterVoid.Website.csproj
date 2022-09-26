@@ -7,6 +7,7 @@
     
   <ItemGroup>
     <None Remove="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.AWS.xml" />
+    <None Remove="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.config.tt" />
     <None Remove="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.LOCAL.xml" />
     <None Remove="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.LOCAL_1.xml" />
     <None Remove="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.PROD.xml" />
@@ -16,6 +17,10 @@
 
   <ItemGroup>
     <AdditionalFiles Include="..\.sonarlint\tvs.aftervoid.service\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+    <Content Include="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.config.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TVSAfterVoidServiceSpNames.config.txt</LastGenOutput>
+    </Content>
     <Content Include="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.LOCAL_1.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -51,6 +56,7 @@
     <PackageReference Include="ONEbook.UM.Transport" Version="3.1.1" />
     <PackageReference Include="Quartz" Version="3.4.0" />
     <PackageReference Include="Quartz.Extensions.Hosting" Version="3.4.0" />
+    <PackageReference Include="T4.FileManager.VisualStudio" Version="3.1.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,6 +66,18 @@
   <ItemGroup>
     <ProjectReference Include="..\Sources\Fanex.TVS.AfterVoid.Service\Fanex.TVS.AfterVoid.Service.csproj" />
     <ProjectReference Include="..\Sources\TicketVoidingSystem\TicketVoidingSystem.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.config.txt">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TVSAfterVoidServiceSpNames.config.tt</DependentUpon>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,34 @@
+{
+  "FilesToGenerate": [
+    {
+      "Filename": "TVSAfterVoidServiceSpNames.LOCAL.xml",
+      "Project": null,
+      "Path": "App_Data\\Fanex.Data",
+      "Properties": {}
+    },
+    {
+      "Filename": "TVSAfterVoidServiceSpNames.LOCAL_1.xml",
+      "Project": null,
+      "Path": "App_Data\\Fanex.Data",
+      "Properties": {}
+    },
+    {
+      "Filename": "TVSAfterVoidServiceSpNames.SIT.xml",
+      "Project": null,
+      "Path": "App_Data\\Fanex.Data",
+      "Properties": {}
+    },
+    {
+      "Filename": "TVSAfterVoidServiceSpNames.PROD.xml",
+      "Project": null,
+      "Path": "App_Data\\Fanex.Data",
+      "Properties": {}
+    },
+    {
+      "Filename": "TVSAfterVoidServiceSpNames.AWS.xml",
+      "Project": null,
+      "Path": "App_Data\\Fanex.Data",
+      "Properties": {}
+    }
+  ]
+}
