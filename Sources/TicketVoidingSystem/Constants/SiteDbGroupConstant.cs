@@ -7,6 +7,7 @@ namespace TicketVoidingSystem.Constants
     {
         public const int CentralDb = 0;
         public const int SiteDb1 = 1;
+        public const int SiteDb2 = 2;
 
         public static List<SiteDbGroupModel> ServerList =>
             new()
@@ -20,6 +21,11 @@ namespace TicketVoidingSystem.Constants
                 {
                     Id = SiteDb1,
                     ServerName = "DBSIG"
+                },
+                new SiteDbGroupModel
+                {
+                    Id = SiteDb2,
+                    ServerName = "DBSIG2"
                 }
             };
     }
