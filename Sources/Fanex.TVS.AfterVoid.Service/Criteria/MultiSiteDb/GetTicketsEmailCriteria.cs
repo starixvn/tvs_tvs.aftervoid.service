@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Fanex.Data;
-using Fanex.Data.Repository;
-using TicketVoidingSystem.Constants;
-using TicketVoidingSystem.Models;
+﻿using Fanex.Data.Repository;
+using TicketVoidingSystem.Utilities;
 
 namespace Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb
 {
@@ -14,14 +10,8 @@ namespace Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb
         public bool IsITSupport { get; set; }
         public bool IsITSupportCreatedRequest { get; set; }
 
-        public override string GetSettingKey() => SpList.First(x => x.Id == SiteDbGroupId).SpName;
+        public override string GetSettingKey() => Helper.GetSettingKeyBySiteDbGroupId(SiteDbGroupId, "TicketVoiding_Email_VoidedTicket_Select");
 
         public override bool IsValid() => true;
-
-        private static readonly IEnumerable<SiteDbGroupModel> SpList = new List<SiteDbGroupModel>
-        {
-            new () {Id = SiteDbGroupConstant.CentralDb, SpName = "DBCTG.TicketVoiding_Email_VoidedTicket_Select"},
-            new () {Id = SiteDbGroupConstant.SiteDb1, SpName = "DBSIG.TicketVoiding_Email_VoidedTicket_Select"}
-        };
     }
 }
