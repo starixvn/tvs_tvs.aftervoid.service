@@ -164,7 +164,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             try
             {
                 Message message;
-                if (automationInfo.MessageId != null)
+                if (automationInfo.MessageId > 0)
                 {
                     message = await sendMessageService.GetMessage(automationInfo.MessageId.Value);
                 }
