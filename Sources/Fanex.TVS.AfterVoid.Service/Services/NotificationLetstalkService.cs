@@ -136,7 +136,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
         {
             return new()
             {
-                TargetName = "Special-Delete",
+                TargetName = "Ticket-Voiding-System",
                 Subject = "Void Settled Bet Notification",
                 Content = content,
                 Group = AppConfigService.AppConfig.LetstalkSettledBetGroup
@@ -230,7 +230,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
                 model.IssueTypeId, model.VoidingHistoryId);
             return new LetstalkModel
             {
-                TargetName = "TVS-Void-Abnormal-Bets",
+                TargetName = "Ticket-Voiding-System",
                 Subject = subject,
                 Content = content,
                 Group = AppConfigService.AppConfig.LetstalkAbnormalBetGroup,
