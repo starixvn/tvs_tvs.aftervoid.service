@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Constants;
 
@@ -7,7 +6,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 {
     public interface RequestVoid14Service
     {
-        Task Execute(IEnumerable<VoidBetAutomationInfo> automationInfoList);
+        Task Execute(VoidBetAutomationInfo automationInfo);
     }
 
     public class RequestVoid14ServiceImp : RequestVoid14Service
@@ -23,15 +22,10 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             this.notificationSignalRService = notificationSignalRService;
         }
 
-        public async Task Execute(IEnumerable<VoidBetAutomationInfo> automationInfoList)
+        public async Task Execute(VoidBetAutomationInfo automationInfo)
         {
-            foreach (var automationInfo in automationInfoList)
+            if (automationInfo.StatusId != ExecuteStatus.Done)
             {
-                if (automationInfo.StatusId == ExecuteStatus.Done)
-                {
-                    continue;
-                }
-
                 await RunMainSteps(automationInfo);
             }
         }

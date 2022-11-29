@@ -30,7 +30,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
             var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService
-                .CreateMessageIdForAllRequests(default, default, default, default, default, default)
+                .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
                 .ReturnsNullForAnyArgs();
             var service = new RequestAutoVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, default);
 
@@ -56,7 +56,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
             var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService
-                .CreateMessageIdForAllRequests(default, default, default, default, default, default)
+                .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
                 .ReturnsForAnyArgs(fakeMessage);
             var service = new RequestAutoVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, default);
 
@@ -82,7 +82,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
             var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService
-                .CreateMessageIdForAllRequests(default, default, default, default, default, default)
+                .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
                 .ReturnsForAnyArgs(fakeMessage);
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsNullForAnyArgs();
             var service = new RequestAutoVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, default);
@@ -111,7 +111,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
             var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService
-                .CreateMessageIdForAllRequests(default, default, default, default, default, default)
+                .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
                 .ReturnsForAnyArgs(fakeMessage);
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
             handleAfterVoidStepService.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(false);
@@ -143,7 +143,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
             var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService
-                .CreateMessageIdForAllRequests(default, default, default, default, default, default)
+                .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
                 .ReturnsForAnyArgs(fakeMessage);
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
             handleAfterVoidStepService.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(true);
@@ -176,7 +176,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
             var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService
-                .CreateMessageIdForAllRequests(default, default, default, default, default, default)
+                .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
                 .ReturnsForAnyArgs(fakeMessage);
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
             handleAfterVoidStepService.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(true);
@@ -211,7 +211,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
             var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService
-                .CreateMessageIdForAllRequests(default, default, default, default, default, default)
+                .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
                 .ReturnsForAnyArgs(fakeMessage);
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
             handleAfterVoidStepService.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(true);
@@ -248,7 +248,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
             var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService
-                .CreateMessageIdForAllRequests(default, default, default, default, default, default)
+                .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
                 .ReturnsForAnyArgs(fakeMessage);
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
             handleAfterVoidStepService.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(true);
@@ -287,7 +287,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
             var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService
-                .CreateMessageIdForAllRequests(default, default, default, default, default, default)
+                .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
                 .ReturnsForAnyArgs(fakeMessage);
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
             handleAfterVoidStepService.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(true);
@@ -328,7 +328,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
             var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService
-                .CreateMessageIdForAllRequests(default, default, default, default, default, default)
+                .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
                 .ReturnsForAnyArgs(fakeMessage);
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
             handleAfterVoidStepService.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(true);

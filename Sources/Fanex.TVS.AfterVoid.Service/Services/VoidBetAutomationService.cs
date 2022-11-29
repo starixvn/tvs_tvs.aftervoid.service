@@ -14,7 +14,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 {
     public interface VoidBetAutomationService
     {
-        Task<IEnumerable<VoidBetAutomationInfo>> GetVoidBetAutomationStatistic();
+        Task<VoidBetAutomationInfo> GetVoidBetAutomationStatistic();
 
         Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId);
 
@@ -38,6 +38,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         Task<VoidDataXmlModel> GetVoidDataFromVoidingHistory(int voidingHistoryId);
 
+        Task InsertMessageChatBot(int requestId, int voidingHistoryId, int messageId, int? matchId);
+
         Task<Match> GetMatchInfo(int matchId);
 
         Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId,
@@ -53,10 +55,9 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             this.repository = repository;
         }
 
-        public async Task<IEnumerable<VoidBetAutomationInfo>> GetVoidBetAutomationStatistic()
+        public async Task<VoidBetAutomationInfo> GetVoidBetAutomationStatistic()
         {
-            var requestsRunAfterVoid = await repository.FetchAsync<VoidBetAutomationInfo>(new GetAllVoidBetAutomationInfoCriteria());
-            return requestsRunAfterVoid;
+            return await repository.GetAsync<VoidBetAutomationInfo>(new GetAllVoidBetAutomationInfoCriteria());
         }
 
         public async Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId)
@@ -235,6 +236,19 @@ namespace Fanex.TVS.AfterVoid.Service.Services
                 TransIds = transIds,
                 MinWinLostDate = minWinLostDate,
                 MaxWinLostDate = maxWinLostDate
+            };
+
+            await repository.ExecuteAsync(command);
+        }
+
+        public async Task InsertMessageChatBot(int requestId, int voidingHistoryId, int messageId, int? matchId)
+        {
+            var command = new InsertMessageChatBotCommand
+            {
+                RequestId = requestId,
+                MatchId = matchId,
+                VoidingHistoryId = voidingHistoryId,
+                MessageId = messageId
             };
 
             await repository.ExecuteAsync(command);

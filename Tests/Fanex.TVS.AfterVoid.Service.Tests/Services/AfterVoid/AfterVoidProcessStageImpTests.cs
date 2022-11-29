@@ -31,7 +31,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
 
-            var actual = await service.CreateMessageIdForAllRequests(fakeAutomationList, null, fakeSessionId, false, 0, null);
+            var actual = await service.CreateMessageIdForAutoVoid(fakeAutomationList, null, fakeSessionId, false, 0, null);
 
             await voidBetAutomationService.Received(1).UpdateMessageIdBySession(Arg.Is<int>(x => x == fakeSessionId),
                 Arg.Is<int>(x => x == fakeMessageId));
@@ -52,7 +52,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
 
-            var actual = await service.CreateMessageIdForAllRequests(fakeAutomationList, null, fakeSessionId, false, 0, null);
+            var actual = await service.CreateMessageIdForAutoVoid(fakeAutomationList, null, fakeSessionId, false, 0, null);
 
             await voidBetAutomationService.Received(1).UpdateMessageIdBySession(Arg.Is<int>(x => x == fakeSessionId),
                 Arg.Is<int>(x => x == fakeMessageId));
@@ -70,7 +70,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, null, loggingService, null);
 
-            var actual = await service.CreateMessageIdForAllRequests(fakeAutomationList, null, fakeSessionId, false, 0, null);
+            var actual = await service.CreateMessageIdForAutoVoid(fakeAutomationList, null, fakeSessionId, false, 0, null);
 
             loggingService.Received(1).Error(Arg.Any<string>(), Arg.Any<Exception>());
             await notificationSignalRService.Received(3).UpdateFailedStatusForRequest(Arg.Any<int>());

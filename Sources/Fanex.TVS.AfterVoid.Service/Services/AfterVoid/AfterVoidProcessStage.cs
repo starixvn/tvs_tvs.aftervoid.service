@@ -16,7 +16,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 {
     public interface AfterVoidProcessStage
     {
-        Task<Message> CreateMessageIdForAllRequests(IEnumerable<VoidBetAutomationInfo> automationInfoList,
+        Task<Message> CreateMessageIdForAutoVoid(VoidBetAutomationInfo automationInfo,
             Match matchInfo, int sessionId, bool isHasSettledTicket, int issueTypeId, int? filterBy);
 
         Task<bool> RunExternalService(VoidBetAutomationInfo automationInfo);
@@ -45,6 +45,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 
         Task<(bool, IEnumerable<Result>)> SendLetstalk(VoidBetAutomationInfo automationInfo,
             IEnumerable<TicketEmailModel> emailTickets, Match matchInfo, VoidDataXmlModel voidData);
+
+        Task<bool> InsertMessageChatBotTeam(Message message, int requestId, int voidingHistoryId, int? matchId);
 
         void WriteLogAfterVoid(IEnumerable<Result> results, VoidBetAutomationInfo automationInfo);
 
@@ -75,16 +77,15 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             this.cashOutHttpClientService = cashOutHttpClientService;
         }
 
-        public async Task<Message> CreateMessageIdForAllRequests(IEnumerable<VoidBetAutomationInfo> automationInfoList, Match matchInfo, int sessionId,
+        public async Task<Message> CreateMessageIdForAutoVoid(VoidBetAutomationInfo automationInfo, Match matchInfo, int sessionId,
             bool isHasSettledTicket, int issueTypeId, int? filterBy)
         {
             try
             {
                 Message message;
-                var serviceInfoHasMessageId = automationInfoList.FirstOrDefault(x => x.MessageId != null && x.MessageId != 0);
-                if (serviceInfoHasMessageId != null)
+                if (automationInfo.MessageId != null && automationInfo.MessageId != 0)
                 {
-                    message = await sendMessageService.GetMessage(serviceInfoHasMessageId.MessageId.Value);
+                    message = await sendMessageService.GetMessage(automationInfo.MessageId.Value);
                 }
                 else
                 {
@@ -98,12 +99,9 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             }
             catch (Exception exception)
             {
-                loggingService.Error($"ERROR: {nameof(CreateMessageIdForAllRequests)} - SessionId: {sessionId}", exception);
+                loggingService.Error($"ERROR: {nameof(CreateMessageIdForAutoVoid)} - SessionId: {sessionId}", exception);
                 await voidBetAutomationService.UpdateServiceStatusBySession(sessionId, ExecuteStatus.Failed);
-                foreach (var service in automationInfoList)
-                {
-                    await notificationSignalRService.UpdateFailedStatusForRequest(service.RequestId);
-                }
+                await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
                 return null;
             }
@@ -417,6 +415,23 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
                 await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
                 return (false, new List<Result>());
+            }
+        }
+
+        public async Task<bool> InsertMessageChatBotTeam(Message message, int requestId, int voidingHistoryId, int? matchId)
+        {
+            try
+            {
+                await voidBetAutomationService.InsertMessageChatBot(requestId, voidingHistoryId, message.MessageId, matchId);
+
+                return true;
+            }
+            catch (Exception exception)
+            {
+                loggingService.Error($"ERROR: {nameof(InsertMessageChatBotTeam)} - VoidingHistoryId: {voidingHistoryId}", exception);
+                await notificationSignalRService.UpdateFailedStatusForRequest(requestId);
+
+                return false;
             }
         }
 

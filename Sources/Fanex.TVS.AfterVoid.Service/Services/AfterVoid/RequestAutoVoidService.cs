@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Constants;
@@ -10,7 +8,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 {
     public interface RequestAutoVoidService
     {
-        Task Execute(IEnumerable<VoidBetAutomationInfo> automationInfoList);
+        Task Execute(VoidBetAutomationInfo automationInfo);
     }
 
     public class RequestAutoVoidServiceImp : RequestAutoVoidService
@@ -27,36 +25,29 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             this.notificationSignalRService = notificationSignalRService;
         }
 
-        public async Task Execute(IEnumerable<VoidBetAutomationInfo> automationInfoList)
+        public async Task Execute(VoidBetAutomationInfo automationInfo)
         {
-            var firstRequest = automationInfoList.FirstOrDefault();
-            var matchInfo = firstRequest.MatchId > 0 ? await voidBetAutomationService.GetMatchInfo(firstRequest.MatchId) : null;
-            var issueTypeId = firstRequest.RequestInfo.Request.IssueTypeId;
-            var filterBy = firstRequest.RequestInfo.EventByMatch.FilterBy;
-            var voidDataXml = Helper.IsLikelyAbnormalBet(issueTypeId) || Helper.IsAbnormalAccount(issueTypeId) ? new VoidDataXmlModel()
-                : await voidBetAutomationService.GetVoidDataFromVoidingHistory(firstRequest.VoidingHistoryId);
+            if (automationInfo.StatusId != ExecuteStatus.Done)
+            {
+                await RunMainSteps(automationInfo);
+            }
+        }
 
-            var message = await afterVoidProcessStage.CreateMessageIdForAllRequests(automationInfoList, matchInfo, firstRequest.SessionId, voidDataXml.IsHasSettledTicket, issueTypeId, filterBy);
-            if (message == null || message.MessageId == 0)
+        private async Task RunMainSteps(VoidBetAutomationInfo automationInfo)
+        {
+            var issueTypeId = automationInfo.RequestInfo.Request.IssueTypeId;
+            var filterBy = automationInfo.RequestInfo.EventByMatch.FilterBy;
+            var matchInfo = await GetMatch(automationInfo);
+            var voidDataXml = await GetVoidDataXml(automationInfo);
+
+            var message = await afterVoidProcessStage.CreateMessageIdForAutoVoid(automationInfo, matchInfo, automationInfo.SessionId, voidDataXml.IsHasSettledTicket, issueTypeId, filterBy);
+            if (Helper.IsNotHaveMessage(message))
             {
                 return;
             }
 
-            foreach (var automationInfo in automationInfoList)
-            {
-                if (automationInfo.StatusId == ExecuteStatus.Done)
-                {
-                    continue;
-                }
-
-                await RunMainSteps(automationInfo, firstRequest.MatchId, matchInfo, message, voidDataXml);
-            }
-        }
-
-        private async Task RunMainSteps(VoidBetAutomationInfo automationInfo, int matchId, Match matchInfo, Message message, VoidDataXmlModel voidDataXml)
-        {
             var voidedReason = await afterVoidProcessStage.CreateVoidedReason(automationInfo, GetSportTypeId(matchInfo), null);
-            if (IsNotHaveVoidedReason(voidedReason))
+            if (Helper.IsNotHaveVoidedReason(voidedReason))
             {
                 return;
             }
@@ -103,23 +94,37 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
                 return;
             }
 
+            var isInsertMessageChatBotTeam = await afterVoidProcessStage.InsertMessageChatBotTeam(message, automationInfo.RequestId, automationInfo.VoidingHistoryId, matchInfo?.MatchId);
+            if (!isInsertMessageChatBotTeam)
+            {
+                return;
+            }
+
             await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
 
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
 
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
-            var results = afterVoidProcessStage.CreateResultList(sentEmailResults, sentLetstalkResults, null, automationInfo.RequestId, matchId);
+            var results = afterVoidProcessStage.CreateResultList(sentEmailResults, sentLetstalkResults, null, automationInfo.RequestId, automationInfo.MatchId);
             afterVoidProcessStage.WriteLogAfterVoid(results, automationInfo);
-        }
-
-        private static bool IsNotHaveVoidedReason(VoidedReason voidedReason)
-        {
-            return voidedReason == null || voidedReason.ReasonId == 0;
         }
 
         private static int GetSportTypeId(Match matchInfo)
         {
             return matchInfo?.SportType ?? 0;
+        }
+
+        private async Task<Match> GetMatch(VoidBetAutomationInfo automationInfo)
+        {
+            return automationInfo.MatchId > 0 ? await voidBetAutomationService.GetMatchInfo(automationInfo.MatchId) : null;
+        }
+
+        private async Task<VoidDataXmlModel> GetVoidDataXml(VoidBetAutomationInfo automationInfo)
+        {
+            return Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId)
+                   || Helper.IsAbnormalAccount(automationInfo.RequestInfo.Request.IssueTypeId)
+                ? new VoidDataXmlModel()
+                : await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
         }
     }
 }

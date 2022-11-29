@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
@@ -39,48 +37,43 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             var stopwatch = Stopwatch.StartNew();
             var requestsWillRunAfterVoid = await voidBetAutomationService.GetVoidBetAutomationStatistic();
 
-            if (!requestsWillRunAfterVoid.Any())
+            if (requestsWillRunAfterVoid == null)
             {
                 return;
             }
 
             await UpdateRequestInfo(requestsWillRunAfterVoid);
 
-            var firstRequest = requestsWillRunAfterVoid.FirstOrDefault();
-            if (firstRequest.IsAutoVoid)
+            if (requestsWillRunAfterVoid.IsAutoVoid)
             {
                 await requestAutoVoidService.Execute(requestsWillRunAfterVoid);
             }
             else
             {
-                await ExecuteForManualVoid(firstRequest.RequestInfo.Request.IssueTypeId, requestsWillRunAfterVoid);
+                await ExecuteForManualVoid(requestsWillRunAfterVoid.RequestInfo.Request.IssueTypeId, requestsWillRunAfterVoid);
             }
 
             loggingService.Info(
-                $"End - Session: {firstRequest.SessionId} - "
-                + $"Total Request: {requestsWillRunAfterVoid.Count()} - "
+                $"End - Session: {requestsWillRunAfterVoid.SessionId} - "
                 + $"Execute Time: {stopwatch.ElapsedMilliseconds} ms - "
                 + $"{DateTime.Now}"
                 );
         }
 
-        private async Task UpdateRequestInfo(IEnumerable<VoidBetAutomationInfo> automationInfoList)
+        private async Task UpdateRequestInfo(VoidBetAutomationInfo automationInfo)
         {
-            foreach (var automationInfo in automationInfoList)
-            {
-                automationInfo.RequestInfo = await voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId);
-            }
+            automationInfo.RequestInfo = await voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId);
         }
 
-        private async Task ExecuteForManualVoid(int issueTypeId, IEnumerable<VoidBetAutomationInfo> automationInfoList)
+        private async Task ExecuteForManualVoid(int issueTypeId, VoidBetAutomationInfo automationInfo)
         {
             if (Helper.IsArchivedTicket(issueTypeId))
             {
-                await requestVoid14Service.Execute(automationInfoList);
+                await requestVoid14Service.Execute(automationInfo);
             }
             else
             {
-                await requestManualVoidService.Execute(automationInfoList);
+                await requestManualVoidService.Execute(automationInfo);
             }
         }
     }

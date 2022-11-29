@@ -112,7 +112,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         public Message InitializeMessageContentForManualVoid(VoidDataXmlModel voidData)
         {
-            return new()
+            return new Message
             {
                 ContentChineseTraditional = voidData.ContentChineseTraditional,
                 ContentChineseSimplified = voidData.ContentChineseSimplified,
