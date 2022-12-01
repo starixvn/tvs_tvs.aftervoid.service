@@ -14,7 +14,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
     {
         Task UpdateFailedStatusForRequest(int requestId);
 
-        Task UpdateCompletedStatusForRequests(int requestId, int voidingHistoryId);
+        Task UpdateCompletedStatusForRequests(int requestId, int matchId);
 
         Task NotifyVoidResultToUser(string userName, IEnumerable<Result> results);
 
@@ -42,9 +42,9 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             await hubContext.Clients.All.updateRequestStatus(failedRequests);
         }
 
-        public async Task UpdateCompletedStatusForRequests(int requestId, int voidingHistoryId)
+        public async Task UpdateCompletedStatusForRequests(int requestId, int matchId)
         {
-            var requestInfo = await voidBetAutomationService.GetRequestSimpleInfo(requestId, voidingHistoryId);
+            var requestInfo = await voidBetAutomationService.GetRequestSimpleInfo(requestId, matchId);
             var completedRequests = new List<RequestStatus> { new() { RequestId = requestId, Status = RequestStatusConstant.Completed, SimpleInfo = requestInfo } };
             await ticketVoidingSystemHttpClientService.SignalRUpdateRequestStatusToAllUsers(completedRequests);
             await hubContext.Clients.All.updateRequestStatus(completedRequests);

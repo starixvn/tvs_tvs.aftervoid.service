@@ -18,7 +18,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId);
 
-        Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int voidingHistoryId);
+        Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int matchId);
 
         Task UpdateServiceStatusByVoidingHistory(int requestId, int voidingHistoryId, int statusId);
 
@@ -86,12 +86,12 @@ namespace Fanex.TVS.AfterVoid.Service.Services
                    || isWrongHdpGroup || isWrongOuGroup;
         }
 
-        public async Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int voidingHistoryId)
+        public async Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int matchId)
         {
             var criteria = new GetRequestSimpleInfoCriteria
             {
                 RequestId = requestId,
-                VoidingHistoryId = voidingHistoryId
+                MatchId = matchId
             };
             var request = await repository.GetAsync<RequestSimpleInfo>(criteria);
 
