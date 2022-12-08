@@ -142,7 +142,12 @@ namespace TicketVoidingSystem.Services
         private static async Task<T> DeserializeResponseStream<T>(HttpResponseMessage response)
         {
             await using var responseStream = await response.Content.ReadAsStreamAsync();
-            return await JsonSerializer.DeserializeAsync<T>(responseStream);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            };
+
+            return await JsonSerializer.DeserializeAsync<T>(responseStream, options);
         }
 
         private static async Task LogResponseStream(HttpResponseMessage response)
