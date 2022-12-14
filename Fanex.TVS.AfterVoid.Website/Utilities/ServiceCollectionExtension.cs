@@ -9,6 +9,9 @@ using Fanex.Data.Repository;
 using Fanex.Data.SqlServer;
 using Fanex.LetstalkService.Client;
 using Fanex.Logging;
+using Fanex.Logging.Extensions;
+using Fanex.Logging.Extensions.AspNetCore;
+using Fanex.Logging.Extensions.Database;
 using Fanex.Logging.Sentry;
 using Fanex.MailDeliver.MailClient;
 using Fanex.RemotingRef;
@@ -84,6 +87,15 @@ namespace Fanex.TVS.AfterVoid.Website.Utilities
             });
         }
 
+        public static void RegisterFanexExceptionHandler(this IServiceCollection services)
+        {
+            var configuration = new LoggingConfiguration()
+                .GetHttpHeaderInfo()
+                .GetHttpSessionInfo()
+                .UseGetDbExceptionInfo(DatabaseInfoGetters.GetDbExceptionInfo);
+            ExceptionHandler.UseConfig(configuration);
+        }
+
         public static void RegisterONEbookUM(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton(new UMClientConfiguration().Initialize(configuration));
@@ -123,7 +135,7 @@ namespace Fanex.TVS.AfterVoid.Website.Utilities
             services.AddAutoMapper(typeof(OrganizationProfile));
         }
 
-        public static void RegisterInternalServices(this IServiceCollection services)
+        public static void RegisterBusinessService(this IServiceCollection services)
         {
             services.AddSingleton<IDynamicRepository, DynamicRepository>();
             services.AddSingleton<LoggingService, LoggingServiceImp>();
