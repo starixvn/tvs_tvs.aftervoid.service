@@ -99,11 +99,11 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
                 return;
             }
 
-            var isInsertMessageChatBotTeam = await afterVoidProcessStage.InsertMessageChatBotTeam(message, automationInfo.RequestId, automationInfo.VoidingHistoryId, matchInfo?.MatchId);
-            if (!isInsertMessageChatBotTeam)
-            {
-                return;
-            }
+            //var isInsertMessageChatBotTeam = await afterVoidProcessStage.InsertMessageChatBotTeam(message, automationInfo.RequestId, automationInfo.VoidingHistoryId, matchInfo?.MatchId);
+            //if (!isInsertMessageChatBotTeam)
+            //{
+            //    return;
+            //}
 
             await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
 
