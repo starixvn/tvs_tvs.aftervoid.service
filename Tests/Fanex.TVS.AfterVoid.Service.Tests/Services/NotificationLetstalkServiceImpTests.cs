@@ -5,16 +5,17 @@ using Fanex.LetstalkService.Client;
 using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Services;
 using FizzWare.NBuilder;
 using NSubstitute;
 using TicketVoidingSystem.Models;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.Tests
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services
 {
     public class NotificationLetstalkServiceImpTests
     {
-        private void SetupTestEnv()
+        private static void SetupTestEnv()
         {
             RefDataTypeContainer
                 .ConnectTo(new Uri("http://remotingref-api.nexdev.net/main/"))
@@ -22,7 +23,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
                 .RegisterSupportedLanguages("en-US", "zh-TW", "zh-CN");
         }
 
-        [Fact()]
+        [Fact]
         public void SendToSettledBetGroup_ShouldNotRunCreateTemplate()
         {
             var letstalkService = Substitute.For<LetstalkClientService>();
@@ -34,7 +35,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             letstalkService.DidNotReceiveWithAnyArgs().SendMessage(default);
         }
 
-        [Fact()]
+        [Fact]
         public void SendToSettledBetGroup_WhenRequestHaveUsername_ShouldNotRunLetstalkService()
         {
             AppConfigService.AppConfig = new ConfigSettingModel() { IsPRODEnvironment = true };
@@ -50,7 +51,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             letstalkService.DidNotReceiveWithAnyArgs().SendMessage(default);
         }
 
-        [Fact()]
+        [Fact]
         public void SendToSettledBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceFail()
         {
             AppConfigService.AppConfig = new ConfigSettingModel() { IsPRODEnvironment = true };
@@ -72,7 +73,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.False(actual);
         }
 
-        [Fact()]
+        [Fact]
         public void SendToSettledBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceSuccessMultipleTimes()
         {
             AppConfigService.AppConfig = new ConfigSettingModel() { IsPRODEnvironment = true };
@@ -94,7 +95,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.True(actual);
         }
 
-        [Fact()]
+        [Fact]
         public void SendToSettledBetGroup_WhenRequestNotHaveUsername_ShouldNotRunLetstalkService()
         {
             AppConfigService.AppConfig = new ConfigSettingModel() { IsPRODEnvironment = true };
@@ -137,7 +138,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.True(actual);
         }
 
-        [Fact()]
+        [Fact]
         public async Task SendToAbnormalBetGroup_ShouldNotRunCreateTemplate()
         {
             var letstalkService = Substitute.For<LetstalkClientService>();
@@ -177,7 +178,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.False(actual);
         }
 
-        [Fact()]
+        [Fact]
         public async Task SendToAbnormalBetGroup_ShouldReturnTrueWhenHaveNotContent()
         {
             AppConfigService.AppConfig = new ConfigSettingModel() { IsPRODEnvironment = false };
@@ -193,7 +194,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.True(actual);
         }
 
-        [Fact()]
+        [Fact]
         public async Task SendToAbnormalBetGroup_ShouldReturnTrue()
         {
             AppConfigService.AppConfig = new ConfigSettingModel() { IsPRODEnvironment = false };

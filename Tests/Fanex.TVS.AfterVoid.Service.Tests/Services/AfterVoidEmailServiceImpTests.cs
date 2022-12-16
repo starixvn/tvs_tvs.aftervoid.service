@@ -4,17 +4,18 @@ using System.Threading.Tasks;
 using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Services;
 using FizzWare.NBuilder;
 using NSubstitute;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.Tests
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services
 {
     public class AfterVoidEmailServiceImpTests
     {
-        [Fact()]
+        [Fact]
         public async Task Execute_ReturnExpectedResults()
         {
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().Build();
@@ -31,7 +32,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             var fakeSubIssueTypes = Builder<SubIssueType>.CreateListOfSize(2).Random(1).With(x => x.SubIssueTypeId = 20).Build();
 
             var repository = Substitute.For<IDynamicRepository>();
-            repository.FetchAsync<SubIssueType>(Arg.Any<GetSubIssueTypeCriteria>()).Returns(fakeSubIssueTypes);
+            repository.FetchAsync<SubIssueType>(Arg.Any<GetSubIssueTypeCriteria>()).ReturnsForAnyArgs(fakeSubIssueTypes);
             var ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
             ticketVoidingSystemHttpClientService.SendEmail(default, default, default, default, default, default).ReturnsForAnyArgs(
                 (true, fakeResults));
@@ -43,7 +44,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.Equal(fakeResults, actual);
         }
 
-        [Fact()]
+        [Fact]
         public async Task Execute_ThrowException()
         {
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().Build();
@@ -60,7 +61,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             var fakeSubIssueTypes = Builder<SubIssueType>.CreateListOfSize(2).Random(1).With(x => x.SubIssueTypeId = 20).Build();
 
             var repository = Substitute.For<IDynamicRepository>();
-            repository.FetchAsync<SubIssueType>(Arg.Any<GetSubIssueTypeCriteria>()).Returns(fakeSubIssueTypes);
+            repository.FetchAsync<SubIssueType>(Arg.Any<GetSubIssueTypeCriteria>()).ReturnsForAnyArgs(fakeSubIssueTypes);
             var ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
             ticketVoidingSystemHttpClientService.SendEmail(default, default, default, default, default, default).ReturnsForAnyArgs(
                 (false, fakeResults));
@@ -70,29 +71,30 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
                  await service.Execute(fakeAutomationInfo, fakeTicketEmails, fakeMatch, fakeReason, fakeMessage));
         }
 
-        [Fact()]
+        [Fact]
         public async Task GetContentExcelVoidedTicket_ReturnTrue()
         {
             var ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
-            ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>()).Returns((true, new byte[1]));
+            ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket(1, 1, 1, "").ReturnsForAnyArgs((true, new byte[1]));
             var service = new AfterVoidEmailServiceImp(ticketVoidingSystemHttpClientService, null);
 
-            var actual = await service.GetContentExcelVoidedTicket(1, 1, 1);
+            var actual = await service.GetContentExcelVoidedTicket(1, 1, 1, 1);
 
-            await ticketVoidingSystemHttpClientService.Received(1).GetContentExcelVoidedTicket(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>());
+            await ticketVoidingSystemHttpClientService.Received(1)
+                .GetContentExcelVoidedTicket(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string>());
             Assert.Single(actual);
         }
 
-        [Fact()]
+        [Fact]
         public async Task GetContentExcelVoidedTicket_ThrowException()
         {
             var ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
-            ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>()).Returns((false, new byte[1]));
+            ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket(1, 1, 1, "").ReturnsForAnyArgs((false, new byte[1]));
             var service = new AfterVoidEmailServiceImp(ticketVoidingSystemHttpClientService, null);
 
             try
             {
-                await service.GetContentExcelVoidedTicket(1, 1, 1);
+                await service.GetContentExcelVoidedTicket(1, 1, 1, 1);
             }
             catch (Exception exception)
             {

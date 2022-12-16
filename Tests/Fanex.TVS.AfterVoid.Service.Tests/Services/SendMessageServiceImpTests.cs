@@ -4,6 +4,7 @@ using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Services;
 using FizzWare.NBuilder;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
@@ -11,11 +12,11 @@ using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.Tests
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services
 {
     public class SendMessageServiceImpTests
     {
-        [Fact()]
+        [Fact]
         public async Task InitializeMessageContentForAutoVoid_ShouldReturnExpectedData()
         {
             var fakeMatch = new Match { MatchCode = "ppp00" };
@@ -32,7 +33,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);
         }
 
-        [Fact()]
+        [Fact]
         public void InitializeMessageContentForManualVoid_ShouldReturnExpectedMessage()
         {
             var fakeVoidDataXmlModel = Builder<VoidDataXmlModel>.CreateNew().Build();
@@ -43,7 +44,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.Equal(fakeVoidDataXmlModel.ContentEnglish, actual.ContentEnglish);
         }
 
-        [Fact()]
+        [Fact]
         public async Task GetMessage_ReturnMessageModel()
         {            // Arrange
             var getMessageCriteria = new GetMessageCriteria { MessageId = 12345 };
@@ -64,7 +65,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             await repository.Received(1).GetAsync<Message>(Arg.Compat.Is<GetMessageCriteria>(x => x.MessageId == 12345));
         }
 
-        [Fact()]
+        [Fact]
         public async Task InsertMessage_ShouldReturnExpectedId()
         {
             var fakeMatchId = 11;
@@ -82,7 +83,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             && x.LeagueGroupId == fakeLeagueGroupId && x.Creator == fakeMessage.CreatorId));
         }
 
-        [Fact()]
+        [Fact]
         public async Task InsertVoidedTransaction_ShouldCallExecuteAsync()
         {            // Arrange
             var fakeData = new
@@ -108,7 +109,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             await repository.Received(2).ExecuteAsync(Arg.Any<InsertVoidedTransactionCommand>());
         }
 
-        [Fact()]
+        [Fact]
         public async Task SendMessage_ShouldCallInsertBatchMessage()
         {   // Arrange
             var messageXml = "<Messages>Content</Messages>";
@@ -126,7 +127,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             await repository.Received(1).ExecuteAsync(Arg.Is<SendMessageCommand>(x => x.CreatorId == 8));
         }
 
-        [Fact()]
+        [Fact]
         public async Task InitializeVoidReason_WhenIsNotAutoVoid()
         {
             var fakeVoidData = Builder<VoidDataXmlModel>.CreateNew().Build();
@@ -139,7 +140,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.Equal(fakeVoidData.ReasonSC, actual.ReasonChineseSimplified);
         }
 
-        [Fact()]
+        [Fact]
         public async Task InitializeVoidReason_WhenIsAutoVoid_ReturnEmptyVoidReason()
         {
             var fakeSubIssueType = 11;
@@ -155,7 +156,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             await repository.Received(1).GetAsync<VoidedReason>(Arg.Is<GetReasonNameCriteria>(x => x.SubIssueTypeId == fakeSubIssueType && x.SportType == fakeSportType));
         }
 
-        [Fact()]
+        [Fact]
         public async Task InitializeVoidReason_WhenIsAutoVoid_ReturnExpectedVoidReason()
         {
             var fakeSubIssueType = 11;
@@ -175,7 +176,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             await ticketVoidingSystemHttpClientService.Received(2).BetListGetSportTypeName(Arg.Is<int>(x => x == fakeSportType), Arg.Any<string>());
         }
 
-        [Fact()]
+        [Fact]
         public async Task InsertReason_ShouldReturnReasonId()
         {
             // Arrange
@@ -199,7 +200,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.Equal(12345, actual);
         }
 
-        [Fact()]
+        [Fact]
         public async Task GetVoidedReason_ReturnVoidedReasonModel()
         {      // Arrange
             var getVoidedReasonCriteria = new GetVoidedReasonCriteria { ReasonId = 12345 };
@@ -222,12 +223,12 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             await repository.Received(1).GetAsync<VoidedReason>(Arg.Compat.Is<GetVoidedReasonCriteria>(x => x.ReasonId == 12345));
         }
 
-        [Fact()]
+        [Fact]
         public void InsertBatchMessage_()
         {
         }
 
-        [Fact()]
+        [Fact]
         public async Task InsertMessageIntoAdminSite_ShouldCallRepository()
         {            // Arrange
             var message = new Message
@@ -249,7 +250,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
                 && x.mch == message.ContentChineseTraditional));
         }
 
-        [Fact()]
+        [Fact]
         public void GetListSendMessageDb_()
         {
         }

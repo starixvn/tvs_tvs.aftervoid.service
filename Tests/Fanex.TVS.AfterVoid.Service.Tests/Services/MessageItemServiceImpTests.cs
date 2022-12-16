@@ -1,12 +1,13 @@
 ﻿using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Services;
 using FizzWare.NBuilder;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.Tests
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services
 {
     public class MessageItemServiceImpTests
     {
-        [Fact()]
+        [Fact]
         public void CreateMessageItems_()
         {
             var fakeUsers = Builder<ReceivedUser>.CreateListOfSize(200).Build();

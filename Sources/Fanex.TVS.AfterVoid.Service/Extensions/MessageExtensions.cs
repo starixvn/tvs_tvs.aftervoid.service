@@ -11,7 +11,7 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
         string CreateCustInfoXml(IEnumerable<TicketEmailModel> emailTickets);
     }
 
-    internal class MessageExtensionsNonStatic : IMessageExtensionsNonStatic
+    public class MessageExtensionsNonStatic : IMessageExtensionsNonStatic
     {
         public string CreateCustInfoXml(IEnumerable<TicketEmailModel> emailTickets)
         {

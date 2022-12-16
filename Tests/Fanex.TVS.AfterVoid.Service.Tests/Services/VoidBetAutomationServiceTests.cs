@@ -5,34 +5,30 @@ using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb;
 using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Services;
 using NSubstitute;
 using TicketVoidingSystem.Models;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.Tests
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services
 {
     public class VoidBetAutomationServiceTests
     {
-        [Fact()]
+        [Fact]
         public async Task GetVoidBetAutomationStatistic_ReturnExpectedData()
         {
-            var expected = new AutomationStatistic
-            {
-                RequestsWillUpdateStatus = new List<VoidBetAutomationInfo>() { new() { RequestId = 2 } },
-                RequestsWillRunAfterVoid = new List<VoidBetAutomationInfo>() { new() { RequestId = 1 } }
-            };
+            var expected = new List<VoidBetAutomationInfo>() { new() { RequestId = 2 } };
             var repository = Substitute.For<IDynamicRepository>();
-            repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidBetAutomationInfo>(Arg.Any<GetAllVoidBetAutomationInfoCriteria>())
-                .Returns((expected.RequestsWillUpdateStatus, expected.RequestsWillRunAfterVoid));
+            repository.FetchAsync<VoidBetAutomationInfo>(Arg.Any<GetAllVoidBetAutomationInfoCriteria>())
+                .Returns(expected);
 
             var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
             var actual = await voidBetAutomationService.GetVoidBetAutomationStatistic();
 
-            Assert.StrictEqual(expected.RequestsWillUpdateStatus, actual.RequestsWillUpdateStatus);
-            Assert.StrictEqual(expected.RequestsWillRunAfterVoid, actual.RequestsWillRunAfterVoid);
+            Assert.StrictEqual(expected, actual);
         }
 
-        [Fact()]
+        [Fact]
         public async Task GetRequestById_ReturnDataEventWithExpectedMatch()
         {
             var fakeRequests = new List<RequestModel>
@@ -57,7 +53,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.StrictEqual(fakeRequestEvents[1], actual.EventByMatch);
         }
 
-        [Fact()]
+        [Fact]
         public async Task GetRequestById_ReturnDataWithFirstEvent()
         {
             var fakeRequests = new List<RequestModel>
@@ -82,7 +78,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.StrictEqual(fakeRequestEvents[0], actual.EventByMatch);
         }
 
-        [Fact()]
+        [Fact]
         public async Task GetRequestSimpleInfo_ReturnExpectedData()
         {
             const int fakeRequestId = 113;
@@ -98,7 +94,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.StrictEqual(expectedRequestInfo, actual);
         }
 
-        [Fact()]
+        [Fact]
         public async Task UpdateServiceStatusByVoidingHistory_ShouldCallUpdateVoidBetAutomationServiceInfo()
         {
             const int fakeRequestId = 113;
@@ -113,7 +109,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
                 && x.VoidingHistoryId == fakeVoidingHistoryId && x.StatusId == fakeStatusId));
         }
 
-        [Fact()]
+        [Fact]
         public async Task UpdateServiceStatusBySession_ShouldCallUpdateVoidBetAutomationServiceInfo()
         {
             const int fakeSessionId = 113;
@@ -127,7 +123,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
                 && x.StatusId == fakeStatusId));
         }
 
-        [Fact()]
+        [Fact]
         public async Task UpdateMessageIdByVoidingHistory_ShouldCallUpdateVoidBetAutomationServiceInfo()
         {
             const int fakeRequestId = 113;
@@ -142,7 +138,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
                 && x.VoidingHistoryId == fakeVoidingHistoryId && x.MessageId == fakeMessageId));
         }
 
-        [Fact()]
+        [Fact]
         public async Task UpdateMessageIdBySession_ShouldCallUpdateVoidBetAutomationServiceInfo()
         {
             const int fakeSessionId = 211;
@@ -156,7 +152,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
                 && x.MessageId == fakeMessageId));
         }
 
-        [Fact()]
+        [Fact]
         public async Task UpdateAfterVoidStep_ShouldCallUpdateVoidBetAutomationServiceInfo()
         {
             const int fakeRequestId = 211;
@@ -171,7 +167,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
                 && x.VoidingHistoryId == fakeVoidingHistoryId && x.ReasonId == fakeAfterVoidHistory.ReasonId));
         }
 
-        [Fact()]
+        [Fact]
         public async Task UpdateAllAfterVoidSteps_ShouldCallUpdateVoidBetAutomationServiceInfo()
         {
             const int fakeRequestId = 211;
@@ -186,7 +182,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
                 && x.VoidingHistoryId == fakeVoidingHistoryId && x.ReasonId == fakeAfterVoidHistory.ReasonId));
         }
 
-        [Fact()]
+        [Fact]
         public async Task UpdateEmailResultByVoidingHistory_ShouldCallUpdateVoidBetAutomationServiceInfo()
         {
             const int fakeRequestId = 211;
@@ -202,7 +198,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
                 && x.VoidingHistoryId == fakeVoidingHistoryId && x.VoidResults == fakeVoidResultContent));
         }
 
-        [Fact()]
+        [Fact]
         public async Task GetVoidedTicketsForSendEmail_ReturnExpectedModel()
         {
             const int fakeVoidingHistoryId = 331;
@@ -214,10 +210,10 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
             var actual = await voidBetAutomationService.GetVoidedTicketsForSendEmail(fakeVoidingHistoryId);
 
-            Assert.StrictEqual(fakeTicketEmail, actual);
+            Assert.NotNull(actual);
         }
 
-        [Fact()]
+        [Fact]
         public async Task GetVoidDataFromVoidingHistory_ReturnExpectedModel()
         {
             const int fakeVoidingHistoryId = 331;
@@ -232,7 +228,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.StrictEqual(fakeVoidDataXml, actual);
         }
 
-        [Fact()]
+        [Fact]
         public async Task GetMatchInfo_ReturnExpectedModel()
         {
             const int fakeMatchId = 331;
@@ -247,7 +243,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             Assert.StrictEqual(fakeMatch, actual);
         }
 
-        [Fact()]
+        [Fact]
         public async Task UpdateTicketVoidingHistory_ShouldCallExecuteAsync()
         {
             const byte fakeStatusId = 1;
@@ -256,7 +252,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Tests
             const int fakeMessageId = 222;
             var repository = Substitute.For<IDynamicRepository>();
             var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
-            await voidBetAutomationService.UpdateTicketVoidingHistory(fakeVoidingHistoryId, fakeStatusId, fakeReasonId, fakeMessageId);
+            await voidBetAutomationService.UpdateTicketVoidingHistory(fakeVoidingHistoryId, fakeStatusId, fakeReasonId,
+                fakeMessageId, null, null, null);
 
             await repository.Received(1).ExecuteAsync(Arg.Is<UpdateHistoryCommand>(x =>
                 x.StatusId == fakeStatusId && x.VoidingHistoryId == fakeVoidingHistoryId
