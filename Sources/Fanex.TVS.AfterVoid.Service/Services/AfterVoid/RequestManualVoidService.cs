@@ -51,7 +51,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
                 return;
             }
 
-            var voidedTickets = await voidBetAutomationService.GetVoidedTicketsForSendEmail(automationInfo.VoidingHistoryId);
+            var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId);
             var isSentBatchMessage = await afterVoidProcessStage.SendBatchMessage(automationInfo, voidedTickets, message.MessageId, voidDataXml);
             if (!isSentBatchMessage)
             {
@@ -98,12 +98,6 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
                 await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                 return;
             }
-
-            //var isInsertMessageChatBotTeam = await afterVoidProcessStage.InsertMessageChatBotTeam(message, automationInfo.RequestId, automationInfo.VoidingHistoryId, matchInfo?.MatchId);
-            //if (!isInsertMessageChatBotTeam)
-            //{
-            //    return;
-            //}
 
             await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
 

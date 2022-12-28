@@ -22,7 +22,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.Tests
 
             await service.Execute(fakeAutomationInfoList);
 
-            await voidBetAutomationService.DidNotReceiveWithAnyArgs().GetVoidedTicketsForSendEmail(default);
+            await voidBetAutomationService.DidNotReceiveWithAnyArgs().GetVoidedTicketsByVoidingHistory(default);
         }
 
         [Fact]

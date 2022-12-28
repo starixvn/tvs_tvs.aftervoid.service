@@ -40,7 +40,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             var matchInfo = await GetMatch(automationInfo);
             var voidDataXml = await GetVoidDataXml(automationInfo);
 
-            var message = await afterVoidProcessStage.CreateMessageIdForAutoVoid(automationInfo, matchInfo, automationInfo.SessionId, voidDataXml.IsHasSettledTicket, issueTypeId, filterBy);
+            var message = await afterVoidProcessStage.CreateMessageIdForAutoVoid(automationInfo, matchInfo, automationInfo.BroadcastSessionId, voidDataXml.IsHasSettledTicket, issueTypeId, filterBy);
             if (Helper.IsNotHaveMessage(message))
             {
                 return;
@@ -52,7 +52,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
                 return;
             }
 
-            var voidedTickets = await voidBetAutomationService.GetVoidedTicketsForSendEmail(automationInfo.VoidingHistoryId);
+            var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId);
             var isSentBatchMessage = await afterVoidProcessStage.SendBatchMessage(automationInfo, voidedTickets, message.MessageId, null);
             if (!isSentBatchMessage)
             {
@@ -93,12 +93,6 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             {
                 return;
             }
-
-            //var isInsertMessageChatBotTeam = await afterVoidProcessStage.InsertMessageChatBotTeam(message, automationInfo.RequestId, automationInfo.VoidingHistoryId, matchInfo?.MatchId);
-            //if (!isInsertMessageChatBotTeam)
-            //{
-            //    return;
-            //}
 
             await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
 

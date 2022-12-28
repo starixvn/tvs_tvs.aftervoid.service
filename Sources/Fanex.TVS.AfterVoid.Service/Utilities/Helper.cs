@@ -50,7 +50,6 @@ namespace Fanex.TVS.AfterVoid.Service.Utilities
         {
             return IssueTypeConstant.ArchivedTicket == issueTypeId;
         }
-        }
 
         public static bool IsNotHaveMessage(Message message)
         {
@@ -60,5 +59,6 @@ namespace Fanex.TVS.AfterVoid.Service.Utilities
         public static bool IsNotHaveVoidedReason(VoidedReason voidedReason)
         {
             return voidedReason == null || voidedReason.ReasonId == 0;
+        }
     }
 }

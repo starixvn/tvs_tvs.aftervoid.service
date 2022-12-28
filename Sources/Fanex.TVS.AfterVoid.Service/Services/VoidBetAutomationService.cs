@@ -7,14 +7,13 @@ using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb;
 using Fanex.TVS.AfterVoid.Service.Models;
-using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Services
 {
     public interface VoidBetAutomationService
     {
-        Task<VoidBetAutomationInfo> GetVoidBetAutomationStatistic();
+        Task<VoidBetAutomationInfo> GetVoidBetAutomationRunAfterVoid();
 
         Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId);
 
@@ -22,11 +21,11 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         Task UpdateServiceStatusByVoidingHistory(int requestId, int voidingHistoryId, int statusId);
 
-        Task UpdateServiceStatusBySession(int sessionId, int statusId);
+        Task UpdateServiceStatusBySession(string broadcastSessionId, int statusId);
 
         Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int messageId);
 
-        Task UpdateMessageIdBySession(int sessionId, int messageId);
+        Task UpdateMessageIdBySession(string broadcastSessionId, int messageId);
 
         Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory);
 
@@ -34,16 +33,17 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         Task UpdateEmailResultByVoidingHistory(int requestId, int voidingHistoryId, string content);
 
-        Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsForSendEmail(int voidingHistoryId);
+        Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsByVoidingHistory(int voidingHistoryId, int siteDbGroupId);
 
         Task<VoidDataXmlModel> GetVoidDataFromVoidingHistory(int voidingHistoryId);
-
-        Task InsertMessageChatBot(int requestId, int voidingHistoryId, int messageId, int? matchId);
 
         Task<Match> GetMatchInfo(int matchId);
 
         Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId,
             string transIds, DateTime? minWinLostDate, DateTime? maxWinLostDate);
+
+        Task UpdateVoidBetAutomationServiceInfo(int updateType, string broadcastSessionId, int? requestId,
+            int? voidingHistoryId, int? statusId, VoidBetAutomationInfo afterVoidHistory);
     }
 
     public class VoidBetAutomationServiceImp : VoidBetAutomationService
@@ -55,9 +55,13 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             this.repository = repository;
         }
 
-        public async Task<VoidBetAutomationInfo> GetVoidBetAutomationStatistic()
+        public async Task<VoidBetAutomationInfo> GetVoidBetAutomationRunAfterVoid()
         {
-            return await repository.GetAsync<VoidBetAutomationInfo>(new GetAllVoidBetAutomationInfoCriteria());
+            var criteria = new GetAllVoidBetAutomationInfoCriteria
+            {
+                //Mode = 1
+            };
+            return await repository.GetAsync<VoidBetAutomationInfo>(criteria);
         }
 
         public async Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId)
@@ -104,9 +108,9 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateStatusByVoidingHistory, null, requestId, voidingHistoryId, statusId, null);
         }
 
-        public async Task UpdateServiceStatusBySession(int sessionId, int statusId)
+        public async Task UpdateServiceStatusBySession(string broadcastSessionId, int statusId)
         {
-            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateStatusBySession, sessionId, null, null, statusId, null);
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateStatusBySession, broadcastSessionId, null, null, statusId, null);
         }
 
         public async Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int messageId)
@@ -119,14 +123,14 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateMessageIdByVoidingHistory, null, requestId, voidingHistoryId, null, afterVoidHistory);
         }
 
-        public async Task UpdateMessageIdBySession(int sessionId, int messageId)
+        public async Task UpdateMessageIdBySession(string broadcastSessionId, int messageId)
         {
             var afterVoidHistory = new VoidBetAutomationInfo
             {
                 MessageId = messageId
             };
 
-            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateMessageIdBySession, sessionId, null, null, null, afterVoidHistory);
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateMessageIdBySession, broadcastSessionId, null, null, null, afterVoidHistory);
         }
 
         public async Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory)
@@ -149,12 +153,12 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateEmailsResultByVoidingHistory, null, requestId, voidingHistoryId, null, afterVoidHistory);
         }
 
-        private async Task UpdateVoidBetAutomationServiceInfo(int updateType, int? sessionId, int? requestId, int? voidingHistoryId, int? statusId, VoidBetAutomationInfo afterVoidHistory)
+        public async Task UpdateVoidBetAutomationServiceInfo(int updateType, string broadcastSessionId, int? requestId, int? voidingHistoryId, int? statusId, VoidBetAutomationInfo afterVoidHistory)
         {
             var criteria = new UpdateVoidBetAutomationInfoCriteria
             {
                 UpdateType = updateType,
-                SessionId = sessionId,
+                BroadcastSessionId = broadcastSessionId,
                 RequestId = requestId,
                 VoidingHistoryId = voidingHistoryId,
                 StatusId = statusId
@@ -177,25 +181,18 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             await repository.ExecuteAsync(criteria);
         }
 
-        public async Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsForSendEmail(int voidingHistoryId)
+        public async Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsByVoidingHistory(int voidingHistoryId, int siteDbGroupId)
         {
             var checkITUser = await CheckRequestOfITUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
-            var ticketsInAllSiteDb = new List<TicketEmailModel>();
-            foreach (var server in SiteDbGroupConstant.ServerList)
+            var criteria = new GetTicketsEmailCriteria
             {
-                var criteria = new GetTicketsEmailCriteria
-                {
-                    SiteDbGroupId = server.Id,
-                    VoidingHistoryId = voidingHistoryId,
-                    IsITSupport = checkITUser.IsITSupport,
-                    IsITSupportCreatedRequest = checkITUser.IsITSupportCreatedRequest
-                };
+                SiteDbGroupId = siteDbGroupId,
+                VoidingHistoryId = voidingHistoryId,
+                IsITSupport = checkITUser.IsITSupport,
+                IsITSupportCreatedRequest = checkITUser.IsITSupportCreatedRequest
+            };
 
-                var tickets = await repository.FetchAsync<TicketEmailModel>(criteria);
-                ticketsInAllSiteDb.AddRange(tickets);
-            }
-
-            return ticketsInAllSiteDb;
+            return await repository.FetchAsync<TicketEmailModel>(criteria);
         }
 
         private async Task<CheckRequestOfITUserModel> CheckRequestOfITUser(int voidingHistoryId)
@@ -213,7 +210,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
         {
             var criteria = new GetVoidingHistoryCriteria
             {
-                VoidingHistoryId = voidingHistoryId
+                VoidingHistoryIds = $"{voidingHistoryId}"
             };
 
             return await repository.GetAsync<VoidDataXmlModel>(criteria);
@@ -236,19 +233,6 @@ namespace Fanex.TVS.AfterVoid.Service.Services
                 TransIds = transIds,
                 MinWinLostDate = minWinLostDate,
                 MaxWinLostDate = maxWinLostDate
-            };
-
-            await repository.ExecuteAsync(command);
-        }
-
-        public async Task InsertMessageChatBot(int requestId, int voidingHistoryId, int messageId, int? matchId)
-        {
-            var command = new InsertMessageChatBotCommand
-            {
-                RequestId = requestId,
-                MatchId = matchId,
-                VoidingHistoryId = voidingHistoryId,
-                MessageId = messageId
             };
 
             await repository.ExecuteAsync(command);

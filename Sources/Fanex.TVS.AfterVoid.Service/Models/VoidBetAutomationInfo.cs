@@ -8,11 +8,13 @@
 
         public int VoidingHistoryId { get; set; }
 
+        public int SiteDbGroupId { get; set; }
+
+        public string BroadcastSessionId { get; set; }
+
         public int StatusId { get; set; }
 
         public int MatchId { get; set; }
-
-        public int SessionId { get; set; }
 
         public string NegativeBalanceUsers { get; set; }
 

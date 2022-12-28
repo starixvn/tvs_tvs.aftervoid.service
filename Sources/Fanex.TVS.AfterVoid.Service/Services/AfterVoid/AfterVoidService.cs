@@ -35,7 +35,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
         public async Task Execute()
         {
             var stopwatch = Stopwatch.StartNew();
-            var requestsWillRunAfterVoid = await voidBetAutomationService.GetVoidBetAutomationStatistic();
+            var requestsWillRunAfterVoid = await voidBetAutomationService.GetVoidBetAutomationRunAfterVoid();
 
             if (requestsWillRunAfterVoid == null)
             {
@@ -54,7 +54,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             }
 
             loggingService.Info(
-                $"End - Session: {requestsWillRunAfterVoid.SessionId} - "
+                $"End - BroadcastSessionId: {requestsWillRunAfterVoid.BroadcastSessionId} - "
                 + $"Execute Time: {stopwatch.ElapsedMilliseconds} ms - "
                 + $"{DateTime.Now}"
                 );

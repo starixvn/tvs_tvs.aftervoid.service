@@ -2,6 +2,7 @@
 {
     public static class FormatKey
     {
+        public const string LongTimeFormat = "hh:mm:ss tt";
         public const string FourDecimalDigitFormat = ".0000";
         public const string LongDateTimeFormat = "yyyy-MM-dd hh:mm:ss tt";
         public const string LongDateFormat = "dd MMM, yyyy hh:mm:ss tt";

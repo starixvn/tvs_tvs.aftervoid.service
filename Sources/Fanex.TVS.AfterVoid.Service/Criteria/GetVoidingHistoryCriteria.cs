@@ -4,7 +4,7 @@ namespace Fanex.TVS.AfterVoid.Service.Criteria
 {
     public class GetVoidingHistoryCriteria : CriteriaBase
     {
-        public int VoidingHistoryId { get; set; }
+        public string VoidingHistoryIds { get; set; }
 
         public override string GetSettingKey() => "TicketVoiding_VoidingHistory_Select";
 

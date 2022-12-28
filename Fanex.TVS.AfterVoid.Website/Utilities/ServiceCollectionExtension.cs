@@ -18,6 +18,7 @@ using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
+using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using Fanex.TVS.AfterVoid.Service.Utilities.AutoMapper;
 using Fanex.TVS.AfterVoid.Website.Jobs;
 using Fanex.TVS.AfterVoid.Website.Jobs.Listener;
@@ -146,17 +147,21 @@ namespace Fanex.TVS.AfterVoid.Website.Utilities
             services.AddSingleton<RequestVoid14Service, RequestVoid14ServiceImp>();
             services.AddSingleton<AfterVoidProcessStage, AfterVoidProcessStageImp>();
             services.AddSingleton<MessageItemService, MessageItemServiceImp>();
-            services.AddSingleton<NotificationLetstalkService, NotificationLetstalkServiceImp>();
             services.AddSingleton<NotificationSignalRService, NotificationSignalRServiceImp>();
             services.AddSingleton<SendMessageService, SendMessageServiceImp>();
             services.AddSingleton<LetstalkClientService, LetstalkClientServiceImp>();
             services.AddSingleton<AfterVoidEmailService, AfterVoidEmailServiceImp>();
+            services.AddSingleton<SendLetstalkService, SendLetstalkServiceImp>();
+            services.AddSingleton<AbnormalBetLetstalkService, AbnormalBetLetstalkServiceImp>();
+            services.AddSingleton<SendLetstalkServiceStage, SendLetstalkServiceStageImp>();
+            services.AddSingleton<SettledBetLetstalkService, SettledBetLetstalkServiceImp>();
         }
 
         public static void RegisterQuartzScheduler(this IServiceCollection services)
         {
             const int maxConcurrencyThread = 10;
             services.AddTransient<AfterVoidJob>();
+            services.AddTransient<LetstalkJob>();
 
             services.AddQuartz(q =>
             {
@@ -176,7 +181,13 @@ namespace Fanex.TVS.AfterVoid.Website.Utilities
                     .WithIdentity("AfterVoidJob Trigger")
                     .StartNow()
                     .WithSimpleSchedule(x => x.WithIntervalInSeconds(1).RepeatForever())
-               );
+                );
+
+                q.ScheduleJob<LetstalkJob>(trigger => trigger
+                    .WithIdentity("NotificationLetstalkJob Trigger")
+                    .StartNow()
+                    .WithSimpleSchedule(x => x.WithIntervalInSeconds(1).RepeatForever())
+                );
 
                 q.AddSchedulerListener<CustomSchedulerListener>();
 

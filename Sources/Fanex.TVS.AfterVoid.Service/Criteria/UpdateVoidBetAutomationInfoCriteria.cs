@@ -6,7 +6,7 @@ namespace Fanex.TVS.AfterVoid.Service.Criteria
     {
         public int UpdateType { get; set; }
 
-        public int? SessionId { get; set; }
+        public string BroadcastSessionId { get; set; }
 
         public int? RequestId { get; set; }
 

@@ -13,9 +13,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 {
     public interface AfterVoidEmailService
     {
-        Task<IEnumerable<Result>> Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message);
-
-        Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, int voidingHistoryId);
+        Task<IEnumerable<Result>> Execute(VoidBetAutomationInfo automationInfo,
+            IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message);
     }
 
     public class AfterVoidEmailServiceImp : AfterVoidEmailService
