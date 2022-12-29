@@ -11,6 +11,8 @@ namespace Fanex.TVS.AfterVoid.Service.Models
 
         public bool? IsSentLetsTalk => VoidBetAutomationList.First().IsSentLetsTalk;
 
+        public bool IsInsert => VoidBetAutomationList.First().IsInsert;
+
         public string BroadcastSessionId => VoidBetAutomationList.First().BroadcastSessionId;
 
         public IEnumerable<VoidBetAutomationInfo> VoidBetAutomationList { get; set; }

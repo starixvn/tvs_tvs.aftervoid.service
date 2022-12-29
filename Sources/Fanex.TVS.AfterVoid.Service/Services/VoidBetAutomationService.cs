@@ -59,8 +59,9 @@ namespace Fanex.TVS.AfterVoid.Service.Services
         {
             var criteria = new GetAllVoidBetAutomationInfoCriteria
             {
-                //Mode = 1
+                Mode = VoidBetAutomationServiceGetType.RunAfterVoid
             };
+
             return await repository.GetAsync<VoidBetAutomationInfo>(criteria);
         }
 

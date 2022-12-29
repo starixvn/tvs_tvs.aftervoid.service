@@ -17,10 +17,10 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
         [Fact]
         public async Task GetVoidBetAutomationRunAfterVoid_ReturnExpectedData()
         {
-            var expected = new List<VoidBetAutomationInfo>() { new() { RequestId = 2 } };
+            var expected = new VoidBetAutomationInfo { RequestId = 2 };
             var repository = Substitute.For<IDynamicRepository>();
-            repository.FetchAsync<VoidBetAutomationInfo>(Arg.Any<GetAllVoidBetAutomationInfoCriteria>())
-                .Returns(expected);
+            repository.GetAsync<VoidBetAutomationInfo>(Arg.Any<GetAllVoidBetAutomationInfoCriteria>())
+                .ReturnsForAnyArgs(expected);
 
             var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
             var actual = await voidBetAutomationService.GetVoidBetAutomationRunAfterVoid();
@@ -44,7 +44,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
 
             var repository = Substitute.For<IDynamicRepository>();
             repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(Arg.Any<SelectRequestCriteria>())
-                .Returns((fakeRequests, fakeRequestEvents, null));
+                .ReturnsForAnyArgs((fakeRequests, fakeRequestEvents, null));
 
             var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
             var actual = await voidBetAutomationService.GetRequestById(0, 113);
@@ -69,7 +69,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
 
             var repository = Substitute.For<IDynamicRepository>();
             repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(Arg.Any<SelectRequestCriteria>())
-                .Returns((fakeRequests, fakeRequestEvents, null));
+                .ReturnsForAnyArgs((fakeRequests, fakeRequestEvents, null));
 
             var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
             var actual = await voidBetAutomationService.GetRequestById(0, 113);
@@ -86,7 +86,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
             var expectedRequestInfo = new RequestSimpleInfo { MatchId = 111 };
             var repository = Substitute.For<IDynamicRepository>();
             repository.GetAsync<RequestSimpleInfo>(
-                Arg.Is<GetRequestSimpleInfoCriteria>(x => x.RequestId == fakeRequestId)).Returns(expectedRequestInfo);
+                Arg.Is<GetRequestSimpleInfoCriteria>(x => x.RequestId == fakeRequestId)).ReturnsForAnyArgs(expectedRequestInfo);
 
             var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
             var actual = await voidBetAutomationService.GetRequestSimpleInfo(fakeRequestId, fakeVoidingHistoryId);
@@ -112,14 +112,14 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
         [Fact]
         public async Task UpdateServiceStatusBySession_ShouldCallUpdateVoidBetAutomationServiceInfo()
         {
-            const int fakeSessionId = 113;
+            const string fakeSessionId = "ADC-12AXX";
             const int fakeStatusId = 311;
             var repository = Substitute.For<IDynamicRepository>();
             var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
             await voidBetAutomationService.UpdateServiceStatusBySession(fakeSessionId, fakeStatusId);
 
             await repository.Received(1).ExecuteAsync(Arg.Is<UpdateVoidBetAutomationInfoCriteria>(x =>
-                x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateStatusBySession && x.SessionId == fakeSessionId
+                x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateStatusBySession && x.BroadcastSessionId == fakeSessionId
                 && x.StatusId == fakeStatusId));
         }
 
@@ -141,14 +141,14 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
         [Fact]
         public async Task UpdateMessageIdBySession_ShouldCallUpdateVoidBetAutomationServiceInfo()
         {
-            const int fakeSessionId = 211;
+            const string fakeSessionId = "ADC-12AXX";
             const int fakeMessageId = 331;
             var repository = Substitute.For<IDynamicRepository>();
             var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
             await voidBetAutomationService.UpdateMessageIdBySession(fakeSessionId, fakeMessageId);
 
             await repository.Received(1).ExecuteAsync(Arg.Is<UpdateVoidBetAutomationInfoCriteria>(x =>
-                x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateMessageIdBySession && x.SessionId == fakeSessionId
+                x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateMessageIdBySession && x.BroadcastSessionId == fakeSessionId
                 && x.MessageId == fakeMessageId));
         }
 
@@ -202,13 +202,14 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
         public async Task GetVoidedTicketsForSendEmail_ReturnExpectedModel()
         {
             const int fakeVoidingHistoryId = 331;
-            var fakeTicketEmail = new List<TicketEmailModel>() { new() { BetId = 113 } };
+            var fakeTicketEmail = new List<TicketEmailModel> { new() { BetId = 113 } };
             var repository = Substitute.For<IDynamicRepository>();
             repository.FetchAsync<TicketEmailModel>(
-                Arg.Is<GetTicketsEmailCriteria>(x => x.VoidingHistoryId == fakeVoidingHistoryId)).Returns(fakeTicketEmail);
+                    Arg.Is<GetTicketsEmailCriteria>(x => x.VoidingHistoryId == fakeVoidingHistoryId))
+                .ReturnsForAnyArgs(fakeTicketEmail);
 
             var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
-            var actual = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(fakeVoidingHistoryId);
+            var actual = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(fakeVoidingHistoryId, 1);
 
             Assert.NotNull(actual);
         }
@@ -217,10 +218,9 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
         public async Task GetVoidDataFromVoidingHistory_ReturnExpectedModel()
         {
             const int fakeVoidingHistoryId = 331;
-            var fakeVoidDataXml = new VoidDataXmlModel() { ContentEnglish = "zbc" };
+            var fakeVoidDataXml = new VoidDataXmlModel { ContentEnglish = "zbc" };
             var repository = Substitute.For<IDynamicRepository>();
-            repository.GetAsync<VoidDataXmlModel>(
-                Arg.Is<GetVoidingHistoryCriteria>(x => x.VoidingHistoryIds == fakeVoidingHistoryId)).Returns(fakeVoidDataXml);
+            repository.GetAsync<VoidDataXmlModel>(default).ReturnsForAnyArgs(fakeVoidDataXml);
 
             var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
             var actual = await voidBetAutomationService.GetVoidDataFromVoidingHistory(fakeVoidingHistoryId);
@@ -232,10 +232,10 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
         public async Task GetMatchInfo_ReturnExpectedModel()
         {
             const int fakeMatchId = 331;
-            var fakeMatch = new Match() { MatchCode = "ppp00" };
+            var fakeMatch = new Match { MatchCode = "ppp00" };
             var repository = Substitute.For<IDynamicRepository>();
             repository.GetAsync<Match>(
-                Arg.Is<GetMatchInfoCriteria>(x => x.MatchId == fakeMatchId)).Returns(fakeMatch);
+                Arg.Is<GetMatchInfoCriteria>(x => x.MatchId == fakeMatchId)).ReturnsForAnyArgs(fakeMatch);
 
             var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
             var actual = await voidBetAutomationService.GetMatchInfo(fakeMatchId);

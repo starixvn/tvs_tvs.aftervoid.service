@@ -25,5 +25,6 @@
         <Setting Key="SpecialDelete_MailingList_Select" SpName="SpecialDelete_MailingList_Select" DbName="DBOIC.bodb_OIC.bodbAdminNet" TimeOut="600" />
         <Setting Key="TicketVoiding_VoidBetAutomation_Service_SelectAll" SpName="TicketVoiding_VoidBetAutomation_Service_SelectAll" DbName="DBCTG.bodb02.bodbAdminNet" TimeOut="600" />
         <Setting Key="TicketVoiding_VoidBetAutomation_Service_Upd" SpName="TicketVoiding_VoidBetAutomation_Service_Upd" DbName="DBCTG.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_LetsTalk_Update" SpName="TicketVoiding_LetsTalk_Update_uat1" DbName="DBCTG.bodb02.bodbAdminNet" TimeOut="600" />
     </Function>
 </Functions>

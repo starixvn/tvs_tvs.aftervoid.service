@@ -88,18 +88,12 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 
             await afterVoidProcessStage.UpdateEmailResult(automationInfo, sentEmailResults);
 
-            var (isSentLetstalk, sentLetstalkResults) = await afterVoidProcessStage.SendLetstalk(automationInfo, voidedTickets, matchInfo, voidDataXml);
-            if (!isSentLetstalk)
-            {
-                return;
-            }
-
             await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
 
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
 
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
-            var results = afterVoidProcessStage.CreateResultList(sentEmailResults, sentLetstalkResults, null, automationInfo.RequestId, automationInfo.MatchId);
+            var results = afterVoidProcessStage.CreateResultList(sentEmailResults, null, automationInfo.RequestId, automationInfo.MatchId);
             afterVoidProcessStage.WriteLogAfterVoid(results, automationInfo);
         }
 

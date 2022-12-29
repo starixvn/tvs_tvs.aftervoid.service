@@ -6,7 +6,6 @@ using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Models;
-using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 
@@ -16,10 +15,6 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
     {
         Task<IEnumerable<VoidBetAutomationInfo>> GetVoidBetAutomationRunLetstalk();
 
-        Task UpdateSendLetstalkStep(int requestId, string broadcastSessionId, VoidBetAutomationInfo afterVoidHistory);
-
-        Task UpdateServiceStatusBySessionAndRequest(int requestId, string broadcastSessionId, int statusId);
-
         Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, int voidingHistoryId);
 
         Task<IEnumerable<TicketEmailModel>> GetVoidedTickets(IEnumerable<VoidBetAutomationInfo> voidBetAutomationList);
@@ -27,29 +22,28 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
         Task<IEnumerable<VoidDataXmlModel>> GetVoidDataXml(IEnumerable<int> voidingHistoryIds);
 
         void WriteLogLetstalk(IEnumerable<Result> results, GroupVoidBetAutomationInfo group);
+
+        Task InsertLetstalk(GroupVoidBetAutomationInfo group, int? statusId);
+
+        Task UpdateLetstalk(GroupVoidBetAutomationInfo group, int? statusId);
     }
 
     public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
     {
-        private readonly VoidBetAutomationService voidBetAutomationService;
         private readonly IDynamicRepository repository;
-        private readonly NotificationSignalRService notificationSignalRService;
-        private readonly RequestVoid14Service requestVoid14Service;
         private readonly LoggingService loggingService;
+        private readonly VoidBetAutomationService voidBetAutomationService;
         private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
 
-        public SendLetstalkServiceStageImp(VoidBetAutomationService voidBetAutomationService,
+        public SendLetstalkServiceStageImp(
             IDynamicRepository repository,
-            NotificationSignalRService notificationSignalRService,
-            RequestVoid14Service requestVoid14Service,
             LoggingService loggingService,
+            VoidBetAutomationService voidBetAutomationService,
             TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService)
         {
-            this.voidBetAutomationService = voidBetAutomationService;
             this.repository = repository;
-            this.notificationSignalRService = notificationSignalRService;
-            this.requestVoid14Service = requestVoid14Service;
             this.loggingService = loggingService;
+            this.voidBetAutomationService = voidBetAutomationService;
             this.ticketVoidingSystemHttpClientService = ticketVoidingSystemHttpClientService;
         }
 
@@ -57,23 +51,10 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
         {
             var criteria = new GetAllVoidBetAutomationInfoCriteria
             {
-                Mode = 2
+                Mode = VoidBetAutomationServiceGetType.RunLetstalk
             };
+
             return await repository.FetchAsync<VoidBetAutomationInfo>(criteria);
-        }
-
-        public async Task UpdateSendLetstalkStep(int requestId, string broadcastSessionId, VoidBetAutomationInfo afterVoidHistory)
-        {
-            await voidBetAutomationService.UpdateVoidBetAutomationServiceInfo(
-                VoidBetAutomationServiceUpdateType.UpdateAfterVoidStep, broadcastSessionId, requestId, null, null,
-                afterVoidHistory);
-        }
-
-        public async Task UpdateServiceStatusBySessionAndRequest(int requestId, string broadcastSessionId, int statusId)
-        {
-            await voidBetAutomationService.UpdateVoidBetAutomationServiceInfo(
-                VoidBetAutomationServiceUpdateType.UpdateStatusBySession, broadcastSessionId, requestId, null, statusId,
-                null);
         }
 
         public async Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, int voidingHistoryId)
@@ -122,6 +103,31 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
             }
 
             loggingService.Info(logBuilder.ToString());
+        }
+
+        public async Task InsertLetstalk(GroupVoidBetAutomationInfo group, int? statusId)
+        {
+            var command = new UpdateLetstalkCommand
+            {
+                RequestId = group.RequestId,
+                BroadcastSessionId = group.BroadcastSessionId,
+                StatusId = statusId,
+            };
+
+            await repository.ExecuteAsync(command);
+        }
+
+        public async Task UpdateLetstalk(GroupVoidBetAutomationInfo group, int? statusId)
+        {
+            var command = new UpdateLetstalkCommand
+            {
+                Mode = LetstalkUpdateType.Update,
+                RequestId = group.RequestId,
+                BroadcastSessionId = group.BroadcastSessionId,
+                StatusId = statusId
+            };
+
+            await repository.ExecuteAsync(command);
         }
     }
 }

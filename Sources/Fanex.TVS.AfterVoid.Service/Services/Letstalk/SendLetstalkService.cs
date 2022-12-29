@@ -21,27 +21,27 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
         private readonly AbnormalBetLetstalkService abnormalBetLetstalkServiceImp;
         private readonly SettledBetLetstalkService settledBetLetstalkService;
         private readonly NotificationSignalRService notificationSignalRService;
-        private readonly SendLetstalkServiceStage letstalkServiceHelper;
+        private readonly SendLetstalkServiceStage letstalkServiceStage;
         private readonly LoggingService loggingService;
 
         public SendLetstalkServiceImp(VoidBetAutomationService voidBetAutomationService,
             AbnormalBetLetstalkService abnormalBetLetstalkServiceImp,
             SettledBetLetstalkService settledBetLetstalkService,
             NotificationSignalRService notificationSignalRService,
-            SendLetstalkServiceStage letstalkServiceHelper,
+            SendLetstalkServiceStage letstalkServiceStage,
             LoggingService loggingService)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.abnormalBetLetstalkServiceImp = abnormalBetLetstalkServiceImp;
             this.settledBetLetstalkService = settledBetLetstalkService;
             this.notificationSignalRService = notificationSignalRService;
-            this.letstalkServiceHelper = letstalkServiceHelper;
+            this.letstalkServiceStage = letstalkServiceStage;
             this.loggingService = loggingService;
         }
 
         public async Task Execute()
         {
-            var automationInfoList = await letstalkServiceHelper.GetVoidBetAutomationRunLetstalk();
+            var automationInfoList = await letstalkServiceStage.GetVoidBetAutomationRunLetstalk();
             if (!automationInfoList.Any())
             {
                 return;
@@ -61,21 +61,20 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
 
         private async Task RunLetstalkForSingleRequest(GroupVoidBetAutomationInfo group)
         {
-            group.RequestInfo = await voidBetAutomationService.GetRequestById(group.RequestId, group.MatchId);
-
-            var voidedTickets = await letstalkServiceHelper.GetVoidedTickets(group.VoidBetAutomationList);
-            var matchInfo = await voidBetAutomationService.GetMatchInfo(group.MatchId);
-            var voidDataXmlList = await letstalkServiceHelper.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
-
-            var (isSentLetstalk, sentLetstalkResults) = await SendLetstalk(group, voidedTickets, matchInfo, voidDataXmlList);
-            if (!isSentLetstalk)
+            if (group.IsInsert)
             {
-                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXmlList.FirstOrDefault()?.CreatorName);
+                await letstalkServiceStage.InsertLetstalk(group, ExecuteStatus.New);
             }
-            letstalkServiceHelper.WriteLogLetstalk(sentLetstalkResults, group);
+            group.RequestInfo = await voidBetAutomationService.GetRequestById(group.RequestId, group.MatchId);
+            var voidedTickets = await letstalkServiceStage.GetVoidedTickets(group.VoidBetAutomationList);
+            var matchInfo = await voidBetAutomationService.GetMatchInfo(group.MatchId);
+            var voidDataXmlList = await letstalkServiceStage.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
+            var sentLetstalkResults = await SendLetstalk(group, voidedTickets, matchInfo, voidDataXmlList);
+
+            letstalkServiceStage.WriteLogLetstalk(sentLetstalkResults, group);
         }
 
-        public async Task<(bool, IEnumerable<Result>)> SendLetstalk(GroupVoidBetAutomationInfo group,
+        public async Task<IEnumerable<Result>> SendLetstalk(GroupVoidBetAutomationInfo group,
             IEnumerable<TicketEmailModel> emailTickets, Match matchInfo, IEnumerable<VoidDataXmlModel> voidDataXmlList)
         {
             try
@@ -83,7 +82,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
                 var results = new List<Result>();
                 if (group.IsSentLetsTalk == true)
                 {
-                    return (true, new List<Result>());
+                    return new List<Result>();
                 }
 
                 var notificationLetstalkModel = CreateNotificationLetstalkModel(group, matchInfo, voidDataXmlList);
@@ -94,26 +93,24 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
                     isSendLetstalkAbnormalBet = await abnormalBetLetstalkServiceImp.Send(notificationLetstalkModel, emailTickets);
                 }
 
-                await letstalkServiceHelper.UpdateSendLetstalkStep(group.RequestId, group.BroadcastSessionId,
-                    new VoidBetAutomationInfo { IsSentLetsTalk = true });
+                await letstalkServiceStage.UpdateLetstalk(group, ExecuteStatus.Done);
 
                 if (!isSendLetstalkSettledBet || !isSendLetstalkAbnormalBet)
                 {
                     results.Add(new Result { ErrorCode = ErrorCode.SendLetstalkFail, ErrorMsg = "Failed to send message via Letstalk." });
                 }
 
-                return (true, results);
+                return results;
             }
             catch (Exception exception)
             {
                 loggingService.Error(
                     $"ERROR: {nameof(SendLetstalk)} - BroadcastSessionId: {group.BroadcastSessionId} - RequestId: {group.RequestId}",
                     exception);
-                await letstalkServiceHelper.UpdateServiceStatusBySessionAndRequest(
-                    group.RequestId, group.BroadcastSessionId, ExecuteStatus.Failed);
+                await letstalkServiceStage.UpdateLetstalk(group, ExecuteStatus.Failed);
                 await notificationSignalRService.UpdateFailedStatusForRequest(group.RequestId);
 
-                return (false, new List<Result>());
+                return new List<Result>();
             }
         }
 

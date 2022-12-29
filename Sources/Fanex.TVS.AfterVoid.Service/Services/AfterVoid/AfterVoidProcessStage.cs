@@ -43,13 +43,9 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 
         Task UpdateEmailResult(VoidBetAutomationInfo automationInfo, IEnumerable<Result> results);
 
-        Task<(bool, IEnumerable<Result>)> SendLetstalk(VoidBetAutomationInfo automationInfo,
-            IEnumerable<TicketEmailModel> emailTickets, Match matchInfo, VoidDataXmlModel voidData);
-
         void WriteLogAfterVoid(IEnumerable<Result> results, VoidBetAutomationInfo automationInfo);
 
-        IEnumerable<Result> CreateResultList(IEnumerable<Result> sentEmailResults,
-            IEnumerable<Result> sentLetstalkResults, string negativeBalanceUsers, int requestId, int matchId);
+        IEnumerable<Result> CreateResultList(IEnumerable<Result> sentEmailResults, string negativeBalanceUsers, int requestId, int matchId);
     }
 
     public class AfterVoidProcessStageImp : AfterVoidProcessStage
@@ -121,7 +117,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             catch (Exception exception)
             {
                 loggingService.Error(
-                    $"ERROR: {nameof(RunExternalService)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
+                    $"ERROR: {nameof(RunExternalService)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
+                    exception);
                 await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
                 await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
@@ -149,7 +146,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             catch (Exception exception)
             {
                 loggingService.Error(
-                    $"ERROR: {nameof(CallCashOutApi)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
+                    $"ERROR: {nameof(CallCashOutApi)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
+                    exception);
             }
         }
 
@@ -176,7 +174,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             catch (Exception exception)
             {
                 loggingService.Error(
-                    $"ERROR: {nameof(CreateMessageIdForManualVoid)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
+                    $"ERROR: {nameof(CreateMessageIdForManualVoid)} - SessionId: {automationInfo.BroadcastSessionId} - " +
+                    $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
                     exception);
                 await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
                 await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
@@ -207,7 +206,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             catch (Exception exception)
             {
                 loggingService.Error(
-                    $"ERROR: {nameof(CreateVoidedReason)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
+                    $"ERROR: {nameof(CreateVoidedReason)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
+                    exception);
                 await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
                 await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
@@ -233,7 +233,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             catch (Exception exception)
             {
                 loggingService.Error(
-                    $"ERROR: {nameof(SendBatchMessage)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
+                    $"ERROR: {nameof(SendBatchMessage)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
+                    exception);
                 await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
                 await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
@@ -258,7 +259,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             catch (Exception exception)
             {
                 loggingService.Error(
-                    $"ERROR: {nameof(SendMessageToAdminSite)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
+                    $"ERROR: {nameof(SendMessageToAdminSite)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
+                    $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
                     exception);
                 await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
                 await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
@@ -285,7 +287,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             catch (Exception exception)
             {
                 loggingService.Error(
-                    $"ERROR: {nameof(InsertVoidedTransaction)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
+                    $"ERROR: {nameof(InsertVoidedTransaction)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
+                    $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
                     exception);
                 await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
                 await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
@@ -316,7 +319,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             catch (Exception exception)
             {
                 loggingService.Error(
-                    $"ERROR: {nameof(UpdateTicketVoidingHistory)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
+                    $"ERROR: {nameof(UpdateTicketVoidingHistory)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
+                    $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
                     exception);
                 await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
                 await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
@@ -343,7 +347,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             catch (Exception exception)
             {
                 loggingService.Error(
-                    $"ERROR: {nameof(SendEmail)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
+                    $"ERROR: {nameof(SendEmail)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
+                    $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
                 await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
                 await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
@@ -360,47 +365,6 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             }
         }
 
-        public async Task<(bool, IEnumerable<Result>)> SendLetstalk(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets, Match matchInfo, VoidDataXmlModel voidData)
-        {
-            try
-            {
-                var results = new List<Result>();
-                if (automationInfo.IsSentLetsTalk == true)
-                {
-                    return (true, new List<Result>());
-                }
-
-                var notificationLetstalkModel = new NotificationLetstalkModel
-                {
-                    Match = matchInfo,
-                    UserName = automationInfo.RequestInfo.Request.VoidedBy,
-                    DecidedBy = automationInfo.RequestInfo.Request.DecidedBy,
-                    VoidFromTime = voidData.VoidFromTime,
-                    VoidToTime = voidData.VoidToTime,
-                    VoidFromDate = voidData.VoidFromDate,
-                    VoidToDate = voidData.VoidToDate,
-                    IsMemberTemplate = !(matchInfo?.MatchId > 0),
-                    IssueTypeId = automationInfo.RequestInfo.Request.IssueTypeId,
-                    FilterBy = automationInfo.RequestInfo.EventByMatch.FilterBy,
-                    RequestId = automationInfo.RequestId,
-                    RequestedBy = automationInfo.RequestInfo.Request.RequestedBy,
-                    VoidingHistoryId = automationInfo.VoidingHistoryId
-                };
-
-                return (true, results);
-            }
-            catch (Exception exception)
-            {
-                loggingService.Error(
-                    $"ERROR: {nameof(SendLetstalk)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
-                    exception);
-                await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-                await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
-
-                return (false, new List<Result>());
-            }
-        }
-
         public void WriteLogAfterVoid(IEnumerable<Result> results, VoidBetAutomationInfo automationInfo)
         {
             var logBuilder = new StringBuilder();
@@ -414,11 +378,10 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             loggingService.Info(logBuilder.ToString());
         }
 
-        public IEnumerable<Result> CreateResultList(IEnumerable<Result> sentEmailResults, IEnumerable<Result> sentLetstalkResults, string negativeBalanceUsers, int requestId, int matchId)
+        public IEnumerable<Result> CreateResultList(IEnumerable<Result> sentEmailResults, string negativeBalanceUsers, int requestId, int matchId)
         {
             var results = new List<Result>();
             results.AddRange(sentEmailResults ?? new List<Result>());
-            results.AddRange(sentLetstalkResults ?? new List<Result>());
             if (!string.IsNullOrEmpty(negativeBalanceUsers))
             {
                 results.Add(new Result { ErrorCode = ErrorCode.NegativeBalanceUsers, ErrorMsg = negativeBalanceUsers });

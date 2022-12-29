@@ -92,19 +92,12 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             }
             await afterVoidProcessStage.UpdateEmailResult(automationInfo, sentEmailResults);
 
-            var (isSentLetstalk, sentLetstalkResults) = await afterVoidProcessStage.SendLetstalk(automationInfo, voidedTickets, matchInfo, voidDataXml);
-            if (!isSentLetstalk)
-            {
-                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
-                return;
-            }
-
             await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
 
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
 
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
-            var results = afterVoidProcessStage.CreateResultList(sentEmailResults, sentLetstalkResults, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, automationInfo.MatchId);
+            var results = afterVoidProcessStage.CreateResultList(sentEmailResults, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, automationInfo.MatchId);
             await notificationSignalRService.NotifyVoidResultToUser(voidDataXml.CreatorName, results);
             afterVoidProcessStage.WriteLogAfterVoid(results, automationInfo);
         }

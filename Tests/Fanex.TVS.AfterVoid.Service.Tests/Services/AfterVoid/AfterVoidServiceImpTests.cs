@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
@@ -15,9 +14,10 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
         [Fact]
         public async Task Execute_ShouldNotRunAnyVoidService()
         {
-            var automationStatistic = new List<VoidBetAutomationInfo>();
+            VoidBetAutomationInfo automationStatistic = null;
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             voidBetAutomationService.GetVoidBetAutomationRunAfterVoid().ReturnsForAnyArgs(automationStatistic);
+            voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(new RequestDetailViewModel());
             var service = new AfterVoidServiceImp(voidBetAutomationService, default, default, default, default);
 
             await service.Execute();
@@ -28,8 +28,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
         [Fact]
         public async Task Execute_ShouldCallAutoVoidService()
         {
-            var fakeAutomationStatistic = Builder<VoidBetAutomationInfo>.CreateListOfSize(3).All()
-                .With(x => x.IsAutoVoid = true).Build();
+            var fakeAutomationStatistic = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsAutoVoid = true).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             voidBetAutomationService.GetVoidBetAutomationRunAfterVoid().ReturnsForAnyArgs(fakeAutomationStatistic);
             var requestAutoVoidService = Substitute.For<RequestAutoVoidService>();
@@ -38,7 +37,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
 
             await service.Execute();
 
-            await requestAutoVoidService.Received(1).Execute(Arg.Is<IEnumerable<VoidBetAutomationInfo>>(x =>
+            await requestAutoVoidService.Received(1).Execute(Arg.Is<VoidBetAutomationInfo>(x =>
                 Equals(x, fakeAutomationStatistic)));
         }
 
@@ -47,8 +46,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
         {
             var requestInfo = new RequestDetailViewModel
             { Request = new RequestModel { IssueTypeId = IssueTypeConstant.ArchivedTicket } };
-            var fakeAutomationStatistic = Builder<VoidBetAutomationInfo>.CreateListOfSize(3)
-                .All().With(x => x.IsAutoVoid = false).Build();
+            var fakeAutomationStatistic = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsAutoVoid = false).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             voidBetAutomationService.GetVoidBetAutomationRunAfterVoid().ReturnsForAnyArgs(fakeAutomationStatistic);
             voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
@@ -59,7 +57,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
 
             await service.Execute();
 
-            await requestVoid14Service.Received(1).Execute(Arg.Is<IEnumerable<VoidBetAutomationInfo>>(x =>
+            await requestVoid14Service.Received(1).Execute(Arg.Is<VoidBetAutomationInfo>(x =>
                 Equals(x, fakeAutomationStatistic)));
         }
 
@@ -68,8 +66,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
         {
             var requestInfo = new RequestDetailViewModel
             { Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted } };
-            var fakeAutomationStatistic = Builder<VoidBetAutomationInfo>.CreateListOfSize(3)
-                .All().With(x => x.IsAutoVoid = false).Build();
+            var fakeAutomationStatistic = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsAutoVoid = false).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             voidBetAutomationService.GetVoidBetAutomationRunAfterVoid().ReturnsForAnyArgs(fakeAutomationStatistic);
             voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
@@ -79,7 +76,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
 
             await service.Execute();
 
-            await requestManualVoidService.Received(1).Execute(Arg.Is<IEnumerable<VoidBetAutomationInfo>>(x =>
+            await requestManualVoidService.Received(1).Execute(Arg.Is<VoidBetAutomationInfo>(x =>
                 Equals(x, fakeAutomationStatistic)));
             loggingService.ReceivedWithAnyArgs(1).Info(default);
         }
