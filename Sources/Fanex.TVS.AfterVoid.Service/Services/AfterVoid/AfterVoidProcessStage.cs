@@ -85,14 +85,14 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
                     message.MessageId = await sendMessageService.InsertMessage(message, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, issueTypeId);
                 }
 
-                await voidBetAutomationService.UpdateMessageIdBySession(broadcastSessionId, message.MessageId);
+                await voidBetAutomationService.UpdateMessageIdByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, message.MessageId);
 
                 return message;
             }
             catch (Exception exception)
             {
                 loggingService.Error($"ERROR: {nameof(CreateMessageIdForAutoVoid)} - BroadcastSessionId: {broadcastSessionId}", exception);
-                await voidBetAutomationService.UpdateServiceStatusBySession(broadcastSessionId, ExecuteStatus.Failed);
+                await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
                 await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
                 return null;

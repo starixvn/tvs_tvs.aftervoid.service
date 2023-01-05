@@ -21,11 +21,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         Task UpdateServiceStatusByVoidingHistory(int requestId, int voidingHistoryId, int statusId);
 
-        Task UpdateServiceStatusBySession(string broadcastSessionId, int statusId);
-
         Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int messageId);
-
-        Task UpdateMessageIdBySession(string broadcastSessionId, int messageId);
 
         Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory);
 
@@ -42,7 +38,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
         Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId,
             string transIds, DateTime? minWinLostDate, DateTime? maxWinLostDate);
 
-        Task UpdateVoidBetAutomationServiceInfo(int updateType, string broadcastSessionId, int? requestId,
+        Task UpdateVoidBetAutomationServiceInfo(int updateType, int? requestId,
             int? voidingHistoryId, int? statusId, VoidBetAutomationInfo afterVoidHistory);
     }
 
@@ -106,12 +102,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         public async Task UpdateServiceStatusByVoidingHistory(int requestId, int voidingHistoryId, int statusId)
         {
-            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateStatusByVoidingHistory, null, requestId, voidingHistoryId, statusId, null);
-        }
-
-        public async Task UpdateServiceStatusBySession(string broadcastSessionId, int statusId)
-        {
-            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateStatusBySession, broadcastSessionId, null, null, statusId, null);
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateStatusByVoidingHistory, requestId, voidingHistoryId, statusId, null);
         }
 
         public async Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int messageId)
@@ -121,27 +112,17 @@ namespace Fanex.TVS.AfterVoid.Service.Services
                 MessageId = messageId
             };
 
-            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateMessageIdByVoidingHistory, null, requestId, voidingHistoryId, null, afterVoidHistory);
-        }
-
-        public async Task UpdateMessageIdBySession(string broadcastSessionId, int messageId)
-        {
-            var afterVoidHistory = new VoidBetAutomationInfo
-            {
-                MessageId = messageId
-            };
-
-            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateMessageIdBySession, broadcastSessionId, null, null, null, afterVoidHistory);
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateMessageIdByVoidingHistory, requestId, voidingHistoryId, null, afterVoidHistory);
         }
 
         public async Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory)
         {
-            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateAfterVoidStep, null, requestId, voidingHistoryId, null, afterVoidHistory);
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateAfterVoidStep, requestId, voidingHistoryId, null, afterVoidHistory);
         }
 
         public async Task UpdateAllAfterVoidSteps(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory)
         {
-            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateAllAfterVoidSteps, null, requestId, voidingHistoryId, null, afterVoidHistory);
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateAllAfterVoidSteps, requestId, voidingHistoryId, null, afterVoidHistory);
         }
 
         public async Task UpdateEmailResultByVoidingHistory(int requestId, int voidingHistoryId, string content)
@@ -151,15 +132,14 @@ namespace Fanex.TVS.AfterVoid.Service.Services
                 VoidResults = content
             };
 
-            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateEmailsResultByVoidingHistory, null, requestId, voidingHistoryId, null, afterVoidHistory);
+            await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateEmailsResultByVoidingHistory, requestId, voidingHistoryId, null, afterVoidHistory);
         }
 
-        public async Task UpdateVoidBetAutomationServiceInfo(int updateType, string broadcastSessionId, int? requestId, int? voidingHistoryId, int? statusId, VoidBetAutomationInfo afterVoidHistory)
+        public async Task UpdateVoidBetAutomationServiceInfo(int updateType, int? requestId, int? voidingHistoryId, int? statusId, VoidBetAutomationInfo afterVoidHistory)
         {
             var criteria = new UpdateVoidBetAutomationInfoCriteria
             {
                 UpdateType = updateType,
-                BroadcastSessionId = broadcastSessionId,
                 RequestId = requestId,
                 VoidingHistoryId = voidingHistoryId,
                 StatusId = statusId
