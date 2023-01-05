@@ -15,6 +15,8 @@ namespace Fanex.TVS.AfterVoid.Service.Models
 
         public string BroadcastSessionId => VoidBetAutomationList.First().BroadcastSessionId;
 
+        public bool IsAutoVoid => VoidBetAutomationList.First().IsAutoVoid;
+
         public IEnumerable<VoidBetAutomationInfo> VoidBetAutomationList { get; set; }
 
         public RequestDetailViewModel RequestInfo { get; set; }

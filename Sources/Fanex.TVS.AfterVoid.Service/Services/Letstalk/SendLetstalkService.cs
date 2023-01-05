@@ -63,12 +63,14 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
         {
             if (group.IsInsert)
             {
-                await letstalkServiceStage.InsertLetstalk(group, ExecuteStatus.New);
+                await letstalkServiceStage.UpdateLetstalk(group, ExecuteStatus.New, LetstalkUpdateType.Insert);
             }
             group.RequestInfo = await voidBetAutomationService.GetRequestById(group.RequestId, group.MatchId);
             var voidedTickets = await letstalkServiceStage.GetVoidedTickets(group.VoidBetAutomationList);
             var matchInfo = await voidBetAutomationService.GetMatchInfo(group.MatchId);
-            var voidDataXmlList = await letstalkServiceStage.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
+            var voidDataXmlList = group.IsAutoVoid
+                ? new List<VoidDataXmlModel>()
+                : await letstalkServiceStage.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
             var sentLetstalkResults = await SendLetstalk(group, voidedTickets, matchInfo, voidDataXmlList);
 
             letstalkServiceStage.WriteLogLetstalk(sentLetstalkResults, group);
@@ -93,7 +95,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
                     isSendLetstalkAbnormalBet = await abnormalBetLetstalkServiceImp.Send(notificationLetstalkModel, emailTickets);
                 }
 
-                await letstalkServiceStage.UpdateLetstalk(group, ExecuteStatus.Done);
+                await letstalkServiceStage.UpdateLetstalk(group, ExecuteStatus.Done, LetstalkUpdateType.Update);
 
                 if (!isSendLetstalkSettledBet || !isSendLetstalkAbnormalBet)
                 {
@@ -107,7 +109,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
                 loggingService.Error(
                     $"ERROR: {nameof(SendLetstalk)} - BroadcastSessionId: {group.BroadcastSessionId} - RequestId: {group.RequestId}",
                     exception);
-                await letstalkServiceStage.UpdateLetstalk(group, ExecuteStatus.Failed);
+                await letstalkServiceStage.UpdateLetstalk(group, ExecuteStatus.Failed, LetstalkUpdateType.Update);
                 await notificationSignalRService.UpdateFailedStatusForRequest(group.RequestId);
 
                 return new List<Result>();
@@ -121,10 +123,10 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
                 Match = matchInfo,
                 UserName = group.RequestInfo.Request.VoidedBy,
                 DecidedBy = group.RequestInfo.Request.DecidedBy,
-                VoidFromTime = voidDataXmlList.Select(x => x.VoidFromTime).Select(DateTime.Parse).Min(x => x).ToString(FormatKey.LongTimeFormat),
-                VoidToTime = voidDataXmlList.Select(x => x.VoidToTime).Select(DateTime.Parse).Max(x => x).ToString(FormatKey.LongTimeFormat),
-                VoidFromDate = voidDataXmlList.Select(x => x.VoidFromDate).Select(DateTime.Parse).Min(x => x).ToString(FormatKey.ShortDateFormatWithSlash),
-                VoidToDate = voidDataXmlList.Select(x => x.VoidToDate).Select(DateTime.Parse).Min(x => x).ToString(FormatKey.ShortDateFormatWithSlash),
+                VoidFromTime = voidDataXmlList.Any() ? voidDataXmlList.Select(x => x.VoidFromTime).Select(DateTime.Parse).Min(x => x).ToString(FormatKey.LongTimeFormat) : null,
+                VoidToTime = voidDataXmlList.Any() ? voidDataXmlList.Select(x => x.VoidToTime).Select(DateTime.Parse).Max(x => x).ToString(FormatKey.LongTimeFormat) : null,
+                VoidFromDate = voidDataXmlList.Any() ? voidDataXmlList.Select(x => x.VoidFromDate).Select(DateTime.Parse).Min(x => x).ToString(FormatKey.ShortDateFormatWithSlash) : null,
+                VoidToDate = voidDataXmlList.Any() ? voidDataXmlList.Select(x => x.VoidToDate).Select(DateTime.Parse).Min(x => x).ToString(FormatKey.ShortDateFormatWithSlash) : null,
                 IsMemberTemplate = !(matchInfo?.MatchId > 0),
                 IssueTypeId = group.RequestInfo.Request.IssueTypeId,
                 FilterBy = group.RequestInfo.EventByMatch.FilterBy,
