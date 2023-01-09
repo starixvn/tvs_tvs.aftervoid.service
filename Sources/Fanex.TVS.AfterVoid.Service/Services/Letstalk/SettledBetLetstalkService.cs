@@ -35,10 +35,6 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
             }
 
             var contents = model.IsMemberTemplate ? CreateMessageContentWithMemberTemplate(tickets, model) : CreateMessageContent(model);
-            if (contents.Count == 0)
-            {
-                return true;
-            }
             foreach (var item in contents)
             {
                 var letstalkModel = CreateLetstalkModelSettledBet(item);

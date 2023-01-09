@@ -37,9 +37,6 @@ namespace Fanex.TVS.AfterVoid.Service.Services
 
         Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId,
             string transIds, DateTime? minWinLostDate, DateTime? maxWinLostDate);
-
-        Task UpdateVoidBetAutomationServiceInfo(int updateType, int? requestId,
-            int? voidingHistoryId, int? statusId, VoidBetAutomationInfo afterVoidHistory);
     }
 
     public class VoidBetAutomationServiceImp : VoidBetAutomationService
@@ -135,7 +132,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateEmailsResultByVoidingHistory, requestId, voidingHistoryId, null, afterVoidHistory);
         }
 
-        public async Task UpdateVoidBetAutomationServiceInfo(int updateType, int? requestId, int? voidingHistoryId, int? statusId, VoidBetAutomationInfo afterVoidHistory)
+        private async Task UpdateVoidBetAutomationServiceInfo(int updateType, int? requestId, int? voidingHistoryId, int? statusId, VoidBetAutomationInfo afterVoidHistory)
         {
             var criteria = new UpdateVoidBetAutomationInfoCriteria
             {

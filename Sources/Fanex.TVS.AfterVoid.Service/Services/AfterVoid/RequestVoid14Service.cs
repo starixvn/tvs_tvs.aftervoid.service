@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Constants;
 
@@ -14,12 +15,17 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
         private readonly VoidBetAutomationService voidBetAutomationService;
         private readonly AfterVoidProcessStage afterVoidProcessStage;
         private readonly NotificationSignalRService notificationSignalRService;
+        private readonly VoidResultCacheService voidResultCacheService;
 
-        public RequestVoid14ServiceImp(VoidBetAutomationService voidBetAutomationService, AfterVoidProcessStage afterVoidProcessStage, NotificationSignalRService notificationSignalRService)
+        public RequestVoid14ServiceImp(VoidBetAutomationService voidBetAutomationService,
+            AfterVoidProcessStage afterVoidProcessStage,
+            NotificationSignalRService notificationSignalRService,
+            VoidResultCacheService voidResultCacheService)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.afterVoidProcessStage = afterVoidProcessStage;
             this.notificationSignalRService = notificationSignalRService;
+            this.voidResultCacheService = voidResultCacheService;
         }
 
         public async Task Execute(VoidBetAutomationInfo automationInfo)
@@ -62,7 +68,13 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
             var results = afterVoidProcessStage.CreateResultList(null, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, 0);
-            await notificationSignalRService.NotifyVoidResultToUser(voidDataXml.CreatorName, results);
+
+            if (!await voidResultCacheService.IsExistVoidResult($"{automationInfo.RequestId}-{automationInfo.BroadcastSessionId}"))
+            {
+                await notificationSignalRService.NotifyVoidResultToUser(voidDataXml.CreatorName, results);
+                await voidResultCacheService.SetVoidResultCache($"{automationInfo.RequestId}-{automationInfo.BroadcastSessionId}", results.ToList());
+            }
+
             afterVoidProcessStage.WriteLogAfterVoid(results, automationInfo);
         }
     }

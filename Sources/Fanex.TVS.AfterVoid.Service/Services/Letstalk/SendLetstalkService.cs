@@ -76,7 +76,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
             letstalkServiceStage.WriteLogLetstalk(sentLetstalkResults, group);
         }
 
-        public async Task<IEnumerable<Result>> SendLetstalk(GroupVoidBetAutomationInfo group,
+        private async Task<IEnumerable<Result>> SendLetstalk(GroupVoidBetAutomationInfo group,
             IEnumerable<TicketEmailModel> emailTickets, Match matchInfo, IEnumerable<VoidDataXmlModel> voidDataXmlList)
         {
             try
