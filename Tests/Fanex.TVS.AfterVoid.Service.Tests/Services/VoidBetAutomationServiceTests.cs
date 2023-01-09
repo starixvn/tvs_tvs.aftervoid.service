@@ -110,20 +110,6 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
         }
 
         [Fact]
-        public async Task UpdateServiceStatusBySession_ShouldCallUpdateVoidBetAutomationServiceInfo()
-        {
-            const string fakeSessionId = "ADC-12AXX";
-            const int fakeStatusId = 311;
-            var repository = Substitute.For<IDynamicRepository>();
-            var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
-            await voidBetAutomationService.UpdateServiceStatusBySession(fakeSessionId, fakeStatusId);
-
-            await repository.Received(1).ExecuteAsync(Arg.Is<UpdateVoidBetAutomationInfoCriteria>(x =>
-                x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateStatusBySession && x.BroadcastSessionId == fakeSessionId
-                && x.StatusId == fakeStatusId));
-        }
-
-        [Fact]
         public async Task UpdateMessageIdByVoidingHistory_ShouldCallUpdateVoidBetAutomationServiceInfo()
         {
             const int fakeRequestId = 113;
@@ -136,20 +122,6 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
             await repository.Received(1).ExecuteAsync(Arg.Is<UpdateVoidBetAutomationInfoCriteria>(x =>
                 x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateMessageIdByVoidingHistory && x.RequestId == fakeRequestId
                 && x.VoidingHistoryId == fakeVoidingHistoryId && x.MessageId == fakeMessageId));
-        }
-
-        [Fact]
-        public async Task UpdateMessageIdBySession_ShouldCallUpdateVoidBetAutomationServiceInfo()
-        {
-            const string fakeSessionId = "ADC-12AXX";
-            const int fakeMessageId = 331;
-            var repository = Substitute.For<IDynamicRepository>();
-            var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
-            await voidBetAutomationService.UpdateMessageIdBySession(fakeSessionId, fakeMessageId);
-
-            await repository.Received(1).ExecuteAsync(Arg.Is<UpdateVoidBetAutomationInfoCriteria>(x =>
-                x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateMessageIdBySession && x.BroadcastSessionId == fakeSessionId
-                && x.MessageId == fakeMessageId));
         }
 
         [Fact]

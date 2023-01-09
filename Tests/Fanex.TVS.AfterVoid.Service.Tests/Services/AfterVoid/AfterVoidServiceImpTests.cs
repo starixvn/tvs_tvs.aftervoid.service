@@ -61,11 +61,17 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
                 Equals(x, fakeAutomationStatistic)));
         }
 
-        [Fact]
-        public async Task Execute_ShouldCallManualVoidService()
+        [Theory]
+        [InlineData(IssueTypeConstant.DangerAccepted)]
+        [InlineData(IssueTypeConstant.RedCard)]
+        [InlineData(IssueTypeConstant.WrongHDP)]
+        [InlineData(IssueTypeConstant.Wrong1stHDP)]
+        [InlineData(IssueTypeConstant.WrongOU)]
+        [InlineData(IssueTypeConstant.Wrong1stOU)]
+        public async Task Execute_ShouldCallManualVoidService(int issueTypeId)
         {
             var requestInfo = new RequestDetailViewModel
-            { Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted } };
+            { Request = new RequestModel { IssueTypeId = issueTypeId } };
             var fakeAutomationStatistic = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsAutoVoid = false).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             voidBetAutomationService.GetVoidBetAutomationRunAfterVoid().ReturnsForAnyArgs(fakeAutomationStatistic);

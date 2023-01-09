@@ -16,18 +16,42 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
 {
     public class SendMessageServiceImpTests
     {
-        [Fact]
-        public async Task InitializeMessageContentForAutoVoid_ShouldReturnExpectedData()
+        [Theory]
+        [InlineData(IssueTypeConstant.AbnormalBet, 1)]
+        [InlineData(IssueTypeConstant.AbnormalBet, null)]
+        [InlineData(IssueTypeConstant.AbnormalBetRealMember, 1)]
+        [InlineData(IssueTypeConstant.DangerAccepted, 1)]
+        public async Task InitializeMessageContentForAutoVoid_ShouldReturnExpectedData(int issueTypeId, int? filterBy)
         {
             var fakeMatch = new Match { MatchCode = "ppp00" };
-            var fakeIssueTypeId = 111;
-            var fakeTemplate = Builder<TemplateModel>.CreateListOfSize(5)
-                .Random(1).With(x => x.TemplateId = 37).Build();
+            var fakeTemplate = Builder<TemplateModel>.CreateListOfSize(6)
+                .Random(1).With(x => x.TemplateId = 37)
+                .Random(1).With(x => x.TemplateId = 34)
+                .Random(1).With(x => x.TemplateId = 1)
+                .Build();
             var repository = Substitute.For<IDynamicRepository>();
             repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
             var service = new SendMessageServiceImp(repository, null, null);
 
-            var actual = await service.InitializeMessageContentForAutoVoid(fakeMatch, true, fakeIssueTypeId, 1);
+            var actual = await service.InitializeMessageContentForAutoVoid(fakeMatch, true, issueTypeId, filterBy);
+
+            await repository.Received(1).FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>());
+            Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);
+        }
+
+        [Fact]
+        public async Task InitializeMessageContentForAutoVoid_HasNotMatch_ShouldReturnExpectedData()
+        {
+            var fakeTemplate = Builder<TemplateModel>.CreateListOfSize(6)
+                .Random(1).With(x => x.TemplateId = 37)
+                .Random(1).With(x => x.TemplateId = 34)
+                .Random(1).With(x => x.TemplateId = 1)
+                .Build();
+            var repository = Substitute.For<IDynamicRepository>();
+            repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
+            var service = new SendMessageServiceImp(repository, null, null);
+
+            var actual = await service.InitializeMessageContentForAutoVoid(null, false, 11, 1);
 
             await repository.Received(1).FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>());
             Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);
@@ -109,11 +133,14 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
             await repository.Received(2).ExecuteAsync(Arg.Any<InsertVoidedTransactionCommand>());
         }
 
-        [Fact]
-        public async Task SendMessage_ShouldCallInsertBatchMessage()
+        [Theory]
+        [InlineData(IssueTypeConstant.AbnormalBet)]
+        [InlineData(IssueTypeConstant.AbnormalBetRealMember)]
+        [InlineData(IssueTypeConstant.DangerAccepted)]
+        public async Task SendMessage_ShouldCallInsertBatchMessage(int issueTypeId)
         {   // Arrange
-            var messageXml = "<Messages>Content</Messages>";
-            var messageId = 1111;
+            const string messageXml = "<Messages>Content</Messages>";
+            const int messageId = 1111;
             var repository = Substitute.For<IDynamicRepository>();
             var messageItemService = Substitute.For<MessageItemService>();
             messageItemService.CreateMessageItems(Arg.Any<IEnumerable<ReceivedUser>>(), Arg.Compat.Any<int>()).ReturnsForAnyArgs(messageXml);
@@ -121,7 +148,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services
             var service = new SendMessageServiceImp(repository, messageItemService, null);
 
             // Act
-            await service.SendMessage(fakeTicketEmailModels, messageId, 11, 8);
+            await service.SendMessage(fakeTicketEmailModels, messageId, issueTypeId, 8);
 
             // Assert
             await repository.Received(1).ExecuteAsync(Arg.Is<SendMessageCommand>(x => x.CreatorId == 8));

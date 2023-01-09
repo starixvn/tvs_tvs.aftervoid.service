@@ -18,46 +18,6 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
     public class AfterVoidProcessStageImpTests
     {
         [Fact]
-        public async Task CreateMessageIdForAllRequests_ReturnOldMessage()
-        {
-            const int fakeMessageId = 113;
-            const string fakeSessionId = "ADC-12AXX";
-            var fakeAutomation = Builder<VoidBetAutomationInfo>.CreateNew()
-                .With(x => x.MessageId = fakeMessageId).Build();
-            var fakeMessage = Builder<Message>.CreateNew().With(x => x.MessageId = fakeMessageId).Build();
-            var sendMessageService = Substitute.For<SendMessageService>();
-            sendMessageService.GetMessage(default).ReturnsForAnyArgs(fakeMessage);
-            var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null);
-
-            var actual = await service.CreateMessageIdForAutoVoid(fakeAutomation, null, fakeSessionId, false, 0, null);
-
-            await voidBetAutomationService.Received(1).UpdateMessageIdBySession(Arg.Is<string>(x => x == fakeSessionId),
-                Arg.Is<int>(x => x == fakeMessageId));
-            Assert.StrictEqual(fakeMessage, actual);
-        }
-
-        [Fact]
-        public async Task CreateMessageIdForAllRequests_ReturnNewMessage()
-        {
-            const int fakeMessageId = 113;
-            const string fakeSessionId = "ADC-12AXX";
-            var fakeAutomation = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.MessageId = null).Build();
-            var fakeMessage = Builder<Message>.CreateNew().With(x => x.MessageId = fakeMessageId).Build();
-            var sendMessageService = Substitute.For<SendMessageService>();
-            sendMessageService.InitializeMessageContentForAutoVoid(default, default, default, default).ReturnsForAnyArgs(fakeMessage);
-            sendMessageService.InsertMessage(default, default, default, default).ReturnsForAnyArgs(fakeMessageId);
-            var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null);
-
-            var actual = await service.CreateMessageIdForAutoVoid(fakeAutomation, null, fakeSessionId, false, 0, null);
-
-            await voidBetAutomationService.Received(1).UpdateMessageIdBySession(Arg.Is<string>(x => x == fakeSessionId),
-                Arg.Is<int>(x => x == fakeMessageId));
-            Assert.StrictEqual(fakeMessage, actual);
-        }
-
-        [Fact]
         public async Task CreateMessageIdForAllRequests_ThrowException()
         {
             const string fakeSessionId = "ADC-12AXX";

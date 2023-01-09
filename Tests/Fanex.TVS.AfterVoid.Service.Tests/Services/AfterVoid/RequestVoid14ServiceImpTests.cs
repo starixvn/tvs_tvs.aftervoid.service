@@ -19,7 +19,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
                 .With(x => x.StatusId = ExecuteStatus.Done).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new RequestVoid14ServiceImp(voidBetAutomationService, default, default);
+            var service = new RequestVoid14ServiceImp(voidBetAutomationService, default, default, default);
 
             await service.Execute(fakeAutomationInfo);
 
@@ -37,7 +37,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsNullForAnyArgs();
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-            var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
+            var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
 
             await service.Execute(fakeAutomationInfo);
 
@@ -60,7 +60,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
             handleAfterVoidStepService.InsertVoidedTransaction(default, default, default, default).ReturnsForAnyArgs(false);
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-            var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
+            var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
 
             await service.Execute(fakeAutomationInfo);
 
@@ -89,7 +89,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             handleAfterVoidStepService.UpdateTicketVoidingHistory(default, default, default, default)
                 .ReturnsForAnyArgs(false);
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-            var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
+            var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
 
             await service.Execute(fakeAutomationInfo);
 
@@ -113,6 +113,8 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
                 .With(x => x.StatusId = ExecuteStatus.Running).Build();
             var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
             voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+            var voidResultCacheService = Substitute.For<VoidResultCacheService>();
+            voidResultCacheService.IsExistVoidResult(default).ReturnsForAnyArgs(false);
             var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
             handleAfterVoidStepService.CreateVoidedReason(default, default, default)
                 .ReturnsForAnyArgs(fakeVoidedReason);
@@ -121,7 +123,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
             handleAfterVoidStepService.UpdateTicketVoidingHistory(default, default, default, default)
                 .ReturnsForAnyArgs(true);
             var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-            var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
+            var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, voidResultCacheService);
 
             await service.Execute(fakeAutomationInfo);
 
