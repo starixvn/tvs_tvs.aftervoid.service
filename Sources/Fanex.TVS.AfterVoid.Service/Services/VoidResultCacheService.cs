@@ -11,6 +11,10 @@ namespace Fanex.TVS.AfterVoid.Service.Services
         Task<bool> IsExistVoidResult(string key);
 
         Task SetVoidResultCache(string key, IList<Result> results);
+
+        Task<IList<Result>> GetVoidResultCache(string key);
+
+        Task RemoveAsync(string key);
     }
 
     public class VoidResultCacheServiceImp : VoidResultCacheService
@@ -31,6 +35,17 @@ namespace Fanex.TVS.AfterVoid.Service.Services
         {
             var cachePolicy = new CacheItemOptions().SetSlidingExpiration(TimeSpan.FromHours(1));
             await cacheService.SetAsync(key, results, cachePolicy);
+        }
+
+        public async Task<IList<Result>> GetVoidResultCache(string key)
+        {
+            var (_, results) = await cacheService.TryGetAsync<IList<Result>>(key);
+            return results;
+        }
+
+        public async Task RemoveAsync(string key)
+        {
+            await cacheService.RemoveAsync(key);
         }
     }
 }

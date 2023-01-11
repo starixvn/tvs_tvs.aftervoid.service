@@ -10,6 +10,7 @@ using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Resources;
 using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
@@ -43,6 +44,9 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 
         Task UpdateEmailResult(VoidBetAutomationInfo automationInfo, IEnumerable<Result> results);
 
+        Task NotifyVoidResultsSignalR(VoidBetAutomationInfo automationInfo, IEnumerable<Result> sendEmailResults,
+            string creatorName);
+
         void WriteLogAfterVoid(IEnumerable<Result> results, VoidBetAutomationInfo automationInfo);
 
         IEnumerable<Result> CreateResultList(IEnumerable<Result> sentEmailResults, string negativeBalanceUsers, int requestId, int matchId);
@@ -56,10 +60,15 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
         private readonly AfterVoidEmailService afterVoidEmailService;
         private readonly LoggingService loggingService;
         private readonly CashOutHttpClientService cashOutHttpClientService;
+        private readonly VoidResultCacheService voidResultCacheService;
 
-        public AfterVoidProcessStageImp(VoidBetAutomationService voidBetAutomationService, SendMessageService sendMessageService,
-            NotificationSignalRService notificationSignalRService, AfterVoidEmailService afterVoidEmailService,
-            LoggingService loggingService, CashOutHttpClientService cashOutHttpClientService)
+        public AfterVoidProcessStageImp(VoidBetAutomationService voidBetAutomationService,
+            SendMessageService sendMessageService,
+            NotificationSignalRService notificationSignalRService,
+            AfterVoidEmailService afterVoidEmailService,
+            LoggingService loggingService,
+            CashOutHttpClientService cashOutHttpClientService,
+            VoidResultCacheService voidResultCacheService)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.sendMessageService = sendMessageService;
@@ -67,6 +76,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             this.afterVoidEmailService = afterVoidEmailService;
             this.loggingService = loggingService;
             this.cashOutHttpClientService = cashOutHttpClientService;
+            this.voidResultCacheService = voidResultCacheService;
         }
 
         public async Task<Message> CreateMessageIdForAutoVoid(VoidBetAutomationInfo automationInfo, Match matchInfo, string broadcastSessionId,
@@ -365,6 +375,57 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             }
         }
 
+        public async Task NotifyVoidResultsSignalR(VoidBetAutomationInfo automationInfo, IEnumerable<Result> sendEmailResults, string creatorName)
+        {
+            if (automationInfo.IsLastedInRequest)
+            {
+                var signalRResults = sendEmailResults.Where(x =>
+                    x.ErrorCode is not (ErrorCode.LicenseeSuccess or ErrorCode.LicenseeFail)).ToList();
+                signalRResults.AddRange(await CreateEmailResults(automationInfo, sendEmailResults));
+                await notificationSignalRService.NotifyVoidResultToUser(creatorName, signalRResults);
+            }
+            else
+            {
+                await voidResultCacheService.SetVoidResultCache($"{automationInfo.RequestId}-{automationInfo.BroadcastSessionId}", await CreateEmailResults(automationInfo, sendEmailResults));
+            }
+        }
+
+        private async Task<List<Result>> CreateEmailResults(VoidBetAutomationInfo automationInfo, IEnumerable<Result> sendEmailResults)
+        {
+            var newCacheLicenseeResults = new List<Result>();
+            var combineLicenseeResults = new List<Result>();
+            var existedEmailResults = await voidResultCacheService.GetVoidResultCache($"{automationInfo.RequestId}-{automationInfo.BroadcastSessionId}");
+            var currentEmailResults = sendEmailResults.Where(x =>
+                x.ErrorCode is ErrorCode.LicenseeSuccess or ErrorCode.LicenseeFail);
+            if (existedEmailResults != null)
+            {
+                combineLicenseeResults.AddRange(existedEmailResults);
+            }
+            combineLicenseeResults.AddRange(currentEmailResults);
+            var failedLicensee = combineLicenseeResults.Where(x => x.ErrorCode == ErrorCode.LicenseeFail)
+                .Select(x => (string)x.Data);
+            var successfulLicensee = combineLicenseeResults.Where(x => x.ErrorCode == ErrorCode.LicenseeSuccess)
+                .Select(x => (string)x.Data);
+
+            newCacheLicenseeResults.Add(new Result
+            {
+                ErrorCode = ErrorCode.LicenseeSuccess,
+                ErrorMsg = string.Format(Labels.VoidBetSendMailSuccess, string.Join(", ", successfulLicensee)),
+                Data = successfulLicensee
+            });
+
+            newCacheLicenseeResults.Add(new Result
+            {
+                ErrorCode = ErrorCode.LicenseeSuccess,
+                ErrorMsg = string.Format(Labels.VoidBetSendMailFail, string.Join(", ", failedLicensee)),
+                Data = failedLicensee
+            });
+
+            await voidResultCacheService.SetVoidResultCache($"{automationInfo.RequestId}-{automationInfo.BroadcastSessionId}", newCacheLicenseeResults);
+
+            return newCacheLicenseeResults;
+        }
+
         public void WriteLogAfterVoid(IEnumerable<Result> results, VoidBetAutomationInfo automationInfo)
         {
             var logBuilder = new StringBuilder();
@@ -384,7 +445,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             results.AddRange(sentEmailResults ?? new List<Result>());
             if (!string.IsNullOrEmpty(negativeBalanceUsers))
             {
-                results.Add(new Result { ErrorCode = ErrorCode.NegativeBalanceUsers, ErrorMsg = negativeBalanceUsers });
+                results.Add(new Result { ErrorCode = ErrorCode.NegativeBalanceUsers, ErrorMsg = negativeBalanceUsers, Data = negativeBalanceUsers });
             }
             results.Insert(0, new Result { ErrorCode = ErrorCode.VoidRequestSuccess, ErrorMsg = GetMessageVoidRequestSuccess(requestId, matchId) });
 

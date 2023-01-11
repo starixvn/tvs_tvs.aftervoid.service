@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Constants;
 
@@ -69,11 +68,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
             var results = afterVoidProcessStage.CreateResultList(null, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, 0);
 
-            if (!await voidResultCacheService.IsExistVoidResult($"{automationInfo.RequestId}-{automationInfo.BroadcastSessionId}"))
-            {
-                await notificationSignalRService.NotifyVoidResultToUser(voidDataXml.CreatorName, results);
-                await voidResultCacheService.SetVoidResultCache($"{automationInfo.RequestId}-{automationInfo.BroadcastSessionId}", results.ToList());
-            }
+            await afterVoidProcessStage.NotifyVoidResultsSignalR(automationInfo, results, voidDataXml.CreatorName);
 
             afterVoidProcessStage.WriteLogAfterVoid(results, automationInfo);
         }

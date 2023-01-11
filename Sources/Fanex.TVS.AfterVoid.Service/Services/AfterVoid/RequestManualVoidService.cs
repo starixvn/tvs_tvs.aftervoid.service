@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Constants;
@@ -17,18 +16,15 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
         private readonly VoidBetAutomationService voidBetAutomationService;
         private readonly AfterVoidProcessStage afterVoidProcessStage;
         private readonly NotificationSignalRService notificationSignalRService;
-        private readonly VoidResultCacheService voidResultCacheService;
 
         public RequestManualVoidServiceImp(
             VoidBetAutomationService voidBetAutomationService,
             AfterVoidProcessStage afterVoidProcessStage,
-            NotificationSignalRService notificationSignalRService,
-            VoidResultCacheService voidResultCacheService)
+            NotificationSignalRService notificationSignalRService)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.afterVoidProcessStage = afterVoidProcessStage;
             this.notificationSignalRService = notificationSignalRService;
-            this.voidResultCacheService = voidResultCacheService;
         }
 
         public async Task Execute(VoidBetAutomationInfo automationInfo)
@@ -90,26 +86,22 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             }
 
             var matchInfo = await GetMatchInfo(automationInfo);
-            var (isSentEmail, sentEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
+            var (isSentEmail, sendEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
             if (!isSentEmail)
             {
                 await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                 return;
             }
-            await afterVoidProcessStage.UpdateEmailResult(automationInfo, sentEmailResults);
+            await afterVoidProcessStage.UpdateEmailResult(automationInfo, sendEmailResults);
 
             await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
 
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
 
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
-            var results = afterVoidProcessStage.CreateResultList(sentEmailResults, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, automationInfo.MatchId);
+            var results = afterVoidProcessStage.CreateResultList(sendEmailResults, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, automationInfo.MatchId);
 
-            if (!await voidResultCacheService.IsExistVoidResult($"{automationInfo.RequestId}-{automationInfo.BroadcastSessionId}"))
-            {
-                await notificationSignalRService.NotifyVoidResultToUser(voidDataXml.CreatorName, results);
-                await voidResultCacheService.SetVoidResultCache($"{automationInfo.RequestId}-{automationInfo.BroadcastSessionId}", results.ToList());
-            }
+            await afterVoidProcessStage.NotifyVoidResultsSignalR(automationInfo, results, voidDataXml.CreatorName);
 
             afterVoidProcessStage.WriteLogAfterVoid(results, automationInfo);
         }
