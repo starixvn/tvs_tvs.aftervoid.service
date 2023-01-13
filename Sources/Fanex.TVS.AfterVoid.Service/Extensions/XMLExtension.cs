@@ -19,7 +19,7 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions
             {
                 if (!string.IsNullOrWhiteSpace(result.ErrorMsg))
                 {
-                    var line = $"<VoidResult Message='{result.ErrorMsg}' Type='{result.ErrorCode}' />";
+                    var line = $"<VoidResult Message='{result.ErrorMsg}' Type='{result.ErrorCode}' Licensees='{result.Data}' />";
                     stringBuilder.AppendLine(line);
                 }
             }

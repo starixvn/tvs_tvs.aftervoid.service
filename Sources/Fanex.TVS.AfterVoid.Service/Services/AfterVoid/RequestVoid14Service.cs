@@ -1,12 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Constants;
+using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 {
     public interface RequestVoid14Service
     {
-        Task Execute(VoidBetAutomationInfo automationInfo);
+        Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus);
     }
 
     public class RequestVoid14ServiceImp : RequestVoid14Service
@@ -27,15 +29,15 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             this.voidResultCacheService = voidResultCacheService;
         }
 
-        public async Task Execute(VoidBetAutomationInfo automationInfo)
+        public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
         {
             if (automationInfo.StatusId != ExecuteStatus.Done)
             {
-                await RunMainSteps(automationInfo);
+                await RunMainSteps(automationInfo, isLastedInRequest, currentRequestStatus);
             }
         }
 
-        private async Task RunMainSteps(VoidBetAutomationInfo automationInfo)
+        private async Task RunMainSteps(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
         {
             var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId);
             var voidDataXml = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
@@ -62,15 +64,20 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             }
 
             await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
-
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
 
-            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
-            var results = afterVoidProcessStage.CreateResultList(null, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, 0);
+            await ExecutePostMainStep(automationInfo, isLastedInRequest, currentRequestStatus, voidDataXml.CreatorName);
+        }
 
-            await afterVoidProcessStage.NotifyVoidResultsSignalR(automationInfo, results, voidDataXml.CreatorName);
+        private async Task ExecutePostMainStep(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, string creatorName)
+        {
+            if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
+            {
+                await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
+                await afterVoidProcessStage.NotifyVoidResultsSignalR(automationInfo, new List<Result>(), creatorName, new List<EmailResultModel>());
+            }
 
-            afterVoidProcessStage.WriteLogAfterVoid(results, automationInfo);
+            afterVoidProcessStage.WriteLogAfterVoid(new List<Result>(), automationInfo);
         }
     }
 }

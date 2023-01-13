@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
@@ -35,7 +36,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
         public async Task Execute()
         {
             var stopwatch = Stopwatch.StartNew();
-            var requestsWillRunAfterVoid = await voidBetAutomationService.GetVoidBetAutomationRunAfterVoid();
+            var (requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus, emailResultsHistory) = await voidBetAutomationService.GetVoidBetAutomationRunAfterVoid();
 
             if (requestsWillRunAfterVoid == null)
             {
@@ -46,11 +47,11 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 
             if (requestsWillRunAfterVoid.IsAutoVoid)
             {
-                await requestAutoVoidService.Execute(requestsWillRunAfterVoid);
+                await requestAutoVoidService.Execute(requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus);
             }
             else
             {
-                await ExecuteForManualVoid(requestsWillRunAfterVoid.RequestInfo.Request.IssueTypeId, requestsWillRunAfterVoid);
+                await ExecuteForManualVoid(requestsWillRunAfterVoid.RequestInfo.Request.IssueTypeId, requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus, emailResultsHistory);
             }
 
             loggingService.Info(
@@ -65,15 +66,16 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             automationInfo.RequestInfo = await voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId);
         }
 
-        private async Task ExecuteForManualVoid(int issueTypeId, VoidBetAutomationInfo automationInfo)
+        private async Task ExecuteForManualVoid(int issueTypeId, VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus
+            , IEnumerable<EmailResultModel> emailResultsHistory)
         {
             if (Helper.IsArchivedTicket(issueTypeId))
             {
-                await requestVoid14Service.Execute(automationInfo);
+                await requestVoid14Service.Execute(automationInfo, isLastedInRequest, currentRequestStatus);
             }
             else
             {
-                await requestManualVoidService.Execute(automationInfo);
+                await requestManualVoidService.Execute(automationInfo, isLastedInRequest, currentRequestStatus, emailResultsHistory);
             }
         }
     }

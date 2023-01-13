@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Constants;
@@ -8,7 +9,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 {
     public interface RequestAutoVoidService
     {
-        Task Execute(VoidBetAutomationInfo automationInfo);
+        Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus);
     }
 
     public class RequestAutoVoidServiceImp : RequestAutoVoidService
@@ -25,15 +26,15 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             this.notificationSignalRService = notificationSignalRService;
         }
 
-        public async Task Execute(VoidBetAutomationInfo automationInfo)
+        public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
         {
             if (automationInfo.StatusId != ExecuteStatus.Done)
             {
-                await RunMainSteps(automationInfo);
+                await RunMainSteps(automationInfo, isLastedInRequest, currentRequestStatus);
             }
         }
 
-        private async Task RunMainSteps(VoidBetAutomationInfo automationInfo)
+        private async Task RunMainSteps(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
         {
             var issueTypeId = automationInfo.RequestInfo.Request.IssueTypeId;
             var filterBy = automationInfo.RequestInfo.EventByMatch.FilterBy;
@@ -80,21 +81,29 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
                 return;
             }
 
-            var (isSentEmail, sentEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
+            var (isSentEmail, currentEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
             if (!isSentEmail)
             {
                 return;
             }
 
-            await afterVoidProcessStage.UpdateEmailResult(automationInfo, sentEmailResults);
+            await afterVoidProcessStage.UpdateEmailResult(automationInfo, currentEmailResults);
 
             await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
 
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
+            await ExecutePostMainStep(automationInfo, isLastedInRequest, currentRequestStatus, currentEmailResults);
+        }
 
-            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
-            var results = afterVoidProcessStage.CreateResultList(sentEmailResults, null, automationInfo.RequestId, automationInfo.MatchId);
-            afterVoidProcessStage.WriteLogAfterVoid(results, automationInfo);
+        private async Task ExecutePostMainStep(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus
+            , IEnumerable<Result> currentEmailResults)
+        {
+            if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
+            {
+                await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
+            }
+
+            afterVoidProcessStage.WriteLogAfterVoid(currentEmailResults, automationInfo);
         }
 
         private static int GetSportTypeId(Match matchInfo)

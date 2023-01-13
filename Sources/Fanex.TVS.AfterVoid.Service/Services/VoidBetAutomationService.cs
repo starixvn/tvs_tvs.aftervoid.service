@@ -7,13 +7,14 @@ using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb;
 using Fanex.TVS.AfterVoid.Service.Models;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Services
 {
     public interface VoidBetAutomationService
     {
-        Task<VoidBetAutomationInfo> GetVoidBetAutomationRunAfterVoid();
+        Task<(VoidBetAutomationInfo, bool, string, IEnumerable<EmailResultModel>)> GetVoidBetAutomationRunAfterVoid();
 
         Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId);
 
@@ -48,14 +49,31 @@ namespace Fanex.TVS.AfterVoid.Service.Services
             this.repository = repository;
         }
 
-        public async Task<VoidBetAutomationInfo> GetVoidBetAutomationRunAfterVoid()
+        public async Task<(VoidBetAutomationInfo, bool, string, IEnumerable<EmailResultModel>)> GetVoidBetAutomationRunAfterVoid()
         {
             var criteria = new GetAllVoidBetAutomationInfoCriteria
             {
                 Mode = VoidBetAutomationServiceGetType.RunAfterVoid
             };
 
-            return await repository.GetAsync<VoidBetAutomationInfo>(criteria);
+            var (voidBetAutomationInfoList, voidingHistoryModels, emailResultsHistory) =
+                await repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(criteria);
+
+            var isLastedInRequest = voidingHistoryModels.Count(x => x.VoidingHistoryStatusId is ExecuteStatus.Running || x.AfterVoidStatusId is ExecuteStatus.Running) == 1;
+            var currentRequestStatus = GetCurrentRequestStatus(voidingHistoryModels);
+
+            return (voidBetAutomationInfoList.FirstOrDefault(), isLastedInRequest, currentRequestStatus, emailResultsHistory);
+        }
+
+        private static string GetCurrentRequestStatus(IEnumerable<VoidingHistoryModel> voidingHistoryModels)
+        {
+            if (voidingHistoryModels.Any(x =>
+                    x.VoidingHistoryStatusId is ExecuteStatus.Failed || x.AfterVoidStatusId is ExecuteStatus.Failed))
+            {
+                return RequestStatusConstant.Failed;
+            }
+
+            return voidingHistoryModels.All(x => x.VoidingHistoryStatusId is ExecuteStatus.Running) ? RequestStatusConstant.Running : RequestStatusConstant.Completed;
         }
 
         public async Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId)

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Constants;
@@ -8,7 +9,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
 {
     public interface RequestManualVoidService
     {
-        Task Execute(VoidBetAutomationInfo automationInfo);
+        Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory);
     }
 
     public class RequestManualVoidServiceImp : RequestManualVoidService
@@ -27,15 +28,15 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             this.notificationSignalRService = notificationSignalRService;
         }
 
-        public async Task Execute(VoidBetAutomationInfo automationInfo)
+        public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResults)
         {
             if (automationInfo.StatusId != ExecuteStatus.Done)
             {
-                await RunMainSteps(automationInfo);
+                await RunMainSteps(automationInfo, isLastedInRequest, currentRequestStatus, emailResults);
             }
         }
 
-        private async Task RunMainSteps(VoidBetAutomationInfo automationInfo)
+        private async Task RunMainSteps(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory)
         {
             var voidDataXml = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
 
@@ -86,24 +87,32 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             }
 
             var matchInfo = await GetMatchInfo(automationInfo);
-            var (isSentEmail, sendEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
+            var (isSentEmail, currentEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
             if (!isSentEmail)
             {
                 await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
                 return;
             }
-            await afterVoidProcessStage.UpdateEmailResult(automationInfo, sendEmailResults);
+            await afterVoidProcessStage.UpdateEmailResult(automationInfo, currentEmailResults);
 
             await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
 
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
 
-            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
-            var results = afterVoidProcessStage.CreateResultList(sendEmailResults, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, automationInfo.MatchId);
+            await ExecutePostMainStep(automationInfo, isLastedInRequest, currentRequestStatus, voidDataXml.CreatorName,
+                currentEmailResults, emailResultsHistory);
+        }
 
-            await afterVoidProcessStage.NotifyVoidResultsSignalR(automationInfo, results, voidDataXml.CreatorName);
+        private async Task ExecutePostMainStep(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, string creatorName
+            , IEnumerable<Result> currentEmailResults, IEnumerable<EmailResultModel> emailResultsHistory)
+        {
+            if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
+            {
+                await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
+                await afterVoidProcessStage.NotifyVoidResultsSignalR(automationInfo, currentEmailResults, creatorName, emailResultsHistory);
+            }
 
-            afterVoidProcessStage.WriteLogAfterVoid(results, automationInfo);
+            afterVoidProcessStage.WriteLogAfterVoid(currentEmailResults, automationInfo);
         }
 
         private async Task<Match> GetMatchInfo(VoidBetAutomationInfo automationInfo)

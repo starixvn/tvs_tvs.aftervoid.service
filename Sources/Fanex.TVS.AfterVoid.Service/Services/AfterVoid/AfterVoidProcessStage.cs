@@ -42,14 +42,12 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
         Task<(bool, IEnumerable<Result>)> SendEmail(VoidBetAutomationInfo automationInfo,
             IEnumerable<TicketEmailModel> emailTickets, Match matchInfo, VoidedReason reason, Message message);
 
-        Task UpdateEmailResult(VoidBetAutomationInfo automationInfo, IEnumerable<Result> results);
+        Task UpdateEmailResult(VoidBetAutomationInfo automationInfo, IEnumerable<Result> currentEmailResults);
 
-        Task NotifyVoidResultsSignalR(VoidBetAutomationInfo automationInfo, IEnumerable<Result> sendEmailResults,
-            string creatorName);
+        Task NotifyVoidResultsSignalR(VoidBetAutomationInfo automationInfo, IEnumerable<Result> currentEmailResults,
+            string creatorName, IEnumerable<EmailResultModel> emailResultsHistory);
 
         void WriteLogAfterVoid(IEnumerable<Result> results, VoidBetAutomationInfo automationInfo);
-
-        IEnumerable<Result> CreateResultList(IEnumerable<Result> sentEmailResults, string negativeBalanceUsers, int requestId, int matchId);
     }
 
     public class AfterVoidProcessStageImp : AfterVoidProcessStage
@@ -366,64 +364,50 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             }
         }
 
-        public async Task UpdateEmailResult(VoidBetAutomationInfo automationInfo, IEnumerable<Result> results)
+        public async Task UpdateEmailResult(VoidBetAutomationInfo automationInfo, IEnumerable<Result> currentEmailResults)
         {
-            var sentMailResults = results.Where(x => x.ErrorCode == ErrorCode.SendEmailToLicenseeSuccess || x.ErrorCode == ErrorCode.SendEmailToLicenseeFail);
-            if (sentMailResults.Any())
+            var licenseeEmailResult = currentEmailResults.Where(x =>
+                x.ErrorCode is ErrorCode.SendEmailToLicenseeSuccess or ErrorCode.SendEmailToLicenseeFail
+                    or ErrorCode.LicenseeSuccess or ErrorCode.LicenseeFail);
+            if (licenseeEmailResult.Any())
             {
-                await voidBetAutomationService.UpdateEmailResultByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, sentMailResults.ToVoidResultsXML());
+                await voidBetAutomationService.UpdateEmailResultByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, licenseeEmailResult.ToVoidResultsXML());
             }
         }
 
-        public async Task NotifyVoidResultsSignalR(VoidBetAutomationInfo automationInfo, IEnumerable<Result> sendEmailResults, string creatorName)
+        public async Task NotifyVoidResultsSignalR(VoidBetAutomationInfo automationInfo, IEnumerable<Result> currentEmailResults, string creatorName, IEnumerable<EmailResultModel> emailResultsHistory)
         {
-            if (automationInfo.IsLastedInRequest)
+            var signalRResults = new List<Result>();
+            var successfulLicensees = GetLicenseeResult(currentEmailResults, emailResultsHistory, ErrorCode.LicenseeSuccess);
+            var failedLicensees = GetLicenseeResult(currentEmailResults, emailResultsHistory, ErrorCode.LicenseeFail);
+            signalRResults.Insert(0, new Result { ErrorCode = ErrorCode.VoidRequestSuccess, ErrorMsg = GetMessageVoidRequestSuccess(automationInfo.RequestId, automationInfo.MatchId) });
+            if (successfulLicensees.Any())
             {
-                var signalRResults = sendEmailResults.Where(x =>
-                    x.ErrorCode is not (ErrorCode.LicenseeSuccess or ErrorCode.LicenseeFail)).ToList();
-                signalRResults.AddRange(await CreateEmailResults(automationInfo, sendEmailResults));
-                await notificationSignalRService.NotifyVoidResultToUser(creatorName, signalRResults);
+                signalRResults.Add(new Result
+                {
+                    ErrorCode = ErrorCode.LicenseeSuccess,
+                    ErrorMsg = string.Format(Labels.VoidBetSendMailSuccess, string.Join(", ", successfulLicensees.Distinct()))
+                });
             }
-            else
+            if (failedLicensees.Any())
             {
-                await voidResultCacheService.SetVoidResultCache($"{automationInfo.RequestId}-{automationInfo.BroadcastSessionId}", await CreateEmailResults(automationInfo, sendEmailResults));
+                signalRResults.Add(new Result
+                {
+                    ErrorCode = ErrorCode.LicenseeFail,
+                    ErrorMsg = string.Format(Labels.VoidBetSendMailFail, string.Join(", ", failedLicensees.Distinct()))
+                });
             }
+
+            await notificationSignalRService.NotifyVoidResultToUser(creatorName, signalRResults);
         }
 
-        private async Task<List<Result>> CreateEmailResults(VoidBetAutomationInfo automationInfo, IEnumerable<Result> sendEmailResults)
+        public static IEnumerable<string> GetLicenseeResult(IEnumerable<Result> currentEmailResults, IEnumerable<EmailResultModel> emailResultsHistory, int type)
         {
-            var newCacheLicenseeResults = new List<Result>();
-            var combineLicenseeResults = new List<Result>();
-            var existedEmailResults = await voidResultCacheService.GetVoidResultCache($"{automationInfo.RequestId}-{automationInfo.BroadcastSessionId}");
-            var currentEmailResults = sendEmailResults.Where(x =>
-                x.ErrorCode is ErrorCode.LicenseeSuccess or ErrorCode.LicenseeFail);
-            if (existedEmailResults != null)
-            {
-                combineLicenseeResults.AddRange(existedEmailResults);
-            }
-            combineLicenseeResults.AddRange(currentEmailResults);
-            var failedLicensee = combineLicenseeResults.Where(x => x.ErrorCode == ErrorCode.LicenseeFail)
-                .Select(x => (string)x.Data);
-            var successfulLicensee = combineLicenseeResults.Where(x => x.ErrorCode == ErrorCode.LicenseeSuccess)
-                .Select(x => (string)x.Data);
+            var licensees = new List<string>();
+            licensees.AddRange(currentEmailResults.Where(x => x.ErrorCode == type).Select(x => x.Data.ToString()));
+            licensees.AddRange(emailResultsHistory.Where(x => x.Type == type).Select(x => x.Licensees));
 
-            newCacheLicenseeResults.Add(new Result
-            {
-                ErrorCode = ErrorCode.LicenseeSuccess,
-                ErrorMsg = string.Format(Labels.VoidBetSendMailSuccess, string.Join(", ", successfulLicensee)),
-                Data = successfulLicensee
-            });
-
-            newCacheLicenseeResults.Add(new Result
-            {
-                ErrorCode = ErrorCode.LicenseeSuccess,
-                ErrorMsg = string.Format(Labels.VoidBetSendMailFail, string.Join(", ", failedLicensee)),
-                Data = failedLicensee
-            });
-
-            await voidResultCacheService.SetVoidResultCache($"{automationInfo.RequestId}-{automationInfo.BroadcastSessionId}", newCacheLicenseeResults);
-
-            return newCacheLicenseeResults;
+            return licensees;
         }
 
         public void WriteLogAfterVoid(IEnumerable<Result> results, VoidBetAutomationInfo automationInfo)
@@ -437,19 +421,6 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             }
 
             loggingService.Info(logBuilder.ToString());
-        }
-
-        public IEnumerable<Result> CreateResultList(IEnumerable<Result> sentEmailResults, string negativeBalanceUsers, int requestId, int matchId)
-        {
-            var results = new List<Result>();
-            results.AddRange(sentEmailResults ?? new List<Result>());
-            if (!string.IsNullOrEmpty(negativeBalanceUsers))
-            {
-                results.Add(new Result { ErrorCode = ErrorCode.NegativeBalanceUsers, ErrorMsg = negativeBalanceUsers, Data = negativeBalanceUsers });
-            }
-            results.Insert(0, new Result { ErrorCode = ErrorCode.VoidRequestSuccess, ErrorMsg = GetMessageVoidRequestSuccess(requestId, matchId) });
-
-            return results;
         }
 
         private static string GetMessageVoidRequestSuccess(int requestId, int matchId)

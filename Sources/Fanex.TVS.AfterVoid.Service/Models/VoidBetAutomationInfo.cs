@@ -42,8 +42,6 @@
 
         public bool IsInsert { get; set; }
 
-        public bool IsLastedInRequest { get; set; }
-
         public RequestDetailViewModel RequestInfo { get; set; }
     }
 }
