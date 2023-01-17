@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Fanex.Data.Repository;
+using Fanex.TVS.AfterVoid.Service.Criteria;
+using Fanex.TVS.AfterVoid.Service.Models;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Fanex.Data.Repository;
-using Fanex.TVS.AfterVoid.Service.Constants;
-using Fanex.TVS.AfterVoid.Service.Criteria;
-using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 
@@ -47,10 +46,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
 
         public async Task<IEnumerable<VoidBetAutomationInfo>> GetVoidBetAutomationRunLetstalk()
         {
-            var criteria = new GetAllVoidBetAutomationInfoCriteria
-            {
-                Mode = VoidBetAutomationServiceGetType.RunLetstalk
-            };
+            var criteria = new GetAutomationInfoLetstalkCriteria();
 
             return await repository.FetchAsync<VoidBetAutomationInfo>(criteria);
         }
