@@ -1,10 +1,11 @@
-﻿using Fanex.Data.Repository;
-using Fanex.TVS.AfterVoid.Service.Criteria;
-using Fanex.TVS.AfterVoid.Service.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Fanex.Data.Repository;
+using Fanex.TVS.AfterVoid.Service.Criteria;
+using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 
@@ -20,7 +21,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
 
         Task<IEnumerable<VoidDataXmlModel>> GetVoidDataXml(IEnumerable<int> voidingHistoryIds);
 
-        void WriteLogLetstalk(IEnumerable<Result> results, GroupVoidBetAutomationInfo group);
+        void WriteLogLetstalk(IEnumerable<Result> results, GroupVoidBetAutomationInfo group, Stopwatch startTime);
 
         Task UpdateLetstalk(GroupVoidBetAutomationInfo group, int? statusId, int mode);
     }
@@ -86,10 +87,11 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
             return await repository.FetchAsync<VoidDataXmlModel>(criteria);
         }
 
-        public void WriteLogLetstalk(IEnumerable<Result> results, GroupVoidBetAutomationInfo group)
+        public void WriteLogLetstalk(IEnumerable<Result> results, GroupVoidBetAutomationInfo group, Stopwatch startTime)
         {
             var logBuilder = new StringBuilder();
-            logBuilder.Append($"SendLetstalk - BroadcastSessionId: {group.BroadcastSessionId} - RequestId: {group.RequestId} \n");
+            logBuilder.Append($"SendLetstalk - BroadcastSessionId: {group.BroadcastSessionId} - " +
+                              $"RequestId: {group.RequestId} - Execute Time: {startTime.ElapsedMilliseconds} ms \n");
             foreach (var result in results)
             {
                 var log = $"Code: {result.ErrorCode} - Message: {result.ErrorMsg}\n";

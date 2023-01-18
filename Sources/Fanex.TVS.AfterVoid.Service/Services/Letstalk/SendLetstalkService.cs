@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Constants;
@@ -61,6 +62,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
 
         private async Task RunLetstalkForSingleRequest(GroupVoidBetAutomationInfo group)
         {
+            var stopwatch = Stopwatch.StartNew();
             if (group.IsInsert)
             {
                 await letstalkServiceStage.UpdateLetstalk(group, ExecuteStatus.New, LetstalkUpdateType.Insert);
@@ -72,8 +74,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
                 ? new List<VoidDataXmlModel>()
                 : await letstalkServiceStage.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
             var sentLetstalkResults = await SendLetstalk(group, voidedTickets, matchInfo, voidDataXmlList);
-
-            letstalkServiceStage.WriteLogLetstalk(sentLetstalkResults, group);
+            letstalkServiceStage.WriteLogLetstalk(sentLetstalkResults, group, stopwatch);
         }
 
         private async Task<IEnumerable<Result>> SendLetstalk(GroupVoidBetAutomationInfo group,
