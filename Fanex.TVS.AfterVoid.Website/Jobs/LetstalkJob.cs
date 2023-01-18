@@ -27,21 +27,21 @@ namespace Fanex.TVS.AfterVoid.Website.Jobs
         {
             try
             {
-                if (!AppConfigService.AppConfig.OnProcessing)
+                if (!AppConfigService.AppConfig.OnProcessingLetstalk)
                 {
-                    AppConfigService.AppConfig.OnProcessing = true;
+                    AppConfigService.AppConfig.OnProcessingLetstalk = true;
 
                     if (!await maintenanceService.IsUnderMaintenanceAsync())
                     {
                         await sendLetstalkService.Execute();
                     }
 
-                    AppConfigService.AppConfig.OnProcessing = false;
+                    AppConfigService.AppConfig.OnProcessingLetstalk = false;
                 }
             }
             catch (Exception ex)
             {
-                AppConfigService.AppConfig.OnProcessing = false;
+                AppConfigService.AppConfig.OnProcessingLetstalk = false;
                 loggingService.Error("LetstalkJob execute failed!", ex);
             }
         }

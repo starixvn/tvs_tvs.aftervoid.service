@@ -40,8 +40,6 @@
 
         public string VoidResults { get; set; }
 
-        public bool IsInsert { get; set; }
-
         public RequestDetailViewModel RequestInfo { get; set; }
     }
 }

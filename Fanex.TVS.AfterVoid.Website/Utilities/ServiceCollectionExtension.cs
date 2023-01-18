@@ -155,7 +155,6 @@ namespace Fanex.TVS.AfterVoid.Website.Utilities
             services.AddSingleton<AbnormalBetLetstalkService, AbnormalBetLetstalkServiceImp>();
             services.AddSingleton<SendLetstalkServiceStage, SendLetstalkServiceStageImp>();
             services.AddSingleton<SettledBetLetstalkService, SettledBetLetstalkServiceImp>();
-            services.AddSingleton<VoidResultCacheService, VoidResultCacheServiceImp>();
         }
 
         public static void RegisterQuartzScheduler(this IServiceCollection services)

@@ -63,10 +63,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
         private async Task RunLetstalkForSingleRequest(GroupVoidBetAutomationInfo group)
         {
             var stopwatch = Stopwatch.StartNew();
-            if (group.IsInsert)
-            {
-                await letstalkServiceStage.UpdateLetstalk(group, ExecuteStatus.New, LetstalkUpdateType.Insert);
-            }
+            await letstalkServiceStage.InsertLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Running);
             group.RequestInfo = await voidBetAutomationService.GetRequestById(group.RequestId, group.MatchId);
             var voidedTickets = await letstalkServiceStage.GetVoidedTickets(group.VoidBetAutomationList);
             var matchInfo = await voidBetAutomationService.GetMatchInfo(group.MatchId);
@@ -83,11 +80,6 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
             try
             {
                 var results = new List<Result>();
-                if (group.IsSentLetsTalk == true)
-                {
-                    return new List<Result>();
-                }
-
                 var notificationLetstalkModel = CreateNotificationLetstalkModel(group, matchInfo, voidDataXmlList);
                 var isSendLetstalkSettledBet = settledBetLetstalkService.Send(notificationLetstalkModel, emailTickets);
                 var isSendLetstalkAbnormalBet = true;
@@ -96,7 +88,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
                     isSendLetstalkAbnormalBet = await abnormalBetLetstalkServiceImp.Send(notificationLetstalkModel, emailTickets);
                 }
 
-                await letstalkServiceStage.UpdateLetstalk(group, ExecuteStatus.Done, LetstalkUpdateType.Update);
+                await letstalkServiceStage.UpdateLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Done);
 
                 if (!isSendLetstalkSettledBet || !isSendLetstalkAbnormalBet)
                 {
@@ -110,7 +102,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
                 loggingService.Error(
                     $"ERROR: {nameof(SendLetstalk)} - BroadcastSessionId: {group.BroadcastSessionId} - RequestId: {group.RequestId}",
                     exception);
-                await letstalkServiceStage.UpdateLetstalk(group, ExecuteStatus.Failed, LetstalkUpdateType.Update);
+                await letstalkServiceStage.UpdateLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Failed);
                 await notificationSignalRService.UpdateFailedStatusForRequest(group.RequestId);
 
                 return new List<Result>();

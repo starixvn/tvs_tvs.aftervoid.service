@@ -2,7 +2,9 @@
 {
     public class ConfigSettingModel
     {
-        public bool OnProcessing { get; set; }
+        public bool OnProcessingAfterVoid { get; set; }
+
+        public bool OnProcessingLetstalk { get; set; }
 
         public string ServiceName { get; set; }
 

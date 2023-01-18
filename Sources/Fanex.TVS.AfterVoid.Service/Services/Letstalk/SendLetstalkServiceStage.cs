@@ -23,7 +23,9 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
 
         void WriteLogLetstalk(IEnumerable<Result> results, GroupVoidBetAutomationInfo group, Stopwatch startTime);
 
-        Task UpdateLetstalk(GroupVoidBetAutomationInfo group, int? statusId, int mode);
+        Task InsertLetstalk(int requestId, string broadcastSessionId, int statusId);
+
+        Task UpdateLetstalk(int requestId, string broadcastSessionId, int statusId);
     }
 
     public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
@@ -101,13 +103,24 @@ namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk
             loggingService.Info(logBuilder.ToString());
         }
 
-        public async Task UpdateLetstalk(GroupVoidBetAutomationInfo group, int? statusId, int mode)
+        public async Task InsertLetstalk(int requestId, string broadcastSessionId, int statusId)
+        {
+            var command = new InsertLetstalkCommand
+            {
+                RequestId = requestId,
+                BroadcastSessionId = broadcastSessionId,
+                StatusId = statusId
+            };
+
+            await repository.ExecuteAsync(command);
+        }
+
+        public async Task UpdateLetstalk(int requestId, string broadcastSessionId, int statusId)
         {
             var command = new UpdateLetstalkCommand
             {
-                Mode = mode,
-                RequestId = group.RequestId,
-                BroadcastSessionId = group.BroadcastSessionId,
+                RequestId = requestId,
+                BroadcastSessionId = broadcastSessionId,
                 StatusId = statusId
             };
 

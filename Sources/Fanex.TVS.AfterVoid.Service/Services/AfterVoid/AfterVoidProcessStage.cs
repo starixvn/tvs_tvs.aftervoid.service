@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
@@ -58,7 +59,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
         private readonly AfterVoidEmailService afterVoidEmailService;
         private readonly LoggingService loggingService;
         private readonly CashOutHttpClientService cashOutHttpClientService;
-        private readonly VoidResultCacheService voidResultCacheService;
+        private readonly SendLetstalkServiceStage sendLetstalkServiceStage;
 
         public AfterVoidProcessStageImp(VoidBetAutomationService voidBetAutomationService,
             SendMessageService sendMessageService,
@@ -66,7 +67,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             AfterVoidEmailService afterVoidEmailService,
             LoggingService loggingService,
             CashOutHttpClientService cashOutHttpClientService,
-            VoidResultCacheService voidResultCacheService)
+            SendLetstalkServiceStage sendLetstalkServiceStage)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.sendMessageService = sendMessageService;
@@ -74,7 +75,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             this.afterVoidEmailService = afterVoidEmailService;
             this.loggingService = loggingService;
             this.cashOutHttpClientService = cashOutHttpClientService;
-            this.voidResultCacheService = voidResultCacheService;
+            this.sendLetstalkServiceStage = sendLetstalkServiceStage;
         }
 
         public async Task<Message> CreateMessageIdForAutoVoid(VoidBetAutomationInfo automationInfo, Match matchInfo, string broadcastSessionId,
@@ -101,6 +102,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
             {
                 loggingService.Error($"ERROR: {nameof(CreateMessageIdForAutoVoid)} - BroadcastSessionId: {broadcastSessionId}", exception);
                 await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
+                await sendLetstalkServiceStage.InsertLetstalk(automationInfo.RequestId, automationInfo.BroadcastSessionId, ExecuteStatus.Failed);
                 await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
                 return null;

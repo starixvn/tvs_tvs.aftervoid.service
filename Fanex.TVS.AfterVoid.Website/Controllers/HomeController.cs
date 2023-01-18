@@ -19,7 +19,7 @@ namespace Fanex.TVS.AfterVoid.Website.Controllers
         public IActionResult Index()
         {
             var jobStatus =
-                $"{{{nameof(AfterVoidJob)} OnProcessing: {AppConfigService.AppConfig.OnProcessing}}} - {DateTime.Now}";
+                $"{{{nameof(AfterVoidJob)} OnProcessing: {AppConfigService.AppConfig.OnProcessingAfterVoid}}} - {DateTime.Now}";
             logger.LogInformation(jobStatus);
             return Ok("Ok-200-Fanex.TVS.AfterVoid.Service");
         }

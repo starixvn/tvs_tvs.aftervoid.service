@@ -27,21 +27,21 @@ namespace Fanex.TVS.AfterVoid.Website.Jobs
         {
             try
             {
-                if (!AppConfigService.AppConfig.OnProcessing)
+                if (!AppConfigService.AppConfig.OnProcessingAfterVoid)
                 {
-                    AppConfigService.AppConfig.OnProcessing = true;
+                    AppConfigService.AppConfig.OnProcessingAfterVoid = true;
 
                     if (!await maintenanceService.IsUnderMaintenanceAsync())
                     {
                         await afterVoidService.Execute();
                     }
 
-                    AppConfigService.AppConfig.OnProcessing = false;
+                    AppConfigService.AppConfig.OnProcessingAfterVoid = false;
                 }
             }
             catch (Exception ex)
             {
-                AppConfigService.AppConfig.OnProcessing = false;
+                AppConfigService.AppConfig.OnProcessingAfterVoid = false;
                 loggingService.Error("AfterVoidJob execute failed!", ex);
             }
         }

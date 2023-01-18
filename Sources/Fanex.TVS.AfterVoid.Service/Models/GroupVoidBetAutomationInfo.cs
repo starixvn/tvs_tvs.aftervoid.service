@@ -14,10 +14,6 @@ namespace Fanex.TVS.AfterVoid.Service.Models
 
         public int MatchId => VoidBetAutomationList.FirstOrDefault()?.MatchId ?? 0;
 
-        public bool? IsSentLetsTalk => VoidBetAutomationList.FirstOrDefault()?.IsSentLetsTalk;
-
-        public bool IsInsert => VoidBetAutomationList.FirstOrDefault()?.IsInsert ?? false;
-
         public string BroadcastSessionId => VoidBetAutomationList.FirstOrDefault()?.BroadcastSessionId;
 
         public bool IsAutoVoid => VoidBetAutomationList.FirstOrDefault()?.IsAutoVoid ?? false;

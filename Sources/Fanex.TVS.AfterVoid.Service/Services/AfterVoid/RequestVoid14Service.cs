@@ -16,17 +16,14 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
         private readonly VoidBetAutomationService voidBetAutomationService;
         private readonly AfterVoidProcessStage afterVoidProcessStage;
         private readonly NotificationSignalRService notificationSignalRService;
-        private readonly VoidResultCacheService voidResultCacheService;
 
         public RequestVoid14ServiceImp(VoidBetAutomationService voidBetAutomationService,
             AfterVoidProcessStage afterVoidProcessStage,
-            NotificationSignalRService notificationSignalRService,
-            VoidResultCacheService voidResultCacheService)
+            NotificationSignalRService notificationSignalRService)
         {
             this.voidBetAutomationService = voidBetAutomationService;
             this.afterVoidProcessStage = afterVoidProcessStage;
             this.notificationSignalRService = notificationSignalRService;
-            this.voidResultCacheService = voidResultCacheService;
         }
 
         public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
