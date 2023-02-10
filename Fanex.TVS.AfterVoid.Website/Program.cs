@@ -1,16 +1,10 @@
 using Fanex.TVS.AfterVoid.Website.Utilities;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using TicketVoidingSystem.Services;
 using TicketVoidingSystem.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.ConfigureKestrel(options =>
-{
-    const int port = 5000;
-    options.ListenAnyIP(port); // to listen for incoming http connection on port 5000
-});
 
 // Add services to the container.
 builder.Services.LoadConfig();
@@ -30,7 +24,7 @@ builder.Services.RegisterSignalR(builder.Configuration);
 builder.Services.RegisterBusinessService();
 builder.Services.RegisterQuartzScheduler();
 
-//
+// Build app
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
 app.UseHttpsRedirection();
@@ -40,4 +34,8 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapHub<NotificationHub>("/SignalR/NotificationHub");
 
+#if DEBUG
 app.Run();
+#else
+await app.RunAsync("http://0.0.0.0:5000");
+#endif

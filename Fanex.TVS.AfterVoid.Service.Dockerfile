@@ -11,7 +11,7 @@ RUN dotnet restore -v n
 
 COPY ./Fanex.TVS.AfterVoid.Website .
 
-RUN dotnet publish -r linux-x64 --self-contained false -o /app
+RUN dotnet publish -r linux-x64 --self-contained false -c Release -o /app
 
 FROM hub.nexdev.net/base/dotnet/core/aspnet:7.0 AS base
 
