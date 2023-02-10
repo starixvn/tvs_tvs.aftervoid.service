@@ -1,7 +1,6 @@
-﻿namespace Fanex.TVS.AfterVoid.Service.Constants
+﻿namespace Fanex.TVS.AfterVoid.Service.Constants;
+
+public static class FanexCacheConstant
 {
-    public static class FanexCacheConstant
-    {
-        public const string FailedRequestNotified = "FailedRequestNotified";
-    }
+    public const string FailedRequestNotified = "FailedRequestNotified";
 }

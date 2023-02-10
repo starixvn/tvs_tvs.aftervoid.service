@@ -9,132 +9,131 @@ using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid;
+
+public class RequestVoid14ServiceImpTests
 {
-    public class RequestVoid14ServiceImpTests
+    [Fact]
+    public async Task Execute_ShouldNotRunMainSteps()
     {
-        [Fact]
-        public async Task Execute_ShouldNotRunMainSteps()
-        {
-            var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-                .With(x => x.StatusId = ExecuteStatus.Done).Build();
-            var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            var service = new RequestVoid14ServiceImp(voidBetAutomationService, default, default, default);
+        var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
+            .With(x => x.StatusId = ExecuteStatus.Done).Build();
+        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
+        var service = new RequestVoid14ServiceImp(voidBetAutomationService, default, default, default);
 
-            await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo);
 
-            await voidBetAutomationService.DidNotReceiveWithAnyArgs().GetVoidedTicketsByVoidingHistory(default, default);
-        }
+        await voidBetAutomationService.DidNotReceiveWithAnyArgs().GetVoidedTicketsByVoidingHistory(default, default);
+    }
 
-        [Fact]
-        public async Task Execute_ShouldRunCreateVoidedReasonStep()
-        {
-            var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
-            var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-                .With(x => x.StatusId = ExecuteStatus.Running).Build();
-            var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
-            var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
-            handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsNullForAnyArgs();
-            var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-            var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
+    [Fact]
+    public async Task Execute_ShouldRunCreateVoidedReasonStep()
+    {
+        var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
+        var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
+            .With(x => x.StatusId = ExecuteStatus.Running).Build();
+        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+        var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
+        handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsNullForAnyArgs();
+        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
 
-            await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo);
 
-            await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
-            await notificationSignalRService.ReceivedWithAnyArgs()
-                .NotifyErrorWhenExecuteAfterVoidServiceToUser(default);
-            await handleAfterVoidStepService.DidNotReceiveWithAnyArgs().InsertVoidedTransaction(default, default, default, default);
-        }
+        await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
+        await notificationSignalRService.ReceivedWithAnyArgs()
+            .NotifyErrorWhenExecuteAfterVoidServiceToUser(default);
+        await handleAfterVoidStepService.DidNotReceiveWithAnyArgs().InsertVoidedTransaction(default, default, default, default);
+    }
 
-        [Fact]
-        public async Task Execute_ShouldRunInsertVoidedTransactionStep()
-        {
-            var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
-            var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
-            var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-                .With(x => x.StatusId = ExecuteStatus.Running).Build();
-            var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
-            var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
-            handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
-            handleAfterVoidStepService.InsertVoidedTransaction(default, default, default, default).ReturnsForAnyArgs(false);
-            var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-            var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
+    [Fact]
+    public async Task Execute_ShouldRunInsertVoidedTransactionStep()
+    {
+        var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
+        var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
+        var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
+            .With(x => x.StatusId = ExecuteStatus.Running).Build();
+        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+        var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
+        handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
+        handleAfterVoidStepService.InsertVoidedTransaction(default, default, default, default).ReturnsForAnyArgs(false);
+        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
 
-            await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo);
 
-            await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
-            await handleAfterVoidStepService.ReceivedWithAnyArgs().InsertVoidedTransaction(default, default, default, default);
-            await notificationSignalRService.ReceivedWithAnyArgs()
-                .NotifyErrorWhenExecuteAfterVoidServiceToUser(default);
-            await handleAfterVoidStepService.DidNotReceiveWithAnyArgs()
-                .UpdateTicketVoidingHistory(default, default, default, default);
-        }
+        await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
+        await handleAfterVoidStepService.ReceivedWithAnyArgs().InsertVoidedTransaction(default, default, default, default);
+        await notificationSignalRService.ReceivedWithAnyArgs()
+            .NotifyErrorWhenExecuteAfterVoidServiceToUser(default);
+        await handleAfterVoidStepService.DidNotReceiveWithAnyArgs()
+            .UpdateTicketVoidingHistory(default, default, default, default);
+    }
 
-        [Fact]
-        public async Task Execute_ShouldRunUpdateTicketVoidingHistoryStep()
-        {
-            var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
-            var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
-            var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-                .With(x => x.StatusId = ExecuteStatus.Running).Build();
-            var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
-            var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
-            handleAfterVoidStepService.CreateVoidedReason(default, default, default)
-                .ReturnsForAnyArgs(fakeVoidedReason);
-            handleAfterVoidStepService.InsertVoidedTransaction(default, default, default, default)
-                .ReturnsForAnyArgs(true);
-            handleAfterVoidStepService.UpdateTicketVoidingHistory(default, default, default, default)
-                .ReturnsForAnyArgs(false);
-            var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-            var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
+    [Fact]
+    public async Task Execute_ShouldRunUpdateTicketVoidingHistoryStep()
+    {
+        var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
+        var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
+        var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
+            .With(x => x.StatusId = ExecuteStatus.Running).Build();
+        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+        var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
+        handleAfterVoidStepService.CreateVoidedReason(default, default, default)
+            .ReturnsForAnyArgs(fakeVoidedReason);
+        handleAfterVoidStepService.InsertVoidedTransaction(default, default, default, default)
+            .ReturnsForAnyArgs(true);
+        handleAfterVoidStepService.UpdateTicketVoidingHistory(default, default, default, default)
+            .ReturnsForAnyArgs(false);
+        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
 
-            await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo);
 
-            await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
-            await handleAfterVoidStepService.ReceivedWithAnyArgs()
-                .InsertVoidedTransaction(default, default, default, default);
-            await handleAfterVoidStepService.ReceivedWithAnyArgs()
-                .UpdateTicketVoidingHistory(default, default, default, default);
-            await notificationSignalRService.ReceivedWithAnyArgs()
-                .NotifyErrorWhenExecuteAfterVoidServiceToUser(default);
-            await voidBetAutomationService.DidNotReceiveWithAnyArgs()
-                .UpdateServiceStatusByVoidingHistory(default, default, default);
-        }
+        await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
+        await handleAfterVoidStepService.ReceivedWithAnyArgs()
+            .InsertVoidedTransaction(default, default, default, default);
+        await handleAfterVoidStepService.ReceivedWithAnyArgs()
+            .UpdateTicketVoidingHistory(default, default, default, default);
+        await notificationSignalRService.ReceivedWithAnyArgs()
+            .NotifyErrorWhenExecuteAfterVoidServiceToUser(default);
+        await voidBetAutomationService.DidNotReceiveWithAnyArgs()
+            .UpdateServiceStatusByVoidingHistory(default, default, default);
+    }
 
-        [Fact]
-        public async Task Execute_ShouldRunAllSteps()
-        {
-            var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
-            var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
-            var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-                .With(x => x.StatusId = ExecuteStatus.Running).Build();
-            var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-            voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
-            var voidResultCacheService = Substitute.For<VoidResultCacheService>();
-            voidResultCacheService.IsExistVoidResult(default).ReturnsForAnyArgs(false);
-            var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
-            handleAfterVoidStepService.CreateVoidedReason(default, default, default)
-                .ReturnsForAnyArgs(fakeVoidedReason);
-            handleAfterVoidStepService.InsertVoidedTransaction(default, default, default, default)
-                .ReturnsForAnyArgs(true);
-            handleAfterVoidStepService.UpdateTicketVoidingHistory(default, default, default, default)
-                .ReturnsForAnyArgs(true);
-            var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-            var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, voidResultCacheService);
+    [Fact]
+    public async Task Execute_ShouldRunAllSteps()
+    {
+        var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
+        var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
+        var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
+            .With(x => x.StatusId = ExecuteStatus.Running).Build();
+        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+        var voidResultCacheService = Substitute.For<VoidResultCacheService>();
+        voidResultCacheService.IsExistVoidResult(default).ReturnsForAnyArgs(false);
+        var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
+        handleAfterVoidStepService.CreateVoidedReason(default, default, default)
+            .ReturnsForAnyArgs(fakeVoidedReason);
+        handleAfterVoidStepService.InsertVoidedTransaction(default, default, default, default)
+            .ReturnsForAnyArgs(true);
+        handleAfterVoidStepService.UpdateTicketVoidingHistory(default, default, default, default)
+            .ReturnsForAnyArgs(true);
+        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, voidResultCacheService);
 
-            await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo);
 
-            await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
-            await handleAfterVoidStepService.ReceivedWithAnyArgs()
-                .InsertVoidedTransaction(default, default, default, default);
-            await handleAfterVoidStepService.ReceivedWithAnyArgs()
-                .UpdateTicketVoidingHistory(default, default, default, default);
-            await voidBetAutomationService.ReceivedWithAnyArgs()
-                .UpdateServiceStatusByVoidingHistory(default, default, default);
-            handleAfterVoidStepService.ReceivedWithAnyArgs().WriteLogAfterVoid(default, default);
-        }
+        await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
+        await handleAfterVoidStepService.ReceivedWithAnyArgs()
+            .InsertVoidedTransaction(default, default, default, default);
+        await handleAfterVoidStepService.ReceivedWithAnyArgs()
+            .UpdateTicketVoidingHistory(default, default, default, default);
+        await voidBetAutomationService.ReceivedWithAnyArgs()
+            .UpdateServiceStatusByVoidingHistory(default, default, default);
+        handleAfterVoidStepService.ReceivedWithAnyArgs().WriteLogAfterVoid(default, default);
     }
 }

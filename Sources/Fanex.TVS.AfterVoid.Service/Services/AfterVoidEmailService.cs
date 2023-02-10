@@ -9,60 +9,59 @@ using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 
-namespace Fanex.TVS.AfterVoid.Service.Services
+namespace Fanex.TVS.AfterVoid.Service.Services;
+
+public interface AfterVoidEmailService
 {
-    public interface AfterVoidEmailService
+    Task<IEnumerable<Result>> Execute(VoidBetAutomationInfo automationInfo,
+        IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message);
+}
+
+public class AfterVoidEmailServiceImp : AfterVoidEmailService
+{
+    private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
+    private readonly IDynamicRepository repository;
+
+    public AfterVoidEmailServiceImp(TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService, IDynamicRepository repository)
     {
-        Task<IEnumerable<Result>> Execute(VoidBetAutomationInfo automationInfo,
-            IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message);
+        this.ticketVoidingSystemHttpClientService = ticketVoidingSystemHttpClientService;
+        this.repository = repository;
     }
 
-    public class AfterVoidEmailServiceImp : AfterVoidEmailService
+    public async Task<IEnumerable<Result>> Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message)
     {
-        private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
-        private readonly IDynamicRepository repository;
-
-        public AfterVoidEmailServiceImp(TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService, IDynamicRepository repository)
+        if (Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
         {
-            this.ticketVoidingSystemHttpClientService = ticketVoidingSystemHttpClientService;
-            this.repository = repository;
+            var subIssueType = await GetSubIssueTypeById(automationInfo.RequestInfo.EventByMatch.SubIssueTypeId);
+            reason.ReasonEnglish = $"{reason.ReasonEnglish}({subIssueType.SubIssueTypeName})";
+            reason.ReasonChineseSimplified = $"{reason.ReasonChineseSimplified}({subIssueType.SubIssueTypeNameCS})";
         }
 
-        public async Task<IEnumerable<Result>> Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message)
+        var (isSentEmail, results) = await ticketVoidingSystemHttpClientService.SendEmail(emailTickets, match, reason, message,
+            automationInfo.RequestInfo.Request.IssueTypeId, automationInfo.NegativeBalanceUsers);
+        if (isSentEmail)
         {
-            if (Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
-            {
-                var subIssueType = await GetSubIssueTypeById(automationInfo.RequestInfo.EventByMatch.SubIssueTypeId);
-                reason.ReasonEnglish = $"{reason.ReasonEnglish}({subIssueType.SubIssueTypeName})";
-                reason.ReasonChineseSimplified = $"{reason.ReasonChineseSimplified}({subIssueType.SubIssueTypeNameCS})";
-            }
-
-            var (isSentEmail, results) = await ticketVoidingSystemHttpClientService.SendEmail(emailTickets, match, reason, message,
-                automationInfo.RequestInfo.Request.IssueTypeId, automationInfo.NegativeBalanceUsers);
-            if (isSentEmail)
-            {
-                return results;
-            }
-
-            throw new ExternalException("ticketVoidingSystemHttpClientService.SendEmail");
+            return results;
         }
 
-        public async Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, int voidingHistoryId)
-        {
-            var (isSentEmail, results) = await ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket(requestId, matchId, issueTypeId, voidingHistoryId.ToString());
-            if (isSentEmail)
-            {
-                return results;
-            }
+        throw new ExternalException("ticketVoidingSystemHttpClientService.SendEmail");
+    }
 
-            throw new ExternalException("ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket");
+    public async Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, int voidingHistoryId)
+    {
+        var (isSentEmail, results) = await ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket(requestId, matchId, issueTypeId, voidingHistoryId.ToString());
+        if (isSentEmail)
+        {
+            return results;
         }
 
-        private async Task<SubIssueType> GetSubIssueTypeById(int subId)
-        {
-            var subIssueTypes = await repository.FetchAsync<SubIssueType>(new GetSubIssueTypeCriteria());
+        throw new ExternalException("ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket");
+    }
 
-            return subIssueTypes.FirstOrDefault(x => x.SubIssueTypeId == subId);
-        }
+    private async Task<SubIssueType> GetSubIssueTypeById(int subId)
+    {
+        var subIssueTypes = await repository.FetchAsync<SubIssueType>(new GetSubIssueTypeCriteria());
+
+        return subIssueTypes.FirstOrDefault(x => x.SubIssueTypeId == subId);
     }
 }

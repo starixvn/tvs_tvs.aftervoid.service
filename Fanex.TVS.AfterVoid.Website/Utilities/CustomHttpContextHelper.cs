@@ -1,22 +1,21 @@
 ﻿using ONEbook.UM.Helpers;
 
-namespace Fanex.TVS.AfterVoid.Website.Utilities
+namespace Fanex.TVS.AfterVoid.Website.Utilities;
+
+public class CustomHttpContextHelper : IHttpContextHelper
 {
-    public class CustomHttpContextHelper : IHttpContextHelper
+    public string GetSession(string key)
     {
-        public string GetSession(string key)
-        {
-            return string.Empty;
-        }
+        return string.Empty;
+    }
 
-        public string GetValueFromQueryString(string queryKey)
-        {
-            return string.Empty;
-        }
+    public string GetValueFromQueryString(string queryKey)
+    {
+        return string.Empty;
+    }
 
-        public void SetSession(string key, string value)
-        {
-            // TODO
-        }
+    public void SetSession(string key, string value)
+    {
+        // TODO
     }
 }

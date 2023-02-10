@@ -1,17 +1,16 @@
-﻿namespace TicketVoidingSystem.Models
+﻿namespace TicketVoidingSystem.Models;
+
+public interface EmailSupport
 {
-    public interface EmailSupport
-    {
-        string EmailGroup { get; set; }
+    string EmailGroup { get; set; }
 
-        string Site { get; set; }
+    string Site { get; set; }
 
-        bool IsCashOut { get; set; }
+    bool IsCashOut { get; set; }
 
-        bool IsItSupport { get; set; }
+    bool IsItSupport { get; set; }
 
-        bool IsITSupportCreatedRequest { get; set; }
+    bool IsITSupportCreatedRequest { get; set; }
 
-        int Currency { get; set; }
-    }
+    int Currency { get; set; }
 }

@@ -1,9 +1,8 @@
-﻿namespace Fanex.TVS.AfterVoid.Service.Models
-{
-    public class CacheFailedRequestNotified
-    {
-        public int RequestId { get; set; }
+﻿namespace Fanex.TVS.AfterVoid.Service.Models;
 
-        public int VoidingHistoryId { get; set; }
-    }
+public class CacheFailedRequestNotified
+{
+    public int RequestId { get; set; }
+
+    public int VoidingHistoryId { get; set; }
 }

@@ -4,54 +4,53 @@ using NSubstitute;
 using TicketVoidingSystem.Models;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Tests.Extensions
+namespace Fanex.TVS.AfterVoid.Service.Tests.Extensions;
+
+public class MessageExtensionsTests
 {
-    public class MessageExtensionsTests
+    [Fact]
+    public void InsertSpace_ReturnStringEmpty()
     {
-        [Fact]
-        public void InsertSpace_ReturnStringEmpty()
-        {
-            const string text = "";
-            var actual = text.InsertSpace();
+        const string text = "";
+        var actual = text.InsertSpace();
 
-            Assert.NotNull(actual);
-        }
+        Assert.NotNull(actual);
+    }
 
-        [Fact]
-        public void InsertSpace_ReturnStringThatWasInsertedSpace()
-        {
-            const string expected = "\" @@ \"";
-            const string text = "\"@@\"";
+    [Fact]
+    public void InsertSpace_ReturnStringThatWasInsertedSpace()
+    {
+        const string expected = "\" @@ \"";
+        const string text = "\"@@\"";
 
-            var actual = text.InsertSpace();
+        var actual = text.InsertSpace();
 
-            Assert.Equal(expected, actual);
-        }
+        Assert.Equal(expected, actual);
+    }
 
-        [Fact]
-        public void CreateCustInfoXml_ImplementationHasCalled()
-        {
-            const string expected = "";
-            var tickets = new List<TicketEmailModel>();
-            var messageExtensionsNonStatic = Substitute.For<IMessageExtensionsNonStatic>();
-            messageExtensionsNonStatic.CreateCustInfoXml(default).ReturnsForAnyArgs(expected);
-            MessageExtensions.MockImplementationForUnitTest(messageExtensionsNonStatic);
+    [Fact]
+    public void CreateCustInfoXml_ImplementationHasCalled()
+    {
+        const string expected = "";
+        var tickets = new List<TicketEmailModel>();
+        var messageExtensionsNonStatic = Substitute.For<IMessageExtensionsNonStatic>();
+        messageExtensionsNonStatic.CreateCustInfoXml(default).ReturnsForAnyArgs(expected);
+        MessageExtensions.MockImplementationForUnitTest(messageExtensionsNonStatic);
 
-            var actual = tickets.CreateCustInfoXml();
+        var actual = tickets.CreateCustInfoXml();
 
-            messageExtensionsNonStatic.Received(1).CreateCustInfoXml(Arg.Any<IEnumerable<TicketEmailModel>>());
-            Assert.Equal(expected, actual);
-        }
+        messageExtensionsNonStatic.Received(1).CreateCustInfoXml(Arg.Any<IEnumerable<TicketEmailModel>>());
+        Assert.Equal(expected, actual);
+    }
 
-        [Fact]
-        public void MessageExtensionsNonStaticCreateCustInfoXml_ReturnExpected()
-        {
-            var tickets = new List<TicketEmailModel> { new() };
-            var staticExtension = new MessageExtensionsNonStatic();
+    [Fact]
+    public void MessageExtensionsNonStaticCreateCustInfoXml_ReturnExpected()
+    {
+        var tickets = new List<TicketEmailModel> { new() };
+        var staticExtension = new MessageExtensionsNonStatic();
 
-            var actual = staticExtension.CreateCustInfoXml(tickets);
+        var actual = staticExtension.CreateCustInfoXml(tickets);
 
-            Assert.NotNull(actual);
-        }
+        Assert.NotNull(actual);
     }
 }

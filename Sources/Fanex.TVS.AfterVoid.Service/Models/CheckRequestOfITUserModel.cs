@@ -1,9 +1,8 @@
-﻿namespace Fanex.TVS.AfterVoid.Service.Models
-{
-    public class CheckRequestOfITUserModel
-    {
-        public bool IsITSupport { get; set; }
+﻿namespace Fanex.TVS.AfterVoid.Service.Models;
 
-        public bool IsITSupportCreatedRequest { get; set; }
-    }
+public class CheckRequestOfITUserModel
+{
+    public bool IsITSupport { get; set; }
+
+    public bool IsITSupportCreatedRequest { get; set; }
 }

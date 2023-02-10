@@ -5,78 +5,77 @@ using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
+namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
+
+public interface AfterVoidService
 {
-    public interface AfterVoidService
+    Task Execute();
+}
+
+public class AfterVoidServiceImp : AfterVoidService
+{
+    private readonly VoidBetAutomationService voidBetAutomationService;
+    private readonly RequestAutoVoidService requestAutoVoidService;
+    private readonly RequestManualVoidService requestManualVoidService;
+    private readonly RequestVoid14Service requestVoid14Service;
+    private readonly LoggingService loggingService;
+
+    public AfterVoidServiceImp(VoidBetAutomationService voidBetAutomationService,
+        RequestAutoVoidService requestAutoVoidService,
+        RequestManualVoidService requestManualVoidService,
+        RequestVoid14Service requestVoid14Service,
+        LoggingService loggingService)
     {
-        Task Execute();
+        this.voidBetAutomationService = voidBetAutomationService;
+        this.requestAutoVoidService = requestAutoVoidService;
+        this.requestManualVoidService = requestManualVoidService;
+        this.requestVoid14Service = requestVoid14Service;
+        this.loggingService = loggingService;
     }
 
-    public class AfterVoidServiceImp : AfterVoidService
+    public async Task Execute()
     {
-        private readonly VoidBetAutomationService voidBetAutomationService;
-        private readonly RequestAutoVoidService requestAutoVoidService;
-        private readonly RequestManualVoidService requestManualVoidService;
-        private readonly RequestVoid14Service requestVoid14Service;
-        private readonly LoggingService loggingService;
+        var stopwatch = Stopwatch.StartNew();
+        var (requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus, emailResultsHistory) = await voidBetAutomationService.GetVoidBetAutomationRunAfterVoid();
 
-        public AfterVoidServiceImp(VoidBetAutomationService voidBetAutomationService,
-            RequestAutoVoidService requestAutoVoidService,
-            RequestManualVoidService requestManualVoidService,
-            RequestVoid14Service requestVoid14Service,
-            LoggingService loggingService)
+        if (requestsWillRunAfterVoid == null)
         {
-            this.voidBetAutomationService = voidBetAutomationService;
-            this.requestAutoVoidService = requestAutoVoidService;
-            this.requestManualVoidService = requestManualVoidService;
-            this.requestVoid14Service = requestVoid14Service;
-            this.loggingService = loggingService;
+            return;
         }
 
-        public async Task Execute()
+        await UpdateRequestInfo(requestsWillRunAfterVoid);
+
+        if (requestsWillRunAfterVoid.IsAutoVoid)
         {
-            var stopwatch = Stopwatch.StartNew();
-            var (requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus, emailResultsHistory) = await voidBetAutomationService.GetVoidBetAutomationRunAfterVoid();
-
-            if (requestsWillRunAfterVoid == null)
-            {
-                return;
-            }
-
-            await UpdateRequestInfo(requestsWillRunAfterVoid);
-
-            if (requestsWillRunAfterVoid.IsAutoVoid)
-            {
-                await requestAutoVoidService.Execute(requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus);
-            }
-            else
-            {
-                await ExecuteForManualVoid(requestsWillRunAfterVoid.RequestInfo.Request.IssueTypeId, requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus, emailResultsHistory);
-            }
-
-            loggingService.Info(
-                $"End - BroadcastSessionId: {requestsWillRunAfterVoid.BroadcastSessionId} - "
-                + $"Execute Time: {stopwatch.ElapsedMilliseconds} ms - "
-                + $"{DateTime.Now}"
-                );
+            await requestAutoVoidService.Execute(requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus);
+        }
+        else
+        {
+            await ExecuteForManualVoid(requestsWillRunAfterVoid.RequestInfo.Request.IssueTypeId, requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus, emailResultsHistory);
         }
 
-        private async Task UpdateRequestInfo(VoidBetAutomationInfo automationInfo)
-        {
-            automationInfo.RequestInfo = await voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId);
-        }
+        loggingService.Info(
+            $"End - BroadcastSessionId: {requestsWillRunAfterVoid.BroadcastSessionId} - "
+            + $"Execute Time: {stopwatch.ElapsedMilliseconds} ms - "
+            + $"{DateTime.Now}"
+        );
+    }
 
-        private async Task ExecuteForManualVoid(int issueTypeId, VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus
-            , IEnumerable<EmailResultModel> emailResultsHistory)
+    private async Task UpdateRequestInfo(VoidBetAutomationInfo automationInfo)
+    {
+        automationInfo.RequestInfo = await voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId);
+    }
+
+    private async Task ExecuteForManualVoid(int issueTypeId, VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus
+        , IEnumerable<EmailResultModel> emailResultsHistory)
+    {
+        if (Helper.IsArchivedTicket(issueTypeId))
         {
-            if (Helper.IsArchivedTicket(issueTypeId))
-            {
-                await requestVoid14Service.Execute(automationInfo, isLastedInRequest, currentRequestStatus);
-            }
-            else
-            {
-                await requestManualVoidService.Execute(automationInfo, isLastedInRequest, currentRequestStatus, emailResultsHistory);
-            }
+            await requestVoid14Service.Execute(automationInfo, isLastedInRequest, currentRequestStatus);
+        }
+        else
+        {
+            await requestManualVoidService.Execute(automationInfo, isLastedInRequest, currentRequestStatus, emailResultsHistory);
         }
     }
 }

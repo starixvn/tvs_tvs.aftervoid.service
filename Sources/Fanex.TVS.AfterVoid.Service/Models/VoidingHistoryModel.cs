@@ -1,11 +1,10 @@
-﻿namespace Fanex.TVS.AfterVoid.Service.Models
+﻿namespace Fanex.TVS.AfterVoid.Service.Models;
+
+public class VoidingHistoryModel
 {
-    public class VoidingHistoryModel
-    {
-        public int VoidingHistoryId { get; set; }
+    public int VoidingHistoryId { get; set; }
 
-        public int VoidingHistoryStatusId { get; set; }
+    public int VoidingHistoryStatusId { get; set; }
 
-        public int AfterVoidStatusId { get; set; }
-    }
+    public int AfterVoidStatusId { get; set; }
 }

@@ -1,13 +1,12 @@
-﻿namespace Fanex.TVS.AfterVoid.Service.Models
+﻿namespace Fanex.TVS.AfterVoid.Service.Models;
+
+public class EmailResultModel
 {
-    public class EmailResultModel
-    {
-        public int VoidingHistoryId { get; set; }
+    public int VoidingHistoryId { get; set; }
 
-        public string Message { get; set; }
+    public string Message { get; set; }
 
-        public string Licensees { get; set; }
+    public string Licensees { get; set; }
 
-        public int Type { get; set; }
-    }
+    public int Type { get; set; }
 }
