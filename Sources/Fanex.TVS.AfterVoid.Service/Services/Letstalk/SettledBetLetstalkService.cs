@@ -130,12 +130,13 @@ public class SettledBetLetstalkServiceImp : SettledBetLetstalkService
 
     private static void UpdateNotificationLetstalkModel(IEnumerable<TicketEmailModel> tickets, NotificationLetstalkModel model)
     {
-        model.SingleCount = tickets.Where(IsValidSettledSingleTicket).Count(ticket => !ticket.IsInstantSettlementTicket);
-        model.InstantOUCount = tickets.Where(IsValidSettledSingleTicket).Count(ticket => ticket.IsInstantSettlementTicket);
-        model.ParlayCount = tickets.Count(ticket => IsValidSettledParlayTicket(ticket, !model.IsMemberTemplate));
-        model.CashOutCount = tickets.Count(IsValidCashOutTicket);
-        model.OutstandingSingleCount = tickets.Count(ticket => !ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
-        model.OutstandingParlayCount = tickets.Count(ticket => ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
+        var voidedTickets = tickets.Where(x => !x.IsCancelCashOut);
+        model.SingleCount = voidedTickets.Where(IsValidSettledSingleTicket).Count(ticket => !ticket.IsInstantSettlementTicket);
+        model.InstantOUCount = voidedTickets.Where(IsValidSettledSingleTicket).Count(ticket => ticket.IsInstantSettlementTicket);
+        model.ParlayCount = voidedTickets.Count(ticket => IsValidSettledParlayTicket(ticket, !model.IsMemberTemplate));
+        model.CashOutCount = voidedTickets.Count(IsValidCashOutTicket);
+        model.OutstandingSingleCount = voidedTickets.Count(ticket => !ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
+        model.OutstandingParlayCount = voidedTickets.Count(ticket => ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
     }
 
     private static bool IsValidSettledSingleTicket(TicketEmailModel ticket)

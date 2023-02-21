@@ -6,4 +6,5 @@ public class RequestSimpleInfo
     public string LastPerformedBy { get; set; }
     public int TotalVoidedSingle { get; set; }
     public int TotalVoidedParlay { get; set; }
+    public int TotalCancelCashOut { get; set; }
 }
