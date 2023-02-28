@@ -23,5 +23,5 @@ public class NotificationLetstalkModel
     public int RequestId { get; set; }
     public string RequestedBy { get; set; }
     public int MatchId { get; set; }
-    public int VoidingHistoryId { get; set; }
+    public string VoidingHistoryIds { get; set; }
 }

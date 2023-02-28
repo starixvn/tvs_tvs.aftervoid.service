@@ -58,7 +58,7 @@ public class AbnormalBetLetstalkServiceImp : AbnormalBetLetstalkService
         var subject = GetSubjectLetstalkModel(model);
         var content = CreateMessageAbnormalBetContent(model);
         var attachments = await letstalkServiceStage.GetContentExcelVoidedTicket(model.RequestId, model.Match?.MatchId ?? 29,
-            model.IssueTypeId, model.VoidingHistoryId);
+            model.IssueTypeId, model.VoidingHistoryIds);
         return new LetstalkModel
         {
             TargetName = "Ticket-Voiding-System",

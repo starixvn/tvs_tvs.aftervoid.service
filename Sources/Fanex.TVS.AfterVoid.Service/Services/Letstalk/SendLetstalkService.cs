@@ -124,7 +124,8 @@ public class SendLetstalkServiceImp : SendLetstalkService
             IssueTypeId = group.RequestInfo.Request.IssueTypeId,
             FilterBy = group.RequestInfo.EventByMatch.FilterBy,
             RequestId = group.RequestId,
-            RequestedBy = group.RequestInfo.Request.RequestedBy
+            RequestedBy = group.RequestInfo.Request.RequestedBy,
+            VoidingHistoryIds = string.Join(",", group.VoidBetAutomationList.Select(x => x.VoidingHistoryId))
         };
 
         return model;

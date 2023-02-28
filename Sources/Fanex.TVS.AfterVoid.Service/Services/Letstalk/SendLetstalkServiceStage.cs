@@ -15,7 +15,7 @@ public interface SendLetstalkServiceStage
 {
     Task<IEnumerable<VoidBetAutomationInfo>> GetVoidBetAutomationRunLetstalk();
 
-    Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, int voidingHistoryId);
+    Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, string voidingHistoryIds);
 
     Task<IEnumerable<TicketEmailModel>> GetVoidedTickets(IEnumerable<VoidBetAutomationInfo> voidBetAutomationList);
 
@@ -54,9 +54,9 @@ public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
         return await repository.FetchAsync<VoidBetAutomationInfo>(criteria);
     }
 
-    public async Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, int voidingHistoryId)
+    public async Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, string voidingHistoryIds)
     {
-        var (isSentEmail, results) = await ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket(requestId, matchId, issueTypeId, voidingHistoryId.ToString());
+        var (isSentEmail, results) = await ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket(requestId, matchId, issueTypeId, voidingHistoryIds);
         if (isSentEmail)
         {
             return results;
