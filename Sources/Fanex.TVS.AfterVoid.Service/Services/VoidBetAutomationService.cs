@@ -1,12 +1,12 @@
-﻿using Fanex.Data.Repository;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb;
 using Fanex.TVS.AfterVoid.Service.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 
@@ -55,10 +55,10 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         var (voidBetAutomationInfoList, voidingHistoryModels, emailResultsHistory) =
             await repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(criteria);
 
-        var isLastedInRequest = voidingHistoryModels.Count(x => x.VoidingHistoryStatusId is ExecuteStatus.Running || x.AfterVoidStatusId is ExecuteStatus.Running) == 1;
+        var isLatestInRequest = voidingHistoryModels.Count(x => x.VoidingHistoryStatusId is ExecuteStatus.Running || x.AfterVoidStatusId is ExecuteStatus.Running) == 1;
         var currentRequestStatus = GetCurrentRequestStatus(voidingHistoryModels);
 
-        return (voidBetAutomationInfoList.FirstOrDefault(), isLastedInRequest, currentRequestStatus, emailResultsHistory);
+        return (voidBetAutomationInfoList.FirstOrDefault(), isLatestInRequest, currentRequestStatus, emailResultsHistory);
     }
 
     private static string GetCurrentRequestStatus(IEnumerable<VoidingHistoryModel> voidingHistoryModels)
