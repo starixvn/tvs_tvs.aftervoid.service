@@ -19,9 +19,9 @@ public class RequestManualVoidServiceImpTests
     {
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.StatusId = ExecuteStatus.Done).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new RequestManualVoidServiceImp(voidBetAutomationService, default, default, default);
+        var service = new RequestManualVoidServiceImp(voidBetAutomationService, default, default);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default, default);
 
         await voidBetAutomationService.DidNotReceiveWithAnyArgs().GetVoidedTicketsByVoidingHistory(default, default);
     }
@@ -36,9 +36,9 @@ public class RequestManualVoidServiceImpTests
         var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
         handleAfterVoidStepService.CreateMessageIdForManualVoid(default, default).ReturnsNullForAnyArgs();
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
+        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default, default);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateMessageIdForManualVoid(default, default);
         await notificationSignalRService.ReceivedWithAnyArgs()
@@ -58,9 +58,9 @@ public class RequestManualVoidServiceImpTests
         handleAfterVoidStepService.CreateMessageIdForManualVoid(default, default).ReturnsForAnyArgs(fakeMessage);
         handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsNullForAnyArgs();
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
+        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default, default);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateMessageIdForManualVoid(default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
@@ -84,9 +84,9 @@ public class RequestManualVoidServiceImpTests
         handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
         handleAfterVoidStepService.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(false);
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
+        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default, default);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateMessageIdForManualVoid(default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
@@ -117,9 +117,9 @@ public class RequestManualVoidServiceImpTests
         handleAfterVoidStepService.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(true);
         handleAfterVoidStepService.SendMessageToAdminSite(default, default).ReturnsForAnyArgs(false);
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
+        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default, default);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateMessageIdForManualVoid(default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
@@ -151,9 +151,9 @@ public class RequestManualVoidServiceImpTests
         handleAfterVoidStepService.SendMessageToAdminSite(default, default).ReturnsForAnyArgs(true);
         handleAfterVoidStepService.InsertVoidedTransaction(default, default, default, default).ReturnsForAnyArgs(false);
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
+        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default, default);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateMessageIdForManualVoid(default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
@@ -187,9 +187,9 @@ public class RequestManualVoidServiceImpTests
         handleAfterVoidStepService.InsertVoidedTransaction(default, default, default, default).ReturnsForAnyArgs(true);
         handleAfterVoidStepService.UpdateTicketVoidingHistory(default, default, default, default).ReturnsForAnyArgs(false);
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
+        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default, default);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateMessageIdForManualVoid(default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
@@ -225,9 +225,9 @@ public class RequestManualVoidServiceImpTests
         handleAfterVoidStepService.UpdateTicketVoidingHistory(default, default, default, default).ReturnsForAnyArgs(true);
         handleAfterVoidStepService.SendEmail(default, default, default, default, default).ReturnsForAnyArgs((false, null));
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, default);
+        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default, default);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateMessageIdForManualVoid(default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
@@ -253,8 +253,6 @@ public class RequestManualVoidServiceImpTests
                 EventByMatch = new RequestEventModel() { FilterBy = 0 }
             }).With(x => x.StatusId = ExecuteStatus.Running).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var voidResultCacheService = Substitute.For<VoidResultCacheService>();
-        voidResultCacheService.IsExistVoidResult(default).ReturnsForAnyArgs(false);
         voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
         var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
         handleAfterVoidStepService.CreateMessageIdForManualVoid(default, default).ReturnsForAnyArgs(fakeMessage);
@@ -265,9 +263,9 @@ public class RequestManualVoidServiceImpTests
         handleAfterVoidStepService.UpdateTicketVoidingHistory(default, default, default, default).ReturnsForAnyArgs(true);
         handleAfterVoidStepService.SendEmail(default, default, default, default, default).ReturnsForAnyArgs((true, null));
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService, voidResultCacheService);
+        var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default, default);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateMessageIdForManualVoid(default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);

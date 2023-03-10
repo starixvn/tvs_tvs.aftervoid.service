@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Constants;
@@ -17,15 +18,15 @@ public class VoidBetAutomationServiceTests
     [Fact]
     public async Task GetVoidBetAutomationRunAfterVoid_ReturnExpectedData()
     {
-        var expected = new VoidBetAutomationInfo { RequestId = 2 };
+        var automationInfo = new List<VoidBetAutomationInfo> { new() { RequestId = 2 } };
         var repository = Substitute.For<IDynamicRepository>();
-        repository.GetAsync<VoidBetAutomationInfo>(Arg.Any<GetAllVoidBetAutomationInfoCriteria>())
-            .ReturnsForAnyArgs(expected);
+        repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(Arg.Any<GetAutomationInfoAfterVoidCriteria>())
+            .ReturnsForAnyArgs((automationInfo, new List<VoidingHistoryModel>(), new List<EmailResultModel>()));
 
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
         var actual = await voidBetAutomationService.GetVoidBetAutomationRunAfterVoid();
 
-        Assert.StrictEqual(expected, actual);
+        Assert.StrictEqual(automationInfo.First(), actual.Item1);
     }
 
     [Fact]

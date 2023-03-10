@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
+using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using FizzWare.NBuilder;
 using NSubstitute;
 using TicketVoidingSystem.Constants;
@@ -18,14 +18,15 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid;
 public class AfterVoidProcessStageImpTests
 {
     [Fact]
-    public async Task CreateMessageIdForAllRequests_ThrowException()
+    public async Task CreateMessageIdForAutoVoid_ThrowException()
     {
         const string fakeSessionId = "ADC-12AXX";
         var fakeAutomation = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.MessageId = null).Build();
         var loggingService = Substitute.For<LoggingService>();
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null);
+        var sendLetstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null, sendLetstalkServiceStage);
 
         var actual = await service.CreateMessageIdForAutoVoid(fakeAutomation, null, fakeSessionId, false, 0, null);
 
@@ -35,14 +36,84 @@ public class AfterVoidProcessStageImpTests
     }
 
     [Fact]
+    public async Task CreateMessageIdForAutoVoid_ReturnOldMessage()
+    {
+        const int fakeMessageId = 113;
+        var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.MessageId = fakeMessageId).Build();
+        var fakeMessage = Builder<Message>.CreateNew().With(x => x.MessageId = fakeMessageId).Build();
+        var sendMessageService = Substitute.For<SendMessageService>();
+        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
+        sendMessageService.GetMessage(default).ReturnsForAnyArgs(fakeMessage);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, notificationSignalRService, null, null, null, null);
+
+        var actual = await service.CreateMessageIdForAutoVoid(fakeAutomationInfo, null, default, default, default, default);
+
+        await sendMessageService.Received(1).GetMessage(Arg.Is<int>(x => x == fakeMessageId));
+        Assert.StrictEqual(fakeMessage, actual);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public async Task CreateMessageIdForAutoVoid_HasMatchInfo_ReturnNewMessage(int matchId)
+    {
+        const int fakeMessageId = 113;
+        var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.MessageId = null).Build();
+        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel()
+        { Request = new RequestModel() { IssueTypeId = 11111 } };
+        fakeAutomationInfo.MatchId = matchId;
+        var fakeMessage = Builder<Message>.CreateNew().With(x => x.MessageId = fakeMessageId).Build();
+        var fakeMatchInfo = Builder<Match>.CreateNew().Build();
+        var sendMessageService = Substitute.For<SendMessageService>();
+        sendMessageService.InitializeMessageContentForAutoVoid(default, default, default, default).ReturnsForAnyArgs(fakeMessage);
+        sendMessageService.InsertMessage(default, default, default, default).ReturnsForAnyArgs(fakeMessageId);
+        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
+        voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatchInfo);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
+
+        var actual = await service.CreateMessageIdForAutoVoid(fakeAutomationInfo, new Match(), default, default, default, default);
+
+        await sendMessageService.Received(1).InsertMessage(Arg.Any<Message>(), Arg.Any<int>(), Arg.Any<int?>(), Arg.Any<int>());
+        Assert.StrictEqual(fakeMessage, actual);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public async Task CreateMessageIdForAutoVoid_HasNotMatchInfo_ReturnNewMessage(int matchId)
+    {
+        const int fakeMessageId = 113;
+        var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.MessageId = null).Build();
+        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel()
+        { Request = new RequestModel() { IssueTypeId = 11111 } };
+        fakeAutomationInfo.MatchId = matchId;
+        var fakeMessage = Builder<Message>.CreateNew().With(x => x.MessageId = fakeMessageId).Build();
+        var fakeMatchInfo = Builder<Match>.CreateNew().Build();
+        var sendMessageService = Substitute.For<SendMessageService>();
+        sendMessageService.InitializeMessageContentForAutoVoid(default, default, default, default).ReturnsForAnyArgs(fakeMessage);
+        sendMessageService.InsertMessage(default, default, default, default).ReturnsForAnyArgs(fakeMessageId);
+        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
+        voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatchInfo);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
+
+        var actual = await service.CreateMessageIdForAutoVoid(fakeAutomationInfo, null, default, default, default, default);
+
+        await sendMessageService.Received(1).InsertMessage(Arg.Any<Message>(), Arg.Any<int>(), Arg.Any<int?>(), Arg.Any<int>());
+        Assert.StrictEqual(fakeMessage, actual);
+    }
+
+    [Fact]
     public async Task CreateMessageIdForManualVoid_ReturnOldMessage()
     {
         const int fakeMessageId = 113;
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.MessageId = fakeMessageId).Build();
         var fakeMessage = Builder<Message>.CreateNew().With(x => x.MessageId = fakeMessageId).Build();
         var sendMessageService = Substitute.For<SendMessageService>();
+        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         sendMessageService.GetMessage(default).ReturnsForAnyArgs(fakeMessage);
-        var service = new AfterVoidProcessStageImp(null, sendMessageService, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, notificationSignalRService, null, null, null, null);
 
         var actual = await service.CreateMessageIdForManualVoid(fakeAutomationInfo, null);
 
@@ -50,13 +121,16 @@ public class AfterVoidProcessStageImpTests
         Assert.StrictEqual(fakeMessage, actual);
     }
 
-    [Fact]
-    public async Task CreateMessageIdForManualVoid_ReturnNewMessage()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public async Task CreateMessageIdForManualVoid_ReturnNewMessage(int matchId)
     {
         const int fakeMessageId = 113;
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.MessageId = null).Build();
         fakeAutomationInfo.RequestInfo = new RequestDetailViewModel()
-            { Request = new RequestModel() { IssueTypeId = 11111 } };
+        { Request = new RequestModel() { IssueTypeId = 11111 } };
+        fakeAutomationInfo.MatchId = matchId;
         var fakeMessage = Builder<Message>.CreateNew().With(x => x.MessageId = fakeMessageId).Build();
         var fakeMatchInfo = Builder<Match>.CreateNew().Build();
         var sendMessageService = Substitute.For<SendMessageService>();
@@ -64,7 +138,7 @@ public class AfterVoidProcessStageImpTests
         sendMessageService.InsertMessage(default, default, default, default).ReturnsForAnyArgs(fakeMessageId);
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatchInfo);
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
 
         var actual = await service.CreateMessageIdForManualVoid(fakeAutomationInfo, null);
 
@@ -79,7 +153,7 @@ public class AfterVoidProcessStageImpTests
         var loggingService = Substitute.For<LoggingService>();
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null, null);
 
         var actual = await service.CreateMessageIdForManualVoid(fakeAutomationInfo, null);
 
@@ -96,7 +170,7 @@ public class AfterVoidProcessStageImpTests
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().With(x => x.ReasonId = fakeReasonId).Build();
         var sendMessageService = Substitute.For<SendMessageService>();
         sendMessageService.GetVoidedReason(default).ReturnsForAnyArgs(fakeVoidedReason);
-        var service = new AfterVoidProcessStageImp(null, sendMessageService, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(null, sendMessageService, null, null, null, null, null);
 
         var actual = await service.CreateVoidedReason(fakeAutomationInfo, 0, null);
 
@@ -110,14 +184,14 @@ public class AfterVoidProcessStageImpTests
         const int fakeReasonId = 221;
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.ReasonId = null).Build();
         fakeAutomationInfo.RequestInfo = new RequestDetailViewModel()
-            { EventByMatch = new() { SubIssueTypeId = 11111 } };
+        { EventByMatch = new() { SubIssueTypeId = 11111 } };
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().With(x => x.ReasonId = fakeReasonId).Build();
         var sendMessageService = Substitute.For<SendMessageService>();
         sendMessageService.InitializeVoidReason(default, default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
         sendMessageService.InsertReason(default, default).ReturnsForAnyArgs(fakeReasonId);
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null,
-            null, null, null);
+            null, null, null, null);
 
         var actual = await service.CreateVoidedReason(fakeAutomationInfo, 0, null);
 
@@ -132,7 +206,7 @@ public class AfterVoidProcessStageImpTests
         var loggingService = Substitute.For<LoggingService>();
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null, null);
 
         var actual = await service.CreateVoidedReason(fakeAutomationInfo, 0, null);
 
@@ -148,7 +222,7 @@ public class AfterVoidProcessStageImpTests
     public async Task SendBatchMessage_ShouldReturnOldStatus()
     {
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsSentBatchMessage = true).Build();
-        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null, null);
 
         var actual = await service.SendBatchMessage(fakeAutomationInfo, null, 0, null);
 
@@ -162,10 +236,11 @@ public class AfterVoidProcessStageImpTests
         var fakeVoidData = Builder<VoidDataXmlModel>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsSentBatchMessage = false).Build();
         fakeAutomationInfo.RequestInfo = new RequestDetailViewModel()
-            { Request = new RequestModel() { IssueTypeId = 11111 } };
+        { Request = new RequestModel() { IssueTypeId = 11111 } };
+        fakeAutomationInfo.IsAutoVoid = true;
         var sendMessageService = Substitute.For<SendMessageService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
 
         var actual = await service.SendBatchMessage(fakeAutomationInfo, fakeEmails, 0, fakeVoidData);
 
@@ -178,10 +253,11 @@ public class AfterVoidProcessStageImpTests
     public async Task SendBatchMessage_ThrowException()
     {
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().Build();
+        fakeAutomationInfo.IsAutoVoid = false;
         var loggingService = Substitute.For<LoggingService>();
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null, null);
 
         var actual = await service.SendBatchMessage(fakeAutomationInfo, null, 0, null);
 
@@ -197,7 +273,7 @@ public class AfterVoidProcessStageImpTests
     public async Task SendMessageToAdminSite_ReturnOldStatus()
     {
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsSentMessageToAdminSite = true).Build();
-        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null, null);
 
         var actual = await service.SendMessageToAdminSite(fakeAutomationInfo, null);
 
@@ -211,7 +287,7 @@ public class AfterVoidProcessStageImpTests
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsSentMessageToAdminSite = false).Build();
         var sendMessageService = Substitute.For<SendMessageService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
 
         var actual = await service.SendMessageToAdminSite(fakeAutomationInfo, fakeMessage);
 
@@ -227,7 +303,7 @@ public class AfterVoidProcessStageImpTests
         var loggingService = Substitute.For<LoggingService>();
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null, null);
 
         var actual = await service.SendMessageToAdminSite(fakeAutomationInfo, null);
 
@@ -243,7 +319,7 @@ public class AfterVoidProcessStageImpTests
     public async Task InsertVoidedTransaction_ReturnOldStatus()
     {
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsInsertedVoidedTransaction = true).Build();
-        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null, null);
 
         var actual = await service.InsertVoidedTransaction(fakeAutomationInfo, null, 0, 0);
 
@@ -262,7 +338,7 @@ public class AfterVoidProcessStageImpTests
         };
         var sendMessageService = Substitute.For<SendMessageService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, sendMessageService, null, null, null, null, null);
 
         var actual = await service.InsertVoidedTransaction(fakeAutomationInfo, fakeEmails, 0, 0);
 
@@ -279,7 +355,7 @@ public class AfterVoidProcessStageImpTests
         var loggingService = Substitute.For<LoggingService>();
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null, null);
 
         var actual = await service.InsertVoidedTransaction(fakeAutomationInfo, null, 0, 0);
 
@@ -295,7 +371,7 @@ public class AfterVoidProcessStageImpTests
     public async Task UpdateTicketVoidingHistory_ReturnOldStatus()
     {
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsUpdatedVoidingHistory = true).Build();
-        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null, null);
 
         var actual = await service.UpdateTicketVoidingHistory(fakeAutomationInfo, 0, 0, default);
 
@@ -325,7 +401,7 @@ public class AfterVoidProcessStageImpTests
             new()
         };
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, null, null, null, null, null);
 
         var actual = await service.UpdateTicketVoidingHistory(fakeAutomationInfo, 0, 0, emailTickets);
 
@@ -343,7 +419,7 @@ public class AfterVoidProcessStageImpTests
         voidBetAutomationService.When(x => x.UpdateTicketVoidingHistory(Arg.Any<int>(), Arg.Any<int?>(),
                 Arg.Any<int?>(), Arg.Any<int?>(), Arg.Any<string>(), Arg.Any<DateTime?>(), Arg.Any<DateTime?>()))
             .Do(x => throw new Exception());
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null, null);
 
         var actual = await service.UpdateTicketVoidingHistory(fakeAutomationInfo, 0, 0, default);
 
@@ -359,7 +435,7 @@ public class AfterVoidProcessStageImpTests
     public async Task SendEmail_ReturnOldStatus()
     {
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsSentEmail = true).Build();
-        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null, null);
 
         var (actualStatus, actualResults) = await service.SendEmail(fakeAutomationInfo, null, null, null, null);
 
@@ -377,7 +453,7 @@ public class AfterVoidProcessStageImpTests
         afterVoidEmailService.Execute(Arg.Is<VoidBetAutomationInfo>(x => x.Equals(fakeAutomationInfo)),
             Arg.Any<IEnumerable<TicketEmailModel>>(), Arg.Any<Match>(), Arg.Any<VoidedReason>(),
             Arg.Any<Message>()).ReturnsForAnyArgs(fakeResults);
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, null, afterVoidEmailService, null, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, null, afterVoidEmailService, null, null, null);
 
         var (actualStatus, actualResults) = await service.SendEmail(fakeAutomationInfo, default, default, default, default);
 
@@ -393,7 +469,7 @@ public class AfterVoidProcessStageImpTests
         var loggingService = Substitute.For<LoggingService>();
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, notificationSignalRService, null, loggingService, null, null);
 
         var (actualStatus, actualResults) = await service.SendEmail(fakeAutomationInfo, default, default, default, default);
 
@@ -411,7 +487,7 @@ public class AfterVoidProcessStageImpTests
     {
         var fakeResults = Builder<Result>.CreateListOfSize(3).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, null, null, null, null, null);
 
         await service.UpdateEmailResult(default, fakeResults);
 
@@ -425,7 +501,7 @@ public class AfterVoidProcessStageImpTests
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().Build();
         var fakeResults = Builder<Result>.CreateListOfSize(3).Random(1).With(x => x.ErrorCode = ErrorCode.SendEmailToLicenseeSuccess).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, null, null, null, null, null);
 
         await service.UpdateEmailResult(fakeAutomationInfo, fakeResults);
 
@@ -440,7 +516,7 @@ public class AfterVoidProcessStageImpTests
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().Build();
         var fakeResults = Builder<Result>.CreateListOfSize(3).Build();
         var loggingService = Substitute.For<LoggingService>();
-        var service = new AfterVoidProcessStageImp(null, null, null, null, loggingService, null);
+        var service = new AfterVoidProcessStageImp(null, null, null, null, loggingService, null, null);
 
         service.WriteLogAfterVoid(fakeResults, fakeAutomationInfo);
 
@@ -449,26 +525,13 @@ public class AfterVoidProcessStageImpTests
     }
 
     [Fact]
-    public void CreateResultList_ReturnExpectedResults()
-    {
-        const string fakeNegativeBalanceUsers = "abc,xxx";
-        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null);
-
-        var actual = service.CreateResultList(null, fakeNegativeBalanceUsers, 1, 1);
-
-        Assert.Equal(2, actual.Count());
-        Assert.Contains(actual, x => x.ErrorCode == ErrorCode.NegativeBalanceUsers);
-        Assert.Contains(actual, x => x.ErrorCode == ErrorCode.VoidRequestSuccess);
-    }
-
-    [Fact]
     public async Task CallCashOutApi_ReturnWhenIsRunExternalServiceTrue()
     {
-        var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsRunExternalService = true).Build();
+        var automationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsRunExternalService = true).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null, null);
 
-        await service.CallCashOutApi(fakeAutomationInfo, null);
+        await service.CallCashOutApi(automationInfo, null);
 
         await voidBetAutomationService.DidNotReceiveWithAnyArgs().UpdateAfterVoidStep(1, 1, null);
     }
@@ -480,7 +543,7 @@ public class AfterVoidProcessStageImpTests
             .All().With(x => x.IsCashOut = false).With(x => x.SportType = SportTypeConstant.Basketball).Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsRunExternalService = false).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null);
+        var service = new AfterVoidProcessStageImp(null, null, null, null, null, null, null);
 
         await service.CallCashOutApi(fakeAutomationInfo, fakeEmails);
 
@@ -496,7 +559,7 @@ public class AfterVoidProcessStageImpTests
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsRunExternalService = false).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         var cashOutApi = Substitute.For<CashOutHttpClientService>();
-        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, null, null, null, cashOutApi);
+        var service = new AfterVoidProcessStageImp(voidBetAutomationService, null, null, null, null, cashOutApi, null);
 
         await service.CallCashOutApi(fakeAutomationInfo, fakeEmails);
 
@@ -506,17 +569,17 @@ public class AfterVoidProcessStageImpTests
     [Fact]
     public async Task CallCashOutApi_ThrowException()
     {
-        var fakeEmails = Builder<TicketEmailModel>.CreateListOfSize(2)
+        var emails = Builder<TicketEmailModel>.CreateListOfSize(2)
             .All().With(x => x.IsCashOut = true).With(x => x.SportType = SportTypeConstant.Basketball).Build();
 
-        var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsRunExternalService = false).Build();
+        var automationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsRunExternalService = false).Build();
         var cashOutApi = Substitute.For<CashOutHttpClientService>();
         var loggingService = Substitute.For<LoggingService>();
         cashOutApi.When(x => x.VoidBet(Arg.Any<CashOutApiModel>()))
             .Do(x => throw new Exception());
-        var service = new AfterVoidProcessStageImp(null, null, null, null, loggingService, cashOutApi);
+        var service = new AfterVoidProcessStageImp(null, null, null, null, loggingService, cashOutApi, null);
 
-        await service.CallCashOutApi(fakeAutomationInfo, fakeEmails);
+        await service.CallCashOutApi(automationInfo, emails);
 
         loggingService.Received(1).Error(Arg.Any<string>(), Arg.Any<Exception>());
     }

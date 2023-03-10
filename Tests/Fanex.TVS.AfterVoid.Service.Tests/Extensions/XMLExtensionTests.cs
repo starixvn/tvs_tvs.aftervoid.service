@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Fanex.TVS.AfterVoid.Service.Extensions;
-using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Models;
 using Xunit;
 
@@ -36,7 +35,7 @@ public class XMLExtensionTests
             ErrorCode = 1,
             ErrorMsg = "ErrorMsg"
         };
-        var expected = "<VoidResults><VoidResult Message='ErrorMsg' Type='1' /></VoidResults>";
+        var expected = "<VoidResults><VoidResult Message='ErrorMsg' Type='1' Licensees='' /></VoidResults>";
         var results = new List<Result> { result };
 
         var actual = results.ToVoidResultsXML();

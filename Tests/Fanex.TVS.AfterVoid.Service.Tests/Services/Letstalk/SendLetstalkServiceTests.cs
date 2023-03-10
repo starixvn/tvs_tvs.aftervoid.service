@@ -45,9 +45,9 @@ public class SendLetstalkServiceTests
         var voidBetAutomationInfoList = new List<VoidBetAutomationInfo>
         {
             new() { IsSentLetsTalk = true },
-            new() { IsInsert = true, RequestId = requestId1, IsAutoVoid = true },
-            new() { IsInsert = true, RequestId = requestId2, IsAutoVoid = false },
-            new() { IsInsert = false, RequestId = requestId2 },
+            new() { RequestId = requestId1, IsAutoVoid = true },
+            new() { RequestId = requestId2, IsAutoVoid = false },
+            new() { RequestId = requestId2 },
         };
         var voidDataXmlModel = new List<VoidDataXmlModel>
         {
@@ -89,9 +89,9 @@ public class SendLetstalkServiceTests
         var voidBetAutomationInfoList = new List<VoidBetAutomationInfo>
         {
             new() { IsSentLetsTalk = true },
-            new() { IsInsert = true, RequestId = requestId1, IsAutoVoid = true },
-            new() { IsInsert = true, RequestId = requestId2, IsAutoVoid = false },
-            new() { IsInsert = false, RequestId = requestId2 },
+            new() { RequestId = requestId1, IsAutoVoid = true },
+            new() { RequestId = requestId2, IsAutoVoid = false },
+            new() { RequestId = requestId2 },
         };
         var voidDataXmlModel = new List<VoidDataXmlModel>
         {

@@ -28,11 +28,11 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
         this.notificationSignalRService = notificationSignalRService;
     }
 
-    public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResults)
+    public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory)
     {
         if (automationInfo.StatusId != ExecuteStatus.Done)
         {
-            await RunMainSteps(automationInfo, isLastedInRequest, currentRequestStatus, emailResults);
+            await RunMainSteps(automationInfo, isLastedInRequest, currentRequestStatus, emailResultsHistory);
         }
     }
 

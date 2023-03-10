@@ -403,7 +403,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
         await notificationSignalRService.NotifyVoidResultToUser(creatorName, signalRResults);
     }
 
-    public static IEnumerable<string> GetLicenseeResult(IEnumerable<Result> currentEmailResults, IEnumerable<EmailResultModel> emailResultsHistory, int type)
+    private static IEnumerable<string> GetLicenseeResult(IEnumerable<Result> currentEmailResults, IEnumerable<EmailResultModel> emailResultsHistory, int type)
     {
         var licensees = new List<string>();
         licensees.AddRange(currentEmailResults.Where(x => x.ErrorCode == type).Select(x => x.Data.ToString()));

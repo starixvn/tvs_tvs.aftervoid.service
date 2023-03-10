@@ -34,7 +34,7 @@ public class RequestAutoVoidServiceImpTests
             .ReturnsNullForAnyArgs();
         var service = new RequestAutoVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, default);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, true, RequestStatusConstant.Completed);
 
         await handleAfterVoidStepService.DidNotReceiveWithAnyArgs().CreateVoidedReason(default, default, default);
     }
@@ -60,7 +60,7 @@ public class RequestAutoVoidServiceImpTests
             .ReturnsForAnyArgs(fakeMessage);
         var service = new RequestAutoVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, default);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default);
 
         await handleAfterVoidStepService.DidNotReceiveWithAnyArgs().CreateVoidedReason(default, default, default);
     }
@@ -87,7 +87,7 @@ public class RequestAutoVoidServiceImpTests
         handleAfterVoidStepService.CreateVoidedReason(default, default, default).ReturnsNullForAnyArgs();
         var service = new RequestAutoVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, default);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, true, RequestStatusConstant.Completed);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).CreateVoidedReason(default, default, default);
         await handleAfterVoidStepService.DidNotReceiveWithAnyArgs().SendBatchMessage(default, default, default, default);
@@ -117,7 +117,7 @@ public class RequestAutoVoidServiceImpTests
         handleAfterVoidStepService.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(false);
         var service = new RequestAutoVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, default);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).CreateVoidedReason(default, default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).SendBatchMessage(default, default, default, default);
@@ -150,7 +150,7 @@ public class RequestAutoVoidServiceImpTests
         handleAfterVoidStepService.SendMessageToAdminSite(default, default).ReturnsForAnyArgs(false);
         var service = new RequestAutoVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, default);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).CreateVoidedReason(default, default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).SendBatchMessage(default, default, default, default);
@@ -184,7 +184,7 @@ public class RequestAutoVoidServiceImpTests
         handleAfterVoidStepService.InsertVoidedTransaction(default, default, default, default).ReturnsForAnyArgs(false);
         var service = new RequestAutoVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, default);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).CreateVoidedReason(default, default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).SendBatchMessage(default, default, default, default);
@@ -220,7 +220,7 @@ public class RequestAutoVoidServiceImpTests
         handleAfterVoidStepService.UpdateTicketVoidingHistory(default, default, default, default).ReturnsForAnyArgs(false);
         var service = new RequestAutoVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, default);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, default, default);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).CreateVoidedReason(default, default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).SendBatchMessage(default, default, default, default);
@@ -258,7 +258,7 @@ public class RequestAutoVoidServiceImpTests
         handleAfterVoidStepService.SendEmail(default, default, default, default, default).ReturnsForAnyArgs((false, null));
         var service = new RequestAutoVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, default);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, true, RequestStatusConstant.Completed);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).CreateVoidedReason(default, default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).SendBatchMessage(default, default, default, default);
@@ -269,8 +269,10 @@ public class RequestAutoVoidServiceImpTests
         await handleAfterVoidStepService.DidNotReceiveWithAnyArgs().UpdateEmailResult(default, default);
     }
 
-    [Fact]
-    public async Task Execute_ShouldRunAllSteps()
+    [Theory]
+    [InlineData(true, RequestStatusConstant.Completed)]
+    [InlineData(false, RequestStatusConstant.Failed)]
+    public async Task Execute_ShouldRunAllSteps(bool isLatestInRequest, string requestStatus)
     {
         var fakeMatch = Builder<Match>.CreateNew().Build();
         var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
@@ -298,7 +300,7 @@ public class RequestAutoVoidServiceImpTests
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
         var service = new RequestAutoVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
 
-        await service.Execute(fakeAutomationInfo);
+        await service.Execute(fakeAutomationInfo, isLatestInRequest, requestStatus);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).CreateVoidedReason(default, default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).SendBatchMessage(default, default, default, default);
@@ -307,7 +309,6 @@ public class RequestAutoVoidServiceImpTests
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).UpdateTicketVoidingHistory(default, default, default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs(1).SendEmail(default, default, default, default, default);
         await voidBetAutomationService.ReceivedWithAnyArgs(1).UpdateServiceStatusByVoidingHistory(default, default, default);
-        await notificationSignalRService.ReceivedWithAnyArgs(1).UpdateCompletedStatusForRequests(default, default);
         handleAfterVoidStepService.ReceivedWithAnyArgs(1).WriteLogAfterVoid(default, default);
     }
 }

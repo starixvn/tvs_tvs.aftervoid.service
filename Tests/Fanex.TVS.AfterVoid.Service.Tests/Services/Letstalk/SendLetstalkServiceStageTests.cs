@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
@@ -25,7 +26,7 @@ public class SendLetstalkServiceStageTests
 
         var actual = await service.GetVoidBetAutomationRunLetstalk();
 
-        await repository.Received(1).FetchAsync<VoidBetAutomationInfo>(Arg.Any<GetAllVoidBetAutomationInfoCriteria>());
+        await repository.Received(1).FetchAsync<VoidBetAutomationInfo>(Arg.Any<GetAutomationInfoLetstalkCriteria>());
         Assert.Equal(voidBetAutomationInfoList, actual);
     }
 
@@ -86,24 +87,35 @@ public class SendLetstalkServiceStageTests
     }
 
     [Fact]
-    public void WriteLogLetstalk_ReturnExpectedResults()
+    public void WriteLogLetstalk_LoggingServiceHasCalled()
     {
         var loggingService = Substitute.For<LoggingService>();
         var service = new SendLetstalkServiceStageImp(default, loggingService, default, default);
 
-        service.WriteLogLetstalk(new List<Result> { new() }, new GroupVoidBetAutomationInfo());
+        service.WriteLogLetstalk(new List<Result> { new() }, new GroupVoidBetAutomationInfo(), new Stopwatch());
 
         loggingService.Received(1).Info(Arg.Any<string>());
     }
 
     [Fact]
-    public async Task UpdateLetstalk_ReturnExpectedResults()
+    public async Task UpdateLetstalk_RepositoryHasCalled()
     {
         var repository = Substitute.For<IDynamicRepository>();
         var service = new SendLetstalkServiceStageImp(repository, default, default, default);
 
-        await service.UpdateLetstalk(new GroupVoidBetAutomationInfo(), 1, 1);
+        await service.UpdateLetstalk(1, "", 1);
 
         await repository.Received(1).ExecuteAsync(Arg.Any<UpdateLetstalkCommand>());
+    }
+
+    [Fact]
+    public async Task InsertLetstalk_RepositoryHasCalled()
+    {
+        var repository = Substitute.For<IDynamicRepository>();
+        var service = new SendLetstalkServiceStageImp(repository, default, default, default);
+
+        await service.InsertLetstalk(1, "", 1);
+
+        await repository.Received(1).ExecuteAsync(Arg.Any<InsertLetstalkCommand>());
     }
 }
