@@ -103,7 +103,7 @@ public class SendLetstalkServiceImp : SendLetstalkService
         catch (Exception exception)
         {
             loggingService.Error(
-                $"ERROR: {nameof(SendLetstalk)} - BroadcastSessionId: {group.BroadcastSessionId} - RequestId: {group.RequestId}",
+                $"ERROR: RequestId: {group.RequestId} - {nameof(SendLetstalk)} - BroadcastSessionId: {group.BroadcastSessionId}",
                 exception);
             await letstalkServiceStage.UpdateLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Failed);
             await notificationSignalRService.UpdateFailedStatusForRequest(group.RequestId);

@@ -92,8 +92,8 @@ public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
     public void WriteLogLetstalk(IEnumerable<Result> results, GroupVoidBetAutomationInfo group, Stopwatch startTime)
     {
         var logBuilder = new StringBuilder();
-        logBuilder.Append($"SendLetstalk - BroadcastSessionId: {group.BroadcastSessionId} - " +
-                          $"RequestId: {group.RequestId} - Execute Time: {startTime.ElapsedMilliseconds} ms \n");
+        logBuilder.Append($"SendLetstalk - RequestId: {group.RequestId} - " +
+                          $"BroadcastSessionId: {group.BroadcastSessionId} - Execute Time: {startTime.ElapsedMilliseconds} ms \n");
         foreach (var result in results)
         {
             var log = $"Code: {result.ErrorCode} - Message: {result.ErrorMsg}\n";
