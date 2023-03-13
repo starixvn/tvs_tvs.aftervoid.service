@@ -104,8 +104,10 @@ public class RequestVoid14ServiceImpTests
             .UpdateServiceStatusByVoidingHistory(default, default, default);
     }
 
-    [Fact]
-    public async Task Execute_ShouldRunAllSteps()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Execute_ShouldRunAllSteps(bool isLastedInRequest)
     {
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
@@ -123,7 +125,7 @@ public class RequestVoid14ServiceImpTests
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
         var service = new RequestVoid14ServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
 
-        await service.Execute(fakeAutomationInfo, default, default);
+        await service.Execute(fakeAutomationInfo, isLastedInRequest, RequestStatusConstant.Completed);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs()

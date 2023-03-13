@@ -60,8 +60,7 @@ public class AfterVoidProcessStageImpTests
     {
         const int fakeMessageId = 113;
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.MessageId = null).Build();
-        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel()
-        { Request = new RequestModel() { IssueTypeId = 11111 } };
+        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel { Request = new RequestModel { IssueTypeId = 11111 } };
         fakeAutomationInfo.MatchId = matchId;
         var fakeMessage = Builder<Message>.CreateNew().With(x => x.MessageId = fakeMessageId).Build();
         var fakeMatchInfo = Builder<Match>.CreateNew().Build();
@@ -85,8 +84,7 @@ public class AfterVoidProcessStageImpTests
     {
         const int fakeMessageId = 113;
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.MessageId = null).Build();
-        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel()
-        { Request = new RequestModel() { IssueTypeId = 11111 } };
+        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel { Request = new RequestModel { IssueTypeId = 11111 } };
         fakeAutomationInfo.MatchId = matchId;
         var fakeMessage = Builder<Message>.CreateNew().With(x => x.MessageId = fakeMessageId).Build();
         var fakeMatchInfo = Builder<Match>.CreateNew().Build();
@@ -128,8 +126,7 @@ public class AfterVoidProcessStageImpTests
     {
         const int fakeMessageId = 113;
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.MessageId = null).Build();
-        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel()
-        { Request = new RequestModel() { IssueTypeId = 11111 } };
+        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel { Request = new RequestModel { IssueTypeId = 11111 } };
         fakeAutomationInfo.MatchId = matchId;
         var fakeMessage = Builder<Message>.CreateNew().With(x => x.MessageId = fakeMessageId).Build();
         var fakeMatchInfo = Builder<Match>.CreateNew().Build();
@@ -183,8 +180,7 @@ public class AfterVoidProcessStageImpTests
     {
         const int fakeReasonId = 221;
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.ReasonId = null).Build();
-        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel()
-        { EventByMatch = new() { SubIssueTypeId = 11111 } };
+        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel { EventByMatch = new() { SubIssueTypeId = 11111 } };
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().With(x => x.ReasonId = fakeReasonId).Build();
         var sendMessageService = Substitute.For<SendMessageService>();
         sendMessageService.InitializeVoidReason(default, default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
@@ -235,8 +231,7 @@ public class AfterVoidProcessStageImpTests
         var fakeEmails = Builder<TicketEmailModel>.CreateListOfSize(2).Build();
         var fakeVoidData = Builder<VoidDataXmlModel>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsSentBatchMessage = false).Build();
-        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel()
-        { Request = new RequestModel() { IssueTypeId = 11111 } };
+        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel { Request = new RequestModel { IssueTypeId = 11111 } };
         fakeAutomationInfo.IsAutoVoid = true;
         var sendMessageService = Substitute.For<SendMessageService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
@@ -331,7 +326,7 @@ public class AfterVoidProcessStageImpTests
     {
         var fakeEmails = Builder<TicketEmailModel>.CreateListOfSize(2).Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsInsertedVoidedTransaction = false).Build();
-        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel()
+        fakeAutomationInfo.RequestInfo = new RequestDetailViewModel
         {
             EventByMatch = new RequestEventModel { SubIssueTypeId = 11111 },
             Request = new RequestModel { IssueTypeId = 11111 }
@@ -522,6 +517,33 @@ public class AfterVoidProcessStageImpTests
 
         loggingService.Received(1)
             .Info(Arg.Any<string>());
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public async Task NotifyVoidResultsSignalR_ShouldCallNotificationSignalRService(int matchId)
+    {
+        var automationInfo = new VoidBetAutomationInfo
+        {
+            MatchId = matchId
+        };
+        var currentEmailResults = new List<Result>
+        {
+            new() { ErrorCode = ErrorCode.LicenseeSuccess, ErrorMsg = "", Data = ""},
+            new() { ErrorCode = ErrorCode.LicenseeFail, ErrorMsg = "", Data = "" },
+        };
+        var emailResultsHistory = new List<EmailResultModel>
+        {
+            new() { Type = ErrorCode.LicenseeSuccess, Message = "" },
+            new() { Type = ErrorCode.LicenseeFail, Message = "" },
+        };
+        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var service = new AfterVoidProcessStageImp(null, null, notificationSignalRService, null, null, null, null);
+
+        await service.NotifyVoidResultsSignalR(automationInfo, currentEmailResults, "", emailResultsHistory);
+
+        await notificationSignalRService.Received(1).NotifyVoidResultToUser(Arg.Any<string>(), Arg.Any<List<Result>>());
     }
 
     [Fact]

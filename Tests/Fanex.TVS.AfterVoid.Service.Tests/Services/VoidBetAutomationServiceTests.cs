@@ -8,6 +8,7 @@ using Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
 using NSubstitute;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using Xunit;
 
@@ -16,31 +17,83 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services;
 public class VoidBetAutomationServiceTests
 {
     [Fact]
-    public async Task GetVoidBetAutomationRunAfterVoid_ReturnExpectedData()
+    public async Task GetVoidBetAutomationRunAfterVoid_ReturnModelWithCurrentRequestStatusFailed()
     {
+        var voidingHistoryModels = new List<VoidingHistoryModel>
+        {
+            new() { VoidingHistoryStatusId = ExecuteStatus.Failed },
+            new() { AfterVoidStatusId = ExecuteStatus.Failed },
+        };
         var automationInfo = new List<VoidBetAutomationInfo> { new() { RequestId = 2 } };
         var repository = Substitute.For<IDynamicRepository>();
         repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(Arg.Any<GetAutomationInfoAfterVoidCriteria>())
-            .ReturnsForAnyArgs((automationInfo, new List<VoidingHistoryModel>(), new List<EmailResultModel>()));
+            .ReturnsForAnyArgs((automationInfo, voidingHistoryModels, new List<EmailResultModel>()));
 
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
         var actual = await voidBetAutomationService.GetVoidBetAutomationRunAfterVoid();
 
         Assert.StrictEqual(automationInfo.First(), actual.Item1);
+        Assert.Equal(RequestStatusConstant.Failed, actual.Item3);
     }
 
     [Fact]
-    public async Task GetRequestById_ReturnDataEventWithExpectedMatch()
+    public async Task GetVoidBetAutomationRunAfterVoid_ReturnModelWithCurrentRequestStatusRunning()
+    {
+        var voidingHistoryModels = new List<VoidingHistoryModel>
+        {
+            new() { VoidingHistoryStatusId = ExecuteStatus.Running },
+            new() { VoidingHistoryStatusId = ExecuteStatus.Running },
+        };
+        var automationInfo = new List<VoidBetAutomationInfo> { new() { RequestId = 2 } };
+        var repository = Substitute.For<IDynamicRepository>();
+        repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(Arg.Any<GetAutomationInfoAfterVoidCriteria>())
+            .ReturnsForAnyArgs((automationInfo, voidingHistoryModels, new List<EmailResultModel>()));
+
+        var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+        var actual = await voidBetAutomationService.GetVoidBetAutomationRunAfterVoid();
+
+        Assert.StrictEqual(automationInfo.First(), actual.Item1);
+        Assert.Equal(RequestStatusConstant.Running, actual.Item3);
+    }
+
+    [Fact]
+    public async Task GetVoidBetAutomationRunAfterVoid_ReturnModelWithCurrentRequestStatusCompleted()
+    {
+        var voidingHistoryModels = new List<VoidingHistoryModel>
+        {
+            new() { VoidingHistoryStatusId = ExecuteStatus.Done },
+            new() { AfterVoidStatusId = ExecuteStatus.Done },
+        };
+        var automationInfo = new List<VoidBetAutomationInfo> { new() { RequestId = 2 } };
+        var repository = Substitute.For<IDynamicRepository>();
+        repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(Arg.Any<GetAutomationInfoAfterVoidCriteria>())
+            .ReturnsForAnyArgs((automationInfo, voidingHistoryModels, new List<EmailResultModel>()));
+
+        var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+        var actual = await voidBetAutomationService.GetVoidBetAutomationRunAfterVoid();
+
+        Assert.StrictEqual(automationInfo.First(), actual.Item1);
+        Assert.Equal(RequestStatusConstant.Completed, actual.Item3);
+    }
+
+    [Theory]
+    [InlineData(IssueTypeConstant.WrongHDP)]
+    [InlineData(IssueTypeConstant.Wrong1stHDP)]
+    [InlineData(IssueTypeConstant.WrongOU)]
+    [InlineData(IssueTypeConstant.Wrong1stOU)]
+    [InlineData(IssueTypeConstant.DangerAccepted)]
+    [InlineData(IssueTypeConstant.RedCard)]
+    public async Task GetRequestById_ReturnDataEventWithExpectedMatch(int issueTypeId)
     {
         var fakeRequests = new List<RequestModel>
         {
-            new() {IssueTypeId = IssueTypeConstant.DangerAccepted},
-            new() {IssueTypeId = IssueTypeConstant.AbnormalBet}
+            new() { IssueTypeId = issueTypeId},
+            new() { IssueTypeId = issueTypeId}
         };
         var fakeRequestEvents = new List<RequestEventModel>
         {
-            new() {MatchId = 100},
-            new() {MatchId = 113}
+            new() { MatchId = 100 },
+            new() { MatchId = 113 }
         };
 
         var repository = Substitute.For<IDynamicRepository>();

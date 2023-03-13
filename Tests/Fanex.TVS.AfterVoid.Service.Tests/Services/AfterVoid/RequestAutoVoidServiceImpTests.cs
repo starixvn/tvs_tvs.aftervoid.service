@@ -20,10 +20,10 @@ public class RequestAutoVoidServiceImpTests
         var fakeMatch = Builder<Match>.CreateNew().Build();
         var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
@@ -46,10 +46,10 @@ public class RequestAutoVoidServiceImpTests
         var fakeMatch = Builder<Match>.CreateNew().Build();
         var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).With(x => x.StatusId = ExecuteStatus.Done).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
@@ -72,10 +72,10 @@ public class RequestAutoVoidServiceImpTests
         var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
@@ -101,10 +101,10 @@ public class RequestAutoVoidServiceImpTests
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
@@ -133,10 +133,10 @@ public class RequestAutoVoidServiceImpTests
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
@@ -166,10 +166,10 @@ public class RequestAutoVoidServiceImpTests
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
@@ -201,10 +201,10 @@ public class RequestAutoVoidServiceImpTests
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
@@ -238,10 +238,10 @@ public class RequestAutoVoidServiceImpTests
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
@@ -279,10 +279,10 @@ public class RequestAutoVoidServiceImpTests
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);

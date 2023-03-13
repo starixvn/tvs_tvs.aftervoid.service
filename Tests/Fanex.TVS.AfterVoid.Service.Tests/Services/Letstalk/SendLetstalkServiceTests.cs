@@ -17,7 +17,7 @@ public class SendLetstalkServiceTests
 {
     private static RequestDetailViewModel CreateRequestDetailViewModel(int issueTypeId)
     {
-        return new RequestDetailViewModel()
+        return new RequestDetailViewModel
         {
             Request = new RequestModel { IssueTypeId = issueTypeId },
             Messages = new List<Message>(),
@@ -40,6 +40,11 @@ public class SendLetstalkServiceTests
     [Fact]
     public async Task Execute_HasRequest_ReturnExpectedResults()
     {
+        var requestInfo = new RequestDetailViewModel
+        {
+            Request = new RequestModel { IssueTypeId = IssueTypeConstant.AbnormalBet },
+            EventByMatch = new RequestEventModel()
+        };
         const int requestId1 = 1;
         const int requestId2 = 2;
         var voidBetAutomationInfoList = new List<VoidBetAutomationInfo>
@@ -71,7 +76,7 @@ public class SendLetstalkServiceTests
             .Returns(CreateRequestDetailViewModel(IssueTypeConstant.AbnormalBet));
         voidBetAutomationService.GetRequestById(requestId2, default)
             .Returns(CreateRequestDetailViewModel(IssueTypeConstant.AbnormalBet));
-
+        voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
         voidBetAutomationService.GetMatchInfo(default).Returns(new Match());
         var service = new SendLetstalkServiceImp(voidBetAutomationService, abnormalBetLetstalkService,
             settledBetLetstalkService, notificationSignalRService, letstalkServiceStage, loggingService);
@@ -84,6 +89,11 @@ public class SendLetstalkServiceTests
     [Fact]
     public async Task Execute_SendLetstalkSettleDone_ReturnExpectedResults()
     {
+        var requestInfo = new RequestDetailViewModel
+        {
+            Request = new RequestModel { IssueTypeId = IssueTypeConstant.AbnormalBet },
+            EventByMatch = new RequestEventModel()
+        };
         const int requestId1 = 1;
         const int requestId2 = 2;
         var voidBetAutomationInfoList = new List<VoidBetAutomationInfo>
@@ -119,7 +129,7 @@ public class SendLetstalkServiceTests
         voidBetAutomationService.GetMatchInfo(default).Returns(new Match());
         var service = new SendLetstalkServiceImp(voidBetAutomationService, abnormalBetLetstalkService,
             settledBetLetstalkService, notificationSignalRService, letstalkServiceStage, loggingService);
-
+        voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
         await service.Execute();
 
         await letstalkServiceStage.Received(1).GetVoidBetAutomationRunLetstalk();
@@ -128,6 +138,11 @@ public class SendLetstalkServiceTests
     [Fact]
     public async Task Execute_HasException_ReturnExpectedResults()
     {
+        var requestInfo = new RequestDetailViewModel
+        {
+            Request = new RequestModel { IssueTypeId = IssueTypeConstant.AbnormalBet },
+            EventByMatch = new RequestEventModel()
+        };
         var letstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         var settledBetLetstalkService = Substitute.For<SettledBetLetstalkService>();
@@ -136,7 +151,7 @@ public class SendLetstalkServiceTests
         var loggingService = Substitute.For<LoggingService>();
         letstalkServiceStage.GetVoidBetAutomationRunLetstalk()
             .ReturnsForAnyArgs(new List<VoidBetAutomationInfo> { new() });
-
+        voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
         settledBetLetstalkService
             .When(x => x.Send(Arg.Any<NotificationLetstalkModel>(), Arg.Any<IEnumerable<TicketEmailModel>>()))
             .Do(x => x.Throws(new Exception()));

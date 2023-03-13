@@ -104,10 +104,10 @@ public class RequestManualVoidServiceImpTests
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).With(x => x.StatusId = ExecuteStatus.Running).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
@@ -137,10 +137,10 @@ public class RequestManualVoidServiceImpTests
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).With(x => x.StatusId = ExecuteStatus.Running).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
@@ -172,10 +172,10 @@ public class RequestManualVoidServiceImpTests
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).With(x => x.StatusId = ExecuteStatus.Running).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
@@ -209,11 +209,14 @@ public class RequestManualVoidServiceImpTests
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
-            }).With(x => x.StatusId = ExecuteStatus.Running).Build();
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
+            })
+            .With(x => x.StatusId = ExecuteStatus.Running)
+            .With(x => x.MatchId = 0)
+            .Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
         var handleAfterVoidStepService = Substitute.For<AfterVoidProcessStage>();
@@ -240,17 +243,19 @@ public class RequestManualVoidServiceImpTests
             .NotifyErrorWhenExecuteAfterVoidServiceToUser(default);
     }
 
-    [Fact]
-    public async Task Execute_ShouldRunAllSteps()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Execute_ShouldRunAllSteps(bool isLastedInRequest)
     {
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
-            .With(x => x.RequestInfo = new RequestDetailViewModel()
+            .With(x => x.RequestInfo = new RequestDetailViewModel
             {
-                Request = new RequestModel() { IssueTypeId = IssueTypeConstant.DangerAccepted },
-                EventByMatch = new RequestEventModel() { FilterBy = 0 }
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).With(x => x.StatusId = ExecuteStatus.Running).Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
@@ -265,7 +270,7 @@ public class RequestManualVoidServiceImpTests
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
         var service = new RequestManualVoidServiceImp(voidBetAutomationService, handleAfterVoidStepService, notificationSignalRService);
 
-        await service.Execute(fakeAutomationInfo, default, default, default);
+        await service.Execute(fakeAutomationInfo, isLastedInRequest, RequestStatusConstant.Completed, default);
 
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateMessageIdForManualVoid(default, default);
         await handleAfterVoidStepService.ReceivedWithAnyArgs().CreateVoidedReason(default, default, default);
