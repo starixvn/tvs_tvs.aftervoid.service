@@ -63,15 +63,18 @@ public class SendLetstalkServiceImp : SendLetstalkService
     private async Task RunLetstalkForSingleRequest(GroupVoidBetAutomationInfo group)
     {
         var stopwatch = Stopwatch.StartNew();
-        await letstalkServiceStage.InsertLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Running);
         group.RequestInfo = await voidBetAutomationService.GetRequestById(group.RequestId, group.MatchId);
-        var voidedTickets = await letstalkServiceStage.GetVoidedTickets(group.VoidBetAutomationList);
-        var matchInfo = await voidBetAutomationService.GetMatchInfo(group.MatchId);
-        var voidDataXmlList = group.IsAutoVoid
-            ? new List<VoidDataXmlModel>()
-            : await letstalkServiceStage.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
-        var sentLetstalkResults = await SendLetstalk(group, voidedTickets, matchInfo, voidDataXmlList);
-        letstalkServiceStage.WriteLogLetstalk(sentLetstalkResults, group, stopwatch);
+        if (Helper.IsCanSendLetstalk(group.RequestInfo.Request.IssueTypeId))
+        {
+            await letstalkServiceStage.InsertLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Running);
+            var voidedTickets = await letstalkServiceStage.GetVoidedTickets(group.VoidBetAutomationList);
+            var matchInfo = await voidBetAutomationService.GetMatchInfo(group.MatchId);
+            var voidDataXmlList = group.IsAutoVoid
+                ? new List<VoidDataXmlModel>()
+                : await letstalkServiceStage.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
+            var sentLetstalkResults = await SendLetstalk(group, voidedTickets, matchInfo, voidDataXmlList);
+            letstalkServiceStage.WriteLogLetstalk(sentLetstalkResults, group, stopwatch);
+        }
     }
 
     private async Task<IEnumerable<Result>> SendLetstalk(GroupVoidBetAutomationInfo group,

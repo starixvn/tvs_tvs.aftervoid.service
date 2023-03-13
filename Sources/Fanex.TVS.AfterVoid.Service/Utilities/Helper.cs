@@ -60,4 +60,9 @@ public static class Helper
     {
         return voidedReason == null || voidedReason.ReasonId == 0;
     }
+
+    public static bool IsCanSendLetstalk(int issueTypeId)
+    {
+        return issueTypeId != IssueTypeConstant.ArchivedTicket;
+    }
 }
