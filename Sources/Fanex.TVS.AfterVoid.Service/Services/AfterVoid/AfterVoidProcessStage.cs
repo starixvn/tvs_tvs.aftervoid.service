@@ -319,8 +319,8 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
             var transIds = Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId)
                 ? string.Join(",", emailTickets.Select(x => x.TransId))
                 : null;
-            DateTime? minWinLostDate = Helper.IsAbnormalAccount(automationInfo.RequestInfo.Request.IssueTypeId) ? emailTickets.Min(x => x.WinLostDate) : null;
-            DateTime? maxWinLostDate = Helper.IsAbnormalAccount(automationInfo.RequestInfo.Request.IssueTypeId) ? emailTickets.Max(x => x.WinLostDate) : null;
+            var minWinLostDate = GetMinWinLostDateTickets(automationInfo.RequestInfo.Request.IssueTypeId, emailTickets);
+            var maxWinLostDate = GetMaxWinLostDateTickets(automationInfo.RequestInfo.Request.IssueTypeId, emailTickets);
             await voidBetAutomationService.UpdateTicketVoidingHistory(automationInfo.VoidingHistoryId, ExecuteStatus.Done, reasonId, messageId, transIds, minWinLostDate, maxWinLostDate);
             await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsUpdatedVoidingHistory = true });
 
@@ -428,5 +428,25 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
     private static string GetMessageVoidRequestSuccess(int requestId, int matchId)
     {
         return matchId > 0 ? $"Request ID: {requestId} Match ID: {matchId} voided successfully!" : $"Request ID: {requestId} voided successfully!";
+    }
+
+    private static DateTime? GetMinWinLostDateTickets(int issueTypeId, IEnumerable<TicketEmailModel> emailTickets)
+    {
+        if (Helper.IsAbnormalAccount(issueTypeId) && emailTickets.Any())
+        {
+            return emailTickets.Min(x => x.WinLostDate);
+        }
+
+        return null;
+    }
+
+    private static DateTime? GetMaxWinLostDateTickets(int issueTypeId, IEnumerable<TicketEmailModel> emailTickets)
+    {
+        if (Helper.IsAbnormalAccount(issueTypeId) && emailTickets.Any())
+        {
+            return emailTickets.Max(x => x.WinLostDate);
+        }
+
+        return null;
     }
 }
