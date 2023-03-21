@@ -1,9 +1,8 @@
-﻿namespace TicketVoidingSystem.Models
+﻿namespace TicketVoidingSystem.Models;
+
+public class SiteDbGroupModel
 {
-    public class SiteDbGroupModel
-    {
-        public int Id { get; set; }
-        public string ServerName { get; set; }
-        public string SpName { get; set; }
-    }
+    public int Id { get; set; }
+    public string ServerName { get; set; }
+    public string SpName { get; set; }
 }

@@ -4,68 +4,67 @@ using System.Xml.Linq;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Models;
 
-namespace Fanex.TVS.AfterVoid.Service.Extensions
+namespace Fanex.TVS.AfterVoid.Service.Extensions;
+
+public interface IMessageExtensionsNonStatic
 {
-    public interface IMessageExtensionsNonStatic
+    string CreateCustInfoXml(IEnumerable<TicketEmailModel> emailTickets);
+}
+
+public class MessageExtensionsNonStatic : IMessageExtensionsNonStatic
+{
+    public string CreateCustInfoXml(IEnumerable<TicketEmailModel> emailTickets)
     {
-        string CreateCustInfoXml(IEnumerable<TicketEmailModel> emailTickets);
+        var custInfo = new XElement("CustInfo");
+        foreach (var ticket in emailTickets)
+        {
+            var element = new XElement("Item",
+                new XAttribute("TransId", ticket.TransId),
+                new XAttribute("CustId", ticket.CustId));
+            custInfo.Add(element);
+        }
+
+        return custInfo.ToString();
+    }
+}
+
+public static class MessageExtensions
+{
+    private static IMessageExtensionsNonStatic Implementation = new MessageExtensionsNonStatic();
+
+    public static void MockImplementationForUnitTest(IMessageExtensionsNonStatic implementation)
+    {
+        Implementation = implementation;
     }
 
-    public class MessageExtensionsNonStatic : IMessageExtensionsNonStatic
+    public static string InsertSpace(this string text)
     {
-        public string CreateCustInfoXml(IEnumerable<TicketEmailModel> emailTickets)
+        if (string.IsNullOrEmpty(text))
         {
-            var custInfo = new XElement("CustInfo");
-            foreach (var ticket in emailTickets)
-            {
-                var element = new XElement("Item",
-                                        new XAttribute("TransId", ticket.TransId),
-                                        new XAttribute("CustId", ticket.CustId));
-                custInfo.Add(element);
-            }
-
-            return custInfo.ToString();
+            return string.Empty;
         }
+
+        const string Pattern = "\\s*@@\\s*";
+        const string Replacement = " @@ ";
+        var regex = new Regex(Pattern);
+        var result = regex.Replace(text, Replacement);
+        return string.IsNullOrEmpty(result) ? string.Empty : result.Trim();
     }
 
-    public static class MessageExtensions
+    public static XElement CreateItem(this MessageItem messageItem)
     {
-        private static IMessageExtensionsNonStatic Implementation = new MessageExtensionsNonStatic();
+        var element = new XElement(
+            "Item",
+            new XAttribute("MessageId", messageItem.MessageId),
+            new XAttribute("TargetId", messageItem.TargetId),
+            new XAttribute("TargetName", messageItem.TargetName),
+            new XAttribute("BetTransId", messageItem.BetTransId));
 
-        public static void MockImplementationForUnitTest(IMessageExtensionsNonStatic implementation)
-        {
-            Implementation = implementation;
-        }
+        return element;
+    }
 
-        public static string InsertSpace(this string text)
-        {
-            if (string.IsNullOrEmpty(text))
-            {
-                return string.Empty;
-            }
-
-            const string Pattern = "\\s*@@\\s*";
-            const string Replacement = " @@ ";
-            var regex = new Regex(Pattern);
-            var result = regex.Replace(text, Replacement);
-            return string.IsNullOrEmpty(result) ? string.Empty : result.Trim();
-        }
-
-        public static XElement CreateItem(this MessageItem messageItem)
-        {
-            var element = new XElement(
-                    "Item",
-                    new XAttribute("MessageId", messageItem.MessageId),
-                    new XAttribute("TargetId", messageItem.TargetId),
-                    new XAttribute("TargetName", messageItem.TargetName),
-                    new XAttribute("BetTransId", messageItem.BetTransId));
-
-            return element;
-        }
-
-        public static string CreateCustInfoXml(this IEnumerable<TicketEmailModel> emailTickets)
-        {
-            return Implementation.CreateCustInfoXml(emailTickets);
-        }
+    public static string CreateCustInfoXml(this IEnumerable<TicketEmailModel> emailTickets)
+    {
+        return Implementation.CreateCustInfoXml(emailTickets);
     }
 }

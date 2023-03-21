@@ -6,44 +6,43 @@ using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 using ONEbook.UM.Services;
 using Quartz;
 
-namespace Fanex.TVS.AfterVoid.Website.Jobs
+namespace Fanex.TVS.AfterVoid.Website.Jobs;
+
+[ExcludeFromCodeCoverage]
+public class AfterVoidJob : IJob
 {
-    [ExcludeFromCodeCoverage]
-    public class AfterVoidJob : IJob
+    private readonly AfterVoidService afterVoidService;
+    private readonly LoggingService loggingService;
+    private readonly IMaintenanceService maintenanceService;
+
+    public AfterVoidJob(IMaintenanceService maintenanceService, LoggingService loggingService,
+        AfterVoidService afterVoidService)
     {
-        private readonly AfterVoidService afterVoidService;
-        private readonly LoggingService loggingService;
-        private readonly IMaintenanceService maintenanceService;
+        this.maintenanceService = maintenanceService;
+        this.loggingService = loggingService;
+        this.afterVoidService = afterVoidService;
+    }
 
-        public AfterVoidJob(IMaintenanceService maintenanceService, LoggingService loggingService,
-            AfterVoidService afterVoidService)
+    public async Task Execute(IJobExecutionContext context)
+    {
+        try
         {
-            this.maintenanceService = maintenanceService;
-            this.loggingService = loggingService;
-            this.afterVoidService = afterVoidService;
-        }
-
-        public async Task Execute(IJobExecutionContext context)
-        {
-            try
+            if (!AppConfigService.AppConfig.OnProcessingAfterVoid)
             {
-                if (!AppConfigService.AppConfig.OnProcessing)
+                AppConfigService.AppConfig.OnProcessingAfterVoid = true;
+
+                if (!await maintenanceService.IsUnderMaintenanceAsync())
                 {
-                    AppConfigService.AppConfig.OnProcessing = true;
-
-                    if (!await maintenanceService.IsUnderMaintenanceAsync())
-                    {
-                        await afterVoidService.Execute();
-                    }
-
-                    AppConfigService.AppConfig.OnProcessing = false;
+                    await afterVoidService.Execute();
                 }
+
+                AppConfigService.AppConfig.OnProcessingAfterVoid = false;
             }
-            catch (Exception ex)
-            {
-                AppConfigService.AppConfig.OnProcessing = false;
-                loggingService.Error("AfterVoidJob execute failed!", ex);
-            }
+        }
+        catch (Exception ex)
+        {
+            AppConfigService.AppConfig.OnProcessingAfterVoid = false;
+            loggingService.Error("AfterVoidJob execute failed!", ex);
         }
     }
 }

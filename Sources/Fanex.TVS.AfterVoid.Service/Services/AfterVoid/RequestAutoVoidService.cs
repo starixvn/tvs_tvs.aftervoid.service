@@ -1,125 +1,126 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
+namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
+
+public interface RequestAutoVoidService
 {
-    public interface RequestAutoVoidService
+    Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus);
+}
+
+public class RequestAutoVoidServiceImp : RequestAutoVoidService
+{
+    private readonly VoidBetAutomationService voidBetAutomationService;
+    private readonly AfterVoidProcessStage afterVoidProcessStage;
+    private readonly NotificationSignalRService notificationSignalRService;
+
+    public RequestAutoVoidServiceImp(VoidBetAutomationService voidBetAutomationService, AfterVoidProcessStage afterVoidProcessStage,
+        NotificationSignalRService notificationSignalRService)
     {
-        Task Execute(IEnumerable<VoidBetAutomationInfo> automationInfoList);
+        this.voidBetAutomationService = voidBetAutomationService;
+        this.afterVoidProcessStage = afterVoidProcessStage;
+        this.notificationSignalRService = notificationSignalRService;
     }
 
-    public class RequestAutoVoidServiceImp : RequestAutoVoidService
+    public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
     {
-        private readonly VoidBetAutomationService voidBetAutomationService;
-        private readonly AfterVoidProcessStage afterVoidProcessStage;
-        private readonly NotificationSignalRService notificationSignalRService;
-
-        public RequestAutoVoidServiceImp(VoidBetAutomationService voidBetAutomationService, AfterVoidProcessStage afterVoidProcessStage,
-            NotificationSignalRService notificationSignalRService)
+        if (automationInfo.StatusId != ExecuteStatus.Done)
         {
-            this.voidBetAutomationService = voidBetAutomationService;
-            this.afterVoidProcessStage = afterVoidProcessStage;
-            this.notificationSignalRService = notificationSignalRService;
+            await RunMainSteps(automationInfo, isLastedInRequest, currentRequestStatus);
+        }
+    }
+
+    private async Task RunMainSteps(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
+    {
+        var issueTypeId = automationInfo.RequestInfo.Request.IssueTypeId;
+        var filterBy = automationInfo.RequestInfo.EventByMatch.FilterBy;
+        var matchInfo = await GetMatch(automationInfo);
+        var voidDataXml = await GetVoidDataXml(automationInfo);
+
+        var message = await afterVoidProcessStage.CreateMessageIdForAutoVoid(automationInfo, matchInfo, automationInfo.BroadcastSessionId, voidDataXml.IsHasSettledTicket, issueTypeId, filterBy);
+        if (Helper.IsNotHaveMessage(message))
+        {
+            return;
         }
 
-        public async Task Execute(IEnumerable<VoidBetAutomationInfo> automationInfoList)
+        var voidedReason = await afterVoidProcessStage.CreateVoidedReason(automationInfo, GetSportTypeId(matchInfo), null);
+        if (Helper.IsNotHaveVoidedReason(voidedReason))
         {
-            var firstRequest = automationInfoList.FirstOrDefault();
-            var matchInfo = firstRequest.MatchId > 0 ? await voidBetAutomationService.GetMatchInfo(firstRequest.MatchId) : null;
-            var issueTypeId = firstRequest.RequestInfo.Request.IssueTypeId;
-            var filterBy = firstRequest.RequestInfo.EventByMatch.FilterBy;
-            var voidDataXml = Helper.IsLikelyAbnormalBet(issueTypeId) || Helper.IsAbnormalAccount(issueTypeId) ? new VoidDataXmlModel()
-                : await voidBetAutomationService.GetVoidDataFromVoidingHistory(firstRequest.VoidingHistoryId);
+            return;
+        }
 
-            var message = await afterVoidProcessStage.CreateMessageIdForAllRequests(automationInfoList, matchInfo, firstRequest.SessionId, voidDataXml.IsHasSettledTicket, issueTypeId, filterBy);
-            if (message == null || message.MessageId == 0)
+        var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId);
+        var isSentBatchMessage = await afterVoidProcessStage.SendBatchMessage(automationInfo, voidedTickets, message.MessageId, null);
+        if (!isSentBatchMessage)
+        {
+            return;
+        }
+
+        if (!Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
+        {
+            var isSentMessageToAdminSite = await afterVoidProcessStage.SendMessageToAdminSite(automationInfo, message);
+            if (!isSentMessageToAdminSite)
             {
                 return;
-            }
-
-            foreach (var automationInfo in automationInfoList)
-            {
-                if (automationInfo.StatusId == ExecuteStatus.Done)
-                {
-                    continue;
-                }
-
-                await RunMainSteps(automationInfo, firstRequest.MatchId, matchInfo, message, voidDataXml);
             }
         }
 
-        private async Task RunMainSteps(VoidBetAutomationInfo automationInfo, int matchId, Match matchInfo, Message message, VoidDataXmlModel voidDataXml)
+        var isInsertedVoidedTransaction = await afterVoidProcessStage.InsertVoidedTransaction(automationInfo, voidedTickets, message.MessageId, voidedReason.ReasonId);
+        if (!isInsertedVoidedTransaction)
         {
-            var voidedReason = await afterVoidProcessStage.CreateVoidedReason(automationInfo, GetSportTypeId(matchInfo), null);
-            if (IsNotHaveVoidedReason(voidedReason))
-            {
-                return;
-            }
-
-            var voidedTickets = await voidBetAutomationService.GetVoidedTicketsForSendEmail(automationInfo.VoidingHistoryId);
-            var isSentBatchMessage = await afterVoidProcessStage.SendBatchMessage(automationInfo, voidedTickets, message.MessageId, null);
-            if (!isSentBatchMessage)
-            {
-                return;
-            }
-
-            if (!Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
-            {
-                var isSentMessageToAdminSite = await afterVoidProcessStage.SendMessageToAdminSite(automationInfo, message);
-                if (!isSentMessageToAdminSite)
-                {
-                    return;
-                }
-            }
-
-            var isInsertedVoidedTransaction = await afterVoidProcessStage.InsertVoidedTransaction(automationInfo, voidedTickets, message.MessageId, voidedReason.ReasonId);
-            if (!isInsertedVoidedTransaction)
-            {
-                return;
-            }
-
-            var isUpdatedVoidingHistory = await afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, voidedTickets);
-            if (!isUpdatedVoidingHistory)
-            {
-                return;
-            }
-
-            var (isSentEmail, sentEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
-            if (!isSentEmail)
-            {
-                return;
-            }
-
-            await afterVoidProcessStage.UpdateEmailResult(automationInfo, sentEmailResults);
-
-            var (isSentLetstalk, sentLetstalkResults) = await afterVoidProcessStage.SendLetstalk(automationInfo, voidedTickets, matchInfo, voidDataXml);
-            if (!isSentLetstalk)
-            {
-                return;
-            }
-
-            await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
-
-            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
-
-            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.VoidingHistoryId);
-            var results = afterVoidProcessStage.CreateResultList(sentEmailResults, sentLetstalkResults, null, automationInfo.RequestId, matchId);
-            afterVoidProcessStage.WriteLogAfterVoid(results, automationInfo);
+            return;
         }
 
-        private static bool IsNotHaveVoidedReason(VoidedReason voidedReason)
+        var isUpdatedVoidingHistory = await afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, voidedTickets);
+        if (!isUpdatedVoidingHistory)
         {
-            return voidedReason == null || voidedReason.ReasonId == 0;
+            return;
         }
 
-        private static int GetSportTypeId(Match matchInfo)
+        var (isSentEmail, currentEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
+        if (!isSentEmail)
         {
-            return matchInfo?.SportType ?? 0;
+            return;
         }
+
+        await afterVoidProcessStage.UpdateEmailResult(automationInfo, currentEmailResults);
+
+        await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
+
+        await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
+        await ExecutePostMainStep(automationInfo, isLastedInRequest, currentRequestStatus, currentEmailResults);
+    }
+
+    private async Task ExecutePostMainStep(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus
+        , IEnumerable<Result> currentEmailResults)
+    {
+        if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
+        {
+            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
+        }
+
+        afterVoidProcessStage.WriteLogAfterVoid(currentEmailResults, automationInfo);
+    }
+
+    private static int GetSportTypeId(Match matchInfo)
+    {
+        return matchInfo?.SportType ?? 0;
+    }
+
+    private async Task<Match> GetMatch(VoidBetAutomationInfo automationInfo)
+    {
+        return automationInfo.MatchId > 0 ? await voidBetAutomationService.GetMatchInfo(automationInfo.MatchId) : null;
+    }
+
+    private async Task<VoidDataXmlModel> GetVoidDataXml(VoidBetAutomationInfo automationInfo)
+    {
+        return Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId)
+               || Helper.IsAbnormalAccount(automationInfo.RequestInfo.Request.IssueTypeId)
+            ? new VoidDataXmlModel()
+            : await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
     }
 }

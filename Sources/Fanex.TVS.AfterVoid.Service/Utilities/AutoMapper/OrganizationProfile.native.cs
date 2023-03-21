@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 
-namespace Fanex.TVS.AfterVoid.Service.Utilities.AutoMapper
+namespace Fanex.TVS.AfterVoid.Service.Utilities.AutoMapper;
+
+public class OrganizationProfile : Profile
 {
-    public class OrganizationProfile : Profile
+    public OrganizationProfile()
     {
-        public OrganizationProfile()
-        {
-            //CreateMap<TicketEmailModel, Ticket>();
-        }
+        //CreateMap<TicketEmailModel, Ticket>();
     }
 }

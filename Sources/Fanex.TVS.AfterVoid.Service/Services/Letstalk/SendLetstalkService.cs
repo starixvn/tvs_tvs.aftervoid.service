@@ -1,0 +1,136 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Constants;
+using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Utilities;
+using TicketVoidingSystem.Constants;
+using TicketVoidingSystem.Models;
+
+namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk;
+
+public interface SendLetstalkService
+{
+    Task Execute();
+}
+
+public class SendLetstalkServiceImp : SendLetstalkService
+{
+    private readonly VoidBetAutomationService voidBetAutomationService;
+    private readonly AbnormalBetLetstalkService abnormalBetLetstalkServiceImp;
+    private readonly SettledBetLetstalkService settledBetLetstalkService;
+    private readonly NotificationSignalRService notificationSignalRService;
+    private readonly SendLetstalkServiceStage letstalkServiceStage;
+    private readonly LoggingService loggingService;
+
+    public SendLetstalkServiceImp(VoidBetAutomationService voidBetAutomationService,
+        AbnormalBetLetstalkService abnormalBetLetstalkServiceImp,
+        SettledBetLetstalkService settledBetLetstalkService,
+        NotificationSignalRService notificationSignalRService,
+        SendLetstalkServiceStage letstalkServiceStage,
+        LoggingService loggingService)
+    {
+        this.voidBetAutomationService = voidBetAutomationService;
+        this.abnormalBetLetstalkServiceImp = abnormalBetLetstalkServiceImp;
+        this.settledBetLetstalkService = settledBetLetstalkService;
+        this.notificationSignalRService = notificationSignalRService;
+        this.letstalkServiceStage = letstalkServiceStage;
+        this.loggingService = loggingService;
+    }
+
+    public async Task Execute()
+    {
+        var automationInfoList = await letstalkServiceStage.GetVoidBetAutomationRunLetstalk();
+        if (!automationInfoList.Any())
+        {
+            return;
+        }
+
+        var groupRequests = automationInfoList.GroupBy(x => x.RequestId).Select(x => new GroupVoidBetAutomationInfo
+        {
+            RequestId = x.Key,
+            VoidBetAutomationList = x
+        });
+
+        foreach (var request in groupRequests)
+        {
+            await RunLetstalkForSingleRequest(request);
+        }
+    }
+
+    private async Task RunLetstalkForSingleRequest(GroupVoidBetAutomationInfo group)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        group.RequestInfo = await voidBetAutomationService.GetRequestById(group.RequestId, group.MatchId);
+        if (Helper.IsCanSendLetstalk(group.RequestInfo.Request.IssueTypeId))
+        {
+            await letstalkServiceStage.InsertLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Running);
+            var voidedTickets = await letstalkServiceStage.GetVoidedTickets(group.VoidBetAutomationList);
+            var matchInfo = await voidBetAutomationService.GetMatchInfo(group.MatchId);
+            var voidDataXmlList = group.IsAutoVoid
+                ? new List<VoidDataXmlModel>()
+                : await letstalkServiceStage.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
+            var sentLetstalkResults = await SendLetstalk(group, voidedTickets, matchInfo, voidDataXmlList);
+            letstalkServiceStage.WriteLogLetstalk(sentLetstalkResults, group, stopwatch);
+        }
+    }
+
+    private async Task<IEnumerable<Result>> SendLetstalk(GroupVoidBetAutomationInfo group,
+        IEnumerable<TicketEmailModel> emailTickets, Match matchInfo, IEnumerable<VoidDataXmlModel> voidDataXmlList)
+    {
+        try
+        {
+            var results = new List<Result>();
+            var notificationLetstalkModel = CreateNotificationLetstalkModel(group, matchInfo, voidDataXmlList);
+            var isSendLetstalkSettledBet = settledBetLetstalkService.Send(notificationLetstalkModel, emailTickets);
+            var isSendLetstalkAbnormalBet = true;
+            if (Helper.IsLikelyAbnormalBet(group.RequestInfo.Request.IssueTypeId))
+            {
+                isSendLetstalkAbnormalBet = await abnormalBetLetstalkServiceImp.Send(notificationLetstalkModel, emailTickets);
+            }
+
+            await letstalkServiceStage.UpdateLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Done);
+
+            if (!isSendLetstalkSettledBet || !isSendLetstalkAbnormalBet)
+            {
+                results.Add(new Result { ErrorCode = ErrorCode.SendLetstalkFail, ErrorMsg = "Failed to send message via Letstalk." });
+            }
+
+            return results;
+        }
+        catch (Exception exception)
+        {
+            loggingService.Error(
+                $"ERROR: RequestId: {group.RequestId} - {nameof(SendLetstalk)} - BroadcastSessionId: {group.BroadcastSessionId}",
+                exception);
+            await letstalkServiceStage.UpdateLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Failed);
+            await notificationSignalRService.UpdateFailedStatusForRequest(group.RequestId);
+
+            return new List<Result>();
+        }
+    }
+
+    private static NotificationLetstalkModel CreateNotificationLetstalkModel(GroupVoidBetAutomationInfo group, Match matchInfo, IEnumerable<VoidDataXmlModel> voidDataXmlList)
+    {
+        var model = new NotificationLetstalkModel
+        {
+            Match = matchInfo,
+            UserName = group.RequestInfo.Request.VoidedBy,
+            DecidedBy = group.RequestInfo.Request.DecidedBy,
+            VoidFromTime = voidDataXmlList.Any() ? voidDataXmlList.Select(x => x.VoidFromTime).Select(DateTime.Parse).Min(x => x).ToString(FormatKey.LongTimeFormat) : null,
+            VoidToTime = voidDataXmlList.Any() ? voidDataXmlList.Select(x => x.VoidToTime).Select(DateTime.Parse).Max(x => x).ToString(FormatKey.LongTimeFormat) : null,
+            VoidFromDate = voidDataXmlList.Any() ? voidDataXmlList.Select(x => x.VoidFromDate).Select(DateTime.Parse).Min(x => x).ToString(FormatKey.ShortDateFormatWithSlash) : null,
+            VoidToDate = voidDataXmlList.Any() ? voidDataXmlList.Select(x => x.VoidToDate).Select(DateTime.Parse).Min(x => x).ToString(FormatKey.ShortDateFormatWithSlash) : null,
+            IsMemberTemplate = !(matchInfo?.MatchId > 0),
+            IssueTypeId = group.RequestInfo.Request.IssueTypeId,
+            FilterBy = group.RequestInfo.EventByMatch.FilterBy,
+            RequestId = group.RequestId,
+            RequestedBy = group.RequestInfo.Request.RequestedBy,
+            VoidingHistoryIds = string.Join(",", group.VoidBetAutomationList.Select(x => x.VoidingHistoryId))
+        };
+
+        return model;
+    }
+}

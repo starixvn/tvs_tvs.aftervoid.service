@@ -1,7 +1,6 @@
-﻿namespace Fanex.TVS.AfterVoid.Service.Constants
+﻿namespace Fanex.TVS.AfterVoid.Service.Constants;
+
+public static class SportTypeConstant
 {
-    public static class SportTypeConstant
-    {
-        public const int Basketball = 2;
-    }
+    public const int Basketball = 2;
 }

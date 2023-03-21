@@ -1,9 +1,8 @@
-﻿namespace Fanex.TVS.AfterVoid.Service.Models
-{
-    public class GetOperatorInfoModel
-    {
-        public int AgentId { get; set; }
+﻿namespace Fanex.TVS.AfterVoid.Service.Models;
 
-        public string OperatorID { get; set; }
-    }
+public class GetOperatorInfoModel
+{
+    public int AgentId { get; set; }
+
+    public string OperatorID { get; set; }
 }

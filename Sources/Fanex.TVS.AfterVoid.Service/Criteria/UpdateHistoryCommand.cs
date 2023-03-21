@@ -1,20 +1,19 @@
 ﻿using System;
 using Fanex.Data.Repository;
 
-namespace Fanex.TVS.AfterVoid.Service.Criteria
+namespace Fanex.TVS.AfterVoid.Service.Criteria;
+
+public class UpdateHistoryCommand : NonQueryCommand
 {
-    public class UpdateHistoryCommand : NonQueryCommand
-    {
-        public int VoidingHistoryId { get; set; }
-        public int? StatusId { get; set; }
-        public int? MessageId { get; set; }
-        public int? ReasonId { get; set; }
-        public string TransIds { get; set; }
-        public DateTime? MinWinLostDate { get; set; }
-        public DateTime? MaxWinLostDate { get; set; }
+    public int VoidingHistoryId { get; set; }
+    public int? StatusId { get; set; }
+    public int? MessageId { get; set; }
+    public int? ReasonId { get; set; }
+    public string TransIds { get; set; }
+    public DateTime? MinWinLostDate { get; set; }
+    public DateTime? MaxWinLostDate { get; set; }
 
-        public override string GetSettingKey() => "TicketVoiding_VoidingHistory_Update";
+    public override string GetSettingKey() => "TicketVoiding_VoidingHistory_Update";
 
-        public override bool IsValid() => true;
-    }
+    public override bool IsValid() => true;
 }

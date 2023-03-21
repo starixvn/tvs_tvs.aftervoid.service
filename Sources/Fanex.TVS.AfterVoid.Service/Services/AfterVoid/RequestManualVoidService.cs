@@ -1,134 +1,122 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid
+namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
+
+public interface RequestManualVoidService
 {
-    public interface RequestManualVoidService
+    Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory);
+}
+
+public class RequestManualVoidServiceImp : RequestManualVoidService
+{
+    private readonly VoidBetAutomationService voidBetAutomationService;
+    private readonly AfterVoidProcessStage afterVoidProcessStage;
+    private readonly NotificationSignalRService notificationSignalRService;
+
+    public RequestManualVoidServiceImp(
+        VoidBetAutomationService voidBetAutomationService,
+        AfterVoidProcessStage afterVoidProcessStage,
+        NotificationSignalRService notificationSignalRService)
     {
-        Task Execute(IEnumerable<VoidBetAutomationInfo> automationInfoList);
+        this.voidBetAutomationService = voidBetAutomationService;
+        this.afterVoidProcessStage = afterVoidProcessStage;
+        this.notificationSignalRService = notificationSignalRService;
     }
 
-    public class RequestManualVoidServiceImp : RequestManualVoidService
+    public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory)
     {
-        private readonly VoidBetAutomationService voidBetAutomationService;
-        private readonly AfterVoidProcessStage afterVoidProcessStage;
-        private readonly NotificationSignalRService notificationSignalRService;
-
-        public RequestManualVoidServiceImp(VoidBetAutomationService voidBetAutomationService, AfterVoidProcessStage afterVoidProcessStage,
-            NotificationSignalRService notificationSignalRService)
+        if (automationInfo.StatusId != ExecuteStatus.Done)
         {
-            this.voidBetAutomationService = voidBetAutomationService;
-            this.afterVoidProcessStage = afterVoidProcessStage;
-            this.notificationSignalRService = notificationSignalRService;
+            await RunMainSteps(automationInfo, isLastedInRequest, currentRequestStatus, emailResultsHistory);
+        }
+    }
+
+    private async Task RunMainSteps(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory)
+    {
+        var voidDataXml = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
+
+        var message = await afterVoidProcessStage.CreateMessageIdForManualVoid(automationInfo, voidDataXml);
+        if (Helper.IsNotHaveMessage(message))
+        {
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            return;
         }
 
-        public async Task Execute(IEnumerable<VoidBetAutomationInfo> automationInfoList)
+        var voidedReason = await afterVoidProcessStage.CreateVoidedReason(automationInfo, 0, voidDataXml);
+        if (Helper.IsNotHaveVoidedReason(voidedReason))
         {
-            foreach (var automationInfo in automationInfoList)
-            {
-                if (automationInfo.StatusId == ExecuteStatus.Done)
-                {
-                    continue;
-                }
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            return;
+        }
 
-                await RunMainSteps(automationInfo);
+        var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId);
+        var isSentBatchMessage = await afterVoidProcessStage.SendBatchMessage(automationInfo, voidedTickets, message.MessageId, voidDataXml);
+        if (!isSentBatchMessage)
+        {
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            return;
+        }
+
+        if (!Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
+        {
+            var isSentMessageToAdminSite = await afterVoidProcessStage.SendMessageToAdminSite(automationInfo, message);
+            if (!isSentMessageToAdminSite)
+            {
+                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+                return;
             }
         }
 
-        private async Task RunMainSteps(VoidBetAutomationInfo automationInfo)
+        var isInsertedVoidedTransaction = await afterVoidProcessStage.InsertVoidedTransaction(automationInfo, voidedTickets, message.MessageId, voidedReason.ReasonId);
+        if (!isInsertedVoidedTransaction)
         {
-            var voidedTickets = await voidBetAutomationService.GetVoidedTicketsForSendEmail(automationInfo.VoidingHistoryId);
-            var voidDataXml = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
-
-            var messageContent = await afterVoidProcessStage.CreateMessageIdForManualVoid(automationInfo, voidDataXml);
-            if (IsNotHaveMessage(messageContent))
-            {
-                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
-                return;
-            }
-
-            var voidedReason = await afterVoidProcessStage.CreateVoidedReason(automationInfo, 0, voidDataXml);
-            if (IsNotHaveVoidedReason(voidedReason))
-            {
-                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
-                return;
-            }
-
-            var isSentBatchMessage = await afterVoidProcessStage.SendBatchMessage(automationInfo, voidedTickets, messageContent.MessageId, voidDataXml);
-            if (!isSentBatchMessage)
-            {
-                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
-                return;
-            }
-
-            if (!Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
-            {
-                var isSentMessageToAdminSite = await afterVoidProcessStage.SendMessageToAdminSite(automationInfo, messageContent);
-                if (!isSentMessageToAdminSite)
-                {
-                    await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
-                    return;
-                }
-            }
-
-            var isInsertedVoidedTransaction = await afterVoidProcessStage.InsertVoidedTransaction(automationInfo, voidedTickets, messageContent.MessageId, voidedReason.ReasonId);
-            if (!isInsertedVoidedTransaction)
-            {
-                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
-                return;
-            }
-
-            var isUpdatedVoidingHistory = await afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, messageContent.MessageId, voidedReason.ReasonId, voidedTickets);
-            if (!isUpdatedVoidingHistory)
-            {
-                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
-                return;
-            }
-
-            var matchInfo = await GetMatchInfo(automationInfo);
-            var (isSentEmail, sentEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, messageContent);
-            if (!isSentEmail)
-            {
-                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
-                return;
-            }
-            await afterVoidProcessStage.UpdateEmailResult(automationInfo, sentEmailResults);
-
-            var (isSentLetstalk, sentLetstalkResults) = await afterVoidProcessStage.SendLetstalk(automationInfo, voidedTickets, matchInfo, voidDataXml);
-            if (!isSentLetstalk)
-            {
-                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
-                return;
-            }
-
-            await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
-
-            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
-
-            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.VoidingHistoryId);
-            var results = afterVoidProcessStage.CreateResultList(sentEmailResults, sentLetstalkResults, automationInfo.NegativeBalanceUsers, automationInfo.RequestId, automationInfo.MatchId);
-            await notificationSignalRService.NotifyVoidResultToUser(voidDataXml.CreatorName, results);
-            afterVoidProcessStage.WriteLogAfterVoid(results, automationInfo);
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            return;
         }
 
-        private static bool IsNotHaveMessage(Message message)
+        var isUpdatedVoidingHistory = await afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, voidedTickets);
+        if (!isUpdatedVoidingHistory)
         {
-            return message == null || message.MessageId == 0;
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            return;
         }
 
-        private static bool IsNotHaveVoidedReason(VoidedReason voidedReason)
+        var matchInfo = await GetMatchInfo(automationInfo);
+        var (isSentEmail, currentEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
+        if (!isSentEmail)
         {
-            return voidedReason == null || voidedReason.ReasonId == 0;
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            return;
+        }
+        await afterVoidProcessStage.UpdateEmailResult(automationInfo, currentEmailResults);
+
+        await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
+
+        await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
+
+        await ExecutePostMainStep(automationInfo, isLastedInRequest, currentRequestStatus, voidDataXml.CreatorName,
+            currentEmailResults, emailResultsHistory);
+    }
+
+    private async Task ExecutePostMainStep(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, string creatorName
+        , IEnumerable<Result> currentEmailResults, IEnumerable<EmailResultModel> emailResultsHistory)
+    {
+        if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
+        {
+            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
+            await afterVoidProcessStage.NotifyVoidResultsSignalR(automationInfo, currentEmailResults, creatorName, emailResultsHistory);
         }
 
-        private async Task<Match> GetMatchInfo(VoidBetAutomationInfo automationInfo)
-        {
-            return automationInfo.MatchId > 0 ? await voidBetAutomationService.GetMatchInfo(automationInfo.MatchId) : null;
-        }
+        afterVoidProcessStage.WriteLogAfterVoid(currentEmailResults, automationInfo);
+    }
+
+    private async Task<Match> GetMatchInfo(VoidBetAutomationInfo automationInfo)
+    {
+        return automationInfo.MatchId > 0 ? await voidBetAutomationService.GetMatchInfo(automationInfo.MatchId) : null;
     }
 }

@@ -1,44 +1,43 @@
-﻿namespace TicketVoidingSystem.Models
+﻿namespace TicketVoidingSystem.Models;
+
+public interface SendMessageModel
 {
-    public interface SendMessageModel
-    {
-        int UserId { get; }
+    int UserId { get; }
 
-        string UserName { get; }
+    string UserName { get; }
 
-        int AgentId { get; }
+    int AgentId { get; }
 
-        string AgentName { get; }
+    string AgentName { get; }
 
-        int MasterId { get; }
+    int MasterId { get; }
 
-        string MasterName { get; }
+    string MasterName { get; }
 
-        int SuperId { get; }
+    int SuperId { get; }
 
-        string SuperName { get; }
+    string SuperName { get; }
 
-        long TransId { get; }
-    }
+    long TransId { get; }
+}
 
-    public interface SendMessageDbModel
-    {
-        int CustId { get; }
+public interface SendMessageDbModel
+{
+    int CustId { get; }
 
-        string UserName { get; }
+    string UserName { get; }
 
-        int Recommend { get; }
+    int Recommend { get; }
 
-        string AgUserName { get; }
+    string AgUserName { get; }
 
-        int Mrecommend { get; }
+    int Mrecommend { get; }
 
-        string MagUserName { get; }
+    string MagUserName { get; }
 
-        int Srecommend { get; }
+    int Srecommend { get; }
 
-        string SagUserName { get; }
+    string SagUserName { get; }
 
-        long TransId { get; }
-    }
+    long TransId { get; }
 }

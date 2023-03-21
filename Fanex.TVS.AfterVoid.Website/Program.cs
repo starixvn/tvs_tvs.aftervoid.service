@@ -1,25 +1,41 @@
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
+using Fanex.TVS.AfterVoid.Website.Utilities;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using TicketVoidingSystem.Services;
+using TicketVoidingSystem.SignalR;
 
-namespace Fanex.TVS.AfterVoid.Website
-{
-    [ExcludeFromCodeCoverage]
-    public static class Program
-    {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+var builder = WebApplication.CreateBuilder(args);
 
-        public static IHostBuilder CreateHostBuilder(string[] args)
-        {
-            return Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseUrls("http://0.0.0.0:5000");
-                    webBuilder.UseStartup<Startup>();
-                });
-        }
-    }
-}
+// Add services to the container.
+builder.Services.LoadConfig();
+builder.Services.AddControllers();
+builder.Services.AddHttpClient<TicketVoidingSystemHttpClientService, TicketVoidingSystemHttpClientServiceImp>();
+builder.Services.AddHttpClient<CashOutHttpClientService, CashOutHttpClientServiceImp>();
+builder.Services.RegisterFanexData(builder.Configuration);
+builder.Services.RegisterFanexExceptionHandler();
+builder.Services.RegisterSentry(builder.Configuration);
+builder.Services.RegisterONEbookUM(builder.Configuration);
+builder.Services.RegisterFanexCaching(builder.Configuration);
+builder.Services.RegisterRemotingRef();
+builder.Services.RegisterMailService();
+builder.Services.RegisterLetstalk();
+builder.Services.RegisterAutoMapper();
+builder.Services.RegisterSignalR(builder.Configuration);
+builder.Services.RegisterBusinessService();
+builder.Services.RegisterQuartzScheduler();
+
+// Build app
+var app = builder.Build();
+app.UseDeveloperExceptionPage();
+app.UseHttpsRedirection();
+app.UseMiddleware<ExceptionHandlerMiddleware>();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapHub<NotificationHub>("/SignalR/NotificationHub");
+
+#if DEBUG
+app.Run();
+#else
+await app.RunAsync("http://0.0.0.0:5000");
+#endif

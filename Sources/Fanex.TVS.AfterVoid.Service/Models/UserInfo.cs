@@ -1,9 +1,8 @@
-﻿namespace Fanex.TVS.AfterVoid.Service.Models
-{
-    public class UserInfo
-    {
-        public int CustId { get; set; }
+﻿namespace Fanex.TVS.AfterVoid.Service.Models;
 
-        public string UserName { get; set; }
-    }
+public class UserInfo
+{
+    public int CustId { get; set; }
+
+    public string UserName { get; set; }
 }

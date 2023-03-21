@@ -1,13 +1,12 @@
 ﻿using Fanex.Data.Repository;
 
-namespace Fanex.TVS.AfterVoid.Service.Criteria
+namespace Fanex.TVS.AfterVoid.Service.Criteria;
+
+public class CheckRequestOfITUserCriteria : CriteriaBase
 {
-    public class CheckRequestOfITUserCriteria : CriteriaBase
-    {
-        public int VoidingHistoryId { get; set; }
+    public int VoidingHistoryId { get; set; }
 
-        public override string GetSettingKey() => "TicketVoiding_Email_CheckITUser";
+    public override string GetSettingKey() => "TicketVoiding_Email_CheckITUser";
 
-        public override bool IsValid() => true;
-    }
+    public override bool IsValid() => true;
 }
