@@ -288,7 +288,8 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
                 return true;
             }
 
-            await sendMessageService.InsertVoidedTransaction(emailTickets, messageId, reasonId,
+            var voidedTicket = emailTickets.Where(x => !x.IsCancelCashOut);
+            await sendMessageService.InsertVoidedTransaction(voidedTicket, messageId, reasonId,
                 automationInfo.RequestInfo.Request.IssueTypeId, automationInfo.RequestInfo.EventByMatch.SubIssueTypeId, automationInfo.MatchId);
             await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsInsertedVoidedTransaction = true });
 
