@@ -34,12 +34,12 @@ public class MessageExtensionsTests
         const string expected = "";
         var tickets = new List<TicketEmailModel>();
         var messageExtensionsNonStatic = Substitute.For<IMessageExtensionsNonStatic>();
-        messageExtensionsNonStatic.CreateCustInfoXml(default).ReturnsForAnyArgs(expected);
+        messageExtensionsNonStatic.CreateTicketsXml(default).ReturnsForAnyArgs(expected);
         MessageExtensions.MockImplementationForUnitTest(messageExtensionsNonStatic);
 
-        var actual = tickets.CreateCustInfoXml();
+        var actual = tickets.CreateTicketsXml();
 
-        messageExtensionsNonStatic.Received(1).CreateCustInfoXml(Arg.Any<IEnumerable<TicketEmailModel>>());
+        messageExtensionsNonStatic.Received(1).CreateTicketsXml(Arg.Any<IEnumerable<TicketEmailModel>>());
         Assert.Equal(expected, actual);
     }
 
@@ -49,7 +49,7 @@ public class MessageExtensionsTests
         var tickets = new List<TicketEmailModel> { new() };
         var staticExtension = new MessageExtensionsNonStatic();
 
-        var actual = staticExtension.CreateCustInfoXml(tickets);
+        var actual = staticExtension.CreateTicketsXml(tickets);
 
         Assert.NotNull(actual);
     }
