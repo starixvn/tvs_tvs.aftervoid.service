@@ -5,6 +5,7 @@ using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using ONEbook.UM.Services;
 using Quartz;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Jobs;
 
@@ -27,21 +28,21 @@ public class LetstalkJob : IJob
     {
         try
         {
-            if (!AppConfigService.AppConfig.OnProcessingLetstalk)
+            if (!AppSettingService.AppSetting.OnProcessingLetstalk)
             {
-                AppConfigService.AppConfig.OnProcessingLetstalk = true;
+                AppSettingService.AppSetting.OnProcessingLetstalk = true;
 
                 if (!await maintenanceService.IsUnderMaintenanceAsync())
                 {
                     await sendLetstalkService.Execute();
                 }
 
-                AppConfigService.AppConfig.OnProcessingLetstalk = false;
+                AppSettingService.AppSetting.OnProcessingLetstalk = false;
             }
         }
         catch (Exception ex)
         {
-            AppConfigService.AppConfig.OnProcessingLetstalk = false;
+            AppSettingService.AppSetting.OnProcessingLetstalk = false;
             loggingService.Error("LetstalkJob execute failed!", ex);
         }
     }

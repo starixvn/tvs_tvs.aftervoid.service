@@ -6,6 +6,7 @@ using Fanex.LetstalkService.Core.Models;
 using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 
@@ -55,7 +56,7 @@ public class SettledBetLetstalkServiceImp : SettledBetLetstalkService
             TargetName = "Ticket-Voiding-System",
             Subject = "Void Settled Bet Notification",
             Content = content,
-            Group = AppConfigService.AppConfig.LetstalkSettledBetGroup
+            Group = AppSettingService.AppSetting.LetstalkConfig.VoidSettledBets
         };
     }
 
@@ -144,7 +145,7 @@ public class SettledBetLetstalkServiceImp : SettledBetLetstalkService
         var result = !ticket.BetTypeId.IsParlay()
                      && !ticket.IsCashOut
                      && ticket.Status.IsSettled();
-        if (AppConfigService.AppConfig.IsPRODEnvironment)
+        if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
         {
             return result && ticket.Currency != currency20;
         }
@@ -156,7 +157,7 @@ public class SettledBetLetstalkServiceImp : SettledBetLetstalkService
     {
         var result = isCheckSubParlay ? ticket.IsMixParlay && ticket.SubStatus.IsSettled()
             : ticket.BetTypeId.IsParlay() && ticket.Status.IsSettled();
-        if (AppConfigService.AppConfig.IsPRODEnvironment)
+        if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
         {
             return result && ticket.Currency != currency20;
         }
@@ -166,7 +167,7 @@ public class SettledBetLetstalkServiceImp : SettledBetLetstalkService
 
     private static bool IsValidCashOutTicket(TicketEmailModel ticket)
     {
-        if (AppConfigService.AppConfig.IsPRODEnvironment)
+        if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
         {
             return ticket.IsCashOut && ticket.Currency != currency20;
         }

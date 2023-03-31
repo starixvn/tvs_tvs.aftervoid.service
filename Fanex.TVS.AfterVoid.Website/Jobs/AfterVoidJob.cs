@@ -5,6 +5,7 @@ using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 using ONEbook.UM.Services;
 using Quartz;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Jobs;
 
@@ -27,21 +28,21 @@ public class AfterVoidJob : IJob
     {
         try
         {
-            if (!AppConfigService.AppConfig.OnProcessingAfterVoid)
+            if (!AppSettingService.AppSetting.OnProcessingAfterVoid)
             {
-                AppConfigService.AppConfig.OnProcessingAfterVoid = true;
+                AppSettingService.AppSetting.OnProcessingAfterVoid = true;
 
                 if (!await maintenanceService.IsUnderMaintenanceAsync())
                 {
                     await afterVoidService.Execute();
                 }
 
-                AppConfigService.AppConfig.OnProcessingAfterVoid = false;
+                AppSettingService.AppSetting.OnProcessingAfterVoid = false;
             }
         }
         catch (Exception ex)
         {
-            AppConfigService.AppConfig.OnProcessingAfterVoid = false;
+            AppSettingService.AppSetting.OnProcessingAfterVoid = false;
             loggingService.Error("AfterVoidJob execute failed!", ex);
         }
     }

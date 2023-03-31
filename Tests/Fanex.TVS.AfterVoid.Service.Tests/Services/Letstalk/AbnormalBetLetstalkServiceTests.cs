@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 using Fanex.LetstalkService.Client;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
-using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using FizzWare.NBuilder;
 using NSubstitute;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
 using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services.Letstalk;
@@ -32,7 +32,7 @@ public class AbnormalBetLetstalkServiceTests
     [InlineData(11, 1, false)]
     public async Task SendToAbnormalBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceFail(int issueId, int? filterBy, bool IsPRODEnvironment)
     {
-        AppConfigService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = IsPRODEnvironment };
+        AppSettingService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = IsPRODEnvironment };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         fakeNotificationLetstalkModel.IssueTypeId = issueId;
         fakeNotificationLetstalkModel.FilterBy = filterBy;
@@ -57,7 +57,7 @@ public class AbnormalBetLetstalkServiceTests
     [Fact]
     public async Task SendToAbnormalBetGroup_ShouldReturnTrueWhenHaveNotContent()
     {
-        AppConfigService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = false };
+        AppSettingService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = false };
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(10)
             .Random(2).With(x => x.IsCredit = true)
             .Build();
@@ -73,7 +73,7 @@ public class AbnormalBetLetstalkServiceTests
     [Fact]
     public async Task SendToAbnormalBetGroup_ShouldReturnTrue()
     {
-        AppConfigService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = false };
+        AppSettingService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = false };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         fakeNotificationLetstalkModel.IssueTypeId = 11;
         fakeNotificationLetstalkModel.FilterBy = 1;

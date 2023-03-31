@@ -8,6 +8,7 @@ using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 
@@ -64,7 +65,7 @@ public class AbnormalBetLetstalkServiceImp : AbnormalBetLetstalkService
             TargetName = "Ticket-Voiding-System",
             Subject = subject,
             Content = content,
-            Group = AppConfigService.AppConfig.LetstalkAbnormalBetGroup,
+            Group = AppSettingService.AppSetting.LetstalkConfig.VoidAbnormalBets,
             LetstalkAttachments = new List<LetstalkAttachment>
             {
                 new()
@@ -148,7 +149,7 @@ public class AbnormalBetLetstalkServiceImp : AbnormalBetLetstalkService
     private static bool IsValidSingleTicketAbnormalBetGroup(TicketEmailModel ticket)
     {
         var result = !ticket.BetTypeId.IsParlay() && !ticket.IsCashOut;
-        if (AppConfigService.AppConfig.IsPRODEnvironment)
+        if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
         {
             return result && ticket.Currency != currency20;
         }
@@ -158,7 +159,7 @@ public class AbnormalBetLetstalkServiceImp : AbnormalBetLetstalkService
 
     private static bool IsValidParlayTicketAbnormalBetGroup(TicketEmailModel ticket)
     {
-        if (AppConfigService.AppConfig.IsPRODEnvironment)
+        if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
         {
             return ticket.BetTypeId.IsParlay() && ticket.Currency != currency20;
         }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using Fanex.Caching.Redis;
 using Fanex.Data;
@@ -15,7 +14,6 @@ using Fanex.Logging.Extensions.Database;
 using Fanex.Logging.Sentry;
 using Fanex.MailDeliver.MailClient;
 using Fanex.RemotingRef;
-using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
@@ -24,7 +22,6 @@ using Fanex.TVS.AfterVoid.Website.Jobs;
 using Fanex.TVS.AfterVoid.Website.Jobs.Listener;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using ONEbook.UM.AspNetCore;
 using ONEbook.UM.Configurations;
 using ONEbook.UM.Helpers;
@@ -32,29 +29,27 @@ using ONEbook.UM.Services;
 using ONEbook.UM.Transport;
 using Quartz;
 using Sentry;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
 
 [ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
-    public static void LoadConfig(this IServiceCollection services)
+    public static void LoadConfig(this IServiceCollection services, IConfiguration configuration)
     {
-        Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
-
-        var text = File.ReadAllText("appsettings.json");
-        AppConfigService.AppConfig = JsonConvert.DeserializeObject<ConfigSettingModel>(text);
+        AppSettingService.InitSetting(configuration);
     }
 
-    public static void RegisterSentry(this IServiceCollection services, IConfiguration configuration)
+    public static void RegisterSentry(this IServiceCollection services)
     {
         LogManager
-            .SetDefaultLogCategory(configuration.GetSection("CategorySentryLog").Value)
+            .SetDefaultLogCategory(AppSettingService.AppSetting.CategorySentryLog)
             .Use(new List<ILogEngine>
             {
                 new SentryLogging(new SentryEngineOptions
                 {
-                    Dsn = new Dsn(configuration.GetSection("SentryClientKey").Value)
+                    Dsn = new Dsn(AppSettingService.AppSetting.SentryClientKey)
                 })
             });
     }
@@ -77,14 +72,14 @@ public static class ServiceCollectionExtensions
             .Run();
     }
 
-    public static void RegisterSignalR(this IServiceCollection services, IConfiguration configuration)
+    public static void RegisterSignalR(this IServiceCollection services)
     {
         services.AddSignalR().AddStackExchangeRedis(options =>
         {
-            options.Configuration.EndPoints.Add(configuration.GetSection("RedisConfig:EndPoint").Value);
-            options.Configuration.Password = configuration.GetSection("RedisConfig:Password").Value;
-            options.Configuration.DefaultDatabase = int.Parse(configuration.GetSection("RedisConfig:DefaultDatabase").Value);
-            options.Configuration.ChannelPrefix = configuration.GetSection("RedisConfig:ChannelPrefix").Value;
+            options.Configuration.EndPoints.Add(AppSettingService.AppSetting.RedisConfig.EndPoint);
+            options.Configuration.Password = AppSettingService.AppSetting.RedisConfig.Password;
+            options.Configuration.DefaultDatabase = AppSettingService.AppSetting.RedisConfig.DefaultDatabase;
+            options.Configuration.ChannelPrefix = AppSettingService.AppSetting.RedisConfig.SignalRChannelPrefix;
         });
     }
 
@@ -115,20 +110,20 @@ public static class ServiceCollectionExtensions
     public static void RegisterRemotingRef(this IServiceCollection services)
     {
         RefDataTypeContainer
-            .ConnectTo(new Uri(AppConfigService.AppConfig.FanexRemotingRefServiceUrl))
-            .FromApplication(AppConfigService.AppConfig.ServiceName)
+            .ConnectTo(new Uri(AppSettingService.AppSetting.FanexRemotingRefServiceUrl))
+            .FromApplication(AppSettingService.AppSetting.ServiceName)
             .RegisterSupportedLanguages("en-US", "zh-TW", "zh-CN", "zh-Hans");
     }
 
     public static void RegisterMailService(this IServiceCollection services)
     {
-        AppSettings.AppMailId = AppConfigService.AppConfig.AppMailId;
-        AppSettings.AppMailAddress = AppConfigService.AppConfig.AppMailAddress;
+        AppSettings.AppMailId = AppSettingService.AppSetting.FanexMailService.AppMailId;
+        AppSettings.AppMailAddress = AppSettingService.AppSetting.FanexMailService.AppMailAddress;
     }
 
     public static void RegisterLetstalk(this IServiceCollection services)
     {
-        LetstalkService.Core.Services.AppConfigService.Config.LetstalkServiceApi = AppConfigService.AppConfig.LetstalkServiceApi;
+        LetstalkService.Core.Services.AppConfigService.Config.LetstalkServiceApi = AppSettingService.AppSetting.LetstalkConfig.LetstalkServiceApi;
     }
 
     public static void RegisterAutoMapper(this IServiceCollection services)
