@@ -68,26 +68,10 @@ public class SendMessageServiceImp : SendMessageService
             ReasonId = reasonId,
             IssueTypeId = issueTypeId,
             SubIssueTypeId = subIssueTypeId,
-            XmlCustInfo = tickets.CreateCustInfoXml()
+            TicketsXml = tickets.CreateTicketsXml()
         };
-        var mainTransIds = string.Join(",", tickets
-            .Where(x => !x.IsMixParlay)
-            .Select(x => x.TransId.ToString()));
-        var subTransIds = string.Join(",", tickets
-            .Where(x => x.IsMixParlay)
-            .Select(x => x.TransId.ToString()));
-        if (!string.IsNullOrEmpty(mainTransIds))
-        {
-            criteria.TransIds = mainTransIds;
-            criteria.MatchId = 0;
-            await repository.ExecuteAsync(criteria);
-        }
-        if (!string.IsNullOrEmpty(subTransIds))
-        {
-            criteria.TransIds = subTransIds;
-            criteria.MatchId = matchId;
-            await repository.ExecuteAsync(criteria);
-        }
+
+        await repository.ExecuteAsync(criteria);
     }
 
     public async Task<Message> InitializeMessageContentForAutoVoid(Match match, bool isHasSettledTicket, int issueTypeId, int? filterBy)
