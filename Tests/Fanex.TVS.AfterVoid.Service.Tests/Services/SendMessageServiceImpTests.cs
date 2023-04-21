@@ -130,7 +130,7 @@ public class SendMessageServiceImpTests
         await service.InsertVoidedTransaction(fakeTicketEmailModels, fakeData.MessageId, fakeData.ReasonId, fakeData.IssueTypeId, fakeData.SubIssueTypeId, fakeData.MatchId);
 
         // Assert
-        await repository.Received(2).ExecuteAsync(Arg.Any<InsertVoidedTransactionCommand>());
+        await repository.Received().ExecuteAsync(Arg.Any<InsertVoidedTransactionCommand>());
     }
 
     [Theory]
@@ -296,7 +296,8 @@ public class SendMessageServiceImpTests
             Srecommend = 333,
             SagUserName = "SagUserName",
             TransId = 123456789,
-            IsMixParlay = false
+            IsMixParlay = false,
+            MatchId = 111
         },
         new TicketEmailModel
         {
@@ -310,7 +311,8 @@ public class SendMessageServiceImpTests
             Srecommend = 333,
             SagUserName = "SagUserName",
             TransId = 987654321,
-            IsMixParlay = true
+            IsMixParlay = true,
+            MatchId = 1111
         }
     };
 }

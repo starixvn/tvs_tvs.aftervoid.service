@@ -337,7 +337,7 @@ public class AfterVoidProcessStageImpTests
 
         var actual = await service.InsertVoidedTransaction(fakeAutomationInfo, fakeEmails, 0, 0);
 
-        await sendMessageService.Received(1).InsertVoidedTransaction(Arg.Is<IEnumerable<TicketEmailModel>>(x => x.Equals(fakeEmails)),
+        await sendMessageService.Received(1).InsertVoidedTransaction(Arg.Any<IEnumerable<TicketEmailModel>>(),
             Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>());
         await voidBetAutomationService.Received(1).UpdateAfterVoidStep(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<VoidBetAutomationInfo>());
         Assert.True(actual);

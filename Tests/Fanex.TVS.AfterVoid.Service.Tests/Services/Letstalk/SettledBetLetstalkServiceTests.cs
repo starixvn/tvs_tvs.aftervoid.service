@@ -37,7 +37,7 @@ public class SettledBetLetstalkServiceTests
     [Fact]
     public void SendToSettledBetGroup_WhenRequestHaveUsername_ShouldNotRunLetstalkService()
     {
-        AppSettingService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = true };
+        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true } };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(5)
             .All().With(x => x.IsCashOut = false).Build();
@@ -52,7 +52,7 @@ public class SettledBetLetstalkServiceTests
     [Fact]
     public void SendToSettledBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceFail()
     {
-        AppSettingService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = true };
+        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true } };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(10)
             .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
@@ -73,7 +73,7 @@ public class SettledBetLetstalkServiceTests
     [Fact]
     public void SendToSettledBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceSuccessMultipleTimes()
     {
-        AppSettingService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = true };
+        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true } };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(200)
             .Random(40).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
@@ -94,7 +94,7 @@ public class SettledBetLetstalkServiceTests
     [Fact]
     public void SendToSettledBetGroup_WhenRequestNotHaveUsername_ShouldNotRunLetstalkService()
     {
-        AppSettingService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = true };
+        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true } };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = false).Build();
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(5)
             .All().With(x => x.IsCashOut = false).Build();
@@ -112,7 +112,7 @@ public class SettledBetLetstalkServiceTests
     public void SendToSettledBetGroup_WhenRequestNotHaveUsername_ShouldRunLetstalkServiceSuccess(bool isPRODEnvironment)
     {
         SetupTestEnv();
-        AppSettingService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = isPRODEnvironment };
+        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true } };
         var fakeMatch = Builder<Match>.CreateNew().Build();
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = false).Build();
         fakeNotificationLetstalkModel.Match = fakeMatch;

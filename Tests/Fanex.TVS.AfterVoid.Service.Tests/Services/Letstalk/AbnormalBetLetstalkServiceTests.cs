@@ -32,7 +32,7 @@ public class AbnormalBetLetstalkServiceTests
     [InlineData(11, 1, false)]
     public async Task SendToAbnormalBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceFail(int issueId, int? filterBy, bool IsPRODEnvironment)
     {
-        AppSettingService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = IsPRODEnvironment };
+        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = IsPRODEnvironment } };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         fakeNotificationLetstalkModel.IssueTypeId = issueId;
         fakeNotificationLetstalkModel.FilterBy = filterBy;
@@ -57,7 +57,7 @@ public class AbnormalBetLetstalkServiceTests
     [Fact]
     public async Task SendToAbnormalBetGroup_ShouldReturnTrueWhenHaveNotContent()
     {
-        AppSettingService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = false };
+        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true } };
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(10)
             .Random(2).With(x => x.IsCredit = true)
             .Build();
@@ -73,7 +73,7 @@ public class AbnormalBetLetstalkServiceTests
     [Fact]
     public async Task SendToAbnormalBetGroup_ShouldReturnTrue()
     {
-        AppSettingService.AppConfig = new ConfigSettingModel { IsPRODEnvironment = false };
+        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = false } };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         fakeNotificationLetstalkModel.IssueTypeId = 11;
         fakeNotificationLetstalkModel.FilterBy = 1;

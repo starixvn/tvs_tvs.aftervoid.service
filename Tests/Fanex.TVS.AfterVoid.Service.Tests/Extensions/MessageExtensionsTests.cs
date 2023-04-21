@@ -46,7 +46,7 @@ public class MessageExtensionsTests
     [Fact]
     public void MessageExtensionsNonStaticCreateCustInfoXml_ReturnExpected()
     {
-        var tickets = new List<TicketEmailModel> { new() };
+        var tickets = new List<TicketEmailModel> { new() { TransId = 12312312, CustId = 1, MatchId = 1 } };
         var staticExtension = new MessageExtensionsNonStatic();
 
         var actual = staticExtension.CreateTicketsXml(tickets);
