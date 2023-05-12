@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.LoadConfig(builder.Configuration);
 builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient<TicketVoidingSystemHttpClientService, TicketVoidingSystemHttpClientServiceImp>();
 builder.Services.AddHttpClient<CashOutHttpClientService, CashOutHttpClientServiceImp>();
 builder.Services.RegisterFanexData(builder.Configuration);

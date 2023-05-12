@@ -20,6 +20,7 @@ using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using Fanex.TVS.AfterVoid.Service.Utilities.AutoMapper;
 using Fanex.TVS.AfterVoid.Website.Jobs;
 using Fanex.TVS.AfterVoid.Website.Jobs.Listener;
+using Fanex.TVS.AfterVoid.Website.Utilities.CustomServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ONEbook.UM.AspNetCore;
@@ -95,7 +96,7 @@ public static class ServiceCollectionExtensions
     public static void RegisterONEbookUM(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton(new UMClientConfiguration().Initialize(configuration));
-        services.AddSingleton<IUMCacheService, UMCacheService>();
+        services.AddSingleton<IUMCacheService, MemoryUMCacheService>();
         services.AddSingleton<IUMRestClient, UMRestClient>();
         services.AddSingleton<IPHelper, IPHelperImpl>();
         services.AddSingleton<IHttpContextHelper, CustomHttpContextHelper>();
