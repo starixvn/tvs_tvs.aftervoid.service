@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Constants;
+using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Constants;
@@ -83,7 +84,7 @@ public class SendLetstalkServiceImp : SendLetstalkService
         try
         {
             var results = new List<Result>();
-            var notificationLetstalkModel = CreateNotificationLetstalkModel(group, matchInfo, voidDataXmlList);
+            var notificationLetstalkModel = CreateNotificationLetstalkModel(group, matchInfo, voidDataXmlList, emailTickets);
             var isSendLetstalkSettledBet = settledBetLetstalkService.Send(notificationLetstalkModel, emailTickets);
             var isSendLetstalkAbnormalBet = true;
             if (Helper.IsLikelyAbnormalBet(group.RequestInfo.Request.IssueTypeId))
@@ -112,17 +113,14 @@ public class SendLetstalkServiceImp : SendLetstalkService
         }
     }
 
-    private static NotificationLetstalkModel CreateNotificationLetstalkModel(GroupVoidBetAutomationInfo group, Match matchInfo, IEnumerable<VoidDataXmlModel> voidDataXmlList)
+    private static NotificationLetstalkModel CreateNotificationLetstalkModel(GroupVoidBetAutomationInfo group,
+        Match matchInfo, IEnumerable<VoidDataXmlModel> voidDataXmlList, IEnumerable<TicketEmailModel> emailTickets)
     {
         var model = new NotificationLetstalkModel
         {
             Match = matchInfo,
             UserName = group.RequestInfo.Request.VoidedBy,
             DecidedBy = group.RequestInfo.Request.DecidedBy,
-            VoidFromTime = voidDataXmlList.Any() ? voidDataXmlList.Select(x => x.VoidFromTime).Select(DateTime.Parse).Min(x => x).ToString(FormatKey.LongTimeFormat) : null,
-            VoidToTime = voidDataXmlList.Any() ? voidDataXmlList.Select(x => x.VoidToTime).Select(DateTime.Parse).Max(x => x).ToString(FormatKey.LongTimeFormat) : null,
-            VoidFromDate = voidDataXmlList.Any() ? voidDataXmlList.Select(x => x.VoidFromDate).Select(DateTime.Parse).Min(x => x).ToString(FormatKey.ShortDateFormatWithSlash) : null,
-            VoidToDate = voidDataXmlList.Any() ? voidDataXmlList.Select(x => x.VoidToDate).Select(DateTime.Parse).Min(x => x).ToString(FormatKey.ShortDateFormatWithSlash) : null,
             IsMemberTemplate = !(matchInfo?.MatchId > 0),
             IssueTypeId = group.RequestInfo.Request.IssueTypeId,
             FilterBy = group.RequestInfo.EventByMatch.FilterBy,
@@ -131,6 +129,48 @@ public class SendLetstalkServiceImp : SendLetstalkService
             VoidingHistoryIds = string.Join(",", group.VoidBetAutomationList.Select(x => x.VoidingHistoryId))
         };
 
+        if (IsAbnormalAccountVoidInstant(group))
+        {
+            UpdateTimeByTickets(model, emailTickets);
+        }
+        else
+        {
+            UpdateTimeByVoidDataXml(model, voidDataXmlList);
+        }
+
         return model;
+    }
+
+    private static void UpdateTimeByVoidDataXml(NotificationLetstalkModel letstalkModel, IEnumerable<VoidDataXmlModel> voidDataXmlList)
+    {
+        letstalkModel.VoidFromTime = voidDataXmlList.Any()
+            ? voidDataXmlList.Select(x => x.VoidFromTime).Select(DateTime.Parse).Min(x => x)
+                .ToString(FormatKey.LongTimeFormat)
+            : null;
+        letstalkModel.VoidToTime = voidDataXmlList.Any()
+            ? voidDataXmlList.Select(x => x.VoidToTime).Select(DateTime.Parse).Max(x => x)
+                .ToString(FormatKey.LongTimeFormat)
+            : null;
+        letstalkModel.VoidFromDate = voidDataXmlList.Any()
+            ? voidDataXmlList.Select(x => x.VoidFromDate).Select(DateTime.Parse).Min(x => x)
+                .ToString(FormatKey.ShortDateFormatWithSlash)
+            : null;
+        letstalkModel.VoidToDate = voidDataXmlList.Any()
+            ? voidDataXmlList.Select(x => x.VoidToDate).Select(DateTime.Parse).Min(x => x)
+                .ToString(FormatKey.ShortDateFormatWithSlash)
+            : null;
+    }
+
+    private static void UpdateTimeByTickets(NotificationLetstalkModel letstalkModel, IEnumerable<TicketEmailModel> emailTickets)
+    {
+        letstalkModel.VoidFromDate = emailTickets.Select(x => x.WinLostDate).Min(x => x).ZoneManila()
+            .ToString(FormatKey.ShortDateFormatWithSlash);
+        letstalkModel.VoidToDate = emailTickets.Select(x => x.WinLostDate).Max(x => x).ZoneManila()
+            .ToString(FormatKey.ShortDateFormatWithSlash);
+    }
+
+    private static bool IsAbnormalAccountVoidInstant(GroupVoidBetAutomationInfo group)
+    {
+        return group.IsAutoVoid && group.RequestInfo.Request.IssueTypeId is IssueTypeConstant.AbnormalAccount;
     }
 }
