@@ -74,6 +74,6 @@ public class RequestVoid14ServiceImp : RequestVoid14Service
             await afterVoidProcessStage.NotifyVoidResultsSignalR(automationInfo, new List<Result>(), creatorName, new List<EmailResultModel>());
         }
 
-        afterVoidProcessStage.WriteLogAfterVoid(new List<Result>(), automationInfo);
+        await afterVoidProcessStage.WriteLogAfterVoid(new List<Result>(), automationInfo);
     }
 }

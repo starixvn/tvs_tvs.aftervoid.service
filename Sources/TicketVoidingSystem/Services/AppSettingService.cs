@@ -34,6 +34,7 @@ public static class AppSettingService
                 IsProdEnv = configuration.GetValue<bool>($"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.IsProdEnv)}")
             },
             TicketVoidingSystemUrl = configuration.GetValue<string>(nameof(AppSettingModel.TicketVoidingSystemUrl)),
+            TVSNewSiteUrl = configuration.GetValue<string>(nameof(AppSettingModel.TVSNewSiteUrl)),
             CategorySentryLog = configuration.GetValue<string>(nameof(AppSettingModel.CategorySentryLog)),
             SentryClientKey = configuration.GetValue<string>(nameof(AppSettingModel.SentryClientKey)),
             ServiceName = configuration.GetValue<string>(nameof(AppSettingModel.ServiceName)),

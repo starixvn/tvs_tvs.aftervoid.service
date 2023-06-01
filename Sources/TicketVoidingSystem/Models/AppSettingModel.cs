@@ -20,6 +20,8 @@ public class AppSettingModel
 
     public string TicketVoidingSystemUrl { get; init; }
 
+    public string TVSNewSiteUrl { get; init; }
+
     public string FanexRemotingRefServiceUrl { get; init; }
 
     public string IgnoreSiteDb { get; init; }

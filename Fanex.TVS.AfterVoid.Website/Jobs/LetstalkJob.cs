@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using ONEbook.UM.Services;
 using Quartz;
@@ -43,7 +42,7 @@ public class LetstalkJob : IJob
         catch (Exception ex)
         {
             AppSettingService.AppSetting.OnProcessingLetstalk = false;
-            loggingService.Error("LetstalkJob execute failed!", ex);
+            await loggingService.ErrorAsync("LetstalkJob execute failed!", ex);
         }
     }
 }

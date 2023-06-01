@@ -20,11 +20,13 @@ public interface AfterVoidEmailService
 public class AfterVoidEmailServiceImp : AfterVoidEmailService
 {
     private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
+    private readonly TVSNewSiteHttpClientService tvsNewSiteHttpClientService;
     private readonly IDynamicRepository repository;
 
-    public AfterVoidEmailServiceImp(TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService, IDynamicRepository repository)
+    public AfterVoidEmailServiceImp(TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService, TVSNewSiteHttpClientService tvsNewSiteHttpClientService, IDynamicRepository repository)
     {
         this.ticketVoidingSystemHttpClientService = ticketVoidingSystemHttpClientService;
+        this.tvsNewSiteHttpClientService = tvsNewSiteHttpClientService;
         this.repository = repository;
     }
 
@@ -44,18 +46,7 @@ public class AfterVoidEmailServiceImp : AfterVoidEmailService
             return results;
         }
 
-        throw new ExternalException("ticketVoidingSystemHttpClientService.SendEmail");
-    }
-
-    public async Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, int voidingHistoryId)
-    {
-        var (isSentEmail, results) = await ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket(requestId, matchId, issueTypeId, voidingHistoryId.ToString());
-        if (isSentEmail)
-        {
-            return results;
-        }
-
-        throw new ExternalException("ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket");
+        throw new ExternalException(nameof(AfterVoidEmailService.Execute));
     }
 
     private async Task<SubIssueType> GetSubIssueTypeById(int subId)

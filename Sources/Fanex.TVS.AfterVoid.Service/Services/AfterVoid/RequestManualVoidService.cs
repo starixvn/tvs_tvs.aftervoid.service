@@ -112,7 +112,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
             await afterVoidProcessStage.NotifyVoidResultsSignalR(automationInfo, currentEmailResults, creatorName, emailResultsHistory);
         }
 
-        afterVoidProcessStage.WriteLogAfterVoid(currentEmailResults, automationInfo);
+        await afterVoidProcessStage.WriteLogAfterVoid(currentEmailResults, automationInfo);
     }
 
     private async Task<Match> GetMatchInfo(VoidBetAutomationInfo automationInfo)

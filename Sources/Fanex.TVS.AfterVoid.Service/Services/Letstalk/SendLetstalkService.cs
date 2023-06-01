@@ -9,6 +9,7 @@ using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 
@@ -74,7 +75,7 @@ public class SendLetstalkServiceImp : SendLetstalkService
                 ? new List<VoidDataXmlModel>()
                 : await letstalkServiceStage.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
             var sentLetstalkResults = await SendLetstalk(group, voidedTickets, matchInfo, voidDataXmlList);
-            letstalkServiceStage.WriteLogLetstalk(sentLetstalkResults, group, stopwatch);
+            await letstalkServiceStage.WriteLogLetstalk(sentLetstalkResults, group, stopwatch);
         }
     }
 
@@ -103,9 +104,9 @@ public class SendLetstalkServiceImp : SendLetstalkService
         }
         catch (Exception exception)
         {
-            loggingService.Error(
-                $"ERROR: RequestId: {group.RequestId} - {nameof(SendLetstalk)} - BroadcastSessionId: {group.BroadcastSessionId}",
-                exception);
+            await loggingService.ErrorAsync(
+               $"ERROR: RequestId: {group.RequestId} - {nameof(SendLetstalk)} - BroadcastSessionId: {group.BroadcastSessionId}",
+               exception);
             await letstalkServiceStage.UpdateLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Failed);
             await notificationSignalRService.UpdateFailedStatusForRequest(group.RequestId);
 
