@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Constants;
@@ -118,8 +119,14 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
 
     private async Task<VoidDataXmlModel> GetVoidDataXml(VoidBetAutomationInfo automationInfo)
     {
-        return Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId)
-               || Helper.IsAbnormalAccount(automationInfo.RequestInfo.Request.IssueTypeId)
+        var issueTypesHaveAutoVoidAction = new List<int>
+        {
+            IssueTypeConstant.AbnormalBet,
+            IssueTypeConstant.AbnormalBetRealMember,
+            IssueTypeConstant.AbnormalAccount,
+            IssueTypeConstant.ReducedOver
+        };
+        return issueTypesHaveAutoVoidAction.Contains(automationInfo.RequestInfo.Request.IssueTypeId)
             ? new VoidDataXmlModel()
             : await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
     }
