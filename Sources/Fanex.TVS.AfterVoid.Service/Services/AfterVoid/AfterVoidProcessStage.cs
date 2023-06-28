@@ -48,7 +48,7 @@ public interface AfterVoidProcessStage
     Task NotifyVoidResultsSignalR(VoidBetAutomationInfo automationInfo, IEnumerable<Result> currentEmailResults,
         string creatorName, IEnumerable<EmailResultModel> emailResultsHistory);
 
-    void WriteLogAfterVoid(IEnumerable<Result> results, VoidBetAutomationInfo automationInfo);
+    Task WriteLogAfterVoid(IEnumerable<Result> results, VoidBetAutomationInfo automationInfo);
 }
 
 public class AfterVoidProcessStageImp : AfterVoidProcessStage
@@ -100,7 +100,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
         }
         catch (Exception exception)
         {
-            loggingService.Error($"ERROR: {nameof(CreateMessageIdForAutoVoid)} - BroadcastSessionId: {broadcastSessionId}", exception);
+            await loggingService.ErrorAsync($"ERROR: {nameof(CreateMessageIdForAutoVoid)} - BroadcastSessionId: {broadcastSessionId}", exception);
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
             await sendLetstalkServiceStage.InsertLetstalk(automationInfo.RequestId, automationInfo.BroadcastSessionId, ExecuteStatus.Failed);
             await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
@@ -126,7 +126,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
         }
         catch (Exception exception)
         {
-            loggingService.Error(
+            await loggingService.ErrorAsync(
                 $"ERROR: {nameof(RunExternalService)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
                 exception);
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
@@ -155,7 +155,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
         }
         catch (Exception exception)
         {
-            loggingService.Error(
+            await loggingService.ErrorAsync(
                 $"ERROR: {nameof(CallCashOutApi)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
                 exception);
         }
@@ -183,7 +183,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
         }
         catch (Exception exception)
         {
-            loggingService.Error(
+            await loggingService.ErrorAsync(
                 $"ERROR: {nameof(CreateMessageIdForManualVoid)} - SessionId: {automationInfo.BroadcastSessionId} - " +
                 $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
                 exception);
@@ -215,7 +215,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
         }
         catch (Exception exception)
         {
-            loggingService.Error(
+            await loggingService.ErrorAsync(
                 $"ERROR: {nameof(CreateVoidedReason)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
                 exception);
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
@@ -242,7 +242,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
         }
         catch (Exception exception)
         {
-            loggingService.Error(
+            await loggingService.ErrorAsync(
                 $"ERROR: {nameof(SendBatchMessage)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
                 exception);
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
@@ -268,7 +268,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
         }
         catch (Exception exception)
         {
-            loggingService.Error(
+            await loggingService.ErrorAsync(
                 $"ERROR: {nameof(SendMessageToAdminSite)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
                 $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
                 exception);
@@ -297,7 +297,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
         }
         catch (Exception exception)
         {
-            loggingService.Error(
+            await loggingService.ErrorAsync(
                 $"ERROR: {nameof(InsertVoidedTransaction)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
                 $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
                 exception);
@@ -329,7 +329,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
         }
         catch (Exception exception)
         {
-            loggingService.Error(
+            await loggingService.ErrorAsync(
                 $"ERROR: {nameof(UpdateTicketVoidingHistory)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
                 $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
                 exception);
@@ -357,7 +357,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
         }
         catch (Exception exception)
         {
-            loggingService.Error(
+            await loggingService.ErrorAsync(
                 $"ERROR: {nameof(SendEmail)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
                 $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
@@ -413,7 +413,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
         return licensees;
     }
 
-    public void WriteLogAfterVoid(IEnumerable<Result> results, VoidBetAutomationInfo automationInfo)
+    public async Task WriteLogAfterVoid(IEnumerable<Result> results, VoidBetAutomationInfo automationInfo)
     {
         var logBuilder = new StringBuilder();
         logBuilder.Append($"AfterVoidDone - BroadcastSessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId} \n");
@@ -423,7 +423,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
             logBuilder.Append(log);
         }
 
-        loggingService.Info(logBuilder.ToString());
+        await loggingService.InfoAsync(logBuilder.ToString());
     }
 
     private static string GetMessageVoidRequestSuccess(int requestId, int matchId)

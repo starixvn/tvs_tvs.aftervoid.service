@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 using ONEbook.UM.Services;
 using Quartz;
@@ -43,7 +42,7 @@ public class AfterVoidJob : IJob
         catch (Exception ex)
         {
             AppSettingService.AppSetting.OnProcessingAfterVoid = false;
-            loggingService.Error("AfterVoidJob execute failed!", ex);
+            await loggingService.ErrorAsync("AfterVoidJob execute failed!", ex);
         }
     }
 }

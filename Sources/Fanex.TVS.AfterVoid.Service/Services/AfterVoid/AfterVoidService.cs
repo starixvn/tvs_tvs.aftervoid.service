@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 
@@ -54,11 +55,11 @@ public class AfterVoidServiceImp : AfterVoidService
             await ExecuteForManualVoid(requestsWillRunAfterVoid.RequestInfo.Request.IssueTypeId, requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus, emailResultsHistory);
         }
 
-        loggingService.Info(
-            $"End - BroadcastSessionId: {requestsWillRunAfterVoid.BroadcastSessionId} - "
-            + $"Execute Time: {stopwatch.ElapsedMilliseconds} ms - "
-            + $"{DateTime.Now}"
-        );
+        await loggingService.InfoAsync(
+             $"End - BroadcastSessionId: {requestsWillRunAfterVoid.BroadcastSessionId} - "
+             + $"Execute Time: {stopwatch.ElapsedMilliseconds} ms - "
+             + $"{DateTime.Now}"
+         );
     }
 
     private async Task UpdateRequestInfo(VoidBetAutomationInfo automationInfo)

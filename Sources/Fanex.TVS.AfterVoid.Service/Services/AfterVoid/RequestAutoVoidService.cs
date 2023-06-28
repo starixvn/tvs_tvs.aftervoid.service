@@ -103,7 +103,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
         }
 
-        afterVoidProcessStage.WriteLogAfterVoid(currentEmailResults, automationInfo);
+        await afterVoidProcessStage.WriteLogAfterVoid(currentEmailResults, automationInfo);
     }
 
     private static int GetSportTypeId(Match matchInfo)

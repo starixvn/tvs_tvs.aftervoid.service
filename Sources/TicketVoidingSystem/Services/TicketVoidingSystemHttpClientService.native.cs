@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Net.Mime;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Fanex.Logging;
 using Microsoft.Extensions.Configuration;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Utilities;
 
 namespace TicketVoidingSystem.Services;
 
@@ -24,8 +23,6 @@ public interface TicketVoidingSystemHttpClientService
 
     Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason voidedReason, Message message,
         int issueTypeId, string negativeBalanceUsers);
-
-    Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, string voidingHistoryIds);
 }
 
 [ExcludeFromCodeCoverage]
@@ -47,7 +44,7 @@ public class TicketVoidingSystemHttpClientServiceImp : TicketVoidingSystemHttpCl
     public async Task SignalRUpdateRequestStatusToAllUsers(IEnumerable<RequestStatus> status)
     {
         const string actionName = "SignalRApi/UpdateRequestStatusToAllUsers";
-        using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { status }));
+        using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(new { status }));
         if (response.IsSuccessStatusCode)
         {
             return;
@@ -60,7 +57,7 @@ public class TicketVoidingSystemHttpClientServiceImp : TicketVoidingSystemHttpCl
     public async Task SignalRNotifyErrorMessageToUser(string userName, string message)
     {
         const string actionName = "SignalRApi/NotifyErrorMessageToUser";
-        using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { userName, message }));
+        using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(new { userName, message }));
         if (response.IsSuccessStatusCode)
         {
             return;
@@ -73,7 +70,7 @@ public class TicketVoidingSystemHttpClientServiceImp : TicketVoidingSystemHttpCl
     public async Task SignalRNotifyVoidResultToUser(string userName, IEnumerable<Result> results)
     {
         const string actionName = "SignalRApi/NotifyVoidResultToUser";
-        using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { userName, results }));
+        using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(new { userName, results }));
         if (response.IsSuccessStatusCode)
         {
             return;
@@ -86,10 +83,10 @@ public class TicketVoidingSystemHttpClientServiceImp : TicketVoidingSystemHttpCl
     public async Task<string> BetListGetSportTypeName(int sportType, string languageCode)
     {
         const string actionName = "BetListCore/GetSportTypeName";
-        using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { sportType, languageCode }));
+        using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(new { sportType, languageCode }));
         if (response.IsSuccessStatusCode)
         {
-            return await DeserializeResponseStream<string>(response);
+            return await Helper.DeserializeResponseStream<string>(response);
         }
 
         await LogService.ErrorAsync($"{ticketVoidingSystemUrl}{actionName}" +
@@ -101,50 +98,17 @@ public class TicketVoidingSystemHttpClientServiceImp : TicketVoidingSystemHttpCl
         int issueTypeId, string negativeBalanceUsers)
     {
         const string actionName = "SendEmail/Send";
-        using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { emailTickets, match, voidedReason, message, issueTypeId, negativeBalanceUsers }));
+        using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(new { emailTickets, match, voidedReason, message, issueTypeId, negativeBalanceUsers }));
         if (response.IsSuccessStatusCode)
         {
             await LogResponseStream(response);
-            var responseData = await DeserializeResponseStream<IEnumerable<Result>>(response);
+            var responseData = await Helper.DeserializeResponseStream<IEnumerable<Result>>(response);
             return responseData != null ? (true, responseData) : (false, null);
         }
 
         await LogService.ErrorAsync($"{ticketVoidingSystemUrl}{actionName}" +
                                     $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
         return (false, null);
-    }
-
-    public async Task<(bool, byte[])> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, string voidingHistoryIds)
-    {
-        const string actionName = "SendLetstalk/GetContentExcelVoidedTicket";
-        using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(new { requestId, matchId, issueTypeId, voidingHistoryIds }));
-        if (response.IsSuccessStatusCode)
-        {
-            var responseData = await DeserializeResponseStream<byte[]>(response);
-            return (true, responseData);
-        }
-
-        await LogService.ErrorAsync($"{ticketVoidingSystemUrl}{actionName}" +
-                                    $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
-        return (false, null);
-    }
-
-    private StringContent CreateRequestStringContent<T>(T data)
-    {
-        var dataJson = new StringContent(
-            JsonSerializer.Serialize(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }),
-            Encoding.UTF8,
-            MediaTypeNames.Application.Json);
-
-        return dataJson;
-    }
-
-    private static async Task<T> DeserializeResponseStream<T>(HttpResponseMessage response)
-    {
-        await using var responseStream = await response.Content.ReadAsStreamAsync();
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
-        return await JsonSerializer.DeserializeAsync<T>(responseStream, options);
     }
 
     private static async Task LogResponseStream(HttpResponseMessage response)

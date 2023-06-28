@@ -21,7 +21,7 @@ public interface SendLetstalkServiceStage
 
     Task<IEnumerable<VoidDataXmlModel>> GetVoidDataXml(IEnumerable<int> voidingHistoryIds);
 
-    void WriteLogLetstalk(IEnumerable<Result> results, GroupVoidBetAutomationInfo group, Stopwatch startTime);
+    Task WriteLogLetstalk(IEnumerable<Result> results, GroupVoidBetAutomationInfo group, Stopwatch startTime);
 
     Task InsertLetstalk(int requestId, string broadcastSessionId, int statusId);
 
@@ -33,18 +33,18 @@ public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
     private readonly IDynamicRepository repository;
     private readonly LoggingService loggingService;
     private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
+    private readonly TVSNewSiteHttpClientService tvsNewSiteHttpClientService;
 
     public SendLetstalkServiceStageImp(
         IDynamicRepository repository,
         LoggingService loggingService,
         VoidBetAutomationService voidBetAutomationService,
-        TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService)
+        TVSNewSiteHttpClientService tvsNewSiteHttpClientService)
     {
         this.repository = repository;
         this.loggingService = loggingService;
         this.voidBetAutomationService = voidBetAutomationService;
-        this.ticketVoidingSystemHttpClientService = ticketVoidingSystemHttpClientService;
+        this.tvsNewSiteHttpClientService = tvsNewSiteHttpClientService;
     }
 
     public async Task<IEnumerable<VoidBetAutomationInfo>> GetVoidBetAutomationRunLetstalk()
@@ -56,13 +56,13 @@ public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
 
     public async Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, string voidingHistoryIds)
     {
-        var (isSentEmail, results) = await ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket(requestId, matchId, issueTypeId, voidingHistoryIds);
+        var (isSentEmail, results) = await tvsNewSiteHttpClientService.GetExcelVoidedTicketForSendLetstalk(requestId, matchId, issueTypeId, voidingHistoryIds);
         if (isSentEmail)
         {
             return results;
         }
 
-        throw new ExternalException("ticketVoidingSystemHttpClientService.GetContentExcelVoidedTicket");
+        throw new ExternalException(nameof(GetContentExcelVoidedTicket));
     }
 
     public async Task<IEnumerable<TicketEmailModel>> GetVoidedTickets(IEnumerable<VoidBetAutomationInfo> voidBetAutomationList)
@@ -89,7 +89,7 @@ public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
         return await repository.FetchAsync<VoidDataXmlModel>(criteria);
     }
 
-    public void WriteLogLetstalk(IEnumerable<Result> results, GroupVoidBetAutomationInfo group, Stopwatch startTime)
+    public async Task WriteLogLetstalk(IEnumerable<Result> results, GroupVoidBetAutomationInfo group, Stopwatch startTime)
     {
         var logBuilder = new StringBuilder();
         logBuilder.Append($"SendLetstalk - RequestId: {group.RequestId} - " +
@@ -100,7 +100,7 @@ public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
             logBuilder.Append(log);
         }
 
-        loggingService.Info(logBuilder.ToString());
+        await loggingService.InfoAsync(logBuilder.ToString());
     }
 
     public async Task InsertLetstalk(int requestId, string broadcastSessionId, int statusId)

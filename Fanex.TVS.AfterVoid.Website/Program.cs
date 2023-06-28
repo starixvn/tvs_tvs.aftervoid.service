@@ -11,6 +11,7 @@ builder.Services.LoadConfig(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient<TicketVoidingSystemHttpClientService, TicketVoidingSystemHttpClientServiceImp>();
+builder.Services.AddHttpClient<TVSNewSiteHttpClientService, TVSNewSiteHttpClientServiceImp>();
 builder.Services.AddHttpClient<CashOutHttpClientService, CashOutHttpClientServiceImp>();
 builder.Services.RegisterFanexData(builder.Configuration);
 builder.Services.RegisterFanexExceptionHandler();
@@ -35,8 +36,4 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapHub<NotificationHub>("/SignalR/NotificationHub");
 
-#if DEBUG
 app.Run();
-#else
-await app.RunAsync("http://0.0.0.0:5000");
-#endif
