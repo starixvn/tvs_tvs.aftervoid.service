@@ -30,7 +30,8 @@ public interface VoidBetAutomationService
 
     Task UpdateEmailResultByVoidingHistory(int requestId, int voidingHistoryId, string content);
 
-    Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsByVoidingHistory(int voidingHistoryId, int siteDbGroupId);
+    Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsByVoidingHistory(int voidingHistoryId, int siteDbGroupId,
+        bool isInsertRoutineTask);
 
     Task<VoidDataXmlModel> GetVoidDataFromVoidingHistory(int voidingHistoryId);
 
@@ -173,7 +174,7 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         await repository.ExecuteAsync(criteria);
     }
 
-    public async Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsByVoidingHistory(int voidingHistoryId, int siteDbGroupId)
+    public async Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsByVoidingHistory(int voidingHistoryId, int siteDbGroupId, bool isInsertRoutineTask)
     {
         var checkITUser = await CheckRequestOfITUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
         var criteria = new GetTicketsEmailCriteria
@@ -181,7 +182,8 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
             SiteDbGroupId = siteDbGroupId,
             VoidingHistoryId = voidingHistoryId,
             IsITSupport = checkITUser.IsITSupport,
-            IsITSupportCreatedRequest = checkITUser.IsITSupportCreatedRequest
+            IsITSupportCreatedRequest = checkITUser.IsITSupportCreatedRequest,
+            IsInsertRoutineTask = isInsertRoutineTask
         };
 
         return await repository.FetchAsync<TicketEmailModel>(criteria);

@@ -71,8 +71,7 @@ public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
         foreach (var item in voidBetAutomationList)
         {
             var ticketsInServer =
-                await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(item.VoidingHistoryId,
-                    item.SiteDbGroupId);
+                await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(item.VoidingHistoryId, item.SiteDbGroupId, false);
             voidedTickets.AddRange(ticketsInServer);
         }
 
