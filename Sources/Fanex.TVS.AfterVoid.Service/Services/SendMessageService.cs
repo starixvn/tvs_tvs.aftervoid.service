@@ -76,9 +76,7 @@ public class SendMessageServiceImp : SendMessageService
 
     public async Task<Message> InitializeMessageContentForAutoVoid(Match match, bool isHasSettledTicket, int issueTypeId, int? filterBy)
     {
-        var templateId = Helper.IsAbnormalBetRealMember(issueTypeId) || (Helper.IsAbnormalBet(issueTypeId) && filterBy == null)
-            ? MessageTemplateConstant.AbnormalBet
-            : MessageTemplateConstant.AbnormalAccount;
+        var templateId = GetTemplateIdForAutoVoid(issueTypeId, filterBy);
         var templateModels = await repository.FetchAsync<TemplateModel>(new GetTemplatesCriteria()).ConfigureAwait(false);
         var template = templateModels.FirstOrDefault(t => t.TemplateId == templateId);
         ReplaceMessageTemplate(template, match, isHasSettledTicket, issueTypeId, filterBy);
@@ -329,5 +327,24 @@ public class SendMessageServiceImp : SendMessageService
         model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(parlayPlaceholder, parlayChineseTraditional);
         model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(parlayPlaceholder, parlayChineseSimplified);
         model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(parlayPlaceholder, parlayChineseNewSimplified);
+    }
+
+    private static int GetTemplateIdForAutoVoid(int issueTypeId, int? filterBy)
+    {
+        switch (issueTypeId)
+        {
+            case IssueTypeConstant.AbnormalBet when filterBy is null:
+            case IssueTypeConstant.AbnormalBetRealMember:
+                return MessageTemplateConstant.AbnormalBet;
+
+            case IssueTypeConstant.AbnormalAccount:
+                return MessageTemplateConstant.AbnormalAccount;
+
+            case IssueTypeConstant.ReducedOver:
+                return MessageTemplateConstant.ReducedOver;
+
+            default:
+                return 0;
+        }
     }
 }
