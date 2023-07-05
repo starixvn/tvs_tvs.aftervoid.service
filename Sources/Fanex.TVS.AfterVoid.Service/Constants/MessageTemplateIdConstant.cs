@@ -1,6 +1,6 @@
 ﻿namespace Fanex.TVS.AfterVoid.Service.Constants;
 
-public static class MessageTemplateConstant
+public static class MessageTemplateIdConstant
 {
     public const int AbnormalBet = 34;
 

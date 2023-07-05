@@ -47,4 +47,8 @@ public class VoidDataXmlModel
     public string VoidToDate { get; set; }
 
     public bool IsHasSettledTicket { get; set; }
+
+    public int TotalTicket { get; set; }
+
+    public int IsRunManualAfterVoid { get; set; }
 }
