@@ -4,6 +4,8 @@ public class VoidDataXmlModel
 {
     public int IssueTypeId { get; set; }
 
+    public int VoidingHistoryId { get; set; }
+
     public int SubIssueTypeId { get; set; }
 
     public string SubIssueTypeName { get; set; }

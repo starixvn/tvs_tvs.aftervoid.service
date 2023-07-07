@@ -2,9 +2,9 @@
 
 public static class MessageTemplateIdConstant
 {
-    public const int AbnormalBet = 34;
+    public const int ThirtyFour = 34;
 
-    public const int AbnormalAccount = 37;
+    public const int ThirtySeven = 37;
 
-    public const int ReducedOver = 38;
+    public const int ThirtyEight = 38;
 }

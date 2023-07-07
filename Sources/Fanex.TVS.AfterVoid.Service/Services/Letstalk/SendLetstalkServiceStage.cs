@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -79,6 +80,12 @@ public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
     }
 
     public async Task<IEnumerable<VoidDataXmlModel>> GetVoidDataXml(IEnumerable<int> voidingHistoryIds)
+    {
+        var allVoidDataInCurrentVoidTimes = await GetAllVoidDataInCurrentVoidTimes(voidingHistoryIds);
+        return allVoidDataInCurrentVoidTimes.Where(x => voidingHistoryIds.Contains(x.VoidingHistoryId));
+    }
+
+    private async Task<IEnumerable<VoidDataXmlModel>> GetAllVoidDataInCurrentVoidTimes(IEnumerable<int> voidingHistoryIds)
     {
         var criteria = new GetVoidingHistoryCriteria
         {

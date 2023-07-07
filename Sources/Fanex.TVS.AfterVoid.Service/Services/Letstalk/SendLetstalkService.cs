@@ -71,7 +71,7 @@ public class SendLetstalkServiceImp : SendLetstalkService
             await letstalkServiceStage.InsertLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Running);
             var voidedTickets = await letstalkServiceStage.GetVoidedTickets(group.VoidBetAutomationList);
             var matchInfo = await voidBetAutomationService.GetMatchInfo(group.MatchId);
-            var voidDataXmlList = await GetVoidDataXml(group);
+            var voidDataXmlList = await letstalkServiceStage.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
             var sentLetstalkResults = await SendLetstalk(group, voidedTickets, matchInfo, voidDataXmlList);
             await letstalkServiceStage.WriteLogLetstalk(sentLetstalkResults, group, stopwatch);
         }
@@ -171,17 +171,5 @@ public class SendLetstalkServiceImp : SendLetstalkService
     private static bool IsAbnormalAccountVoidInstant(GroupVoidBetAutomationInfo group)
     {
         return group.IsAutoVoid && group.RequestInfo.Request.IssueTypeId is IssueTypeConstant.AbnormalAccount;
-    }
-
-    private async Task<IEnumerable<VoidDataXmlModel>> GetVoidDataXml(GroupVoidBetAutomationInfo group)
-    {
-        var issueTypesAutoVoidActionHaveNotVoidData = new List<int>
-        {
-            IssueTypeConstant.AbnormalBet,
-            IssueTypeConstant.AbnormalBetRealMember
-        };
-        return group.IsAutoVoid && issueTypesAutoVoidActionHaveNotVoidData.Contains(group.RequestInfo.Request.IssueTypeId)
-            ? new List<VoidDataXmlModel>()
-            : await letstalkServiceStage.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
     }
 }
