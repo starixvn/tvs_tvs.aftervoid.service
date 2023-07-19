@@ -19,7 +19,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 public interface AfterVoidProcessStage
 {
     Task<Message> CreateMessageIdForAutoVoid(VoidBetAutomationInfo automationInfo,
-        Match matchInfo, string broadcastSessionId, bool isHasSettledTicket, int issueTypeId, int? filterBy);
+        Match matchInfo, string broadcastSessionId, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy);
 
     Task<bool> RunExternalService(VoidBetAutomationInfo automationInfo);
 
@@ -79,7 +79,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
     }
 
     public async Task<Message> CreateMessageIdForAutoVoid(VoidBetAutomationInfo automationInfo, Match matchInfo, string broadcastSessionId,
-        bool isHasSettledTicket, int issueTypeId, int? filterBy)
+        IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy)
     {
         try
         {
@@ -90,7 +90,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
             }
             else
             {
-                message = await sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, isHasSettledTicket, issueTypeId, filterBy);
+                message = await sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, allVoidDataInCurrentVoidTimes, issueTypeId, filterBy);
                 message.MessageId = await sendMessageService.InsertMessage(message, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, issueTypeId);
             }
 

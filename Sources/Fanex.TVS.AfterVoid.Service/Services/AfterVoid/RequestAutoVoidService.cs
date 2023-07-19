@@ -39,9 +39,10 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
         var issueTypeId = automationInfo.RequestInfo.Request.IssueTypeId;
         var filterBy = automationInfo.RequestInfo.EventByMatch.FilterBy;
         var matchInfo = await GetMatch(automationInfo);
-        var voidDataXml = await GetVoidDataXml(automationInfo);
+        var allVoidDataInCurrentVoidTimes = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
 
-        var message = await afterVoidProcessStage.CreateMessageIdForAutoVoid(automationInfo, matchInfo, automationInfo.BroadcastSessionId, voidDataXml.IsHasSettledTicket, issueTypeId, filterBy);
+        var message = await afterVoidProcessStage.CreateMessageIdForAutoVoid(automationInfo, matchInfo,
+            automationInfo.BroadcastSessionId, allVoidDataInCurrentVoidTimes, issueTypeId, filterBy);
         if (Helper.IsNotHaveMessage(message))
         {
             return;
@@ -114,13 +115,5 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
     private async Task<Match> GetMatch(VoidBetAutomationInfo automationInfo)
     {
         return automationInfo.MatchId > 0 ? await voidBetAutomationService.GetMatchInfo(automationInfo.MatchId) : null;
-    }
-
-    private async Task<VoidDataXmlModel> GetVoidDataXml(VoidBetAutomationInfo automationInfo)
-    {
-        return Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId)
-               || Helper.IsAbnormalAccount(automationInfo.RequestInfo.Request.IssueTypeId)
-            ? new VoidDataXmlModel()
-            : await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
     }
 }

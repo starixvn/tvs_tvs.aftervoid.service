@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Utilities;
@@ -38,27 +39,27 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
 
     private async Task RunMainSteps(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory)
     {
-        var voidDataXml = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
-
-        var message = await afterVoidProcessStage.CreateMessageIdForManualVoid(automationInfo, voidDataXml);
+        var allVoidDataInCurrentVoidTimes = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
+        var firstVoidData = allVoidDataInCurrentVoidTimes.First();
+        var message = await afterVoidProcessStage.CreateMessageIdForManualVoid(automationInfo, firstVoidData);
         if (Helper.IsNotHaveMessage(message))
         {
-            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
             return;
         }
 
-        var voidedReason = await afterVoidProcessStage.CreateVoidedReason(automationInfo, 0, voidDataXml);
+        var voidedReason = await afterVoidProcessStage.CreateVoidedReason(automationInfo, 0, firstVoidData);
         if (Helper.IsNotHaveVoidedReason(voidedReason))
         {
-            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
             return;
         }
 
         var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true);
-        var isSentBatchMessage = await afterVoidProcessStage.SendBatchMessage(automationInfo, voidedTickets, message.MessageId, voidDataXml);
+        var isSentBatchMessage = await afterVoidProcessStage.SendBatchMessage(automationInfo, voidedTickets, message.MessageId, firstVoidData);
         if (!isSentBatchMessage)
         {
-            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
             return;
         }
 
@@ -67,7 +68,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
             var isSentMessageToAdminSite = await afterVoidProcessStage.SendMessageToAdminSite(automationInfo, message);
             if (!isSentMessageToAdminSite)
             {
-                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+                await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
                 return;
             }
         }
@@ -75,14 +76,14 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
         var isInsertedVoidedTransaction = await afterVoidProcessStage.InsertVoidedTransaction(automationInfo, voidedTickets, message.MessageId, voidedReason.ReasonId);
         if (!isInsertedVoidedTransaction)
         {
-            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
             return;
         }
 
         var isUpdatedVoidingHistory = await afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, voidedTickets);
         if (!isUpdatedVoidingHistory)
         {
-            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
             return;
         }
 
@@ -90,7 +91,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
         var (isSentEmail, currentEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
         if (!isSentEmail)
         {
-            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
             return;
         }
         await afterVoidProcessStage.UpdateEmailResult(automationInfo, currentEmailResults);
@@ -99,7 +100,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
 
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
 
-        await ExecutePostMainStep(automationInfo, isLastedInRequest, currentRequestStatus, voidDataXml.CreatorName,
+        await ExecutePostMainStep(automationInfo, isLastedInRequest, currentRequestStatus, firstVoidData.CreatorName,
             currentEmailResults, emailResultsHistory);
     }
 

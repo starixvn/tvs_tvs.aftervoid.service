@@ -4,6 +4,8 @@ public class VoidDataXmlModel
 {
     public int IssueTypeId { get; set; }
 
+    public int VoidingHistoryId { get; set; }
+
     public int SubIssueTypeId { get; set; }
 
     public string SubIssueTypeName { get; set; }
@@ -47,4 +49,8 @@ public class VoidDataXmlModel
     public string VoidToDate { get; set; }
 
     public bool IsHasSettledTicket { get; set; }
+
+    public int TotalTicket { get; set; }
+
+    public int IsRunAutoAfterVoid { get; set; }
 }

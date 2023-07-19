@@ -71,9 +71,7 @@ public class SendLetstalkServiceImp : SendLetstalkService
             await letstalkServiceStage.InsertLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Running);
             var voidedTickets = await letstalkServiceStage.GetVoidedTickets(group.VoidBetAutomationList);
             var matchInfo = await voidBetAutomationService.GetMatchInfo(group.MatchId);
-            var voidDataXmlList = group.IsAutoVoid
-                ? new List<VoidDataXmlModel>()
-                : await letstalkServiceStage.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
+            var voidDataXmlList = await letstalkServiceStage.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
             var sentLetstalkResults = await SendLetstalk(group, voidedTickets, matchInfo, voidDataXmlList);
             await letstalkServiceStage.WriteLogLetstalk(sentLetstalkResults, group, stopwatch);
         }
