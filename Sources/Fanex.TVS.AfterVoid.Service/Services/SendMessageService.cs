@@ -392,6 +392,12 @@ public class SendMessageServiceImp : SendMessageService
             case IssueTypeConstant.AbnormalBet when filterBy is filterMixParlay:
                 return MessageTemplateIdConstant.ThirtySeven;
 
+            case IssueTypeConstant.DuplicateTickets when filterBy is null:
+                return MessageTemplateIdConstant.SixtyFour;
+
+            case IssueTypeConstant.DuplicateTickets when filterBy is filterMixParlay:
+                return MessageTemplateIdConstant.SixtyFive;
+
             case IssueTypeConstant.AbnormalAccount:
                 return MessageTemplateIdConstant.ThirtySeven;
 

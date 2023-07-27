@@ -7,4 +7,8 @@ public static class MessageTemplateIdConstant
     public const int ThirtySeven = 37;
 
     public const int ThirtyEight = 38;
+
+    public const int SixtyFour = 64;
+
+    public const int SixtyFive = 65;
 }
