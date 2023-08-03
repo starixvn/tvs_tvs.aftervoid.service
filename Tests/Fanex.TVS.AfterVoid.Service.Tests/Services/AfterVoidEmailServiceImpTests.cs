@@ -33,10 +33,10 @@ public class AfterVoidEmailServiceImpTests
 
         var repository = Substitute.For<IDynamicRepository>();
         repository.FetchAsync<SubIssueType>(Arg.Any<GetSubIssueTypeCriteria>()).ReturnsForAnyArgs(fakeSubIssueTypes);
-        var ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
-        ticketVoidingSystemHttpClientService.SendEmail(default, default, default, default, default, default).ReturnsForAnyArgs(
+        var tvsNewSiteHttpClientService = Substitute.For<TVSNewSiteHttpClientService>();
+        tvsNewSiteHttpClientService.SendEmail(default, default, default, default, default, default).ReturnsForAnyArgs(
             (true, fakeResults));
-        var service = new AfterVoidEmailServiceImp(ticketVoidingSystemHttpClientService, repository);
+        var service = new AfterVoidEmailServiceImp(tvsNewSiteHttpClientService, repository);
 
         var actual = await service.Execute(fakeAutomationInfo, fakeTicketEmails, fakeMatch, fakeReason, fakeMessage);
 
@@ -62,10 +62,10 @@ public class AfterVoidEmailServiceImpTests
 
         var repository = Substitute.For<IDynamicRepository>();
         repository.FetchAsync<SubIssueType>(Arg.Any<GetSubIssueTypeCriteria>()).ReturnsForAnyArgs(fakeSubIssueTypes);
-        var ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
-        ticketVoidingSystemHttpClientService.SendEmail(default, default, default, default, default, default).ReturnsForAnyArgs(
+        var tvsNewSiteHttpClientService = Substitute.For<TVSNewSiteHttpClientService>();
+        tvsNewSiteHttpClientService.SendEmail(default, default, default, default, default, default).ReturnsForAnyArgs(
             (false, fakeResults));
-        var service = new AfterVoidEmailServiceImp(ticketVoidingSystemHttpClientService, repository);
+        var service = new AfterVoidEmailServiceImp(tvsNewSiteHttpClientService, repository);
 
         await Assert.ThrowsAsync<ExternalException>(async () =>
             await service.Execute(fakeAutomationInfo, fakeTicketEmails, fakeMatch, fakeReason, fakeMessage));

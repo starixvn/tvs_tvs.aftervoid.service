@@ -19,13 +19,11 @@ public interface AfterVoidEmailService
 
 public class AfterVoidEmailServiceImp : AfterVoidEmailService
 {
-    private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
     private readonly TVSNewSiteHttpClientService tvsNewSiteHttpClientService;
     private readonly IDynamicRepository repository;
 
-    public AfterVoidEmailServiceImp(TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService, TVSNewSiteHttpClientService tvsNewSiteHttpClientService, IDynamicRepository repository)
+    public AfterVoidEmailServiceImp(TVSNewSiteHttpClientService tvsNewSiteHttpClientService, IDynamicRepository repository)
     {
-        this.ticketVoidingSystemHttpClientService = ticketVoidingSystemHttpClientService;
         this.tvsNewSiteHttpClientService = tvsNewSiteHttpClientService;
         this.repository = repository;
     }
@@ -39,7 +37,7 @@ public class AfterVoidEmailServiceImp : AfterVoidEmailService
             reason.ReasonChineseSimplified = $"{reason.ReasonChineseSimplified}({subIssueType.SubIssueTypeNameCS})";
         }
 
-        var (isSentEmail, results) = await ticketVoidingSystemHttpClientService.SendEmail(emailTickets, match, reason, message,
+        var (isSentEmail, results) = await tvsNewSiteHttpClientService.SendEmail(emailTickets, match, reason, message,
             automationInfo.RequestInfo.Request.IssueTypeId, automationInfo.NegativeBalanceUsers);
         if (isSentEmail)
         {
