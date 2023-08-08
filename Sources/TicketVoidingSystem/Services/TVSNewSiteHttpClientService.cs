@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Fanex.Logging;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Utilities;
 
@@ -14,8 +15,7 @@ public interface TVSNewSiteHttpClientService
     Task<(bool, byte[])> GetExcelVoidedTicketForSendLetstalk(int requestId, int matchId, int issueTypeId,
         string voidingHistoryIds);
 
-    Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason voidedReason, Message message,
-        int issueTypeId, string negativeBalanceUsers);
+    Task<(bool, IEnumerable<Result>)> SendEmail(SendEmailApiModel model);
 }
 
 public class TVSNewSiteHttpClientServiceImp : TVSNewSiteHttpClientService
@@ -48,11 +48,12 @@ public class TVSNewSiteHttpClientServiceImp : TVSNewSiteHttpClientService
         return (false, null);
     }
 
-    public async Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason voidedReason, Message message,
-        int issueTypeId, string negativeBalanceUsers)
+    public async Task<(bool, IEnumerable<Result>)> SendEmail(SendEmailApiModel model)
     {
-        const string actionName = "api/SendEmail/Send";
-        using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(new { emailTickets, match, voidedReason, message, issueTypeId, negativeBalanceUsers }));
+        var actionName = model.IssueTypeId is IssueTypeConstant.DuplicateTickets
+            ? "api/SendEmail/SendEmailDuplicateTickets"
+            : "api/SendEmail/Send";
+        using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(model));
         if (response.IsSuccessStatusCode)
         {
             await LogResponseStream(response);
