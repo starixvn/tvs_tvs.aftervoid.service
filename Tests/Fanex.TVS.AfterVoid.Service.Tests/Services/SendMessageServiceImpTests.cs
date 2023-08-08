@@ -8,6 +8,7 @@ using Fanex.TVS.AfterVoid.Service.Services;
 using FizzWare.NBuilder;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 using Xunit;

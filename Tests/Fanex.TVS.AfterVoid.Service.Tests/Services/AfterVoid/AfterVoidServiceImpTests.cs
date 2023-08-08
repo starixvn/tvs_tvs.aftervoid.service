@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 using FizzWare.NBuilder;
 using NSubstitute;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Services;
 using Xunit;
 
