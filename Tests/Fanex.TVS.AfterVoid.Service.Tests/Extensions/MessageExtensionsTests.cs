@@ -20,8 +20,8 @@ public class MessageExtensionsTests
     [Fact]
     public void InsertSpace_ReturnStringThatWasInsertedSpace()
     {
-        const string expected = "\" @@ \"";
-        const string text = "\"@@\"";
+        const string expected = "\"a @@ b\"";
+        const string text = "\"a  @@  b\"";
 
         var actual = text.InsertSpace();
 

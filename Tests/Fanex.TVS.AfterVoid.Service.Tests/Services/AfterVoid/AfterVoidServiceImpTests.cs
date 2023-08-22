@@ -13,52 +13,80 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid;
 
 public class AfterVoidServiceImpTests
 {
+    private LoggingService loggingService;
+    private RequestAutoVoidService requestAutoVoidService;
+    private RequestManualVoidService requestManualVoidService;
+    private RequestVoid14Service requestVoid14Service;
+    private VoidBetAutomationService voidBetAutomationService;
+
+    public void InitFakeServiceTests()
+    {
+        requestManualVoidService = Substitute.For<RequestManualVoidService>();
+        loggingService = Substitute.For<LoggingService>();
+        requestAutoVoidService = Substitute.For<RequestAutoVoidService>();
+        voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
+        requestVoid14Service = Substitute.For<RequestVoid14Service>();
+    }
+
     [Fact]
     public async Task Execute_ShouldNotRunAnyVoidService()
     {
+        // Arrange
+        InitFakeServiceTests();
         VoidBetAutomationInfo automationStatistic = null;
-        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        voidBetAutomationService.GetVoidBetAutomationRunAfterVoid().ReturnsForAnyArgs((automationStatistic, false, "", new List<EmailResultModel>()));
+        voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
+            .ReturnsForAnyArgs((automationStatistic, false, "", new List<EmailResultModel>()));
         voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(new RequestDetailViewModel());
         var service = new AfterVoidServiceImp(voidBetAutomationService, default, default, default, default);
 
+        // Act
         await service.Execute();
 
+        // Assert
         await voidBetAutomationService.DidNotReceiveWithAnyArgs().GetRequestById(default, default);
     }
 
     [Fact]
     public async Task Execute_ShouldCallAutoVoidService()
     {
-        var fakeAutomationStatistic = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsAutoVoid = true).Build();
-        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        voidBetAutomationService.GetVoidBetAutomationRunAfterVoid().ReturnsForAnyArgs((fakeAutomationStatistic, false, "", new List<EmailResultModel>()));
-        var requestAutoVoidService = Substitute.For<RequestAutoVoidService>();
-        var loggingService = Substitute.For<LoggingService>();
-        var service = new AfterVoidServiceImp(voidBetAutomationService, requestAutoVoidService, default, default, loggingService);
+        // Arrange
+        InitFakeServiceTests();
+        var requestInfo = new RequestDetailViewModel();
+        var automationInfo = new VoidBetAutomationInfo { RequestInfo = requestInfo, MatchId = 1, IsAutoVoid = true };
+        voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
+            .ReturnsForAnyArgs((automationInfo, false, "", new List<EmailResultModel>()));
+        voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId)
+            .ReturnsForAnyArgs(requestInfo);
+        var service = new AfterVoidServiceImp(voidBetAutomationService, requestAutoVoidService, default, default,
+            loggingService);
 
+        // Act
         await service.Execute();
 
-        await requestAutoVoidService.Received(1).Execute(Arg.Is<VoidBetAutomationInfo>(x =>
-            Equals(x, fakeAutomationStatistic)), false, "");
+        // Assert
+        await loggingService.Received(1).InfoAsync(Arg.Any<string>());
+        await requestAutoVoidService.Received(1).Received().Execute(automationInfo, false, "");
     }
 
     [Fact]
     public async Task Execute_ShouldCallVoid14Service()
     {
+        // Arrange
+        InitFakeServiceTests();
         var requestInfo = new RequestDetailViewModel
-        { Request = new RequestModel { IssueTypeId = IssueTypeConstant.ArchivedTicket } };
-        var fakeAutomationStatistic = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsAutoVoid = false).Build();
-        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        voidBetAutomationService.GetVoidBetAutomationRunAfterVoid().ReturnsForAnyArgs((fakeAutomationStatistic, false, "", new List<EmailResultModel>()));
+            { Request = new RequestModel { IssueTypeId = IssueTypeConstant.ArchivedTicket } };
+        var fakeAutomationStatistic =
+            Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsAutoVoid = false).Build();
+        voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
+            .ReturnsForAnyArgs((fakeAutomationStatistic, false, "", new List<EmailResultModel>()));
         voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
-        var requestVoid14Service = Substitute.For<RequestVoid14Service>();
-        var loggingService = Substitute.For<LoggingService>();
         var service = new AfterVoidServiceImp(voidBetAutomationService, default, default, requestVoid14Service,
             loggingService);
 
+        // Act
         await service.Execute();
 
+        // Assert
         await requestVoid14Service.Received(1).Execute(Arg.Is<VoidBetAutomationInfo>(x =>
             Equals(x, fakeAutomationStatistic)), false, "");
     }
@@ -72,20 +100,24 @@ public class AfterVoidServiceImpTests
     [InlineData(IssueTypeConstant.Wrong1stOU)]
     public async Task Execute_ShouldCallManualVoidService(int issueTypeId)
     {
+        // Arrange
+        InitFakeServiceTests();
         var requestInfo = new RequestDetailViewModel
-        { Request = new RequestModel { IssueTypeId = issueTypeId } };
-        var fakeAutomationStatistic = Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsAutoVoid = false).Build();
-        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        voidBetAutomationService.GetVoidBetAutomationRunAfterVoid().ReturnsForAnyArgs((fakeAutomationStatistic, false, "", new List<EmailResultModel>()));
+            { Request = new RequestModel { IssueTypeId = issueTypeId } };
+        var fakeAutomationStatistic =
+            Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsAutoVoid = false).Build();
+        voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
+            .ReturnsForAnyArgs((fakeAutomationStatistic, false, "", new List<EmailResultModel>()));
         voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
-        var requestManualVoidService = Substitute.For<RequestManualVoidService>();
-        var loggingService = Substitute.For<LoggingService>();
-        var service = new AfterVoidServiceImp(voidBetAutomationService, default, requestManualVoidService, default, loggingService);
+        var service = new AfterVoidServiceImp(voidBetAutomationService, default, requestManualVoidService, default,
+            loggingService);
 
+        // Act
         await service.Execute();
 
+        // Assert
         await requestManualVoidService.Received(1).Execute(Arg.Is<VoidBetAutomationInfo>(x =>
             Equals(x, fakeAutomationStatistic)), false, "", Arg.Any<IEnumerable<EmailResultModel>>());
-        loggingService.ReceivedWithAnyArgs(1).Info(default);
+        await loggingService.ReceivedWithAnyArgs(1).InfoAsync(default);
     }
 }
