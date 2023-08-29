@@ -79,7 +79,7 @@ public class SendMessageServiceImp : SendMessageService
     {
         var templateId = GetTemplateIdForAutoVoid(issueTypeId, filterBy);
         var templateModels = await repository.FetchAsync<TemplateModel>(new GetTemplatesCriteria()).ConfigureAwait(false);
-        var template = templateModels.FirstOrDefault(t => t.TemplateId == templateId);
+        var template = templateModels.First(t => t.TemplateId == templateId);
         ReplaceMessageTemplate(template, match, allVoidDataInCurrentVoidTimes, issueTypeId, filterBy);
 
         return new Message
