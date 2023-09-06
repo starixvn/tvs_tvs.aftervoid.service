@@ -81,7 +81,7 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         };
         var (requests, requestEvents, _) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(criteria);
 
-        var firstRequest = requests.FirstOrDefault();
+        var firstRequest = requests.First();
         var viewModel = new RequestDetailViewModel
         {
             Request = firstRequest,

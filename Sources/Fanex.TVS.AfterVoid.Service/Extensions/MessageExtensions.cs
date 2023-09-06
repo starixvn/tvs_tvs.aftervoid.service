@@ -48,8 +48,8 @@ public static class MessageExtensions
         const string Pattern = "\\s*@@\\s*";
         const string Replacement = " @@ ";
         var regex = new Regex(Pattern);
-        var result = regex.Replace(text, Replacement);
-        return string.IsNullOrEmpty(result) ? string.Empty : result.Trim();
+
+        return  regex.Replace(text, Replacement).Trim();
     }
 
     public static XElement CreateItem(this MessageItem messageItem)

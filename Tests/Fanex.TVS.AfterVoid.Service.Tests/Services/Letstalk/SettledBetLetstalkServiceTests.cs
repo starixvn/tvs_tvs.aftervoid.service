@@ -109,10 +109,10 @@ public class SettledBetLetstalkServiceTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void SendToSettledBetGroup_WhenRequestNotHaveUsername_ShouldRunLetstalkServiceSuccess(bool isPRODEnvironment)
+    public void SendToSettledBetGroup_WhenRequestNotHaveUsername_ShouldRunLetstalkServiceSuccess(bool isProdEnv)
     {
         SetupTestEnv();
-        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true } };
+        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = isProdEnv } };
         var fakeMatch = Builder<Match>.CreateNew().Build();
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = false).Build();
         fakeNotificationLetstalkModel.Match = fakeMatch;

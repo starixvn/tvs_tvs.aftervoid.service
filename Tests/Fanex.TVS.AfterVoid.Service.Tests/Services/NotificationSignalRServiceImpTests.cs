@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Constants;
-using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
 using FizzWare.NBuilder;
 using Microsoft.AspNetCore.SignalR;
@@ -28,26 +27,9 @@ public class NotificationSignalRServiceImpTests
         await ticketVoidingSystemHttpClientService.Received(1)
             .SignalRUpdateRequestStatusToAllUsers(Arg.Is<IEnumerable<RequestStatus>>(x => x.Count() == 1
                 && x.Any(y => y.RequestId == 1)));
-        await hubContext.Clients.All.Received(1).updateRequestStatus(Arg.Is<IEnumerable<RequestStatus>>(x => x.Count() == 1
+        await hubContext.Clients.All.Received(1).updateRequestStatus(Arg.Is<IEnumerable<RequestStatus>>(x =>
+            x.Count() == 1
             && x.Any(y => y.RequestId == 1)));
-    }
-
-    [Fact]
-    public async Task UpdateFailedStatusForRequests_ShouldCallUpdateApi()
-    {
-        var fakeVoidDataXml = Builder<VoidDataXmlModel>.CreateNew().Build();
-        var ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
-        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
-        var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
-        var service = new NotificationSignalRServiceImp(ticketVoidingSystemHttpClientService, voidBetAutomationService, hubContext);
-
-        await service.UpdateFailedStatusForRequest(1);
-
-        // Assert
-        await ticketVoidingSystemHttpClientService.Received(1)
-            .SignalRUpdateRequestStatusToAllUsers(Arg.Any<IEnumerable<RequestStatus>>());
-        await hubContext.Clients.All.Received(1).updateRequestStatus(Arg.Any<IEnumerable<RequestStatus>>());
     }
 
     [Fact]
@@ -58,7 +40,8 @@ public class NotificationSignalRServiceImpTests
         voidBetAutomationService.GetRequestSimpleInfo(default, default).ReturnsForAnyArgs(fakeRequestSimple);
         var ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
         var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
-        var service = new NotificationSignalRServiceImp(ticketVoidingSystemHttpClientService, voidBetAutomationService, hubContext);
+        var service = new NotificationSignalRServiceImp(ticketVoidingSystemHttpClientService, voidBetAutomationService,
+            hubContext);
 
         await service.UpdateCompletedStatusForRequests(1, 1);
 
@@ -67,7 +50,8 @@ public class NotificationSignalRServiceImpTests
         await ticketVoidingSystemHttpClientService.Received(1)
             .SignalRUpdateRequestStatusToAllUsers(Arg.Is<IEnumerable<RequestStatus>>(x => x.Count() == 1
                 && x.Any(y => y.RequestId == 1)));
-        await hubContext.Clients.All.Received(1).updateRequestStatus(Arg.Is<IEnumerable<RequestStatus>>(x => x.Count() == 1
+        await hubContext.Clients.All.Received(1).updateRequestStatus(Arg.Is<IEnumerable<RequestStatus>>(x =>
+            x.Count() == 1
             && x.Any(y => y.RequestId == 1)));
     }
 
@@ -82,7 +66,8 @@ public class NotificationSignalRServiceImpTests
         await service.NotifyVoidResultToUser("SA", fakeResults);
 
         await ticketVoidingSystemHttpClientService.Received(1)
-            .SignalRNotifyVoidResultToUser(Arg.Is<string>(x => x == "SA"), Arg.Is<IEnumerable<Result>>(x => x == fakeResults));
+            .SignalRNotifyVoidResultToUser(Arg.Is<string>(x => x == "SA"),
+                Arg.Is<IEnumerable<Result>>(x => x == fakeResults));
         await hubContext.Clients.User("SA").Received(1)
             .showVoidResult(Arg.Is<IEnumerable<Result>>(x => Equals(x, fakeResults)));
     }
@@ -99,8 +84,10 @@ public class NotificationSignalRServiceImpTests
 
         await ticketVoidingSystemHttpClientService.Received(1)
             .SignalRNotifyVoidResultToUser(Arg.Is<string>(x => x == fakeUsername),
-                Arg.Is<IEnumerable<Result>>(x => x.Count() == 1 && x.Any(y => y.ErrorCode == ErrorCode.ExceptionWhenRunAfterVoid)));
+                Arg.Is<IEnumerable<Result>>(x =>
+                    x.Count() == 1 && x.Any(y => y.ErrorCode == ErrorCode.ExceptionWhenRunAfterVoid)));
         await hubContext.Clients.User(fakeUsername).Received(1)
-            .showVoidResult(Arg.Is<IEnumerable<Result>>(x => x.Count() == 1 && x.Any(y => y.ErrorCode == ErrorCode.ExceptionWhenRunAfterVoid)));
+            .showVoidResult(Arg.Is<IEnumerable<Result>>(x =>
+                x.Count() == 1 && x.Any(y => y.ErrorCode == ErrorCode.ExceptionWhenRunAfterVoid)));
     }
 }

@@ -19,13 +19,11 @@ public interface AfterVoidEmailService
 
 public class AfterVoidEmailServiceImp : AfterVoidEmailService
 {
-    private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
     private readonly TVSNewSiteHttpClientService tvsNewSiteHttpClientService;
     private readonly IDynamicRepository repository;
 
-    public AfterVoidEmailServiceImp(TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService, TVSNewSiteHttpClientService tvsNewSiteHttpClientService, IDynamicRepository repository)
+    public AfterVoidEmailServiceImp(TVSNewSiteHttpClientService tvsNewSiteHttpClientService, IDynamicRepository repository)
     {
-        this.ticketVoidingSystemHttpClientService = ticketVoidingSystemHttpClientService;
         this.tvsNewSiteHttpClientService = tvsNewSiteHttpClientService;
         this.repository = repository;
     }
@@ -39,8 +37,8 @@ public class AfterVoidEmailServiceImp : AfterVoidEmailService
             reason.ReasonChineseSimplified = $"{reason.ReasonChineseSimplified}({subIssueType.SubIssueTypeNameCS})";
         }
 
-        var (isSentEmail, results) = await ticketVoidingSystemHttpClientService.SendEmail(emailTickets, match, reason, message,
-            automationInfo.RequestInfo.Request.IssueTypeId, automationInfo.NegativeBalanceUsers);
+        var sendEmailApiModel = CreateSendEmailApiModel(automationInfo, emailTickets, match, reason, message);
+        var (isSentEmail, results) = await tvsNewSiteHttpClientService.SendEmail(sendEmailApiModel);
         if (isSentEmail)
         {
             return results;
@@ -54,5 +52,22 @@ public class AfterVoidEmailServiceImp : AfterVoidEmailService
         var subIssueTypes = await repository.FetchAsync<SubIssueType>(new GetSubIssueTypeCriteria());
 
         return subIssueTypes.FirstOrDefault(x => x.SubIssueTypeId == subId);
+    }
+
+    private static SendEmailApiModel CreateSendEmailApiModel(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message)
+    {
+        return new SendEmailApiModel
+        {
+            RequestId = automationInfo.RequestId,
+            FilterBy = automationInfo.RequestInfo.EventByMatch.FilterBy,
+            SportType = automationInfo.RequestInfo.Request.SportType,
+            IssueTypeId = automationInfo.RequestInfo.Request.IssueTypeId,
+            VoidingHistoryId = automationInfo.VoidingHistoryId,
+            NegativeBalanceUsers = automationInfo.NegativeBalanceUsers,
+            Match = match,
+            Message = message,
+            VoidedReason = reason,
+            EmailTickets = emailTickets
+        };
     }
 }

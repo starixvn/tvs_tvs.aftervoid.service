@@ -16,72 +16,104 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.Letstalk;
 
 public class SendLetstalkServiceStageTests
 {
-    [Fact]
-    public async Task GetVoidBetAutomationRunLetstalk_ReturnExpectedResults()
+    private LoggingService loggingService;
+    private IDynamicRepository repository;
+    private TVSNewSiteHttpClientService tvsNewSiteHttpClientService;
+    private VoidBetAutomationService voidBetAutomationService;
+
+    public void InitFakeServiceTests()
     {
-        var voidBetAutomationInfoList = new List<VoidBetAutomationInfo>();
-        var repository = Substitute.For<IDynamicRepository>();
-        repository.FetchAsync<VoidBetAutomationInfo>(default).ReturnsForAnyArgs(voidBetAutomationInfoList);
-        var service = new SendLetstalkServiceStageImp(repository, default, default, default);
-
-        var actual = await service.GetVoidBetAutomationRunLetstalk();
-
-        await repository.Received(1).FetchAsync<VoidBetAutomationInfo>(Arg.Any<GetAutomationInfoLetstalkCriteria>());
-        Assert.Equal(voidBetAutomationInfoList, actual);
+        repository = Substitute.For<IDynamicRepository>();
+        loggingService = Substitute.For<LoggingService>();
+        tvsNewSiteHttpClientService = Substitute.For<TVSNewSiteHttpClientService>();
+        voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
     }
 
     [Fact]
-    public async Task GetContentExcelVoidedTicket_ReturnExpectedResults()
+    public async Task GetVoidBetAutomationRunLetstalk_ReturnExpectedResults()
     {
+        // Arrange
+        InitFakeServiceTests();
+        var voidBetAutomationInfoList = new List<VoidBetAutomationInfo>();
+        repository.FetchAsync<VoidBetAutomationInfo>(Arg.Any<GetAutomationInfoLetstalkCriteria>())
+            .ReturnsForAnyArgs(voidBetAutomationInfoList);
+        var service = new SendLetstalkServiceStageImp(repository, default, default, default);
+
+        // Act
+        var actual = await service.GetVoidBetAutomationRunLetstalk();
+
+        // Assert
+        await repository.Received(1).FetchAsync<VoidBetAutomationInfo>(Arg.Any<GetAutomationInfoLetstalkCriteria>());
+        AssertExtension.Equal(voidBetAutomationInfoList, actual);
+    }
+
+    [Fact]
+    public async Task GetContentExcelVoidedTicket_HasSentEmail_ReturnExpectedResults()
+    {
+        // Arrange
+        InitFakeServiceTests();
         var fakeResult = new byte[] { 1, 2 };
-        var tvsClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
-        tvsClientService.GetContentExcelVoidedTicket(default, default, default, default).ReturnsForAnyArgs((true, fakeResult));
-        var service = new SendLetstalkServiceStageImp(default, default, default, tvsClientService);
+        tvsNewSiteHttpClientService.GetExcelVoidedTicketForSendLetstalk(1, 1, 1, "1")
+            .ReturnsForAnyArgs((true, fakeResult));
+        var service = new SendLetstalkServiceStageImp(default, default, default, tvsNewSiteHttpClientService);
 
-        var actual = await service.GetContentExcelVoidedTicket(default, default, default, default);
+        // Act
+        var actual = await service.GetContentExcelVoidedTicket(1, 1, 1, "1");
 
-        await tvsClientService.Received(1).GetContentExcelVoidedTicket(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string>());
-        Assert.Equal(fakeResult, actual);
+        // Assert
+        await tvsNewSiteHttpClientService.Received(1).GetExcelVoidedTicketForSendLetstalk(1, 1, 1, "1");
+        AssertExtension.Equal(fakeResult, actual);
     }
 
     [Fact]
     public async Task GetContentExcelVoidedTicket_ThrowException()
     {
-        var tvsClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
-        tvsClientService.GetContentExcelVoidedTicket(default, default, default, default).ReturnsForAnyArgs((false, null));
-        var service = new SendLetstalkServiceStageImp(default, default, default, tvsClientService);
+        // Arrange
+        InitFakeServiceTests();
+        tvsNewSiteHttpClientService.GetExcelVoidedTicketForSendLetstalk(1, 1, 1, "1").ReturnsForAnyArgs((false, null));
+        var service = new SendLetstalkServiceStageImp(default, default, default, tvsNewSiteHttpClientService);
 
+        // Act
+        // Assert
         await Assert.ThrowsAsync<ExternalException>(async () =>
-            await service.GetContentExcelVoidedTicket(default, default, default, default));
+            await service.GetContentExcelVoidedTicket(1, 1, 1, "1"));
     }
 
     [Fact]
     public async Task GetVoidedTickets_ReturnExpectedResults()
     {
+        // Arrange
+        InitFakeServiceTests();
         var fakeVoidBetAutomationInfo = new List<VoidBetAutomationInfo>
         {
-            new()
+            new() { VoidingHistoryId = 1, SiteDbGroupId = 1 }
         };
-        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(default, default).ReturnsForAnyArgs(new List<TicketEmailModel>());
+        var ticketsInServer = new List<TicketEmailModel> { new() };
+        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 1, false).ReturnsForAnyArgs(ticketsInServer);
         var service = new SendLetstalkServiceStageImp(default, default, voidBetAutomationService, default);
+        var voidedTickets = new List<TicketEmailModel> { new() };
 
+        // Act
         var actual = await service.GetVoidedTickets(fakeVoidBetAutomationInfo);
 
-        await voidBetAutomationService.Received(1).GetVoidedTicketsByVoidingHistory(Arg.Any<int>(), Arg.Any<int>());
-        Assert.NotNull(actual);
+        // Assert
+        await voidBetAutomationService.Received(1).GetVoidedTicketsByVoidingHistory(1, 1, false);
+        AssertExtension.Equal(voidedTickets, actual);
     }
 
     [Fact]
     public async Task GetVoidDataXml_ReturnExpectedResults()
     {
+        // Arrange
+        InitFakeServiceTests();
         var fakeVoidDataXml = new List<VoidDataXmlModel>();
-        var repository = Substitute.For<IDynamicRepository>();
         repository.FetchAsync<VoidDataXmlModel>(default, default).ReturnsForAnyArgs(fakeVoidDataXml);
         var service = new SendLetstalkServiceStageImp(repository, default, default, default);
 
+        // Act
         var actual = await service.GetVoidDataXml(new List<int>());
 
+        // Assert
         await repository.Received(1).FetchAsync<VoidDataXmlModel>(Arg.Any<GetVoidingHistoryCriteria>());
         Assert.Equal(fakeVoidDataXml, actual);
     }
@@ -89,33 +121,42 @@ public class SendLetstalkServiceStageTests
     [Fact]
     public void WriteLogLetstalk_LoggingServiceHasCalled()
     {
-        var loggingService = Substitute.For<LoggingService>();
+        // Arrange
+        InitFakeServiceTests();
         var service = new SendLetstalkServiceStageImp(default, loggingService, default, default);
 
-        service.WriteLogLetstalk(new List<Result> { new() }, new GroupVoidBetAutomationInfo(), new Stopwatch());
+        // Act
+        _ = service.WriteLogLetstalk(new List<Result> { new() }, new GroupVoidBetAutomationInfo(), new Stopwatch());
 
-        loggingService.Received(1).Info(Arg.Any<string>());
+        // Assert
+        loggingService.Received(1).InfoAsync(Arg.Any<string>());
     }
 
     [Fact]
     public async Task UpdateLetstalk_RepositoryHasCalled()
     {
-        var repository = Substitute.For<IDynamicRepository>();
+        // Arrange
+        InitFakeServiceTests();
         var service = new SendLetstalkServiceStageImp(repository, default, default, default);
 
+        // Act
         await service.UpdateLetstalk(1, "", 1);
 
+        // Assert
         await repository.Received(1).ExecuteAsync(Arg.Any<UpdateLetstalkCommand>());
     }
 
     [Fact]
     public async Task InsertLetstalk_RepositoryHasCalled()
     {
-        var repository = Substitute.For<IDynamicRepository>();
+        // Arrange
+        InitFakeServiceTests();
         var service = new SendLetstalkServiceStageImp(repository, default, default, default);
 
+        // Act
         await service.InsertLetstalk(1, "", 1);
 
+        // Assert
         await repository.Received(1).ExecuteAsync(Arg.Any<InsertLetstalkCommand>());
     }
 }

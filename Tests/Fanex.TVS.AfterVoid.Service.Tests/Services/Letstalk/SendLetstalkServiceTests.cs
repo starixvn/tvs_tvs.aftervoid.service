@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using FizzWare.NBuilder;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 using Xunit;
@@ -16,6 +16,27 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.Letstalk;
 
 public class SendLetstalkServiceTests
 {
+    private readonly AbnormalBetLetstalkService abnormalBetLetstalkServiceImp;
+    private readonly SendLetstalkServiceStage letstalkServiceStage;
+    private readonly LoggingService loggingService;
+    private readonly NotificationSignalRService notificationSignalRService;
+    private readonly SendLetstalkServiceImp service;
+    private readonly SettledBetLetstalkService settledBetLetstalkService;
+    private readonly VoidBetAutomationService voidBetAutomationService;
+
+    public SendLetstalkServiceTests()
+    {
+        voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
+        abnormalBetLetstalkServiceImp = Substitute.For<AbnormalBetLetstalkService>();
+        settledBetLetstalkService = Substitute.For<SettledBetLetstalkService>();
+        notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        letstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
+        loggingService = Substitute.For<LoggingService>();
+        service = new SendLetstalkServiceImp(voidBetAutomationService, abnormalBetLetstalkServiceImp,
+            settledBetLetstalkService, notificationSignalRService
+            , letstalkServiceStage, loggingService);
+    }
+
     private static RequestDetailViewModel CreateRequestDetailViewModel(int issueTypeId)
     {
         return new RequestDetailViewModel
@@ -29,18 +50,20 @@ public class SendLetstalkServiceTests
     [Fact]
     public async Task Execute_HasNotAnyRequest_ReturnExpectedResults()
     {
-        var letstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
-        letstalkServiceStage.GetVoidBetAutomationRunLetstalk().ReturnsForAnyArgs(new List<VoidBetAutomationInfo>());
-        var service = new SendLetstalkServiceImp(default, default, default, default, letstalkServiceStage, default);
+        // Arrange
+        letstalkServiceStage.GetVoidBetAutomationRunLetstalk().Returns(new List<VoidBetAutomationInfo>());
 
+        // Act
         await service.Execute();
 
+        // Assert
         await letstalkServiceStage.Received(1).GetVoidBetAutomationRunLetstalk();
     }
 
     [Fact]
     public async Task Execute_HasRequest_ReturnExpectedResults()
     {
+        // Arrange
         var requestInfo = new RequestDetailViewModel
         {
             Request = new RequestModel { IssueTypeId = IssueTypeConstant.AbnormalBet },
@@ -53,7 +76,7 @@ public class SendLetstalkServiceTests
             new() { IsSentLetsTalk = true },
             new() { RequestId = requestId1, IsAutoVoid = true },
             new() { RequestId = requestId2, IsAutoVoid = false },
-            new() { RequestId = requestId2 },
+            new() { RequestId = requestId2 }
         };
         var voidDataXmlModel = new List<VoidDataXmlModel>
         {
@@ -61,15 +84,14 @@ public class SendLetstalkServiceTests
             {
                 VoidFromDate = "12/12/2022", VoidToDate = "12/12/2022", VoidFromTime = "1:12:12 AM",
                 VoidToTime = "2:12:12 AM"
+            },
+            new()
+            {
+                VoidFromDate = "2/12/2022", VoidToDate = "2/12/2022", VoidFromTime = "10:12:12 AM",
+                VoidToTime = "10:12:12 AM"
             }
         };
         var voidedTickets = Builder<TicketEmailModel>.CreateListOfSize(5).Build();
-        var letstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
-        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var settledBetLetstalkService = Substitute.For<SettledBetLetstalkService>();
-        var abnormalBetLetstalkService = Substitute.For<AbnormalBetLetstalkService>();
-        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        var loggingService = Substitute.For<LoggingService>();
         letstalkServiceStage.GetVoidBetAutomationRunLetstalk().ReturnsForAnyArgs(voidBetAutomationInfoList);
         letstalkServiceStage.GetVoidedTickets(default).ReturnsForAnyArgs(voidedTickets);
         letstalkServiceStage.GetVoidDataXml(default).ReturnsForAnyArgs(voidDataXmlModel);
@@ -78,21 +100,22 @@ public class SendLetstalkServiceTests
         voidBetAutomationService.GetRequestById(requestId2, default)
             .Returns(CreateRequestDetailViewModel(IssueTypeConstant.AbnormalBet));
         voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
-        voidBetAutomationService.GetMatchInfo(default).Returns(new Match());
-        var service = new SendLetstalkServiceImp(voidBetAutomationService, abnormalBetLetstalkService,
-            settledBetLetstalkService, notificationSignalRService, letstalkServiceStage, loggingService);
+        voidBetAutomationService.GetMatchInfo(default).Returns(new Match { MatchId = 1 });
 
+        // Act
         await service.Execute();
 
+        // Assert
         await letstalkServiceStage.Received(1).GetVoidBetAutomationRunLetstalk();
     }
 
     [Fact]
     public async Task Execute_SendLetstalkSettleDone_ReturnExpectedResults()
     {
+        // Arrange
         var requestInfo = new RequestDetailViewModel
         {
-            Request = new RequestModel { IssueTypeId = IssueTypeConstant.AbnormalBet },
+            Request = new RequestModel { IssueTypeId = IssueTypeConstant.AbnormalAccount },
             EventByMatch = new RequestEventModel()
         };
         const int requestId1 = 1;
@@ -102,23 +125,10 @@ public class SendLetstalkServiceTests
             new() { IsSentLetsTalk = true },
             new() { RequestId = requestId1, IsAutoVoid = true },
             new() { RequestId = requestId2, IsAutoVoid = false },
-            new() { RequestId = requestId2 },
+            new() { RequestId = requestId2 }
         };
-        var voidDataXmlModel = new List<VoidDataXmlModel>
-        {
-            new()
-            {
-                VoidFromDate = "12/12/2022", VoidToDate = "12/12/2022", VoidFromTime = "1:12:12 AM",
-                VoidToTime = "2:12:12 AM"
-            }
-        };
+        var voidDataXmlModel = new List<VoidDataXmlModel>();
         var voidedTickets = Builder<TicketEmailModel>.CreateListOfSize(5).Build();
-        var letstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
-        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var settledBetLetstalkService = Substitute.For<SettledBetLetstalkService>();
-        var abnormalBetLetstalkService = Substitute.For<AbnormalBetLetstalkService>();
-        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        var loggingService = Substitute.For<LoggingService>();
         letstalkServiceStage.GetVoidBetAutomationRunLetstalk().ReturnsForAnyArgs(voidBetAutomationInfoList);
         letstalkServiceStage.GetVoidedTickets(default).ReturnsForAnyArgs(voidedTickets);
         letstalkServiceStage.GetVoidDataXml(default).ReturnsForAnyArgs(voidDataXmlModel);
@@ -127,29 +137,25 @@ public class SendLetstalkServiceTests
         voidBetAutomationService.GetRequestById(requestId2, default)
             .Returns(CreateRequestDetailViewModel(IssueTypeConstant.AbnormalBet));
         settledBetLetstalkService.Send(default, default).ReturnsForAnyArgs(true);
-        voidBetAutomationService.GetMatchInfo(default).Returns(new Match());
-        var service = new SendLetstalkServiceImp(voidBetAutomationService, abnormalBetLetstalkService,
-            settledBetLetstalkService, notificationSignalRService, letstalkServiceStage, loggingService);
+        voidBetAutomationService.GetMatchInfo(default).Returns((Match)null);
         voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
+
+        // Act
         await service.Execute();
 
+        // Assert
         await letstalkServiceStage.Received(1).GetVoidBetAutomationRunLetstalk();
     }
 
     [Fact]
     public async Task Execute_HasException_ReturnExpectedResults()
     {
+        // Arrange
         var requestInfo = new RequestDetailViewModel
         {
             Request = new RequestModel { IssueTypeId = IssueTypeConstant.AbnormalBet },
             EventByMatch = new RequestEventModel()
         };
-        var letstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
-        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        var settledBetLetstalkService = Substitute.For<SettledBetLetstalkService>();
-        var abnormalBetLetstalkService = Substitute.For<AbnormalBetLetstalkService>();
-        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        var loggingService = Substitute.For<LoggingService>();
         letstalkServiceStage.GetVoidBetAutomationRunLetstalk()
             .ReturnsForAnyArgs(new List<VoidBetAutomationInfo> { new() });
         voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
@@ -157,12 +163,12 @@ public class SendLetstalkServiceTests
             .When(x => x.Send(Arg.Any<NotificationLetstalkModel>(), Arg.Any<IEnumerable<TicketEmailModel>>()))
             .Do(x => x.Throws(new Exception()));
         voidBetAutomationService.GetMatchInfo(default).Returns(new Match());
-        var service = new SendLetstalkServiceImp(voidBetAutomationService, abnormalBetLetstalkService,
-            settledBetLetstalkService, notificationSignalRService, letstalkServiceStage, loggingService);
 
+        // Act
         await service.Execute();
 
+        // Assert
         await letstalkServiceStage.Received(1).GetVoidBetAutomationRunLetstalk();
-        loggingService.Error(Arg.Any<string>());
+        await loggingService.Received(1).ErrorAsync(Arg.Any<string>(), Arg.Any<Exception>());
     }
 }

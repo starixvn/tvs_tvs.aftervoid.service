@@ -79,7 +79,7 @@ public class SendMessageServiceImp : SendMessageService
     {
         var templateId = GetTemplateIdForAutoVoid(issueTypeId, filterBy);
         var templateModels = await repository.FetchAsync<TemplateModel>(new GetTemplatesCriteria()).ConfigureAwait(false);
-        var template = templateModels.FirstOrDefault(t => t.TemplateId == templateId);
+        var template = templateModels.First(t => t.TemplateId == templateId);
         ReplaceMessageTemplate(template, match, allVoidDataInCurrentVoidTimes, issueTypeId, filterBy);
 
         return new Message
@@ -391,6 +391,12 @@ public class SendMessageServiceImp : SendMessageService
 
             case IssueTypeConstant.AbnormalBet when filterBy is filterMixParlay:
                 return MessageTemplateIdConstant.ThirtySeven;
+
+            case IssueTypeConstant.DuplicateTickets when filterBy is null:
+                return MessageTemplateIdConstant.SixtyFour;
+
+            case IssueTypeConstant.DuplicateTickets when filterBy is filterMixParlay:
+                return MessageTemplateIdConstant.SixtyFive;
 
             case IssueTypeConstant.AbnormalAccount:
                 return MessageTemplateIdConstant.ThirtySeven;

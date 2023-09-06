@@ -8,6 +8,7 @@ using Fanex.TVS.AfterVoid.Service.Services;
 using FizzWare.NBuilder;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 using Xunit;
@@ -16,24 +17,90 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services;
 
 public class SendMessageServiceImpTests
 {
+    private readonly IEnumerable<TicketEmailModel> fakeTicketEmailModels = new List<TicketEmailModel>
+    {
+        new()
+        {
+            Site = "cn88",
+            CustId = 1111,
+            UserName = "sa",
+            Recommend = 111,
+            AgUserName = "AgUserName",
+            Mrecommend = 222,
+            MagUserName = "MagUserName",
+            Srecommend = 333,
+            SagUserName = "SagUserName",
+            TransId = 123456789,
+            IsMixParlay = false,
+            MatchId = 111
+        },
+        new()
+        {
+            Site = "aaaa",
+            CustId = 12345,
+            UserName = "sa",
+            Recommend = 111,
+            AgUserName = "AgUserName",
+            Mrecommend = 222,
+            MagUserName = "MagUserName",
+            Srecommend = 333,
+            SagUserName = "SagUserName",
+            TransId = 987654321,
+            IsMixParlay = true,
+            MatchId = 1111
+        }
+    };
+
+    private readonly MessageItemService messageItemService;
+    private readonly IDynamicRepository repository;
+    private readonly SendMessageServiceImp service;
+    private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
+
+    public SendMessageServiceImpTests()
+    {
+        repository = Substitute.For<IDynamicRepository>();
+        messageItemService = Substitute.For<MessageItemService>();
+        ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
+        service = new SendMessageServiceImp(repository, messageItemService, ticketVoidingSystemHttpClientService);
+    }
+
     [Theory]
     [InlineData(IssueTypeConstant.AbnormalBet, 1)]
     [InlineData(IssueTypeConstant.AbnormalBet, null)]
     [InlineData(IssueTypeConstant.AbnormalBetRealMember, 1)]
     [InlineData(IssueTypeConstant.DangerAccepted, 1)]
+    [InlineData(IssueTypeConstant.DuplicateTickets, null)]
+    [InlineData(IssueTypeConstant.DuplicateTickets, 1)]
+    [InlineData(IssueTypeConstant.AbnormalAccount, 1)]
+    [InlineData(IssueTypeConstant.ReducedOver, 1)]
     public async Task InitializeMessageContentForAutoVoid_ShouldReturnExpectedData(int issueTypeId, int? filterBy)
     {
+        var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>
+        {
+            new()
+            {
+                IsHasSettledTicket = true, TotalTicket = 7,
+                VoidFromTime = "2022/02/02 02:02:02",
+                VoidToTime = "2022/02/02 02:04:04"
+            }
+        };
         var fakeMatch = new Match { MatchCode = "ppp00" };
-        var fakeTemplate = Builder<TemplateModel>.CreateListOfSize(6)
+        var fakeTemplate = Builder<TemplateModel>.CreateListOfSize(7)
             .Random(1).With(x => x.TemplateId = 37)
             .Random(1).With(x => x.TemplateId = 34)
             .Random(1).With(x => x.TemplateId = 1)
+            .Random(1).With(x => x.TemplateId = 64)
+            .Random(1).With(x => x.TemplateId = 65)
+            .Random(1).With(x => x.TemplateId = 37)
+            .Random(1).With(x => x.TemplateId = 38)
             .Build();
         var repository = Substitute.For<IDynamicRepository>();
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
         var service = new SendMessageServiceImp(repository, null, null);
 
-        var actual = await service.InitializeMessageContentForAutoVoid(fakeMatch, true, issueTypeId, filterBy);
+        var actual =
+            await service.InitializeMessageContentForAutoVoid(fakeMatch, allVoidDataInCurrentVoidTimes, issueTypeId,
+                filterBy);
 
         await repository.Received(1).FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>());
         Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);
@@ -47,11 +114,12 @@ public class SendMessageServiceImpTests
             .Random(1).With(x => x.TemplateId = 34)
             .Random(1).With(x => x.TemplateId = 1)
             .Build();
+        var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>();
         var repository = Substitute.For<IDynamicRepository>();
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
         var service = new SendMessageServiceImp(repository, null, null);
 
-        var actual = await service.InitializeMessageContentForAutoVoid(null, false, 11, 1);
+        var actual = await service.InitializeMessageContentForAutoVoid(null, allVoidDataInCurrentVoidTimes, 11, 1);
 
         await repository.Received(1).FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>());
         Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);
@@ -70,11 +138,12 @@ public class SendMessageServiceImpTests
 
     [Fact]
     public async Task GetMessage_ReturnMessageModel()
-    {            // Arrange
+    {
+        // Arrange
         var getMessageCriteria = new GetMessageCriteria { MessageId = 12345 };
         var expected = new Message
         {
-            MessageId = 12345,
+            MessageId = 12345
         };
         var repository = Substitute.For<IDynamicRepository>();
         repository.GetAsync<Message>(getMessageCriteria).ReturnsForAnyArgs(expected);
@@ -109,7 +178,8 @@ public class SendMessageServiceImpTests
 
     [Fact]
     public async Task InsertVoidedTransaction_ShouldCallExecuteAsync()
-    {            // Arrange
+    {
+        // Arrange
         var fakeData = new
         {
             MessageId = 12345,
@@ -127,7 +197,8 @@ public class SendMessageServiceImpTests
         var service = new SendMessageServiceImp(repository, messageItemService, ticketVoidingApi);
 
         // Act
-        await service.InsertVoidedTransaction(fakeTicketEmailModels, fakeData.MessageId, fakeData.ReasonId, fakeData.IssueTypeId, fakeData.SubIssueTypeId, fakeData.MatchId);
+        await service.InsertVoidedTransaction(fakeTicketEmailModels, fakeData.MessageId, fakeData.ReasonId,
+            fakeData.IssueTypeId, fakeData.SubIssueTypeId, fakeData.MatchId);
 
         // Assert
         await repository.Received().ExecuteAsync(Arg.Any<InsertVoidedTransactionCommand>());
@@ -138,12 +209,14 @@ public class SendMessageServiceImpTests
     [InlineData(IssueTypeConstant.AbnormalBetRealMember)]
     [InlineData(IssueTypeConstant.DangerAccepted)]
     public async Task SendMessage_ShouldCallInsertBatchMessage(int issueTypeId)
-    {   // Arrange
+    {
+        // Arrange
         const string messageXml = "<Messages>Content</Messages>";
         const int messageId = 1111;
         var repository = Substitute.For<IDynamicRepository>();
         var messageItemService = Substitute.For<MessageItemService>();
-        messageItemService.CreateMessageItems(Arg.Any<IEnumerable<ReceivedUser>>(), Arg.Compat.Any<int>()).ReturnsForAnyArgs(messageXml);
+        messageItemService.CreateMessageItems(Arg.Any<IEnumerable<ReceivedUser>>(), Arg.Compat.Any<int>())
+            .ReturnsForAnyArgs(messageXml);
 
         var service = new SendMessageServiceImp(repository, messageItemService, null);
 
@@ -180,7 +253,8 @@ public class SendMessageServiceImpTests
 
         Assert.Null(actual.ReasonEnglish);
         Assert.Null(actual.ReasonChineseSimplified);
-        await repository.Received(1).GetAsync<VoidedReason>(Arg.Is<GetReasonNameCriteria>(x => x.SubIssueTypeId == fakeSubIssueType && x.SportType == fakeSportType));
+        await repository.Received(1).GetAsync<VoidedReason>(Arg.Is<GetReasonNameCriteria>(x =>
+            x.SubIssueTypeId == fakeSubIssueType && x.SportType == fakeSportType));
     }
 
     [Fact]
@@ -199,15 +273,20 @@ public class SendMessageServiceImpTests
 
         Assert.NotNull(actual.ReasonEnglish);
         Assert.NotNull(actual.ReasonChineseSimplified);
-        await repository.Received(1).GetAsync<VoidedReason>(Arg.Is<GetReasonNameCriteria>(x => x.SubIssueTypeId == fakeSubIssueType && x.SportType == fakeSportType));
-        await ticketVoidingSystemHttpClientService.Received(2).BetListGetSportTypeName(Arg.Is<int>(x => x == fakeSportType), Arg.Any<string>());
+        await repository.Received(1).GetAsync<VoidedReason>(Arg.Is<GetReasonNameCriteria>(x =>
+            x.SubIssueTypeId == fakeSubIssueType && x.SportType == fakeSportType));
+        await ticketVoidingSystemHttpClientService.Received(2)
+            .BetListGetSportTypeName(Arg.Is<int>(x => x == fakeSportType), Arg.Any<string>());
     }
 
     [Fact]
     public async Task InsertReason_ShouldReturnReasonId()
     {
         // Arrange
-        var criteria = new InsertReasonCommand { ReasonEnglish = "Reason English", ReasonChineseSimplified = "Reason Chinese Simplified", ReasonId = 12345 };
+        var criteria = new InsertReasonCommand
+        {
+            ReasonEnglish = "Reason English", ReasonChineseSimplified = "Reason Chinese Simplified", ReasonId = 12345
+        };
         var repository = Substitute.For<IDynamicRepository>();
         repository.When(repo => repo.ExecuteAsync(criteria)).Do(repo => { criteria.ReasonId = 12345; });
 
@@ -229,7 +308,8 @@ public class SendMessageServiceImpTests
 
     [Fact]
     public async Task GetVoidedReason_ReturnVoidedReasonModel()
-    {      // Arrange
+    {
+        // Arrange
         var getVoidedReasonCriteria = new GetVoidedReasonCriteria { ReasonId = 12345 };
         var expected = new VoidedReason
         {
@@ -247,7 +327,8 @@ public class SendMessageServiceImpTests
 
         // Assert
         Assert.Equal(expected, actual);
-        await repository.Received(1).GetAsync<VoidedReason>(Arg.Compat.Is<GetVoidedReasonCriteria>(x => x.ReasonId == 12345));
+        await repository.Received(1)
+            .GetAsync<VoidedReason>(Arg.Compat.Is<GetVoidedReasonCriteria>(x => x.ReasonId == 12345));
     }
 
     [Fact]
@@ -257,7 +338,8 @@ public class SendMessageServiceImpTests
 
     [Fact]
     public async Task InsertMessageIntoAdminSite_ShouldCallRepository()
-    {            // Arrange
+    {
+        // Arrange
         var message = new Message
         {
             ContentEnglish = "Content English",
@@ -273,7 +355,8 @@ public class SendMessageServiceImpTests
         await service.InsertMessageIntoAdminSite(message);
 
         // Assert
-        await repository.Received(1).ExecuteAsync(Arg.Compat.Is<InsertMessageIntoAdminSiteCriteria>(x => x.men == message.ContentEnglish
+        await repository.Received(1).ExecuteAsync(Arg.Compat.Is<InsertMessageIntoAdminSiteCriteria>(x =>
+            x.men == message.ContentEnglish
             && x.mch == message.ContentChineseTraditional));
     }
 
@@ -281,38 +364,4 @@ public class SendMessageServiceImpTests
     public void GetListSendMessageDb_()
     {
     }
-
-    private readonly IEnumerable<TicketEmailModel> fakeTicketEmailModels = new List<TicketEmailModel>
-    {
-        new TicketEmailModel
-        {
-            Site = "cn88",
-            CustId = 1111,
-            UserName = "sa",
-            Recommend = 111,
-            AgUserName = "AgUserName",
-            Mrecommend = 222,
-            MagUserName = "MagUserName",
-            Srecommend = 333,
-            SagUserName = "SagUserName",
-            TransId = 123456789,
-            IsMixParlay = false,
-            MatchId = 111
-        },
-        new TicketEmailModel
-        {
-            Site = "aaaa",
-            CustId = 12345,
-            UserName = "sa",
-            Recommend = 111,
-            AgUserName = "AgUserName",
-            Mrecommend = 222,
-            MagUserName = "MagUserName",
-            Srecommend = 333,
-            SagUserName = "SagUserName",
-            TransId = 987654321,
-            IsMixParlay = true,
-            MatchId = 1111
-        }
-    };
 }

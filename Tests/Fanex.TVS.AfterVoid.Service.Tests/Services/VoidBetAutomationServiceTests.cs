@@ -19,19 +19,23 @@ public class VoidBetAutomationServiceTests
     [Fact]
     public async Task GetVoidBetAutomationRunAfterVoid_ReturnModelWithCurrentRequestStatusFailed()
     {
+        // Arrange
         var voidingHistoryModels = new List<VoidingHistoryModel>
         {
             new() { VoidingHistoryStatusId = ExecuteStatus.Failed },
-            new() { AfterVoidStatusId = ExecuteStatus.Failed },
+            new() { AfterVoidStatusId = ExecuteStatus.Failed }
         };
         var automationInfo = new List<VoidBetAutomationInfo> { new() { RequestId = 2 } };
         var repository = Substitute.For<IDynamicRepository>();
-        repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(Arg.Any<GetAutomationInfoAfterVoidCriteria>())
+        repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(
+                Arg.Any<GetAutomationInfoAfterVoidCriteria>())
             .ReturnsForAnyArgs((automationInfo, voidingHistoryModels, new List<EmailResultModel>()));
-
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+
+        // Act
         var actual = await voidBetAutomationService.GetVoidBetAutomationRunAfterVoid();
 
+        // Assert
         Assert.StrictEqual(automationInfo.First(), actual.Item1);
         Assert.Equal(RequestStatusConstant.Failed, actual.Item3);
     }
@@ -39,19 +43,23 @@ public class VoidBetAutomationServiceTests
     [Fact]
     public async Task GetVoidBetAutomationRunAfterVoid_ReturnModelWithCurrentRequestStatusRunning()
     {
+        // Arrange
         var voidingHistoryModels = new List<VoidingHistoryModel>
         {
             new() { VoidingHistoryStatusId = ExecuteStatus.Running },
-            new() { VoidingHistoryStatusId = ExecuteStatus.Running },
+            new() { VoidingHistoryStatusId = ExecuteStatus.Running }
         };
         var automationInfo = new List<VoidBetAutomationInfo> { new() { RequestId = 2 } };
         var repository = Substitute.For<IDynamicRepository>();
-        repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(Arg.Any<GetAutomationInfoAfterVoidCriteria>())
+        repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(
+                Arg.Any<GetAutomationInfoAfterVoidCriteria>())
             .ReturnsForAnyArgs((automationInfo, voidingHistoryModels, new List<EmailResultModel>()));
-
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+
+        // Act
         var actual = await voidBetAutomationService.GetVoidBetAutomationRunAfterVoid();
 
+        // Assert
         Assert.StrictEqual(automationInfo.First(), actual.Item1);
         Assert.Equal(RequestStatusConstant.Running, actual.Item3);
     }
@@ -59,19 +67,23 @@ public class VoidBetAutomationServiceTests
     [Fact]
     public async Task GetVoidBetAutomationRunAfterVoid_ReturnModelWithCurrentRequestStatusCompleted()
     {
+        // Arrange
         var voidingHistoryModels = new List<VoidingHistoryModel>
         {
             new() { VoidingHistoryStatusId = ExecuteStatus.Done },
-            new() { AfterVoidStatusId = ExecuteStatus.Done },
+            new() { AfterVoidStatusId = ExecuteStatus.Done }
         };
         var automationInfo = new List<VoidBetAutomationInfo> { new() { RequestId = 2 } };
         var repository = Substitute.For<IDynamicRepository>();
-        repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(Arg.Any<GetAutomationInfoAfterVoidCriteria>())
+        repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(
+                Arg.Any<GetAutomationInfoAfterVoidCriteria>())
             .ReturnsForAnyArgs((automationInfo, voidingHistoryModels, new List<EmailResultModel>()));
-
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+
+        // Act
         var actual = await voidBetAutomationService.GetVoidBetAutomationRunAfterVoid();
 
+        // Assert
         Assert.StrictEqual(automationInfo.First(), actual.Item1);
         Assert.Equal(RequestStatusConstant.Completed, actual.Item3);
     }
@@ -85,24 +97,26 @@ public class VoidBetAutomationServiceTests
     [InlineData(IssueTypeConstant.RedCard)]
     public async Task GetRequestById_ReturnDataEventWithExpectedMatch(int issueTypeId)
     {
+        // Arrange
         var fakeRequests = new List<RequestModel>
         {
-            new() { IssueTypeId = issueTypeId},
-            new() { IssueTypeId = issueTypeId}
+            new() { IssueTypeId = issueTypeId },
+            new() { IssueTypeId = issueTypeId }
         };
         var fakeRequestEvents = new List<RequestEventModel>
         {
             new() { MatchId = 100 },
             new() { MatchId = 113 }
         };
-
         var repository = Substitute.For<IDynamicRepository>();
         repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(Arg.Any<SelectRequestCriteria>())
             .ReturnsForAnyArgs((fakeRequests, fakeRequestEvents, null));
-
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+
+        // Act
         var actual = await voidBetAutomationService.GetRequestById(0, 113);
 
+        // Assert
         Assert.StrictEqual(fakeRequests[0], actual.Request);
         Assert.StrictEqual(fakeRequestEvents[1], actual.EventByMatch);
     }
@@ -110,24 +124,26 @@ public class VoidBetAutomationServiceTests
     [Fact]
     public async Task GetRequestById_ReturnDataWithFirstEvent()
     {
+        // Arrange
         var fakeRequests = new List<RequestModel>
         {
-            new() {IssueTypeId = IssueTypeConstant.AbnormalBet},
-            new() {IssueTypeId = IssueTypeConstant.DangerAccepted}
+            new() { IssueTypeId = IssueTypeConstant.AbnormalBet },
+            new() { IssueTypeId = IssueTypeConstant.DangerAccepted }
         };
         var fakeRequestEvents = new List<RequestEventModel>
         {
-            new() {MatchId = 100},
-            new() {MatchId = 113}
+            new() { MatchId = 100 },
+            new() { MatchId = 113 }
         };
-
         var repository = Substitute.For<IDynamicRepository>();
         repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(Arg.Any<SelectRequestCriteria>())
             .ReturnsForAnyArgs((fakeRequests, fakeRequestEvents, null));
-
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+
+        // Act
         var actual = await voidBetAutomationService.GetRequestById(0, 113);
 
+        // Assert
         Assert.StrictEqual(fakeRequests[0], actual.Request);
         Assert.StrictEqual(fakeRequestEvents[0], actual.EventByMatch);
     }
@@ -135,59 +151,79 @@ public class VoidBetAutomationServiceTests
     [Fact]
     public async Task GetRequestSimpleInfo_ReturnExpectedData()
     {
+        // Arrange
         const int fakeRequestId = 113;
         const int fakeVoidingHistoryId = 211;
         var expectedRequestInfo = new RequestSimpleInfo { MatchId = 111 };
         var repository = Substitute.For<IDynamicRepository>();
         repository.GetAsync<RequestSimpleInfo>(
-            Arg.Is<GetRequestSimpleInfoCriteria>(x => x.RequestId == fakeRequestId)).ReturnsForAnyArgs(expectedRequestInfo);
-
+                Arg.Is<GetRequestSimpleInfoCriteria>(x => x.RequestId == fakeRequestId))
+            .ReturnsForAnyArgs(expectedRequestInfo);
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+
+        // Act
         var actual = await voidBetAutomationService.GetRequestSimpleInfo(fakeRequestId, fakeVoidingHistoryId);
 
+        // Assert
         Assert.StrictEqual(expectedRequestInfo, actual);
     }
 
     [Fact]
     public async Task UpdateServiceStatusByVoidingHistory_ShouldCallUpdateVoidBetAutomationServiceInfo()
     {
+        // Arrange
         const int fakeRequestId = 113;
         const int fakeVoidingHistoryId = 211;
         const int fakeStatusId = 311;
         var repository = Substitute.For<IDynamicRepository>();
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
-        await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(fakeRequestId, fakeVoidingHistoryId, fakeStatusId);
 
+        // Act
+        await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(fakeRequestId, fakeVoidingHistoryId,
+            fakeStatusId);
+
+        // Assert
         await repository.Received(1).ExecuteAsync(Arg.Is<UpdateVoidBetAutomationInfoCriteria>(x =>
-            x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateStatusByVoidingHistory && x.RequestId == fakeRequestId
+            x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateStatusByVoidingHistory &&
+            x.RequestId == fakeRequestId
             && x.VoidingHistoryId == fakeVoidingHistoryId && x.StatusId == fakeStatusId));
     }
 
     [Fact]
     public async Task UpdateMessageIdByVoidingHistory_ShouldCallUpdateVoidBetAutomationServiceInfo()
     {
+        // Arrange
         const int fakeRequestId = 113;
         const int fakeVoidingHistoryId = 211;
         const int fakeMessageId = 331;
         var repository = Substitute.For<IDynamicRepository>();
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
-        await voidBetAutomationService.UpdateMessageIdByVoidingHistory(fakeRequestId, fakeVoidingHistoryId, fakeMessageId);
 
+        // Act
+        await voidBetAutomationService.UpdateMessageIdByVoidingHistory(fakeRequestId, fakeVoidingHistoryId,
+            fakeMessageId);
+
+        // Assert
         await repository.Received(1).ExecuteAsync(Arg.Is<UpdateVoidBetAutomationInfoCriteria>(x =>
-            x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateMessageIdByVoidingHistory && x.RequestId == fakeRequestId
+            x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateMessageIdByVoidingHistory &&
+            x.RequestId == fakeRequestId
             && x.VoidingHistoryId == fakeVoidingHistoryId && x.MessageId == fakeMessageId));
     }
 
     [Fact]
     public async Task UpdateAfterVoidStep_ShouldCallUpdateVoidBetAutomationServiceInfo()
     {
+        // Arrange
         const int fakeRequestId = 211;
         const int fakeVoidingHistoryId = 331;
         var fakeAfterVoidHistory = new VoidBetAutomationInfo { ReasonId = 444 };
         var repository = Substitute.For<IDynamicRepository>();
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+
+        // Act
         await voidBetAutomationService.UpdateAfterVoidStep(fakeRequestId, fakeVoidingHistoryId, fakeAfterVoidHistory);
 
+        // Assert
         await repository.Received(1).ExecuteAsync(Arg.Is<UpdateVoidBetAutomationInfoCriteria>(x =>
             x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateAfterVoidStep && x.RequestId == fakeRequestId
             && x.VoidingHistoryId == fakeVoidingHistoryId && x.ReasonId == fakeAfterVoidHistory.ReasonId));
@@ -196,13 +232,18 @@ public class VoidBetAutomationServiceTests
     [Fact]
     public async Task UpdateAllAfterVoidSteps_ShouldCallUpdateVoidBetAutomationServiceInfo()
     {
+        // Arrange
         const int fakeRequestId = 211;
         const int fakeVoidingHistoryId = 331;
         var fakeAfterVoidHistory = new VoidBetAutomationInfo { ReasonId = 444 };
         var repository = Substitute.For<IDynamicRepository>();
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
-        await voidBetAutomationService.UpdateAllAfterVoidSteps(fakeRequestId, fakeVoidingHistoryId, fakeAfterVoidHistory);
 
+        // Act
+        await voidBetAutomationService.UpdateAllAfterVoidSteps(fakeRequestId, fakeVoidingHistoryId,
+            fakeAfterVoidHistory);
+
+        // Assert
         await repository.Received(1).ExecuteAsync(Arg.Is<UpdateVoidBetAutomationInfoCriteria>(x =>
             x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateAllAfterVoidSteps && x.RequestId == fakeRequestId
             && x.VoidingHistoryId == fakeVoidingHistoryId && x.ReasonId == fakeAfterVoidHistory.ReasonId));
@@ -211,76 +252,114 @@ public class VoidBetAutomationServiceTests
     [Fact]
     public async Task UpdateEmailResultByVoidingHistory_ShouldCallUpdateVoidBetAutomationServiceInfo()
     {
+        // Arrange
         const int fakeRequestId = 211;
         const int fakeVoidingHistoryId = 331;
         const string fakeVoidResultContent = "abc";
-
         var repository = Substitute.For<IDynamicRepository>();
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
-        await voidBetAutomationService.UpdateEmailResultByVoidingHistory(fakeRequestId, fakeVoidingHistoryId, fakeVoidResultContent);
 
+        // Act
+        await voidBetAutomationService.UpdateEmailResultByVoidingHistory(fakeRequestId, fakeVoidingHistoryId,
+            fakeVoidResultContent);
+
+        // Assert
         await repository.Received(1).ExecuteAsync(Arg.Is<UpdateVoidBetAutomationInfoCriteria>(x =>
-            x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateEmailsResultByVoidingHistory && x.RequestId == fakeRequestId
+            x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateEmailsResultByVoidingHistory &&
+            x.RequestId == fakeRequestId
             && x.VoidingHistoryId == fakeVoidingHistoryId && x.VoidResults == fakeVoidResultContent));
     }
 
     [Fact]
-    public async Task GetVoidedTicketsForSendEmail_ReturnExpectedModel()
+    public async Task GetVoidedTicketsByVoidingHistory_ReturnExpectedModel()
     {
-        const int fakeVoidingHistoryId = 331;
+        // Arrange
+        var checkITUser = new CheckRequestOfITUserModel();
         var fakeTicketEmail = new List<TicketEmailModel> { new() { BetId = 113 } };
         var repository = Substitute.For<IDynamicRepository>();
-        repository.FetchAsync<TicketEmailModel>(
-                Arg.Is<GetTicketsEmailCriteria>(x => x.VoidingHistoryId == fakeVoidingHistoryId))
+        repository.FetchAsync<TicketEmailModel>(Arg.Any<GetTicketsEmailCriteria>())
             .ReturnsForAnyArgs(fakeTicketEmail);
-
+        repository.GetAsync<CheckRequestOfITUserModel>(Arg.Any<GetTicketsEmailCriteria>())
+            .ReturnsForAnyArgs(checkITUser);
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
-        var actual = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(fakeVoidingHistoryId, 1);
 
-        Assert.NotNull(actual);
+        // Act
+        var actual = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 1, true);
+
+        // Assert
+        AssertExtension.Equal(fakeTicketEmail, actual);
     }
 
     [Fact]
+    public async Task GetVoidedTicketsByVoidingHistory_NoHasCheckITUser_ReturnExpectedModel()
+    {
+        // Arrange
+        var fakeTicketEmail = new List<TicketEmailModel> { new() { BetId = 113 } };
+        var repository = Substitute.For<IDynamicRepository>();
+        repository.FetchAsync<TicketEmailModel>(Arg.Any<GetTicketsEmailCriteria>())
+            .ReturnsForAnyArgs(fakeTicketEmail);
+        repository.GetAsync<CheckRequestOfITUserModel>(Arg.Any<GetTicketsEmailCriteria>())
+            .ReturnsForAnyArgs((CheckRequestOfITUserModel)null);
+        var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+
+        // Act
+        var actual = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 1, true);
+
+        // Assert
+        AssertExtension.Equal(fakeTicketEmail, actual);
+    }
+    [Fact]
     public async Task GetVoidDataFromVoidingHistory_ReturnExpectedModel()
     {
+        // Arrange
         const int fakeVoidingHistoryId = 331;
-        var fakeVoidDataXml = new VoidDataXmlModel { ContentEnglish = "zbc" };
+        var fakeVoidDataXml = new List<VoidDataXmlModel> { new() { ContentEnglish = "zbc" } };
         var repository = Substitute.For<IDynamicRepository>();
-        repository.GetAsync<VoidDataXmlModel>(default).ReturnsForAnyArgs(fakeVoidDataXml);
-
+        repository.FetchAsync<VoidDataXmlModel>(Arg.Any<GetVoidingHistoryCriteria>())
+            .ReturnsForAnyArgs(fakeVoidDataXml);
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+
+        // Act
         var actual = await voidBetAutomationService.GetVoidDataFromVoidingHistory(fakeVoidingHistoryId);
 
-        Assert.StrictEqual(fakeVoidDataXml, actual);
+        // Assert
+        AssertExtension.Equal(fakeVoidDataXml, actual);
     }
 
     [Fact]
     public async Task GetMatchInfo_ReturnExpectedModel()
     {
+        // Arrange
         const int fakeMatchId = 331;
         var fakeMatch = new Match { MatchCode = "ppp00" };
         var repository = Substitute.For<IDynamicRepository>();
         repository.GetAsync<Match>(
             Arg.Is<GetMatchInfoCriteria>(x => x.MatchId == fakeMatchId)).ReturnsForAnyArgs(fakeMatch);
-
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+
+        // Act
         var actual = await voidBetAutomationService.GetMatchInfo(fakeMatchId);
 
+        // Assert
         Assert.StrictEqual(fakeMatch, actual);
     }
 
     [Fact]
     public async Task UpdateTicketVoidingHistory_ShouldCallExecuteAsync()
     {
+        // Arrange
         const byte fakeStatusId = 1;
         const int fakeVoidingHistoryId = 331;
         const int fakeReasonId = 111;
         const int fakeMessageId = 222;
         var repository = Substitute.For<IDynamicRepository>();
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
+
+        // Act
         await voidBetAutomationService.UpdateTicketVoidingHistory(fakeVoidingHistoryId, fakeStatusId, fakeReasonId,
             fakeMessageId, null, null, null);
 
+        // Assert
         await repository.Received(1).ExecuteAsync(Arg.Is<UpdateHistoryCommand>(x =>
             x.StatusId == fakeStatusId && x.VoidingHistoryId == fakeVoidingHistoryId
                                        && x.ReasonId == fakeReasonId && x.MessageId == fakeMessageId));

@@ -20,9 +20,6 @@ public interface TicketVoidingSystemHttpClientService
     Task SignalRNotifyVoidResultToUser(string userName, IEnumerable<Result> results);
 
     Task<string> BetListGetSportTypeName(int sportType, string languageCode);
-
-    Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason voidedReason, Message message,
-        int issueTypeId, string negativeBalanceUsers);
 }
 
 [ExcludeFromCodeCoverage]
@@ -92,36 +89,5 @@ public class TicketVoidingSystemHttpClientServiceImp : TicketVoidingSystemHttpCl
         await LogService.ErrorAsync($"{ticketVoidingSystemUrl}{actionName}" +
                                     $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
         return string.Empty;
-    }
-
-    public async Task<(bool, IEnumerable<Result>)> SendEmail(IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason voidedReason, Message message,
-        int issueTypeId, string negativeBalanceUsers)
-    {
-        const string actionName = "SendEmail/Send";
-        using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(new { emailTickets, match, voidedReason, message, issueTypeId, negativeBalanceUsers }));
-        if (response.IsSuccessStatusCode)
-        {
-            await LogResponseStream(response);
-            var responseData = await Helper.DeserializeResponseStream<IEnumerable<Result>>(response);
-            return responseData != null ? (true, responseData) : (false, null);
-        }
-
-        await LogService.ErrorAsync($"{ticketVoidingSystemUrl}{actionName}" +
-                                    $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
-        return (false, null);
-    }
-
-    private static async Task LogResponseStream(HttpResponseMessage response)
-    {
-        try
-        {
-            var responseString = await response.Content.ReadAsStringAsync();
-            await LogService.InfoAsync("LogResponseStream" +
-                                       $"{Environment.NewLine}Response:{Environment.NewLine}{responseString}");
-        }
-        catch (Exception e)
-        {
-            await LogService.ErrorAsync("LogResponseStream", e);
-        }
     }
 }
