@@ -258,6 +258,16 @@ public class SendMessageServiceImp : SendMessageService
         ReplaceParlay(model, issueTypeId, filterBy);
         ReplaceEventType(model);
         ReplacePlacedFromTimeRange(model, allVoidDataInCurrentVoidTimes);
+        ReplacePlayerName(model, match);
+    }
+
+    private static void ReplacePlayerName(TemplateModel model, Match match)
+    {
+        const string playerNamePlaceholder = "{{Player Name}}";
+        model.MsgEnglish = model.MsgEnglish.Replace(playerNamePlaceholder, match?.HomeName);
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(playerNamePlaceholder, match?.HomeNameTraditional);
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(playerNamePlaceholder, match?.HomeNameSimplified);
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(playerNamePlaceholder, match?.HomeNameNewSimplified);
     }
 
     private static void ReplaceSportType(TemplateModel model, Match match)
@@ -403,6 +413,9 @@ public class SendMessageServiceImp : SendMessageService
 
             case IssueTypeConstant.ReducedOver:
                 return MessageTemplateIdConstant.ThirtyEight;
+
+            case IssueTypeConstant.NotParticipate:
+                return MessageTemplateIdConstant.SixtyThree;
 
             default:
                 return MessageTemplateIdConstant.ThirtySeven;

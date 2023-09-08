@@ -1,4 +1,6 @@
-﻿namespace Fanex.TVS.AfterVoid.Service.Constants;
+﻿using System.Security.Policy;
+
+namespace Fanex.TVS.AfterVoid.Service.Constants;
 
 public static class MessageTemplateIdConstant
 {
@@ -7,6 +9,8 @@ public static class MessageTemplateIdConstant
     public const int ThirtySeven = 37;
 
     public const int ThirtyEight = 38;
+
+    public const int SixtyThree = 63;
 
     public const int SixtyFour = 64;
 
