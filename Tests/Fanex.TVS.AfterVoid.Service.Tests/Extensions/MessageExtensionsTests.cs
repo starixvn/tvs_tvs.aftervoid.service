@@ -29,22 +29,21 @@ public class MessageExtensionsTests
     }
 
     [Fact]
-    public void CreateCustInfoXml_ImplementationHasCalled()
+    public void CreateInfoXml_ImplementationHasCalled()
     {
         const string expected = "";
-        var tickets = new List<TicketEmailModel>();
         var messageExtensionsNonStatic = Substitute.For<IMessageExtensionsNonStatic>();
         messageExtensionsNonStatic.CreateTicketsXml(default).ReturnsForAnyArgs(expected);
         MessageExtensions.MockImplementationForUnitTest(messageExtensionsNonStatic);
 
-        var actual = tickets.CreateTicketsXml();
+        var actual = new List<TicketEmailModel>().CreateTicketsXml();
 
         messageExtensionsNonStatic.Received(1).CreateTicketsXml(Arg.Any<IEnumerable<TicketEmailModel>>());
         Assert.Equal(expected, actual);
     }
 
     [Fact]
-    public void MessageExtensionsNonStaticCreateCustInfoXml_ReturnExpected()
+    public void MessageExtensionsNonStaticCreateInfoXml_ReturnExpected()
     {
         var tickets = new List<TicketEmailModel> { new() { TransId = 12312312, CustId = 1, MatchId = 1 } };
         var staticExtension = new MessageExtensionsNonStatic();

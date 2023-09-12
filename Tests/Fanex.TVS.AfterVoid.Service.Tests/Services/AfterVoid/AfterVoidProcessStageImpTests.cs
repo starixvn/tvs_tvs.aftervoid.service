@@ -46,7 +46,6 @@ public class AfterVoidProcessStageImpTests
     {
         // Arrange
         const string broadcastSessionId = "ADC-12AXX";
-        var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>();
         var automationInfo = new VoidBetAutomationInfo { MessageId = 1 };
         sendMessageService.GetMessage(automationInfo.MessageId.Value).ReturnsForAnyArgs(new Message());
         voidBetAutomationService
@@ -55,7 +54,7 @@ public class AfterVoidProcessStageImpTests
 
         // Act
         var actual = await service.CreateMessageIdForAutoVoid(automationInfo, null, broadcastSessionId,
-            allVoidDataInCurrentVoidTimes, 1, 1);
+            new List<VoidDataXmlModel>(), 1, 1);
 
         // Assert
         await loggingService.Received(1).ErrorAsync(Arg.Any<string>(),
@@ -73,22 +72,21 @@ public class AfterVoidProcessStageImpTests
     {
         // Arrange
         const string broadcastSessionId = "ADC-12AXX";
-        var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>();
         var automationInfo = new VoidBetAutomationInfo { MessageId = 0 };
         var message = new Message { MessageId = 1 };
         var matchInfo = new Match { LeagueGroupId = 1, MatchId = 1 };
-        sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, allVoidDataInCurrentVoidTimes, 1, 1)
+        sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, new List<VoidDataXmlModel>(), 1, 1)
             .ReturnsForAnyArgs(message);
         sendMessageService.InsertMessage(message, 1, 1, 1)
             .ReturnsForAnyArgs(1);
 
         // Act
         var actual = await service.CreateMessageIdForAutoVoid(automationInfo, matchInfo, broadcastSessionId,
-            allVoidDataInCurrentVoidTimes, 1, 1);
+            new List<VoidDataXmlModel>(), 1, 1);
 
         // Assert
         await sendMessageService.Received(1)
-            .InitializeMessageContentForAutoVoid(matchInfo, allVoidDataInCurrentVoidTimes, 1, 1);
+            .InitializeMessageContentForAutoVoid(matchInfo, Arg.Any<List<VoidDataXmlModel>> (), 1, 1);
         await sendMessageService.Received(1).InsertMessage(message, 1, 1, 1);
         await voidBetAutomationService.Received(1).UpdateMessageIdByVoidingHistory(automationInfo.RequestId,
             automationInfo.VoidingHistoryId, message.MessageId);
@@ -100,21 +98,20 @@ public class AfterVoidProcessStageImpTests
     {
         // Arrange
         const string broadcastSessionId = "ADC-12AXX";
-        var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>();
         var automationInfo = new VoidBetAutomationInfo { MessageId = null };
         var message = new Message { MessageId = 1 };
-        sendMessageService.InitializeMessageContentForAutoVoid(null, allVoidDataInCurrentVoidTimes, 1, 1)
+        sendMessageService.InitializeMessageContentForAutoVoid(null, new List<VoidDataXmlModel>(), 1, 1)
             .ReturnsForAnyArgs(message);
         sendMessageService.InsertMessage(message, 1, 1, 1)
             .ReturnsForAnyArgs(1);
 
         // Act
         var actual = await service.CreateMessageIdForAutoVoid(automationInfo, null, broadcastSessionId,
-            allVoidDataInCurrentVoidTimes, 1, 1);
+            new List<VoidDataXmlModel>(), 1, 1);
 
         // Assert
         await sendMessageService.Received(1)
-            .InitializeMessageContentForAutoVoid(null, allVoidDataInCurrentVoidTimes, 1, 1);
+            .InitializeMessageContentForAutoVoid(null, Arg.Any<List<VoidDataXmlModel>>(), 1, 1);
         await sendMessageService.Received(1).InsertMessage(message, 0, null, 1);
         await voidBetAutomationService.Received(1).UpdateMessageIdByVoidingHistory(automationInfo.RequestId,
             automationInfo.VoidingHistoryId, message.MessageId);

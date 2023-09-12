@@ -16,10 +16,8 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.Letstalk;
 
 public class SendLetstalkServiceTests
 {
-    private readonly AbnormalBetLetstalkService abnormalBetLetstalkServiceImp;
     private readonly SendLetstalkServiceStage letstalkServiceStage;
     private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
     private readonly SendLetstalkServiceImp service;
     private readonly SettledBetLetstalkService settledBetLetstalkService;
     private readonly VoidBetAutomationService voidBetAutomationService;
@@ -27,9 +25,9 @@ public class SendLetstalkServiceTests
     public SendLetstalkServiceTests()
     {
         voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        abnormalBetLetstalkServiceImp = Substitute.For<AbnormalBetLetstalkService>();
+        var abnormalBetLetstalkServiceImp = Substitute.For<AbnormalBetLetstalkService>();
         settledBetLetstalkService = Substitute.For<SettledBetLetstalkService>();
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
         letstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
         loggingService = Substitute.For<LoggingService>();
         service = new SendLetstalkServiceImp(voidBetAutomationService, abnormalBetLetstalkServiceImp,

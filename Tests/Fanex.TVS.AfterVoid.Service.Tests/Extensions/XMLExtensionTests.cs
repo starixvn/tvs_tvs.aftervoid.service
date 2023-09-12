@@ -5,14 +5,12 @@ using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Extensions;
 
-public class XMLExtensionTests
+public class XmlExtensionTests
 {
     [Fact]
     public void ToVoidResultsXML_ReturnEmptyWhenArgEmpty()
     {
-        var results = new List<Result>();
-
-        var actual = results.ToVoidResultsXML();
+        var actual = new List<Result>().ToVoidResultsXML();
 
         Assert.Empty(actual);
     }
@@ -20,9 +18,7 @@ public class XMLExtensionTests
     [Fact]
     public void ToVoidResultsXML_ReturnEmptyWhenArgNull()
     {
-        List<Result> results = null;
-
-        var actual = results.ToVoidResultsXML();
+        var actual = ((List<Result>)null).ToVoidResultsXML();
 
         Assert.Empty(actual);
     }
@@ -35,7 +31,7 @@ public class XMLExtensionTests
             ErrorCode = 1,
             ErrorMsg = "ErrorMsg"
         };
-        var expected = "<VoidResults><VoidResult Message='ErrorMsg' Type='1' Licensees='' /></VoidResults>";
+        const string expected = "<VoidResults><VoidResult Message='ErrorMsg' Type='1' Licensees='' /></VoidResults>";
         var results = new List<Result> { result };
 
         var actual = results.ToVoidResultsXML();
@@ -47,7 +43,7 @@ public class XMLExtensionTests
     public void ToVoidResultsXML_ReturnResultWhenHasNoError()
     {
         var result = new Result();
-        var expected = "<VoidResults></VoidResults>";
+        const string expected = "<VoidResults></VoidResults>";
         var results = new List<Result> { result };
 
         var actual = results.ToVoidResultsXML();
