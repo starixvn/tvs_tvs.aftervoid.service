@@ -106,12 +106,16 @@ public class VoidBetAutomationServiceTests
         };
         var fakeRequestEvents = new List<RequestEventModel>
         {
-            new() { MatchId = 100, PlayerName = "a & b", PlayNamesChineseTraditional = "a & b", PlayNamesChineseSimplified = "a & b"},
-            new() { MatchId = 113,  PlayerName = "a", PlayNamesChineseTraditional = "a", PlayNamesChineseSimplified = "a"}
+            new() { MatchId = 100 },
+            new() { MatchId = 113 }
+        };
+        var message = new List<Message>
+        {
+            new() { PlayerName = "a & b", PlayNamesChineseTraditional = "a & b", PlayNamesChineseSimplified = "a & b" }
         };
         var repository = Substitute.For<IDynamicRepository>();
         repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(Arg.Any<SelectRequestCriteria>())
-            .ReturnsForAnyArgs((fakeRequests, fakeRequestEvents, null));
+            .ReturnsForAnyArgs((fakeRequests, fakeRequestEvents, message));
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
 
         // Act

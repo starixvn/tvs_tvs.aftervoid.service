@@ -107,7 +107,7 @@ public class RequestVoid14ServiceImpTests
 
         // Assert
         await afterVoidProcessStage.Received(1)
-            .InsertVoidedTransaction(automationInfo, new List<TicketEmailModel>(), 0, voidedReason.ReasonId);
+            .InsertVoidedTransaction(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>(), 0, voidedReason.ReasonId);
         await notificationSignalRService.Received(1).NotifyErrorWhenExecuteAfterVoidServiceToUser("123");
     }
 
@@ -133,7 +133,7 @@ public class RequestVoid14ServiceImpTests
 
         // Assert
         await afterVoidProcessStage.Received(1)
-            .UpdateTicketVoidingHistory(automationInfo, 0, voidedReason.ReasonId, new List<TicketEmailModel>());
+            .UpdateTicketVoidingHistory(automationInfo, 0, voidedReason.ReasonId, Arg.Any<IEnumerable<TicketEmailModel>> ());
         await notificationSignalRService.Received(1).NotifyErrorWhenExecuteAfterVoidServiceToUser("123");
     }
 
@@ -162,7 +162,7 @@ public class RequestVoid14ServiceImpTests
         await service.Execute(automationInfo, isLastedInRequest, currentRequestStatus);
 
         // Assert
-        await afterVoidProcessStage.Received(1).CallCashOutApi(automationInfo, new List<TicketEmailModel>());
+        await afterVoidProcessStage.Received(1).CallCashOutApi(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
         await voidBetAutomationService.Received(1).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId,
             automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await afterVoidProcessStage.Received(1).WriteLogAfterVoid(Arg.Any<List<Result>>(), automationInfo);

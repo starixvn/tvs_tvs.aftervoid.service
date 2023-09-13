@@ -120,10 +120,22 @@ public class SendMessageServiceTests
             MsgChineseNewSimplified = "b",
             MsgChineseTraditional = "c"
         };
-
+        var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>
+        {
+            new()
+            {
+                VoidFromTime = "2022/2/2",
+                VoidToTime = "2022/2/2"
+            },
+            new()
+            {
+                VoidFromTime = "2022/3/2",
+                VoidToTime = "2022/3/2"
+            }
+        };
         var service = new SendMessageServiceImp(repository, null, null);
 
-        var actual = await service.InitializeMessageContentForAutoVoid(null, new List<VoidDataXmlModel>(), 11, 1, playerNamesSelected);
+        var actual = await service.InitializeMessageContentForAutoVoid(null, allVoidDataInCurrentVoidTimes, 11, 1, playerNamesSelected);
 
         await repository.Received(1).FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>());
         Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);

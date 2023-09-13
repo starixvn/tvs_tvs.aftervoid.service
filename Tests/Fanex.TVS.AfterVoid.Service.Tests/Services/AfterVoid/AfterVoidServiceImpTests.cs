@@ -19,7 +19,7 @@ public class AfterVoidServiceImpTests
     private RequestVoid14Service requestVoid14Service;
     private VoidBetAutomationService voidBetAutomationService;
 
-    public void InitFakeServiceTests()
+    internal void InitFakeServiceTests()
     {
         requestManualVoidService = Substitute.For<RequestManualVoidService>();
         loggingService = Substitute.For<LoggingService>();

@@ -232,7 +232,7 @@ public class SendMessageServiceImp : SendMessageService
         return isAbnormalBet ? tickets.Where(x => !x.Site.ToLowerInvariant().Equals("cn88")) : tickets;
     }
 
-    public IEnumerable<ReceivedUser> GetListSendMessageDb<T>(IEnumerable<T> tickets) where T : SendMessageDbModel
+    public static IEnumerable<ReceivedUser> GetListSendMessageDb<T>(IEnumerable<T> tickets) where T : SendMessageDbModel
     {
         return tickets.Select(item => new ReceivedUser
         {

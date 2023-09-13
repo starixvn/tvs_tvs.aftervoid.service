@@ -36,7 +36,7 @@ public class CustomSchedulerListener : ISchedulerListener
         return Task.CompletedTask;
     }
 
-    public Task TriggersPaused(string? triggerGroup, CancellationToken cancellationToken = new())
+    public Task TriggersPaused(string triggerGroup, CancellationToken cancellationToken = new())
     {
         return Task.CompletedTask;
     }
@@ -46,7 +46,7 @@ public class CustomSchedulerListener : ISchedulerListener
         return Task.CompletedTask;
     }
 
-    public Task TriggersResumed(string? triggerGroup, CancellationToken cancellationToken = new())
+    public Task TriggersResumed(string triggerGroup, CancellationToken cancellationToken = new())
     {
         return Task.CompletedTask;
     }
