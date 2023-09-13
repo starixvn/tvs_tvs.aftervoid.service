@@ -16,7 +16,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services;
 
 public interface SendMessageService
 {
-    Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy);
+    Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy, TemplateContent playerName);
 
     Message InitializeMessageContentForManualVoid(VoidDataXmlModel voidData);
 
@@ -75,12 +75,13 @@ public class SendMessageServiceImp : SendMessageService
         await repository.ExecuteAsync(criteria);
     }
 
-    public async Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy)
+    public async Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes,
+        int issueTypeId, int? filterBy, TemplateContent playerName)
     {
         var templateId = GetTemplateIdForAutoVoid(issueTypeId, filterBy);
         var templateModels = await repository.FetchAsync<TemplateModel>(new GetTemplatesCriteria()).ConfigureAwait(false);
         var template = templateModels.First(t => t.TemplateId == templateId);
-        ReplaceMessageTemplate(template, match, allVoidDataInCurrentVoidTimes, issueTypeId, filterBy);
+        ReplaceMessageTemplate(template, match, allVoidDataInCurrentVoidTimes, issueTypeId, filterBy, playerName);
 
         return new Message
         {
@@ -247,7 +248,8 @@ public class SendMessageServiceImp : SendMessageService
         });
     }
 
-    private static void ReplaceMessageTemplate(TemplateModel model, Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy)
+    private static void ReplaceMessageTemplate(TemplateModel model, Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes,
+        int issueTypeId, int? filterBy, TemplateContent playerName)
     {
         ReplaceSportType(model, match);
         ReplaceHomeTeam(model, match);
@@ -258,16 +260,16 @@ public class SendMessageServiceImp : SendMessageService
         ReplaceParlay(model, issueTypeId, filterBy);
         ReplaceEventType(model);
         ReplacePlacedFromTimeRange(model, allVoidDataInCurrentVoidTimes);
-        ReplacePlayerName(model, match);
+        ReplacePlayerName(model, playerName);
     }
 
-    private static void ReplacePlayerName(TemplateModel model, Match match)
+    private static void ReplacePlayerName(TemplateModel model, TemplateContent playerName)
     {
         const string playerNamePlaceholder = "{{Player Name}}";
-        model.MsgEnglish = model.MsgEnglish.Replace(playerNamePlaceholder, match?.HomeName);
-        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(playerNamePlaceholder, match?.HomeNameTraditional);
-        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(playerNamePlaceholder, match?.HomeNameSimplified);
-        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(playerNamePlaceholder, match?.HomeNameNewSimplified);
+        model.MsgEnglish = model.MsgEnglish.Replace(playerNamePlaceholder, playerName?.MsgEnglish);
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(playerNamePlaceholder, playerName?.MsgChineseTraditional);
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(playerNamePlaceholder, playerName?.MsgChineseNewSimplified);
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(playerNamePlaceholder, playerName?.MsgChineseNewSimplified);
     }
 
     private static void ReplaceSportType(TemplateModel model, Match match)

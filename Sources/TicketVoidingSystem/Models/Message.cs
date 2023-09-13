@@ -25,4 +25,10 @@ public class Message
     public int CreatorId { get; set; }
 
     public string CreatorName { get; set; }
+
+    public string PlayerName { get; set; }
+
+    public string PlayNamesChineseTraditional { get; set; }
+
+    public string PlayNamesChineseSimplified { get; set; }
 }

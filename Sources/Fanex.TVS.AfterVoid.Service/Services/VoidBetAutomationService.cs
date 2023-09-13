@@ -79,18 +79,33 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         {
             RequestId = requestId
         };
-        var (requests, requestEvents, _) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(criteria);
+        var (requests, requestEvents, message) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(criteria);
 
         var firstRequest = requests.First();
         var viewModel = new RequestDetailViewModel
         {
             Request = firstRequest,
             EventByMatch = IsIssueTypeHasMatchId(firstRequest.IssueTypeId) ? requestEvents.FirstOrDefault(x => x.MatchId == matchId)
-                : requestEvents.FirstOrDefault()
+                : requestEvents.FirstOrDefault(),
+            PlayerNamesSelected = firstRequest.IssueTypeId == IssueTypeConstant.NotParticipate ? GetPlayerNamesSelected(message.First()) : null
         };
 
         return viewModel;
     }
+
+    private static TemplateContent GetPlayerNamesSelected(Message message)
+    {
+        var playerNamesSelected = new TemplateContent
+        {
+            MsgEnglish = message.PlayerName,
+            MsgChineseSimplified = message.PlayNamesChineseSimplified,
+            MsgChineseNewSimplified = message.PlayNamesChineseSimplified,
+            MsgChineseTraditional = message.PlayNamesChineseTraditional
+        };
+
+        return playerNamesSelected;
+    }
+
 
     private static bool IsIssueTypeHasMatchId(int issueTypeId)
     {
