@@ -95,6 +95,7 @@ public class VoidBetAutomationServiceTests
     [InlineData(IssueTypeConstant.Wrong1stOU)]
     [InlineData(IssueTypeConstant.DangerAccepted)]
     [InlineData(IssueTypeConstant.RedCard)]
+    [InlineData(IssueTypeConstant.NotParticipate)]
     public async Task GetRequestById_ReturnDataEventWithExpectedMatch(int issueTypeId)
     {
         // Arrange
@@ -105,8 +106,8 @@ public class VoidBetAutomationServiceTests
         };
         var fakeRequestEvents = new List<RequestEventModel>
         {
-            new() { MatchId = 100 },
-            new() { MatchId = 113 }
+            new() { MatchId = 100, PlayerName = "a & b", PlayNamesChineseTraditional = "a & b", PlayNamesChineseSimplified = "a & b"},
+            new() { MatchId = 113,  PlayerName = "a", PlayNamesChineseTraditional = "a", PlayNamesChineseSimplified = "a"}
         };
         var repository = Substitute.For<IDynamicRepository>();
         repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(Arg.Any<SelectRequestCriteria>())
@@ -114,11 +115,11 @@ public class VoidBetAutomationServiceTests
         var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
 
         // Act
-        var actual = await voidBetAutomationService.GetRequestById(0, 113);
+        var actual = await voidBetAutomationService.GetRequestById(0, 100);
 
         // Assert
-        Assert.StrictEqual(fakeRequests[0], actual.Request);
-        Assert.StrictEqual(fakeRequestEvents[1], actual.EventByMatch);
+        AssertExtension.Equal(fakeRequests[0], actual.Request);
+        AssertExtension.Equal(fakeRequestEvents[0], actual.EventByMatch);
     }
 
     [Fact]

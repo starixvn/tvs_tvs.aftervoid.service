@@ -99,7 +99,7 @@ public class SendMessageServiceTests
 
         var actual =
             await service.InitializeMessageContentForAutoVoid(fakeMatch, allVoidDataInCurrentVoidTimes, issueTypeId,
-                filterBy);
+                filterBy, null);
 
         await repository.Received(1).FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>());
         Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);
@@ -114,9 +114,16 @@ public class SendMessageServiceTests
             .Random(1).With(x => x.TemplateId = 1)
             .Build();
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
+        var playerNamesSelected = new TemplateContent
+        {
+            MsgEnglish = "a & b",
+            MsgChineseNewSimplified = "b",
+            MsgChineseTraditional = "c"
+        };
+
         var service = new SendMessageServiceImp(repository, null, null);
 
-        var actual = await service.InitializeMessageContentForAutoVoid(null, new List<VoidDataXmlModel>(), 11, 1);
+        var actual = await service.InitializeMessageContentForAutoVoid(null, new List<VoidDataXmlModel>(), 11, 1, playerNamesSelected);
 
         await repository.Received(1).FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>());
         Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);
