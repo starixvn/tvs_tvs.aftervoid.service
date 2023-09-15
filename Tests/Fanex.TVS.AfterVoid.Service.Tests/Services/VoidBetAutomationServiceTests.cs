@@ -111,7 +111,7 @@ public class VoidBetAutomationServiceTests
         };
         var message = new List<Message>
         {
-            new() { PlayerName = "a & b", PlayNamesChineseTraditional = "a & b", PlayNamesChineseSimplified = "a & b" }
+            new() { PlayerNamesEnglish = "a & b", PlayerNamesChineseTraditional = "a & b", PlayerNamesChineseSimplified = "a & b" }
         };
         var repository = Substitute.For<IDynamicRepository>();
         repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(Arg.Any<SelectRequestCriteria>())

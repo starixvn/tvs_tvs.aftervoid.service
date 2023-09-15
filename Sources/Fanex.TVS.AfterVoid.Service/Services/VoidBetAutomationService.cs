@@ -97,10 +97,10 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
     {
         var playerNamesSelected = new TemplateContent
         {
-            MsgEnglish = message.PlayerName,
-            MsgChineseSimplified = message.PlayNamesChineseSimplified,
-            MsgChineseNewSimplified = message.PlayNamesChineseSimplified,
-            MsgChineseTraditional = message.PlayNamesChineseTraditional
+            MsgEnglish = message.PlayerNamesEnglish,
+            MsgChineseSimplified = message.PlayerNamesChineseSimplified,
+            MsgChineseNewSimplified = message.PlayerNamesChineseSimplified,
+            MsgChineseTraditional = message.PlayerNamesChineseTraditional
         };
 
         return playerNamesSelected;

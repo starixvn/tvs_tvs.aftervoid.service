@@ -26,9 +26,9 @@ public class Message
 
     public string CreatorName { get; set; }
 
-    public string PlayerName { get; set; }
+    public string PlayerNamesEnglish { get; set; }
 
-    public string PlayNamesChineseTraditional { get; set; }
+    public string PlayerNamesChineseTraditional { get; set; }
 
-    public string PlayNamesChineseSimplified { get; set; }
+    public string PlayerNamesChineseSimplified { get; set; }
 }
