@@ -18,4 +18,6 @@ public class MemoryUMCacheService : IUMCacheService
 
     public void Set<T>(string key, T value, TimeSpan absoluteExpiration)
         => memoryCache.Set(key, value, new MemoryCacheEntryOptions().SetAbsoluteExpiration(absoluteExpiration));
+
+    public void Remove(string key) => memoryCache.Remove(key);
 }

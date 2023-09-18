@@ -19,7 +19,6 @@ builder.Services.RegisterSentry();
 builder.Services.RegisterONEbookUM(builder.Configuration);
 builder.Services.RegisterFanexCaching(builder.Configuration);
 builder.Services.RegisterRemotingRef();
-builder.Services.RegisterMailService();
 builder.Services.RegisterLetstalk();
 builder.Services.RegisterAutoMapper();
 builder.Services.RegisterSignalR();

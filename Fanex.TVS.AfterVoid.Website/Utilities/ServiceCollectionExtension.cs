@@ -12,7 +12,6 @@ using Fanex.Logging.Extensions;
 using Fanex.Logging.Extensions.AspNetCore;
 using Fanex.Logging.Extensions.Database;
 using Fanex.Logging.Sentry;
-using Fanex.MailDeliver.MailClient;
 using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
@@ -114,12 +113,6 @@ public static class ServiceCollectionExtensions
             .ConnectTo(new Uri(AppSettingService.AppSetting.FanexRemotingRefServiceUrl))
             .FromApplication(AppSettingService.AppSetting.ServiceName)
             .RegisterSupportedLanguages("en-US", "zh-TW", "zh-CN", "zh-Hans");
-    }
-
-    public static void RegisterMailService(this IServiceCollection services)
-    {
-        AppSettings.AppMailId = AppSettingService.AppSetting.FanexMailService.AppMailId;
-        AppSettings.AppMailAddress = AppSettingService.AppSetting.FanexMailService.AppMailAddress;
     }
 
     public static void RegisterLetstalk(this IServiceCollection services)
