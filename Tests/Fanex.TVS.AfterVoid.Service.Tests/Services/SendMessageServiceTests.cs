@@ -51,16 +51,9 @@ public class SendMessageServiceTests
         }
     };
 
-    private readonly MessageItemService messageItemService;
-    private readonly IDynamicRepository repository;
-    private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
-
-    public SendMessageServiceTests()
-    {
-        repository = Substitute.For<IDynamicRepository>();
-        messageItemService = Substitute.For<MessageItemService>();
-        ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
-    }
+    private readonly MessageItemService messageItemService = Substitute.For<MessageItemService>();
+    private readonly IDynamicRepository repository = Substitute.For<IDynamicRepository>();
+    private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
 
     [Theory]
     [InlineData(IssueTypeConstant.AbnormalBet, 1)]
@@ -294,7 +287,7 @@ public class SendMessageServiceTests
         {
             ReasonEnglish = "Reason English", ReasonChineseSimplified = "Reason Chinese Simplified", ReasonId = 12345
         };
-        repository.When(repo => repo.ExecuteAsync(criteria)).Do(repo => { criteria.ReasonId = 12345; });
+        repository.When(repo => repo.ExecuteAsync(criteria)).Do(_ => { criteria.ReasonId = 12345; });
 
         repository.ExecuteAsync(Arg.Compat.Do<InsertReasonCommand>(x =>
         {

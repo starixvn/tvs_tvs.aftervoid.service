@@ -26,8 +26,6 @@ public interface VoidBetAutomationService
 
     Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory);
 
-    Task UpdateAllAfterVoidSteps(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory);
-
     Task UpdateEmailResultByVoidingHistory(int requestId, int voidingHistoryId, string content);
 
     Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsByVoidingHistory(int voidingHistoryId, int siteDbGroupId,
@@ -145,11 +143,6 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
     public async Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory)
     {
         await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateAfterVoidStep, requestId, voidingHistoryId, null, afterVoidHistory);
-    }
-
-    public async Task UpdateAllAfterVoidSteps(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory)
-    {
-        await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateAllAfterVoidSteps, requestId, voidingHistoryId, null, afterVoidHistory);
     }
 
     public async Task UpdateEmailResultByVoidingHistory(int requestId, int voidingHistoryId, string content)

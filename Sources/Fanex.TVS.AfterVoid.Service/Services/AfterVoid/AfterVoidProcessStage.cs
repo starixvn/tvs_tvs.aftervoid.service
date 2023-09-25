@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,8 +19,6 @@ public interface AfterVoidProcessStage
 {
     Task<Message> CreateMessageIdForAutoVoid(VoidBetAutomationInfo automationInfo,
         Match matchInfo, string broadcastSessionId, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy);
-
-    Task<bool> RunExternalService(VoidBetAutomationInfo automationInfo);
 
     Task CallCashOutApi(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets);
 
@@ -106,33 +103,6 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
             await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
             return null;
-        }
-    }
-
-    [ExcludeFromCodeCoverage]
-    public async Task<bool> RunExternalService(VoidBetAutomationInfo automationInfo)
-    {
-        try
-        {
-            if (automationInfo.IsRunExternalService == true)
-            {
-                return true;
-            }
-
-            // TODO
-            await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsRunExternalService = true });
-
-            return true;
-        }
-        catch (Exception exception)
-        {
-            await loggingService.ErrorAsync(
-                $"ERROR: {nameof(RunExternalService)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
-                exception);
-            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-            await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
-
-            return false;
         }
     }
 

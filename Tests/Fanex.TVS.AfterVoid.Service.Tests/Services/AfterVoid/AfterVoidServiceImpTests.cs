@@ -33,9 +33,8 @@ public class AfterVoidServiceImpTests
     {
         // Arrange
         InitFakeServiceTests();
-        VoidBetAutomationInfo automationStatistic = null;
         voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
-            .ReturnsForAnyArgs((automationStatistic, false, "", new List<EmailResultModel>()));
+            .ReturnsForAnyArgs((null, false, "", new List<EmailResultModel>()));
         voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(new RequestDetailViewModel());
         var service = new AfterVoidServiceImp(voidBetAutomationService, default, default, default, default);
 

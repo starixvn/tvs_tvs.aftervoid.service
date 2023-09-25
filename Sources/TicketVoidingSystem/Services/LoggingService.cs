@@ -13,8 +13,6 @@ public interface LoggingService
 
     Task ErrorAsync(string message);
 
-    Task ErrorAsync(Exception exception);
-
     Task InfoAsync(string message);
 }
 
@@ -30,11 +28,6 @@ public class LoggingServiceImp : LoggingService
     public async Task ErrorAsync(string message)
     {
         await LogService.ErrorAsync(message);
-    }
-
-    public async Task ErrorAsync(Exception exception)
-    {
-        await HandleException(exception);
     }
 
     public async Task InfoAsync(string message)

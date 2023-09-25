@@ -519,7 +519,7 @@ public class AfterVoidProcessStageImpTests
             .Build();
         voidBetAutomationService.When(x => x.UpdateTicketVoidingHistory(Arg.Any<int>(), Arg.Any<int?>(),
                 Arg.Any<int?>(), Arg.Any<int?>(), Arg.Any<string>(), Arg.Any<DateTime?>(), Arg.Any<DateTime?>()))
-            .Do(x => throw new Exception());
+            .Do(_ => throw new Exception());
 
         // Act
         var actual = await service.UpdateTicketVoidingHistory(fakeAutomationInfo, 0, 0, default);

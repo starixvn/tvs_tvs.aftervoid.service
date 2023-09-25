@@ -15,8 +15,6 @@ public interface TicketVoidingSystemHttpClientService
 {
     Task SignalRUpdateRequestStatusToAllUsers(IEnumerable<RequestStatus> status);
 
-    Task SignalRNotifyErrorMessageToUser(string userName, string message);
-
     Task SignalRNotifyVoidResultToUser(string userName, IEnumerable<Result> results);
 
     Task<string> BetListGetSportTypeName(int sportType, string languageCode);

@@ -1,6 +1,4 @@
-﻿using System.Security.Policy;
-
-namespace Fanex.TVS.AfterVoid.Service.Constants;
+﻿namespace Fanex.TVS.AfterVoid.Service.Constants;
 
 public static class MessageTemplateIdConstant
 {

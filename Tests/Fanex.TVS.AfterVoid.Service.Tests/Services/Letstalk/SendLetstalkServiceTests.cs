@@ -125,11 +125,10 @@ public class SendLetstalkServiceTests
             new() { RequestId = requestId2, IsAutoVoid = false },
             new() { RequestId = requestId2 }
         };
-        var voidDataXmlModel = new List<VoidDataXmlModel>();
         var voidedTickets = Builder<TicketEmailModel>.CreateListOfSize(5).Build();
         letstalkServiceStage.GetVoidBetAutomationRunLetstalk().ReturnsForAnyArgs(voidBetAutomationInfoList);
         letstalkServiceStage.GetVoidedTickets(default).ReturnsForAnyArgs(voidedTickets);
-        letstalkServiceStage.GetVoidDataXml(default).ReturnsForAnyArgs(voidDataXmlModel);
+        letstalkServiceStage.GetVoidDataXml(default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
         voidBetAutomationService.GetRequestById(requestId1, default)
             .Returns(CreateRequestDetailViewModel(IssueTypeConstant.AbnormalBet));
         voidBetAutomationService.GetRequestById(requestId2, default)
