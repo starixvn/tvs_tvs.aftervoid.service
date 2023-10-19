@@ -87,7 +87,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
             }
             else
             {
-                message = await sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, allVoidDataInCurrentVoidTimes, issueTypeId, filterBy, automationInfo.RequestInfo.PlayerNamesSelected);
+                message = await sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, allVoidDataInCurrentVoidTimes, issueTypeId, filterBy, automationInfo.RequestInfo);
                 message.MessageId = await sendMessageService.InsertMessage(message, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, issueTypeId);
             }
 
