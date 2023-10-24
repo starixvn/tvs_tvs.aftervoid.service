@@ -300,10 +300,10 @@ public class SendMessageServiceImp : SendMessageService
     {
         const string eventDatePlaceholder = "{{Event Date}}";
         const string eventDateFormat = "dd/MM";
-        model.MsgEnglish = model.MsgEnglish.Replace(eventDatePlaceholder, match?.EventDate.ToString(eventDateFormat));
-        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(eventDatePlaceholder, match?.EventDate.ToString(eventDateFormat));
-        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(eventDatePlaceholder, match?.EventDate.ToString(eventDateFormat));
-        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(eventDatePlaceholder, match?.EventDate.ToString(eventDateFormat));
+        model.MsgEnglish = model.MsgEnglish.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(eventDateFormat));
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(eventDateFormat));
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(eventDateFormat));
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(eventDateFormat));
     }
 
     private static void ReplaceCheckStatement(TemplateModel model, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes)
