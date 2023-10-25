@@ -418,7 +418,7 @@ public class SendMessageServiceImp : SendMessageService
         };
     }
 
-    private static int GetTemplateIdByFilter(int subIssueType, int? sportType, IEnumerable<TemplateSetting> templateSetting)
+    private static int GetTemplateIdByFilter(int subIssueType, int sportType, IEnumerable<TemplateSetting> templateSetting)
     {
         var settingsBySubType = templateSetting.Where(x => x.SubIssueTypeId == subIssueType);
         var settingBySportType = settingsBySubType.FirstOrDefault(x => x.SportType == sportType);
