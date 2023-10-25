@@ -77,8 +77,6 @@ public class SendMessageServiceImp : SendMessageService
 
     public async Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo)
     {
-        var issueTypeId = requestInfo.Request.IssueTypeId;
-        var filterBy = requestInfo.EventByMatch.FilterBy;
         var templateModels = await repository.FetchAsync<TemplateModel>(new GetTemplatesCriteria()).ConfigureAwait(false);
         var templateId = await GetTemplateIdForAutoVoid(requestInfo);
         var template = templateModels.First(t => t.TemplateId == templateId);
@@ -422,8 +420,10 @@ public class SendMessageServiceImp : SendMessageService
 
     private static int GetTemplateIdByFilter(int subIssueType, int? sportType, IEnumerable<TemplateSetting> templateSetting)
     {
-        var templateSelected = templateSetting.Where(x => x.SubIssueTypeId == subIssueType)
-            .FirstOrDefault(x => x.SportType == sportType);
-        return templateSelected?.TemplateId ?? MessageTemplateIdConstant.ThirtySeven;
+        var settingsBySubType = templateSetting.Where(x => x.SubIssueTypeId == subIssueType);
+        var settingBySportType = settingsBySubType.FirstOrDefault(x => x.SportType == sportType);
+        var defaultTemplateWhenSportNull = settingsBySubType.FirstOrDefault(x => x.SportType == null);
+
+        return settingBySportType?.TemplateId ?? defaultTemplateWhenSportNull?.TemplateId ?? MessageTemplateIdConstant.ThirtySeven;
     }
 }
