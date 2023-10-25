@@ -16,7 +16,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services;
 
 public interface SendMessageService
 {
-    Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy, RequestDetailViewModel requestInfo);
+    Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo);
 
     Message InitializeMessageContentForManualVoid(VoidDataXmlModel voidData);
 
@@ -75,16 +75,14 @@ public class SendMessageServiceImp : SendMessageService
         await repository.ExecuteAsync(criteria);
     }
 
-    public async Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes,
-        int issueTypeId, int? filterBy, RequestDetailViewModel requestInfo)
+    public async Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo)
     {
         var issueTypeId = requestInfo.Request.IssueTypeId;
         var filterBy = requestInfo.EventByMatch.FilterBy;
         var templateModels = await repository.FetchAsync<TemplateModel>(new GetTemplatesCriteria()).ConfigureAwait(false);
-        var templateSettings = await repository.FetchAsync<TemplateSetting>(new GetTemplateSettingCriteria()).ConfigureAwait(false);
-        var templateId = GetTemplateIdForAutoVoid(issueTypeId, filterBy, requestInfo.EventByMatch.SubIssueTypeId, requestInfo.Request.SportType, templateSettings);
+        var templateId = await GetTemplateIdForAutoVoid(requestInfo);
         var template = templateModels.First(t => t.TemplateId == templateId);
-        ReplaceMessageTemplate(template, match, allVoidDataInCurrentVoidTimes, issueTypeId, filterBy, playerName);
+        ReplaceMessageTemplate(template, match, allVoidDataInCurrentVoidTimes, requestInfo);
 
         return new Message
         {
@@ -251,8 +249,7 @@ public class SendMessageServiceImp : SendMessageService
         });
     }
 
-    private static void ReplaceMessageTemplate(TemplateModel model, Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes,
-        int issueTypeId, int? filterBy, TemplateContent playerName)
+    private static void ReplaceMessageTemplate(TemplateModel model, Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo)
     {
         ReplaceSportType(model, match);
         ReplaceHomeTeam(model, match);
@@ -261,10 +258,10 @@ public class SendMessageServiceImp : SendMessageService
         ReplaceEventDate(model, match);
         ReplaceKoTime(model, match);
         ReplaceCheckStatement(model, allVoidDataInCurrentVoidTimes);
-        ReplaceParlay(model, issueTypeId, filterBy);
+        ReplaceParlay(model, requestInfo.Request.IssueTypeId, requestInfo.EventByMatch.FilterBy);
         ReplaceEventType(model);
         ReplacePlacedFromTimeRange(model, allVoidDataInCurrentVoidTimes);
-        ReplacePlayerName(model, playerName);
+        ReplacePlayerName(model, requestInfo.PlayerNamesSelected);
     }
 
     private static void ReplacePlayerName(TemplateModel model, TemplateContent playerName)
@@ -406,14 +403,20 @@ public class SendMessageServiceImp : SendMessageService
         model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(placeholder, newContent.MsgChineseNewSimplified);
     }
 
-    private static int GetTemplateIdForAutoVoid(int issueTypeId, int? filterBy, int subIssueType, int? sportType, IEnumerable<TemplateSetting> templateSetting)
+    private async Task<int> GetTemplateIdForAutoVoid(RequestDetailViewModel requestInfo)
     {
+        var issueTypeId = requestInfo.Request.IssueTypeId;
+        var sportType = requestInfo.Request.SportType;
+        var filterBy = requestInfo.EventByMatch.FilterBy;
+        var subIssueTypeId = requestInfo.EventByMatch.SubIssueTypeId;
+        var templateSettings = await repository.FetchAsync<TemplateSetting>(new GetTemplateSettingCriteria()).ConfigureAwait(false);
+
         const int filterMixParlay = 1;
         return issueTypeId switch
         {
             IssueTypeConstant.DuplicateTickets when filterBy == filterMixParlay => MessageTemplateIdConstant.SixtyFive,
             IssueTypeConstant.AbnormalBet when filterBy == filterMixParlay => MessageTemplateIdConstant.ThirtySeven,
-            _ => GetTemplateIdByFilter(subIssueType, sportType, templateSetting)
+            _ => GetTemplateIdByFilter(subIssueTypeId, sportType, templateSettings)
         };
     }
 
@@ -423,5 +426,4 @@ public class SendMessageServiceImp : SendMessageService
             .FirstOrDefault(x => x.SportType == sportType);
         return templateSelected?.TemplateId ?? MessageTemplateIdConstant.ThirtySeven;
     }
-
 }

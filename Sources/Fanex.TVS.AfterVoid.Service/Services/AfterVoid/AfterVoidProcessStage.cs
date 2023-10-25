@@ -17,8 +17,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 
 public interface AfterVoidProcessStage
 {
-    Task<Message> CreateMessageIdForAutoVoid(VoidBetAutomationInfo automationInfo,
-        Match matchInfo, string broadcastSessionId, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy);
+    Task<Message> CreateMessageIdForAutoVoid(VoidBetAutomationInfo automationInfo, Match matchInfo, string broadcastSessionId, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes);
 
     Task CallCashOutApi(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets);
 
@@ -76,7 +75,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
     }
 
     public async Task<Message> CreateMessageIdForAutoVoid(VoidBetAutomationInfo automationInfo, Match matchInfo, string broadcastSessionId,
-        IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy)
+        IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes)
     {
         try
         {
@@ -87,8 +86,8 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
             }
             else
             {
-                message = await sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, allVoidDataInCurrentVoidTimes, issueTypeId, filterBy, automationInfo.RequestInfo);
-                message.MessageId = await sendMessageService.InsertMessage(message, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, issueTypeId);
+                message = await sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, allVoidDataInCurrentVoidTimes, automationInfo.RequestInfo);
+                message.MessageId = await sendMessageService.InsertMessage(message, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, automationInfo.RequestInfo.Request.IssueTypeId);
             }
 
             await voidBetAutomationService.UpdateMessageIdByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, message.MessageId);
