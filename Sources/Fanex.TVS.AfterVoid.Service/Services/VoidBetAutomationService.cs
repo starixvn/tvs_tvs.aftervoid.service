@@ -78,7 +78,6 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
             RequestId = requestId
         };
         var (requests, requestEvents, message) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(criteria);
-
         var firstRequest = requests.First();
         var viewModel = new RequestDetailViewModel
         {
@@ -104,13 +103,13 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         return playerNamesSelected;
     }
 
-
     private static bool IsIssueTypeHasMatchId(int issueTypeId)
     {
-        var isWrongHdpGroup = issueTypeId is IssueTypeConstant.WrongHDP or IssueTypeConstant.Wrong1stHDP;
-        var isWrongOuGroup = issueTypeId is IssueTypeConstant.WrongOU or IssueTypeConstant.Wrong1stOU;
-        return issueTypeId is IssueTypeConstant.DangerAccepted or IssueTypeConstant.RedCard
-               || isWrongHdpGroup || isWrongOuGroup;
+        int[] issueTypeHasMatchId = { IssueTypeConstant.WrongHDP, IssueTypeConstant.Wrong1stHDP, IssueTypeConstant.WrongOU,
+            IssueTypeConstant.Wrong1stOU, IssueTypeConstant.DangerAccepted, IssueTypeConstant.RedCard,
+            IssueTypeConstant.EarlyKickOffTime, IssueTypeConstant.WrongKickOffTime };
+
+        return issueTypeHasMatchId.Contains(issueTypeId);
     }
 
     public async Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int matchId)

@@ -254,7 +254,7 @@ public class SendMessageServiceImp : SendMessageService
         ReplaceAwayTeam(model, match);
         ReplaceLeagueName(model, match);
         ReplaceEventDate(model, match);
-        ReplaceKoTime(model, match);
+        ReplaceKoTime(model, requestInfo.EventByMatch);
         ReplaceCheckStatement(model, allVoidDataInCurrentVoidTimes);
         ReplaceParlay(model, requestInfo.Request.IssueTypeId, requestInfo.EventByMatch.FilterBy);
         ReplaceEventType(model);
@@ -317,9 +317,9 @@ public class SendMessageServiceImp : SendMessageService
         model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(eventDateFormat));
     }
 
-    private static void ReplaceKoTime(TemplateModel model, Match match)
+    private static void ReplaceKoTime(TemplateModel model, RequestEventModel eventByMatch)
     {
-        var kickOffTimeDateGmt8 = match?.KickOffTime.AddHours(12);
+        var kickOffTimeDateGmt8 = eventByMatch?.KickOffTime.AddHours(12);
         const string eventDatePlaceholder = "{{KO time}}";
         const string eventDateFormat = "dd/MM hh:mm:ss tt";
         model.MsgEnglish = model.MsgEnglish.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(eventDateFormat));
