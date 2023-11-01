@@ -120,4 +120,10 @@ public class Match
     public string SportTypeNameNewSimplified => RemotingWrapper.GetSportName(SportType.ToString(), LanguageCode.NewChineseSimplified);
 
     public string SportTypeNameTraditional => RemotingWrapper.GetSportName(SportType.ToString(), LanguageCode.ChineseTraditional);
+
+    public string OriginLeagueName => this.LeagueName;
+
+    public string OriginLeagueNameSimplified => this.LeagueNameSimplified;
+
+    public string OriginLeagueNameNewSimplified => this.LeagueNameNewSimplified;
 }
