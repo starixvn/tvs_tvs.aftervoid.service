@@ -8,7 +8,7 @@ using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Jobs;
 
-[ExcludeFromCodeCoverage]
+[ExcludeFromCodeCoverage(Justification = "non-logic")]
 public class AfterVoidJob : IJob
 {
     private readonly AfterVoidService afterVoidService;

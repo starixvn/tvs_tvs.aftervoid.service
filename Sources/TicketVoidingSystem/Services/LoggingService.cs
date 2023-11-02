@@ -16,7 +16,7 @@ public interface LoggingService
     Task InfoAsync(string message);
 }
 
-[ExcludeFromCodeCoverage]
+[ExcludeFromCodeCoverage(Justification = "non-logic")]
 public class LoggingServiceImp : LoggingService
 {
     public async Task ErrorAsync(string message, Exception exception)

@@ -19,7 +19,7 @@ public class HomeController : Controller
     public IActionResult Index()
     {
         var jobStatus =
-            $"{{{nameof(AfterVoidJob)} OnProcessing: {AppSettingService.AppSetting.OnProcessingAfterVoid}}} - {DateTime.Now}";
+            $"{{{nameof(AfterVoidJob)} OnProcessing: {AppSettingService.AppSetting.OnProcessingAfterVoid}}} - {DateTimeOffset.Now}";
         logger.LogInformation(jobStatus);
         return Ok("Ok-200-Fanex.TVS.AfterVoid.Service");
     }

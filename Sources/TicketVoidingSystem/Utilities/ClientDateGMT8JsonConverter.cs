@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace TicketVoidingSystem.Utilities;
 
-[ExcludeFromCodeCoverage]
+[ExcludeFromCodeCoverage(Justification = "non-logic")]
 public class ClientDateGMT8JsonConverter : JsonConverter
 {
     private const int OffsetHours = 12;

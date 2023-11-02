@@ -99,7 +99,7 @@ public class CustomSchedulerListener : ISchedulerListener
 
     public async Task SchedulerStarted(CancellationToken cancellationToken = new())
     {
-        var message = $"Fanex.TVS.AfterVoid.Service - Started - {DateTime.Now}";
+        var message = $"Fanex.TVS.AfterVoid.Service - Started - {DateTimeOffset.Now}";
         logger.LogInformation(message);
         await LogService.InfoAsync(message);
     }
@@ -111,7 +111,7 @@ public class CustomSchedulerListener : ISchedulerListener
 
     public async Task SchedulerShutdown(CancellationToken cancellationToken = new())
     {
-        var message = $"Fanex.TVS.AfterVoid.Service - Shutdown!!! - {DateTime.Now}";
+        var message = $"Fanex.TVS.AfterVoid.Service - Shutdown!!! - {DateTimeOffset.Now}";
         logger.LogInformation(message);
         await LogService.InfoAsync(message);
     }

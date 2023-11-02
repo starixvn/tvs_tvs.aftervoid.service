@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
 
-[ExcludeFromCodeCoverage]
+[ExcludeFromCodeCoverage(Justification = "non-logic")]
 public class ExceptionHandlerMiddleware
 {
     private readonly RequestDelegate next;

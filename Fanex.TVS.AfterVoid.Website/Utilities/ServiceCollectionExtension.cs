@@ -33,7 +33,7 @@ using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
 
-[ExcludeFromCodeCoverage]
+[ExcludeFromCodeCoverage(Justification = "non-logic")]
 public static class ServiceCollectionExtensions
 {
     public static void LoadConfig(this IServiceCollection services, IConfiguration configuration)

@@ -58,7 +58,7 @@ public class AfterVoidServiceImp : AfterVoidService
         await loggingService.InfoAsync(
              $"End - BroadcastSessionId: {requestsWillRunAfterVoid.BroadcastSessionId} - "
              + $"Execute Time: {stopwatch.ElapsedMilliseconds} ms - "
-             + $"{DateTime.Now}"
+             + $"{DateTimeOffset.Now}"
          );
     }
 
