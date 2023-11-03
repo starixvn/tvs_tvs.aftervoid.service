@@ -11,10 +11,10 @@ public class MessageExtensionsTests
     [Fact]
     public void InsertSpace_ReturnStringEmpty()
     {
-        const string text = "";
+        const string text = "111@@111";
         var actual = text.InsertSpace();
 
-        Assert.NotNull(actual);
+        Assert.Equal("111 @@ 111", actual);
     }
 
     [Fact]

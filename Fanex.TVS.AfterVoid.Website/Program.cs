@@ -27,7 +27,6 @@ builder.Services.RegisterQuartzScheduler();
 
 // Build app
 var app = builder.Build();
-app.UseDeveloperExceptionPage();
 app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.MapControllerRoute(
