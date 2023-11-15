@@ -36,13 +36,10 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
 
     private async Task RunMainSteps(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
     {
-        var issueTypeId = automationInfo.RequestInfo.Request.IssueTypeId;
-        var filterBy = automationInfo.RequestInfo.EventByMatch.FilterBy;
         var matchInfo = await GetMatch(automationInfo);
         var allVoidDataInCurrentVoidTimes = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
 
-        var message = await afterVoidProcessStage.CreateMessageIdForAutoVoid(automationInfo, matchInfo,
-            automationInfo.BroadcastSessionId, allVoidDataInCurrentVoidTimes, issueTypeId, filterBy);
+        var message = await afterVoidProcessStage.CreateMessageIdForAutoVoid(automationInfo, matchInfo, automationInfo.BroadcastSessionId, allVoidDataInCurrentVoidTimes);
         if (Helper.IsNotHaveMessage(message))
         {
             return;

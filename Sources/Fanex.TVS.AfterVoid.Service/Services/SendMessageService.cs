@@ -16,7 +16,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services;
 
 public interface SendMessageService
 {
-    Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy);
+    Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo);
 
     Message InitializeMessageContentForManualVoid(VoidDataXmlModel voidData);
 
@@ -75,12 +75,12 @@ public class SendMessageServiceImp : SendMessageService
         await repository.ExecuteAsync(criteria);
     }
 
-    public async Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy)
+    public async Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo)
     {
-        var templateId = GetTemplateIdForAutoVoid(issueTypeId, filterBy);
         var templateModels = await repository.FetchAsync<TemplateModel>(new GetTemplatesCriteria()).ConfigureAwait(false);
+        var templateId = await GetTemplateIdForAutoVoid(requestInfo);
         var template = templateModels.First(t => t.TemplateId == templateId);
-        ReplaceMessageTemplate(template, match, allVoidDataInCurrentVoidTimes, issueTypeId, filterBy);
+        ReplaceMessageTemplate(template, match, allVoidDataInCurrentVoidTimes, requestInfo);
 
         return new Message
         {
@@ -231,7 +231,7 @@ public class SendMessageServiceImp : SendMessageService
         return isAbnormalBet ? tickets.Where(x => !x.Site.ToLowerInvariant().Equals("cn88")) : tickets;
     }
 
-    public IEnumerable<ReceivedUser> GetListSendMessageDb<T>(IEnumerable<T> tickets) where T : SendMessageDbModel
+    public static IEnumerable<ReceivedUser> GetListSendMessageDb<T>(IEnumerable<T> tickets) where T : SendMessageDbModel
     {
         return tickets.Select(item => new ReceivedUser
         {
@@ -247,17 +247,28 @@ public class SendMessageServiceImp : SendMessageService
         });
     }
 
-    private static void ReplaceMessageTemplate(TemplateModel model, Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy)
+    private static void ReplaceMessageTemplate(TemplateModel model, Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo)
     {
         ReplaceSportType(model, match);
         ReplaceHomeTeam(model, match);
         ReplaceAwayTeam(model, match);
         ReplaceLeagueName(model, match);
         ReplaceEventDate(model, match);
+        ReplaceKoTime(model, requestInfo.EventByMatch);
         ReplaceCheckStatement(model, allVoidDataInCurrentVoidTimes);
-        ReplaceParlay(model, issueTypeId, filterBy);
+        ReplaceParlay(model, requestInfo.Request.IssueTypeId, requestInfo.EventByMatch.FilterBy);
         ReplaceEventType(model);
         ReplacePlacedFromTimeRange(model, allVoidDataInCurrentVoidTimes);
+        ReplacePlayerName(model, requestInfo.PlayerNamesSelected);
+    }
+
+    private static void ReplacePlayerName(TemplateModel model, TemplateContent playerName)
+    {
+        const string playerNamePlaceholder = "{{Player Name}}";
+        model.MsgEnglish = model.MsgEnglish.Replace(playerNamePlaceholder, playerName?.MsgEnglish);
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(playerNamePlaceholder, playerName?.MsgChineseTraditional);
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(playerNamePlaceholder, playerName?.MsgChineseNewSimplified);
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(playerNamePlaceholder, playerName?.MsgChineseNewSimplified);
     }
 
     private static void ReplaceSportType(TemplateModel model, Match match)
@@ -304,6 +315,17 @@ public class SendMessageServiceImp : SendMessageService
         model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(eventDateFormat));
         model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(eventDateFormat));
         model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(eventDateFormat));
+    }
+
+    private static void ReplaceKoTime(TemplateModel model, RequestEventModel eventByMatch)
+    {
+        var kickOffTimeDateGmt8 = eventByMatch?.KickOffTime.AddHours(12);
+        const string eventDatePlaceholder = "{{KO time}}";
+        const string eventDateFormat = "dd/MM hh:mm:ss tt";
+        model.MsgEnglish = model.MsgEnglish.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(eventDateFormat));
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(eventDateFormat));
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(eventDateFormat));
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(eventDateFormat));
     }
 
     private static void ReplaceCheckStatement(TemplateModel model, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes)
@@ -379,33 +401,29 @@ public class SendMessageServiceImp : SendMessageService
         model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(placeholder, newContent.MsgChineseNewSimplified);
     }
 
-    private static int GetTemplateIdForAutoVoid(int issueTypeId, int? filterBy)
+    private async Task<int> GetTemplateIdForAutoVoid(RequestDetailViewModel requestInfo)
     {
+        var issueTypeId = requestInfo.Request.IssueTypeId;
+        var sportType = requestInfo.Request.SportType;
+        var filterBy = requestInfo.EventByMatch.FilterBy;
+        var subIssueTypeId = requestInfo.EventByMatch.SubIssueTypeId;
+        var templateSettings = await repository.FetchAsync<TemplateSetting>(new GetTemplateSettingCriteria()).ConfigureAwait(false);
+
         const int filterMixParlay = 1;
-
-        switch (issueTypeId)
+        return issueTypeId switch
         {
-            case IssueTypeConstant.AbnormalBet when filterBy is null:
-            case IssueTypeConstant.AbnormalBetRealMember:
-                return MessageTemplateIdConstant.ThirtyFour;
+            IssueTypeConstant.DuplicateTickets when filterBy == filterMixParlay => MessageTemplateIdConstant.SixtyFive,
+            IssueTypeConstant.AbnormalBet when filterBy == filterMixParlay => MessageTemplateIdConstant.ThirtySeven,
+            _ => GetTemplateIdByFilter(subIssueTypeId, sportType, templateSettings)
+        };
+    }
 
-            case IssueTypeConstant.AbnormalBet when filterBy is filterMixParlay:
-                return MessageTemplateIdConstant.ThirtySeven;
+    private static int GetTemplateIdByFilter(int subIssueType, int sportType, IEnumerable<TemplateSetting> templateSetting)
+    {
+        var settingsBySubType = templateSetting.Where(x => x.SubIssueTypeId == subIssueType);
+        var settingBySportType = settingsBySubType.FirstOrDefault(x => x.SportType == sportType);
+        var defaultTemplateWhenSportNull = settingsBySubType.FirstOrDefault(x => x.SportType == null);
 
-            case IssueTypeConstant.DuplicateTickets when filterBy is null:
-                return MessageTemplateIdConstant.SixtyFour;
-
-            case IssueTypeConstant.DuplicateTickets when filterBy is filterMixParlay:
-                return MessageTemplateIdConstant.SixtyFive;
-
-            case IssueTypeConstant.AbnormalAccount:
-                return MessageTemplateIdConstant.ThirtySeven;
-
-            case IssueTypeConstant.ReducedOver:
-                return MessageTemplateIdConstant.ThirtyEight;
-
-            default:
-                return MessageTemplateIdConstant.ThirtySeven;
-        }
+        return settingBySportType?.TemplateId ?? defaultTemplateWhenSportNull?.TemplateId ?? MessageTemplateIdConstant.ThirtySeven;
     }
 }

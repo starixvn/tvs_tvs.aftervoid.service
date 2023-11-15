@@ -47,9 +47,8 @@ public class RequestVoid14ServiceImpTests
     {
         // Arrange
         var automationInfo = new VoidBetAutomationInfo { VoidingHistoryId = 1, SiteDbGroupId = 0 };
-        var voidedTickets = new List<TicketEmailModel>();
         var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel> { new() { CreatorName = "123" } };
-        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 0, true).ReturnsForAnyArgs(voidedTickets);
+        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 0, true).ReturnsForAnyArgs(new List<TicketEmailModel>());
         voidBetAutomationService.GetVoidDataFromVoidingHistory(1)
             .ReturnsForAnyArgs(allVoidDataInCurrentVoidTimes);
         afterVoidProcessStage.CreateVoidedReason(automationInfo, 0, Arg.Any<VoidDataXmlModel>())
@@ -70,10 +69,9 @@ public class RequestVoid14ServiceImpTests
     {
         // Arrange
         var automationInfo = new VoidBetAutomationInfo { VoidingHistoryId = 1, SiteDbGroupId = 0 };
-        var voidedTickets = new List<TicketEmailModel>();
         var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel> { new() { CreatorName = "123" } };
         var voidedReason = new VoidedReason { ReasonId = 0 };
-        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 0, true).ReturnsForAnyArgs(voidedTickets);
+        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 0, true).ReturnsForAnyArgs(new List<TicketEmailModel>());
         voidBetAutomationService.GetVoidDataFromVoidingHistory(1)
             .ReturnsForAnyArgs(allVoidDataInCurrentVoidTimes);
         afterVoidProcessStage.CreateVoidedReason(automationInfo, 0, Arg.Any<VoidDataXmlModel>())
@@ -94,12 +92,11 @@ public class RequestVoid14ServiceImpTests
     {
         // Arrange
         var automationInfo = new VoidBetAutomationInfo { VoidingHistoryId = 1, SiteDbGroupId = 0 };
-        var voidedTickets = new List<TicketEmailModel>();
         var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel> { new() { CreatorName = "123" } };
         var voidedReason = new VoidedReason { ReasonId = 1 };
-        afterVoidProcessStage.InsertVoidedTransaction(automationInfo, voidedTickets, 0, voidedReason.ReasonId)
+        afterVoidProcessStage.InsertVoidedTransaction(automationInfo, new List<TicketEmailModel>(), 0, voidedReason.ReasonId)
             .ReturnsForAnyArgs(false);
-        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 0, true).ReturnsForAnyArgs(voidedTickets);
+        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 0, true).ReturnsForAnyArgs(new List<TicketEmailModel>());
         voidBetAutomationService.GetVoidDataFromVoidingHistory(1)
             .ReturnsForAnyArgs(allVoidDataInCurrentVoidTimes);
         afterVoidProcessStage.CreateVoidedReason(automationInfo, 0, Arg.Any<VoidDataXmlModel>())
@@ -110,7 +107,7 @@ public class RequestVoid14ServiceImpTests
 
         // Assert
         await afterVoidProcessStage.Received(1)
-            .InsertVoidedTransaction(automationInfo, voidedTickets, 0, voidedReason.ReasonId);
+            .InsertVoidedTransaction(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>(), 0, voidedReason.ReasonId);
         await notificationSignalRService.Received(1).NotifyErrorWhenExecuteAfterVoidServiceToUser("123");
     }
 
@@ -119,17 +116,16 @@ public class RequestVoid14ServiceImpTests
     {
         // Arrange
         var automationInfo = new VoidBetAutomationInfo { VoidingHistoryId = 1, SiteDbGroupId = 0 };
-        var voidedTickets = new List<TicketEmailModel>();
         var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel> { new() { CreatorName = "123" } };
         var voidedReason = new VoidedReason { ReasonId = 1 };
-        afterVoidProcessStage.InsertVoidedTransaction(automationInfo, voidedTickets, 0, voidedReason.ReasonId)
+        afterVoidProcessStage.InsertVoidedTransaction(automationInfo, new List<TicketEmailModel>(), 0, voidedReason.ReasonId)
             .ReturnsForAnyArgs(true);
-        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 0, true).ReturnsForAnyArgs(voidedTickets);
+        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 0, true).ReturnsForAnyArgs(new List<TicketEmailModel>());
         voidBetAutomationService.GetVoidDataFromVoidingHistory(1)
             .ReturnsForAnyArgs(allVoidDataInCurrentVoidTimes);
         afterVoidProcessStage.CreateVoidedReason(automationInfo, 0, Arg.Any<VoidDataXmlModel>())
             .ReturnsForAnyArgs(voidedReason);
-        afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, 0, voidedReason.ReasonId, voidedTickets)
+        afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, 0, voidedReason.ReasonId, new List<TicketEmailModel>())
             .ReturnsForAnyArgs(false);
 
         // Act
@@ -137,7 +133,7 @@ public class RequestVoid14ServiceImpTests
 
         // Assert
         await afterVoidProcessStage.Received(1)
-            .UpdateTicketVoidingHistory(automationInfo, 0, voidedReason.ReasonId, voidedTickets);
+            .UpdateTicketVoidingHistory(automationInfo, 0, voidedReason.ReasonId, Arg.Any<IEnumerable<TicketEmailModel>> ());
         await notificationSignalRService.Received(1).NotifyErrorWhenExecuteAfterVoidServiceToUser("123");
     }
 
@@ -150,24 +146,23 @@ public class RequestVoid14ServiceImpTests
         // Arrange
         var automationInfo = new VoidBetAutomationInfo
             { VoidingHistoryId = 1, SiteDbGroupId = 0, RequestId = 1, MatchId = 1 };
-        var voidedTickets = new List<TicketEmailModel>();
         var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel> { new() { CreatorName = "123" } };
         var voidedReason = new VoidedReason { ReasonId = 1 };
-        afterVoidProcessStage.InsertVoidedTransaction(automationInfo, voidedTickets, 0, voidedReason.ReasonId)
+        afterVoidProcessStage.InsertVoidedTransaction(automationInfo, new List<TicketEmailModel>(), 0, voidedReason.ReasonId)
             .ReturnsForAnyArgs(true);
-        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 0, true).ReturnsForAnyArgs(voidedTickets);
+        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 0, true).ReturnsForAnyArgs(new List<TicketEmailModel>());
         voidBetAutomationService.GetVoidDataFromVoidingHistory(1)
             .ReturnsForAnyArgs(allVoidDataInCurrentVoidTimes);
         afterVoidProcessStage.CreateVoidedReason(automationInfo, 0, Arg.Any<VoidDataXmlModel>())
             .ReturnsForAnyArgs(voidedReason);
-        afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, 0, voidedReason.ReasonId, voidedTickets)
+        afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, 0, voidedReason.ReasonId, new List<TicketEmailModel>())
             .ReturnsForAnyArgs(true);
 
         // Act
         await service.Execute(automationInfo, isLastedInRequest, currentRequestStatus);
 
         // Assert
-        await afterVoidProcessStage.Received(1).CallCashOutApi(automationInfo, voidedTickets);
+        await afterVoidProcessStage.Received(1).CallCashOutApi(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
         await voidBetAutomationService.Received(1).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId,
             automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await afterVoidProcessStage.Received(1).WriteLogAfterVoid(Arg.Any<List<Result>>(), automationInfo);
@@ -183,17 +178,16 @@ public class RequestVoid14ServiceImpTests
         // Arrange
         var automationInfo = new VoidBetAutomationInfo
             { VoidingHistoryId = 1, SiteDbGroupId = 0, RequestId = 1, MatchId = 1 };
-        var voidedTickets = new List<TicketEmailModel>();
         var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel> { new() { CreatorName = "123" } };
         var voidedReason = new VoidedReason { ReasonId = 1 };
-        afterVoidProcessStage.InsertVoidedTransaction(automationInfo, voidedTickets, 0, voidedReason.ReasonId)
+        afterVoidProcessStage.InsertVoidedTransaction(automationInfo, new List<TicketEmailModel>(), 0, voidedReason.ReasonId)
             .ReturnsForAnyArgs(true);
-        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 0, true).ReturnsForAnyArgs(voidedTickets);
+        voidBetAutomationService.GetVoidedTicketsByVoidingHistory(1, 0, true).ReturnsForAnyArgs(new List<TicketEmailModel>());
         voidBetAutomationService.GetVoidDataFromVoidingHistory(1)
             .ReturnsForAnyArgs(allVoidDataInCurrentVoidTimes);
         afterVoidProcessStage.CreateVoidedReason(automationInfo, 0, Arg.Any<VoidDataXmlModel>())
             .ReturnsForAnyArgs(voidedReason);
-        afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, 0, voidedReason.ReasonId, voidedTickets)
+        afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, 0, voidedReason.ReasonId, new List<TicketEmailModel>())
             .ReturnsForAnyArgs(true);
 
         // Act

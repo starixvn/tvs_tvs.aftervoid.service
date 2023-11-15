@@ -31,7 +31,6 @@ public class RequestAutoVoidServiceImpTests
         // Arrange
         InitFakeServiceTests();
         var fakeMatch = Builder<Match>.CreateNew().Build();
-        var fakeVoidDataXml = new List<VoidDataXmlModel>();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
             .With(x => x.RequestInfo = new RequestDetailViewModel
             {
@@ -39,9 +38,9 @@ public class RequestAutoVoidServiceImpTests
                 EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
         afterVoidProcessStage
-            .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
+            .CreateMessageIdForAutoVoid(default, default, default, default)
             .ReturnsNullForAnyArgs();
         var service = new RequestAutoVoidServiceImp(voidBetAutomationService, afterVoidProcessStage, default);
 
@@ -59,7 +58,6 @@ public class RequestAutoVoidServiceImpTests
         InitFakeServiceTests();
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeMatch = Builder<Match>.CreateNew().Build();
-        var fakeVoidDataXml = new List<VoidDataXmlModel>();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
             .With(x => x.RequestInfo = new RequestDetailViewModel
             {
@@ -67,9 +65,9 @@ public class RequestAutoVoidServiceImpTests
                 EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).With(x => x.StatusId = ExecuteStatus.Done).Build();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
         afterVoidProcessStage
-            .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
+            .CreateMessageIdForAutoVoid(default, default, default, default)
             .ReturnsForAnyArgs(fakeMessage);
         var service = new RequestAutoVoidServiceImp(voidBetAutomationService, afterVoidProcessStage, default);
 
@@ -86,7 +84,6 @@ public class RequestAutoVoidServiceImpTests
         // Arrange
         InitFakeServiceTests();
         var fakeMatch = Builder<Match>.CreateNew().Build();
-        var fakeVoidDataXml = new List<VoidDataXmlModel>();
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
             .With(x => x.RequestInfo = new RequestDetailViewModel
@@ -95,9 +92,9 @@ public class RequestAutoVoidServiceImpTests
                 EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
         afterVoidProcessStage
-            .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
+            .CreateMessageIdForAutoVoid(default, default, default, default)
             .ReturnsForAnyArgs(fakeMessage);
         afterVoidProcessStage.CreateVoidedReason(default, default, default).ReturnsNullForAnyArgs();
         var service = new RequestAutoVoidServiceImp(voidBetAutomationService, afterVoidProcessStage, default);
@@ -116,7 +113,6 @@ public class RequestAutoVoidServiceImpTests
         // Arrange
         InitFakeServiceTests();
         var fakeMatch = Builder<Match>.CreateNew().Build();
-        var fakeVoidDataXml = new List<VoidDataXmlModel>();
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
@@ -126,9 +122,9 @@ public class RequestAutoVoidServiceImpTests
                 EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
         afterVoidProcessStage
-            .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
+            .CreateMessageIdForAutoVoid(default, default, default, default)
             .ReturnsForAnyArgs(fakeMessage);
         afterVoidProcessStage.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
         afterVoidProcessStage.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(false);
@@ -151,7 +147,6 @@ public class RequestAutoVoidServiceImpTests
         // Arrange
         InitFakeServiceTests();
         var fakeMatch = Builder<Match>.CreateNew().Build();
-        var fakeVoidDataXml = new List<VoidDataXmlModel>();
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
@@ -161,9 +156,9 @@ public class RequestAutoVoidServiceImpTests
                 EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
         afterVoidProcessStage
-            .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
+            .CreateMessageIdForAutoVoid(default, default, default, default)
             .ReturnsForAnyArgs(fakeMessage);
         afterVoidProcessStage.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
         afterVoidProcessStage.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(true);
@@ -187,7 +182,6 @@ public class RequestAutoVoidServiceImpTests
         // Arrange
         InitFakeServiceTests();
         var fakeMatch = Builder<Match>.CreateNew().Build();
-        var fakeVoidDataXml = new List<VoidDataXmlModel>();
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
@@ -197,9 +191,9 @@ public class RequestAutoVoidServiceImpTests
                 EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
         afterVoidProcessStage
-            .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
+            .CreateMessageIdForAutoVoid(default, default, default, default)
             .ReturnsForAnyArgs(fakeMessage);
         afterVoidProcessStage.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
         afterVoidProcessStage.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(true);
@@ -225,7 +219,6 @@ public class RequestAutoVoidServiceImpTests
         // Arrange
         InitFakeServiceTests();
         var fakeMatch = Builder<Match>.CreateNew().Build();
-        var fakeVoidDataXml = new List<VoidDataXmlModel>();
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
@@ -235,9 +228,9 @@ public class RequestAutoVoidServiceImpTests
                 EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
         afterVoidProcessStage
-            .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
+            .CreateMessageIdForAutoVoid(default, default, default, default)
             .ReturnsForAnyArgs(fakeMessage);
         afterVoidProcessStage.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
         afterVoidProcessStage.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(true);
@@ -264,7 +257,6 @@ public class RequestAutoVoidServiceImpTests
     {
         // Arrange
         InitFakeServiceTests();
-        var fakeVoidDataXml = new List<VoidDataXmlModel>();
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
@@ -274,9 +266,9 @@ public class RequestAutoVoidServiceImpTests
                 EventByMatch = new RequestEventModel { FilterBy = 0 }
             }).Build();
         fakeAutomationInfo.MatchId = 0;
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
         afterVoidProcessStage
-            .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
+            .CreateMessageIdForAutoVoid(default, default, default, default)
             .ReturnsForAnyArgs(fakeMessage);
         afterVoidProcessStage.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
         afterVoidProcessStage.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(true);
@@ -308,7 +300,6 @@ public class RequestAutoVoidServiceImpTests
         // Arrange
         InitFakeServiceTests();
         var fakeMatch = Builder<Match>.CreateNew().Build();
-        var fakeVoidDataXml = new List<VoidDataXmlModel>();
         var fakeMessage = Builder<Message>.CreateNew().Build();
         var fakeVoidedReason = Builder<VoidedReason>.CreateNew().Build();
         var fakeAutomationInfo = Builder<VoidBetAutomationInfo>.CreateNew()
@@ -319,9 +310,9 @@ public class RequestAutoVoidServiceImpTests
             }).Build();
         fakeAutomationInfo.MatchId = 1;
         voidBetAutomationService.GetMatchInfo(default).ReturnsForAnyArgs(fakeMatch);
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(fakeVoidDataXml);
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
         afterVoidProcessStage
-            .CreateMessageIdForAutoVoid(default, default, default, default, default, default)
+            .CreateMessageIdForAutoVoid(default, default, default, default)
             .ReturnsForAnyArgs(fakeMessage);
         afterVoidProcessStage.CreateVoidedReason(default, default, default).ReturnsForAnyArgs(fakeVoidedReason);
         afterVoidProcessStage.SendBatchMessage(default, default, default, default).ReturnsForAnyArgs(true);

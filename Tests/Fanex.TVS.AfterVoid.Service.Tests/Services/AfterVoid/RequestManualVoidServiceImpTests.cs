@@ -95,7 +95,6 @@ public class RequestManualVoidServiceImpTests
             { VoidingHistoryId = 1, SiteDbGroupId = 1, StatusId = ExecuteStatus.Running };
         var message = new Message { MessageId = 1 };
         var voidedReason = new VoidedReason { ReasonId = 1 };
-        var voidedTickets = new List<TicketEmailModel>();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId)
             .ReturnsForAnyArgs(allVoidDataInCurrentVoidTimes);
         afterVoidProcessStage.CreateMessageIdForManualVoid(automationInfo, Arg.Any<VoidDataXmlModel>())
@@ -104,16 +103,16 @@ public class RequestManualVoidServiceImpTests
             .ReturnsForAnyArgs(voidedReason);
         voidBetAutomationService
             .GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true)
-            .ReturnsForAnyArgs(voidedTickets);
+            .ReturnsForAnyArgs(new List<TicketEmailModel>());
         afterVoidProcessStage
-            .SendBatchMessage(automationInfo, voidedTickets, message.MessageId, Arg.Any<VoidDataXmlModel>())
+            .SendBatchMessage(automationInfo, new List<TicketEmailModel>(), message.MessageId, Arg.Any<VoidDataXmlModel>())
             .ReturnsForAnyArgs(false);
 
         // Act
         await service.Execute(automationInfo, default, default, default);
 
         // Assert
-        await afterVoidProcessStage.Received(1).SendBatchMessage(automationInfo, voidedTickets, message.MessageId,
+        await afterVoidProcessStage.Received(1).SendBatchMessage(automationInfo, Arg.Any<List<TicketEmailModel>>(), message.MessageId,
             Arg.Any<VoidDataXmlModel>());
         await voidBetAutomationService.Received(1)
             .GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true);
@@ -133,7 +132,6 @@ public class RequestManualVoidServiceImpTests
         };
         var message = new Message { MessageId = 1 };
         var voidedReason = new VoidedReason { ReasonId = 1 };
-        var voidedTickets = new List<TicketEmailModel>();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId)
             .ReturnsForAnyArgs(allVoidDataInCurrentVoidTimes);
         afterVoidProcessStage.CreateMessageIdForManualVoid(automationInfo, Arg.Any<VoidDataXmlModel>())
@@ -142,9 +140,9 @@ public class RequestManualVoidServiceImpTests
             .ReturnsForAnyArgs(voidedReason);
         voidBetAutomationService
             .GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true)
-            .ReturnsForAnyArgs(voidedTickets);
+            .ReturnsForAnyArgs(new List<TicketEmailModel>());
         afterVoidProcessStage
-            .SendBatchMessage(automationInfo, voidedTickets, message.MessageId, Arg.Any<VoidDataXmlModel>())
+            .SendBatchMessage(automationInfo, new List<TicketEmailModel>(), message.MessageId, Arg.Any<VoidDataXmlModel>())
             .ReturnsForAnyArgs(true);
         afterVoidProcessStage.SendMessageToAdminSite(automationInfo, message).ReturnsForAnyArgs(false);
 
@@ -171,7 +169,6 @@ public class RequestManualVoidServiceImpTests
         };
         var message = new Message { MessageId = 1 };
         var voidedReason = new VoidedReason { ReasonId = 1 };
-        var voidedTickets = new List<TicketEmailModel>();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId)
             .ReturnsForAnyArgs(allVoidDataInCurrentVoidTimes);
         afterVoidProcessStage.CreateMessageIdForManualVoid(automationInfo, Arg.Any<VoidDataXmlModel>())
@@ -180,13 +177,13 @@ public class RequestManualVoidServiceImpTests
             .ReturnsForAnyArgs(voidedReason);
         voidBetAutomationService
             .GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true)
-            .ReturnsForAnyArgs(voidedTickets);
+            .ReturnsForAnyArgs(new List<TicketEmailModel>());
         afterVoidProcessStage
-            .SendBatchMessage(automationInfo, voidedTickets, message.MessageId, Arg.Any<VoidDataXmlModel>())
+            .SendBatchMessage(automationInfo, new List<TicketEmailModel>(), message.MessageId, Arg.Any<VoidDataXmlModel>())
             .ReturnsForAnyArgs(true);
         afterVoidProcessStage.SendMessageToAdminSite(automationInfo, message).ReturnsForAnyArgs(true);
         afterVoidProcessStage
-            .InsertVoidedTransaction(automationInfo, voidedTickets, message.MessageId, voidedReason.ReasonId)
+            .InsertVoidedTransaction(automationInfo, new List<TicketEmailModel>(), message.MessageId, voidedReason.ReasonId)
             .ReturnsForAnyArgs(false);
 
         // Act
@@ -194,7 +191,7 @@ public class RequestManualVoidServiceImpTests
 
         // Assert
         await afterVoidProcessStage.Received(1)
-            .InsertVoidedTransaction(automationInfo, voidedTickets, message.MessageId, voidedReason.ReasonId);
+            .InsertVoidedTransaction(automationInfo, Arg.Any<List<TicketEmailModel>>(), message.MessageId, voidedReason.ReasonId);
         await notificationSignalRService.Received(1).NotifyErrorWhenExecuteAfterVoidServiceToUser("1");
     }
 
@@ -213,7 +210,6 @@ public class RequestManualVoidServiceImpTests
         };
         var message = new Message { MessageId = 1 };
         var voidedReason = new VoidedReason { ReasonId = 1 };
-        var voidedTickets = new List<TicketEmailModel>();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId)
             .ReturnsForAnyArgs(allVoidDataInCurrentVoidTimes);
         afterVoidProcessStage.CreateMessageIdForManualVoid(automationInfo, Arg.Any<VoidDataXmlModel>())
@@ -222,23 +218,23 @@ public class RequestManualVoidServiceImpTests
             .ReturnsForAnyArgs(voidedReason);
         voidBetAutomationService
             .GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true)
-            .ReturnsForAnyArgs(voidedTickets);
+            .ReturnsForAnyArgs(new List<TicketEmailModel>());
         afterVoidProcessStage
-            .SendBatchMessage(automationInfo, voidedTickets, message.MessageId, Arg.Any<VoidDataXmlModel>())
+            .SendBatchMessage(automationInfo, new List<TicketEmailModel>(), message.MessageId, Arg.Any<VoidDataXmlModel>())
             .ReturnsForAnyArgs(true);
         afterVoidProcessStage.SendMessageToAdminSite(automationInfo, message).ReturnsForAnyArgs(true);
         afterVoidProcessStage
-            .InsertVoidedTransaction(automationInfo, voidedTickets, message.MessageId, voidedReason.ReasonId)
+            .InsertVoidedTransaction(automationInfo, new List<TicketEmailModel>(), message.MessageId, voidedReason.ReasonId)
             .ReturnsForAnyArgs(true);
         afterVoidProcessStage
-            .UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, voidedTickets)
+            .UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, new List<TicketEmailModel>())
             .ReturnsForAnyArgs(false);
         // Act
         await service.Execute(automationInfo, default, default, default);
 
         // Assert
         await afterVoidProcessStage.Received(1)
-            .UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, voidedTickets);
+            .UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, Arg.Any<List<TicketEmailModel>>());
         await notificationSignalRService.Received(1).NotifyErrorWhenExecuteAfterVoidServiceToUser("1");
     }
 
@@ -258,7 +254,6 @@ public class RequestManualVoidServiceImpTests
         };
         var message = new Message { MessageId = 1 };
         var voidedReason = new VoidedReason { ReasonId = 1 };
-        var voidedTickets = new List<TicketEmailModel>();
         var matchInfo = new Match();
         var currentEmailResults = new List<Result>();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId)
@@ -269,19 +264,19 @@ public class RequestManualVoidServiceImpTests
             .ReturnsForAnyArgs(voidedReason);
         voidBetAutomationService
             .GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true)
-            .ReturnsForAnyArgs(voidedTickets);
+            .ReturnsForAnyArgs(new List<TicketEmailModel>());
         afterVoidProcessStage
-            .SendBatchMessage(automationInfo, voidedTickets, message.MessageId, Arg.Any<VoidDataXmlModel>())
+            .SendBatchMessage(automationInfo, new List<TicketEmailModel>(), message.MessageId, Arg.Any<VoidDataXmlModel>())
             .ReturnsForAnyArgs(true);
         afterVoidProcessStage.SendMessageToAdminSite(automationInfo, message).ReturnsForAnyArgs(true);
         afterVoidProcessStage
-            .InsertVoidedTransaction(automationInfo, voidedTickets, message.MessageId, voidedReason.ReasonId)
+            .InsertVoidedTransaction(automationInfo, new List<TicketEmailModel>(), message.MessageId, voidedReason.ReasonId)
             .ReturnsForAnyArgs(true);
         afterVoidProcessStage
-            .UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, voidedTickets)
+            .UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, new List<TicketEmailModel>())
             .ReturnsForAnyArgs(true);
         voidBetAutomationService.GetMatchInfo(automationInfo.MatchId).ReturnsForAnyArgs(matchInfo);
-        afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message)
+        afterVoidProcessStage.SendEmail(automationInfo, new List<TicketEmailModel>(), matchInfo, voidedReason, message)
             .ReturnsForAnyArgs((false, currentEmailResults));
 
         // Act
@@ -289,7 +284,7 @@ public class RequestManualVoidServiceImpTests
 
         // Assert
         await afterVoidProcessStage.Received(1)
-            .SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
+            .SendEmail(automationInfo, Arg.Any<List<TicketEmailModel>>(), matchInfo, voidedReason, message);
         await notificationSignalRService.Received(1).NotifyErrorWhenExecuteAfterVoidServiceToUser("1");
         await voidBetAutomationService.Received(1).GetMatchInfo(automationInfo.MatchId);
     }
@@ -313,7 +308,6 @@ public class RequestManualVoidServiceImpTests
         };
         var message = new Message { MessageId = 1 };
         var voidedReason = new VoidedReason { ReasonId = 1 };
-        var voidedTickets = new List<TicketEmailModel>();
         var matchInfo = new Match();
         var currentEmailResults = new List<Result>();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId)
@@ -324,19 +318,19 @@ public class RequestManualVoidServiceImpTests
             .ReturnsForAnyArgs(voidedReason);
         voidBetAutomationService
             .GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true)
-            .ReturnsForAnyArgs(voidedTickets);
+            .ReturnsForAnyArgs(new List<TicketEmailModel>());
         afterVoidProcessStage
-            .SendBatchMessage(automationInfo, voidedTickets, message.MessageId, Arg.Any<VoidDataXmlModel>())
+            .SendBatchMessage(automationInfo, new List<TicketEmailModel>(), message.MessageId, Arg.Any<VoidDataXmlModel>())
             .ReturnsForAnyArgs(true);
         afterVoidProcessStage.SendMessageToAdminSite(automationInfo, message).ReturnsForAnyArgs(true);
         afterVoidProcessStage
-            .InsertVoidedTransaction(automationInfo, voidedTickets, message.MessageId, voidedReason.ReasonId)
+            .InsertVoidedTransaction(automationInfo, new List<TicketEmailModel>(), message.MessageId, voidedReason.ReasonId)
             .ReturnsForAnyArgs(true);
         afterVoidProcessStage
-            .UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, voidedTickets)
+            .UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, new List<TicketEmailModel>())
             .ReturnsForAnyArgs(true);
         voidBetAutomationService.GetMatchInfo(automationInfo.MatchId).ReturnsForAnyArgs(matchInfo);
-        afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message)
+        afterVoidProcessStage.SendEmail(automationInfo, new List<TicketEmailModel>(), matchInfo, voidedReason, message)
             .ReturnsForAnyArgs((true, currentEmailResults));
 
         // Act
@@ -344,7 +338,7 @@ public class RequestManualVoidServiceImpTests
 
         // Assert
         await afterVoidProcessStage.Received(1).UpdateEmailResult(automationInfo, currentEmailResults);
-        await afterVoidProcessStage.Received(1).CallCashOutApi(automationInfo, voidedTickets);
+        await afterVoidProcessStage.Received(1).CallCashOutApi(automationInfo, Arg.Any<List<TicketEmailModel>>());
         await voidBetAutomationService.Received(1).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId,
             automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await notificationSignalRService.DidNotReceiveWithAnyArgs()
@@ -370,7 +364,6 @@ public class RequestManualVoidServiceImpTests
         };
         var message = new Message { MessageId = 1 };
         var voidedReason = new VoidedReason { ReasonId = 1 };
-        var voidedTickets = new List<TicketEmailModel>();
         var matchInfo = new Match();
         var currentEmailResults = new List<Result>();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId)
@@ -381,19 +374,19 @@ public class RequestManualVoidServiceImpTests
             .ReturnsForAnyArgs(voidedReason);
         voidBetAutomationService
             .GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true)
-            .ReturnsForAnyArgs(voidedTickets);
+            .ReturnsForAnyArgs(new List<TicketEmailModel>());
         afterVoidProcessStage
-            .SendBatchMessage(automationInfo, voidedTickets, message.MessageId, Arg.Any<VoidDataXmlModel>())
+            .SendBatchMessage(automationInfo, new List<TicketEmailModel>(), message.MessageId, Arg.Any<VoidDataXmlModel>())
             .ReturnsForAnyArgs(true);
         afterVoidProcessStage.SendMessageToAdminSite(automationInfo, message).ReturnsForAnyArgs(true);
         afterVoidProcessStage
-            .InsertVoidedTransaction(automationInfo, voidedTickets, message.MessageId, voidedReason.ReasonId)
+            .InsertVoidedTransaction(automationInfo, new List<TicketEmailModel>(), message.MessageId, voidedReason.ReasonId)
             .ReturnsForAnyArgs(true);
         afterVoidProcessStage
-            .UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, voidedTickets)
+            .UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, new List<TicketEmailModel>())
             .ReturnsForAnyArgs(true);
         voidBetAutomationService.GetMatchInfo(automationInfo.MatchId).ReturnsForAnyArgs(matchInfo);
-        afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message)
+        afterVoidProcessStage.SendEmail(automationInfo, new List<TicketEmailModel>(), matchInfo, voidedReason, message)
             .ReturnsForAnyArgs((true, currentEmailResults));
 
         // Act

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,10 +17,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 
 public interface AfterVoidProcessStage
 {
-    Task<Message> CreateMessageIdForAutoVoid(VoidBetAutomationInfo automationInfo,
-        Match matchInfo, string broadcastSessionId, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy);
-
-    Task<bool> RunExternalService(VoidBetAutomationInfo automationInfo);
+    Task<Message> CreateMessageIdForAutoVoid(VoidBetAutomationInfo automationInfo, Match matchInfo, string broadcastSessionId, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes);
 
     Task CallCashOutApi(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets);
 
@@ -79,7 +75,7 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
     }
 
     public async Task<Message> CreateMessageIdForAutoVoid(VoidBetAutomationInfo automationInfo, Match matchInfo, string broadcastSessionId,
-        IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, int issueTypeId, int? filterBy)
+        IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes)
     {
         try
         {
@@ -90,8 +86,8 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
             }
             else
             {
-                message = await sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, allVoidDataInCurrentVoidTimes, issueTypeId, filterBy);
-                message.MessageId = await sendMessageService.InsertMessage(message, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, issueTypeId);
+                message = await sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, allVoidDataInCurrentVoidTimes, automationInfo.RequestInfo);
+                message.MessageId = await sendMessageService.InsertMessage(message, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, automationInfo.RequestInfo.Request.IssueTypeId);
             }
 
             await voidBetAutomationService.UpdateMessageIdByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, message.MessageId);
@@ -106,33 +102,6 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
             await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
             return null;
-        }
-    }
-
-    [ExcludeFromCodeCoverage]
-    public async Task<bool> RunExternalService(VoidBetAutomationInfo automationInfo)
-    {
-        try
-        {
-            if (automationInfo.IsRunExternalService == true)
-            {
-                return true;
-            }
-
-            // TODO
-            await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsRunExternalService = true });
-
-            return true;
-        }
-        catch (Exception exception)
-        {
-            await loggingService.ErrorAsync(
-                $"ERROR: {nameof(RunExternalService)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
-                exception);
-            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-            await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
-
-            return false;
         }
     }
 

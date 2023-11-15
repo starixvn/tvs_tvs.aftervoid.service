@@ -30,18 +30,24 @@ public class AbnormalBetLetstalkServiceTests
     [InlineData(11, null, true)]
     [InlineData(15, null, true)]
     [InlineData(11, 1, false)]
-    public async Task SendToAbnormalBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceFail(int issueId, int? filterBy, bool IsPRODEnvironment)
+    public async Task SendToAbnormalBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceFail(int issueId,
+        int? filterBy, bool isProdEnvironment)
     {
-        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = IsPRODEnvironment } };
-        var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
+        AppSettingService.AppSetting = new AppSettingModel
+            { LetstalkConfig = new LetstalkConfig { IsProdEnv = isProdEnvironment } };
+        var fakeNotificationLetstalkModel =
+            Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         fakeNotificationLetstalkModel.IssueTypeId = issueId;
         fakeNotificationLetstalkModel.FilterBy = filterBy;
         fakeNotificationLetstalkModel.Match = new Match();
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(10)
-            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
-            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = true)
+            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false)
+            .And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
+            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false)
+            .And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = true)
             .Random(2).With(x => x.IsCashOut = true)
-            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = true).And(x => x.Status = TicketStatus.Won).And(x => x.BetTypeId = 29)
+            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = true)
+            .And(x => x.Status = TicketStatus.Won).And(x => x.BetTypeId = 29)
             .Build();
         var letstalkService = Substitute.For<LetstalkClientService>();
         letstalkService.SendMessage(default).ReturnsForAnyArgs(false);
@@ -73,16 +79,21 @@ public class AbnormalBetLetstalkServiceTests
     [Fact]
     public async Task SendToAbnormalBetGroup_ShouldReturnTrue()
     {
-        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = false } };
-        var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
+        AppSettingService.AppSetting = new AppSettingModel
+            { LetstalkConfig = new LetstalkConfig { IsProdEnv = false } };
+        var fakeNotificationLetstalkModel =
+            Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         fakeNotificationLetstalkModel.IssueTypeId = 11;
         fakeNotificationLetstalkModel.FilterBy = 1;
         fakeNotificationLetstalkModel.Match = new Match();
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(10)
-            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
-            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = true)
+            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false)
+            .And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
+            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false)
+            .And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = true)
             .Random(2).With(x => x.IsCashOut = true)
-            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = true).And(x => x.Status = TicketStatus.Won).And(x => x.BetTypeId = 29)
+            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = true)
+            .And(x => x.Status = TicketStatus.Won).And(x => x.BetTypeId = 29)
             .Build();
         var letstalkService = Substitute.For<LetstalkClientService>();
         letstalkService.SendMessage(default).ReturnsForAnyArgs(true);

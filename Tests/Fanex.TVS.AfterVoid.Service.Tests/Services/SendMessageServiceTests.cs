@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services;
 
-public class SendMessageServiceImpTests
+public class SendMessageServiceTests
 {
     private readonly IEnumerable<TicketEmailModel> fakeTicketEmailModels = new List<TicketEmailModel>
     {
@@ -36,7 +36,7 @@ public class SendMessageServiceImpTests
         },
         new()
         {
-            Site = "aaaa",
+            Site = "a",
             CustId = 12345,
             UserName = "sa",
             Recommend = 111,
@@ -51,18 +51,9 @@ public class SendMessageServiceImpTests
         }
     };
 
-    private readonly MessageItemService messageItemService;
-    private readonly IDynamicRepository repository;
-    private readonly SendMessageServiceImp service;
-    private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
-
-    public SendMessageServiceImpTests()
-    {
-        repository = Substitute.For<IDynamicRepository>();
-        messageItemService = Substitute.For<MessageItemService>();
-        ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
-        service = new SendMessageServiceImp(repository, messageItemService, ticketVoidingSystemHttpClientService);
-    }
+    private readonly MessageItemService messageItemService = Substitute.For<MessageItemService>();
+    private readonly IDynamicRepository repository = Substitute.For<IDynamicRepository>();
+    private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
 
     [Theory]
     [InlineData(IssueTypeConstant.AbnormalBet, 1)]
@@ -73,6 +64,7 @@ public class SendMessageServiceImpTests
     [InlineData(IssueTypeConstant.DuplicateTickets, 1)]
     [InlineData(IssueTypeConstant.AbnormalAccount, 1)]
     [InlineData(IssueTypeConstant.ReducedOver, 1)]
+    [InlineData(IssueTypeConstant.NotParticipate, 1)]
     public async Task InitializeMessageContentForAutoVoid_ShouldReturnExpectedData(int issueTypeId, int? filterBy)
     {
         var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>
@@ -85,7 +77,7 @@ public class SendMessageServiceImpTests
             }
         };
         var fakeMatch = new Match { MatchCode = "ppp00" };
-        var fakeTemplate = Builder<TemplateModel>.CreateListOfSize(7)
+        var fakeTemplate = Builder<TemplateModel>.CreateListOfSize(8)
             .Random(1).With(x => x.TemplateId = 37)
             .Random(1).With(x => x.TemplateId = 34)
             .Random(1).With(x => x.TemplateId = 1)
@@ -93,14 +85,18 @@ public class SendMessageServiceImpTests
             .Random(1).With(x => x.TemplateId = 65)
             .Random(1).With(x => x.TemplateId = 37)
             .Random(1).With(x => x.TemplateId = 38)
+            .Random(1).With(x => x.TemplateId = 63)
             .Build();
-        var repository = Substitute.For<IDynamicRepository>();
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
+        var requestInfo = new RequestDetailViewModel
+        {
+            Request = new RequestModel { IssueTypeId = issueTypeId },
+            EventByMatch = new RequestEventModel { SubIssueTypeId = 1, FilterBy = filterBy }
+        };
         var service = new SendMessageServiceImp(repository, null, null);
 
         var actual =
-            await service.InitializeMessageContentForAutoVoid(fakeMatch, allVoidDataInCurrentVoidTimes, issueTypeId,
-                filterBy);
+            await service.InitializeMessageContentForAutoVoid(fakeMatch, allVoidDataInCurrentVoidTimes, requestInfo);
 
         await repository.Received(1).FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>());
         Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);
@@ -114,13 +110,29 @@ public class SendMessageServiceImpTests
             .Random(1).With(x => x.TemplateId = 34)
             .Random(1).With(x => x.TemplateId = 1)
             .Build();
-        var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>();
-        var repository = Substitute.For<IDynamicRepository>();
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
+        var requestInfo = new RequestDetailViewModel
+        {
+            Request = new RequestModel{ IssueTypeId  = 1},
+            EventByMatch = new RequestEventModel{ SubIssueTypeId =1}
+        };
+        var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>
+        {
+            new()
+            {
+                VoidFromTime = "2022/2/2",
+                VoidToTime = "2022/2/2"
+            },
+            new()
+            {
+                VoidFromTime = "2022/3/2",
+                VoidToTime = "2022/3/2"
+            }
+        };
         var service = new SendMessageServiceImp(repository, null, null);
 
-        var actual = await service.InitializeMessageContentForAutoVoid(null, allVoidDataInCurrentVoidTimes, 11, 1);
-
+        var actual = await service.InitializeMessageContentForAutoVoid(null, allVoidDataInCurrentVoidTimes, requestInfo);
+        await repository.Received(1).FetchAsync<TemplateSetting>(Arg.Any<GetTemplateSettingCriteria>());
         await repository.Received(1).FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>());
         Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);
     }
@@ -145,7 +157,6 @@ public class SendMessageServiceImpTests
         {
             MessageId = 12345
         };
-        var repository = Substitute.For<IDynamicRepository>();
         repository.GetAsync<Message>(getMessageCriteria).ReturnsForAnyArgs(expected);
 
         var service = new SendMessageServiceImp(repository, null, null);
@@ -161,11 +172,10 @@ public class SendMessageServiceImpTests
     [Fact]
     public async Task InsertMessage_ShouldReturnExpectedId()
     {
-        var fakeMatchId = 11;
-        var fakeLeagueGroupId = 12;
-        var fakeIssueTypeId = 22;
+        const int fakeMatchId = 11;
+        const int fakeLeagueGroupId = 12;
+        const int fakeIssueTypeId = 22;
         var fakeMessage = Builder<Message>.CreateNew().Build();
-        var repository = Substitute.For<IDynamicRepository>();
         repository.GetAsync<int>(Arg.Any<CreateMessageCriteria>()).Returns(99);
         var service = new SendMessageServiceImp(repository, null, null);
 
@@ -187,12 +197,10 @@ public class SendMessageServiceImpTests
             IssueTypeId = 11,
             SubIssueTypeId = 27,
             MatchId = 113,
-            XmlCustInfo = "CustInfoXml",
+            XmlCustInfo = "InfoXml",
             MainTransIds = "12345679",
             SubTransIds = "98754321"
         };
-        var repository = Substitute.For<IDynamicRepository>();
-        var messageItemService = Substitute.For<MessageItemService>();
         var ticketVoidingApi = Substitute.For<TicketVoidingSystemHttpClientService>();
         var service = new SendMessageServiceImp(repository, messageItemService, ticketVoidingApi);
 
@@ -213,8 +221,6 @@ public class SendMessageServiceImpTests
         // Arrange
         const string messageXml = "<Messages>Content</Messages>";
         const int messageId = 1111;
-        var repository = Substitute.For<IDynamicRepository>();
-        var messageItemService = Substitute.For<MessageItemService>();
         messageItemService.CreateMessageItems(Arg.Any<IEnumerable<ReceivedUser>>(), Arg.Compat.Any<int>())
             .ReturnsForAnyArgs(messageXml);
 
@@ -243,9 +249,8 @@ public class SendMessageServiceImpTests
     [Fact]
     public async Task InitializeVoidReason_WhenIsAutoVoid_ReturnEmptyVoidReason()
     {
-        var fakeSubIssueType = 11;
-        var fakeSportType = 22;
-        var repository = Substitute.For<IDynamicRepository>();
+        const int fakeSubIssueType = 11;
+        const int fakeSportType = 22;
         repository.GetAsync<VoidedReason>(Arg.Any<GetReasonNameCriteria>()).ReturnsNull();
         var service = new SendMessageServiceImp(repository, null, null);
 
@@ -260,12 +265,10 @@ public class SendMessageServiceImpTests
     [Fact]
     public async Task InitializeVoidReason_WhenIsAutoVoid_ReturnExpectedVoidReason()
     {
-        var fakeSubIssueType = 11;
-        var fakeSportType = 22;
+        const int fakeSubIssueType = 11;
+        const int fakeSportType = 22;
         var fakeReason = Builder<VoidedReason>.CreateNew().Build();
-        var repository = Substitute.For<IDynamicRepository>();
         repository.GetAsync<VoidedReason>(Arg.Any<GetReasonNameCriteria>()).Returns(fakeReason);
-        var ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
         ticketVoidingSystemHttpClientService.BetListGetSportTypeName(fakeSportType, Arg.Any<string>()).Returns("a");
         var service = new SendMessageServiceImp(repository, null, ticketVoidingSystemHttpClientService);
 
@@ -287,8 +290,7 @@ public class SendMessageServiceImpTests
         {
             ReasonEnglish = "Reason English", ReasonChineseSimplified = "Reason Chinese Simplified", ReasonId = 12345
         };
-        var repository = Substitute.For<IDynamicRepository>();
-        repository.When(repo => repo.ExecuteAsync(criteria)).Do(repo => { criteria.ReasonId = 12345; });
+        repository.When(repo => repo.ExecuteAsync(criteria)).Do(_ => { criteria.ReasonId = 12345; });
 
         repository.ExecuteAsync(Arg.Compat.Do<InsertReasonCommand>(x =>
         {
@@ -300,7 +302,7 @@ public class SendMessageServiceImpTests
         var service = new SendMessageServiceImp(repository, null, null);
 
         // Act
-        var actual = await service.InsertReason("Reason English", "Reason Chinese Simplifie");
+        var actual = await service.InsertReason("Reason English", "Reason Chinese Simplified");
 
         // Assert
         Assert.Equal(12345, actual);
@@ -317,7 +319,6 @@ public class SendMessageServiceImpTests
             ReasonEnglish = "Reason English",
             ReasonChineseSimplified = "Reason Chinese Simplified"
         };
-        var repository = Substitute.For<IDynamicRepository>();
         repository.GetAsync<VoidedReason>(getVoidedReasonCriteria).ReturnsForAnyArgs(expected);
 
         var service = new SendMessageServiceImp(repository, null, null);
@@ -332,11 +333,6 @@ public class SendMessageServiceImpTests
     }
 
     [Fact]
-    public void InsertBatchMessage_()
-    {
-    }
-
-    [Fact]
     public async Task InsertMessageIntoAdminSite_ShouldCallRepository()
     {
         // Arrange
@@ -346,8 +342,6 @@ public class SendMessageServiceImpTests
             ContentChineseTraditional = "Content Chinese",
             CreatorId = 8
         };
-        var repository = Substitute.For<IDynamicRepository>();
-        var messageItemService = Substitute.For<MessageItemService>();
 
         var service = new SendMessageServiceImp(repository, messageItemService, null);
 
@@ -358,10 +352,5 @@ public class SendMessageServiceImpTests
         await repository.Received(1).ExecuteAsync(Arg.Compat.Is<InsertMessageIntoAdminSiteCriteria>(x =>
             x.men == message.ContentEnglish
             && x.mch == message.ContentChineseTraditional));
-    }
-
-    [Fact]
-    public void GetListSendMessageDb_()
-    {
     }
 }

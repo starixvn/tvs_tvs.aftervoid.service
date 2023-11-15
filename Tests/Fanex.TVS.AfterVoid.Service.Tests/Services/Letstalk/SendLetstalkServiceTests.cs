@@ -16,10 +16,8 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.Letstalk;
 
 public class SendLetstalkServiceTests
 {
-    private readonly AbnormalBetLetstalkService abnormalBetLetstalkServiceImp;
     private readonly SendLetstalkServiceStage letstalkServiceStage;
     private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
     private readonly SendLetstalkServiceImp service;
     private readonly SettledBetLetstalkService settledBetLetstalkService;
     private readonly VoidBetAutomationService voidBetAutomationService;
@@ -27,9 +25,9 @@ public class SendLetstalkServiceTests
     public SendLetstalkServiceTests()
     {
         voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        abnormalBetLetstalkServiceImp = Substitute.For<AbnormalBetLetstalkService>();
+        var abnormalBetLetstalkServiceImp = Substitute.For<AbnormalBetLetstalkService>();
         settledBetLetstalkService = Substitute.For<SettledBetLetstalkService>();
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
         letstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
         loggingService = Substitute.For<LoggingService>();
         service = new SendLetstalkServiceImp(voidBetAutomationService, abnormalBetLetstalkServiceImp,
@@ -127,11 +125,10 @@ public class SendLetstalkServiceTests
             new() { RequestId = requestId2, IsAutoVoid = false },
             new() { RequestId = requestId2 }
         };
-        var voidDataXmlModel = new List<VoidDataXmlModel>();
         var voidedTickets = Builder<TicketEmailModel>.CreateListOfSize(5).Build();
         letstalkServiceStage.GetVoidBetAutomationRunLetstalk().ReturnsForAnyArgs(voidBetAutomationInfoList);
         letstalkServiceStage.GetVoidedTickets(default).ReturnsForAnyArgs(voidedTickets);
-        letstalkServiceStage.GetVoidDataXml(default).ReturnsForAnyArgs(voidDataXmlModel);
+        letstalkServiceStage.GetVoidDataXml(default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
         voidBetAutomationService.GetRequestById(requestId1, default)
             .Returns(CreateRequestDetailViewModel(IssueTypeConstant.AbnormalBet));
         voidBetAutomationService.GetRequestById(requestId2, default)

@@ -26,8 +26,6 @@ public interface VoidBetAutomationService
 
     Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory);
 
-    Task UpdateAllAfterVoidSteps(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory);
-
     Task UpdateEmailResultByVoidingHistory(int requestId, int voidingHistoryId, string content);
 
     Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsByVoidingHistory(int voidingHistoryId, int siteDbGroupId,
@@ -79,25 +77,39 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         {
             RequestId = requestId
         };
-        var (requests, requestEvents, _) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(criteria);
-
+        var (requests, requestEvents, message) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(criteria);
         var firstRequest = requests.First();
         var viewModel = new RequestDetailViewModel
         {
             Request = firstRequest,
             EventByMatch = IsIssueTypeHasMatchId(firstRequest.IssueTypeId) ? requestEvents.FirstOrDefault(x => x.MatchId == matchId)
-                : requestEvents.FirstOrDefault()
+                : requestEvents.FirstOrDefault(),
+            PlayerNamesSelected = firstRequest.IssueTypeId == IssueTypeConstant.NotParticipate ? GetPlayerNamesSelected(message.First()) : null
         };
 
         return viewModel;
     }
 
+    private static TemplateContent GetPlayerNamesSelected(Message message)
+    {
+        var playerNamesSelected = new TemplateContent
+        {
+            MsgEnglish = message.PlayerNamesEnglish,
+            MsgChineseSimplified = message.PlayerNamesChineseSimplified,
+            MsgChineseNewSimplified = message.PlayerNamesChineseSimplified,
+            MsgChineseTraditional = message.PlayerNamesChineseTraditional
+        };
+
+        return playerNamesSelected;
+    }
+
     private static bool IsIssueTypeHasMatchId(int issueTypeId)
     {
-        var isWrongHdpGroup = issueTypeId is IssueTypeConstant.WrongHDP or IssueTypeConstant.Wrong1stHDP;
-        var isWrongOuGroup = issueTypeId is IssueTypeConstant.WrongOU or IssueTypeConstant.Wrong1stOU;
-        return issueTypeId is IssueTypeConstant.DangerAccepted or IssueTypeConstant.RedCard
-               || isWrongHdpGroup || isWrongOuGroup;
+        int[] issueTypeHasMatchId = { IssueTypeConstant.WrongHDP, IssueTypeConstant.Wrong1stHDP, IssueTypeConstant.WrongOU,
+            IssueTypeConstant.Wrong1stOU, IssueTypeConstant.DangerAccepted, IssueTypeConstant.RedCard,
+            IssueTypeConstant.EarlyKickOffTime, IssueTypeConstant.WrongKickOffTime };
+
+        return issueTypeHasMatchId.Contains(issueTypeId);
     }
 
     public async Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int matchId)
@@ -130,11 +142,6 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
     public async Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory)
     {
         await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateAfterVoidStep, requestId, voidingHistoryId, null, afterVoidHistory);
-    }
-
-    public async Task UpdateAllAfterVoidSteps(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory)
-    {
-        await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateAllAfterVoidSteps, requestId, voidingHistoryId, null, afterVoidHistory);
     }
 
     public async Task UpdateEmailResultByVoidingHistory(int requestId, int voidingHistoryId, string content)

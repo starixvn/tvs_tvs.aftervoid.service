@@ -14,8 +14,10 @@ public class TemplateModel : TemplateContent
     public string JsonValue { get; set; }
 }
 
-public class InputText : TemplateContent
+public class TemplateSetting
 {
-    public string Name { get; set; }
-    public string Pattern { get; set; }
+    public int TemplateId { get; set; }
+    public int SubIssueTypeId { get; set; }
+    public int? SportType { get; set; }
+    public bool? IsCheckedVar { get; set; }
 }

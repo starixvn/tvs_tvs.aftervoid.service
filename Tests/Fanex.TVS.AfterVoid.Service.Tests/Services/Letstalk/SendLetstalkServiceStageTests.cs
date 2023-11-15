@@ -21,7 +21,7 @@ public class SendLetstalkServiceStageTests
     private TVSNewSiteHttpClientService tvsNewSiteHttpClientService;
     private VoidBetAutomationService voidBetAutomationService;
 
-    public void InitFakeServiceTests()
+    internal void InitFakeServiceTests()
     {
         repository = Substitute.For<IDynamicRepository>();
         loggingService = Substitute.For<LoggingService>();
@@ -106,8 +106,7 @@ public class SendLetstalkServiceStageTests
     {
         // Arrange
         InitFakeServiceTests();
-        var fakeVoidDataXml = new List<VoidDataXmlModel>();
-        repository.FetchAsync<VoidDataXmlModel>(default, default).ReturnsForAnyArgs(fakeVoidDataXml);
+        repository.FetchAsync<VoidDataXmlModel>(default, default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
         var service = new SendLetstalkServiceStageImp(repository, default, default, default);
 
         // Act
@@ -115,7 +114,7 @@ public class SendLetstalkServiceStageTests
 
         // Assert
         await repository.Received(1).FetchAsync<VoidDataXmlModel>(Arg.Any<GetVoidingHistoryCriteria>());
-        Assert.Equal(fakeVoidDataXml, actual);
+        Assert.Equal(new List<VoidDataXmlModel>(), actual);
     }
 
     [Fact]

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Fanex.LetstalkService.Client;
+using Fanex.LetstalkService.Core.Models;
 using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
@@ -128,7 +129,7 @@ public class SettledBetLetstalkServiceTests
 
         var actual = service.Send(fakeNotificationLetstalkModel, fakeTicketEmail);
 
-        letstalkService.ReceivedWithAnyArgs(1).SendMessage(default);
+        letstalkService.ReceivedWithAnyArgs(1).SendMessage(Arg.Any<LetstalkModel>());
         Assert.True(actual);
     }
 }
