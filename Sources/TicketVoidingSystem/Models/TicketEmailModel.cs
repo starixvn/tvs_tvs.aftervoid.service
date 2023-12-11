@@ -75,4 +75,7 @@ public class TicketEmailModel : EmailSupport, SendMessageDbModel
     public bool IsInstantSettlementTicket { get; set; }
     public long? MainTransId { get; set; }
     public bool IsVipMember { get; set; }
+    public int LeagueGroupId { get; set; }
+    public bool IsChinaView { get; set; }
+    public int SpecialPlatform { get; set; }
 }

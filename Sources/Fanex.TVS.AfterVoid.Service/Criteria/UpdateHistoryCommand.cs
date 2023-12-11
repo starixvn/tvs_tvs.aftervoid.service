@@ -1,5 +1,5 @@
-﻿using System;
-using Fanex.Data.Repository;
+﻿using Fanex.Data.Repository;
+using System;
 
 namespace Fanex.TVS.AfterVoid.Service.Criteria;
 
@@ -8,6 +8,7 @@ public class UpdateHistoryCommand : NonQueryCommand
     public int VoidingHistoryId { get; set; }
     public int? StatusId { get; set; }
     public int? MessageId { get; set; }
+    public int? MessageIdSpecial { get; set; }
     public int? ReasonId { get; set; }
     public string TransIds { get; set; }
     public DateTime? MinWinLostDate { get; set; }

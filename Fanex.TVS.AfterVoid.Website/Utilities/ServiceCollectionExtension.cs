@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using Fanex.Caching.Redis;
+﻿using Fanex.Caching.Redis;
 using Fanex.Data.Repository;
 using Fanex.LetstalkService.Client;
 using Fanex.Logging;
@@ -12,6 +9,7 @@ using Fanex.Logging.Sentry;
 using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using Fanex.TVS.AfterVoid.Service.Utilities.AutoMapper;
 using Fanex.TVS.AfterVoid.Website.Jobs;
@@ -27,6 +25,10 @@ using ONEbook.UM.Transport;
 using Quartz;
 using Sentry;
 using TicketVoidingSystem.Constants;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
@@ -124,6 +126,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<AbnormalBetLetstalkService, AbnormalBetLetstalkServiceImp>();
         services.AddSingleton<SendLetstalkServiceStage, SendLetstalkServiceStageImp>();
         services.AddSingleton<SettledBetLetstalkService, SettledBetLetstalkServiceImp>();
+        services.AddSingleton<UpdateTicketVoidingHistoryStage, UpdateTicketVoidingHistoryStageImp>();
+        services.AddSingleton<SendBatchMessageStage, SendBatchMessageStageImp>();
+        services.AddSingleton<InsertVoidedTransactionStage, InsertVoidedTransactionStageImp>();
+        services.AddSingleton<CreateMessageStage, CreateMessageStageImp>();
+        services.AddSingleton<SpecialPlatformService, SpecialPlatformServiceImp>();
     }
 
     public static void RegisterQuartzScheduler(this IServiceCollection services)

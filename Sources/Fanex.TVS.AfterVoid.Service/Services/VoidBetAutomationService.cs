@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Fanex.Data.Repository;
+﻿using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb;
 using Fanex.TVS.AfterVoid.Service.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 
@@ -22,7 +22,7 @@ public interface VoidBetAutomationService
 
     Task UpdateServiceStatusByVoidingHistory(int requestId, int voidingHistoryId, int statusId);
 
-    Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int messageId);
+    Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int? messageId, int? messageIdSpecial);
 
     Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory);
 
@@ -35,7 +35,7 @@ public interface VoidBetAutomationService
 
     Task<Match> GetMatchInfo(int matchId);
 
-    Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId,
+    Task UpdateTicketVoidingHistory(int voidingHistoryId, int? reasonId, int? messageId, int? messageIdSpecial,
         string transIds, DateTime? minWinLostDate, DateTime? maxWinLostDate);
 }
 
@@ -129,11 +129,12 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateStatusByVoidingHistory, requestId, voidingHistoryId, statusId, null);
     }
 
-    public async Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int messageId)
+    public async Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int? messageId, int? messageIdSpecial)
     {
         var afterVoidHistory = new VoidBetAutomationInfo
         {
-            MessageId = messageId
+            MessageId = messageId,
+            MessageIdSpecial = messageIdSpecial
         };
 
         await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateMessageIdByVoidingHistory, requestId, voidingHistoryId, null, afterVoidHistory);
@@ -168,6 +169,7 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         {
             criteria.IsRunExternalService = afterVoidHistory.IsRunExternalService;
             criteria.MessageId = afterVoidHistory.MessageId;
+            criteria.MessageIdSpecial = afterVoidHistory.MessageIdSpecial;
             criteria.ReasonId = afterVoidHistory.ReasonId;
             criteria.IsSentBatchMessage = afterVoidHistory.IsSentBatchMessage;
             criteria.IsSentMessageToAdminSite = afterVoidHistory.IsSentMessageToAdminSite;
@@ -222,15 +224,16 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         return await repository.GetAsync<Match>(new GetMatchInfoCriteria { MatchId = matchId, IsMatch3rd = false });
     }
 
-    public async Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId,
+    public async Task UpdateTicketVoidingHistory(int voidingHistoryId, int? reasonId, int? messageId, int? messageIdSpecial,
         string transIds, DateTime? minWinLostDate, DateTime? maxWinLostDate)
     {
         var command = new UpdateHistoryCommand
         {
             VoidingHistoryId = voidingHistoryId,
-            StatusId = statusId,
+            StatusId = ExecuteStatus.Done,
             ReasonId = reasonId,
             MessageId = messageId,
+            MessageIdSpecial = messageIdSpecial,
             TransIds = transIds,
             MinWinLostDate = minWinLostDate,
             MaxWinLostDate = maxWinLostDate

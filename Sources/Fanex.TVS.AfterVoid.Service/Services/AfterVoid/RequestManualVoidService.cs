@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
+using Fanex.TVS.AfterVoid.Service.Utilities;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Models;
-using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 
@@ -18,15 +20,26 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
     private readonly VoidBetAutomationService voidBetAutomationService;
     private readonly AfterVoidProcessStage afterVoidProcessStage;
     private readonly NotificationSignalRService notificationSignalRService;
+    private readonly SendBatchMessageStage sendBatchMessageStage;
+    private readonly CreateMessageStage createMessageStage;
+    private readonly SpecialPlatformService specialPlatformService;
+    private readonly InsertVoidedTransactionStage insertVoidedTransactionStage;
+    private readonly UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage;
 
     public RequestManualVoidServiceImp(
         VoidBetAutomationService voidBetAutomationService,
         AfterVoidProcessStage afterVoidProcessStage,
-        NotificationSignalRService notificationSignalRService)
+        NotificationSignalRService notificationSignalRService, SendBatchMessageStage sendBatchMessageStage, CreateMessageStage createMessageStage, SpecialPlatformService specialPlatformService, InsertVoidedTransactionStage insertVoidedTransactionStage,
+        UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage)
     {
         this.voidBetAutomationService = voidBetAutomationService;
         this.afterVoidProcessStage = afterVoidProcessStage;
         this.notificationSignalRService = notificationSignalRService;
+        this.sendBatchMessageStage = sendBatchMessageStage;
+        this.createMessageStage = createMessageStage;
+        this.specialPlatformService = specialPlatformService;
+        this.insertVoidedTransactionStage = insertVoidedTransactionStage;
+        this.updateTicketVoidingHistoryStage = updateTicketVoidingHistoryStage;
     }
 
     public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory)
@@ -41,8 +54,12 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
     {
         var allVoidDataInCurrentVoidTimes = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
         var firstVoidData = allVoidDataInCurrentVoidTimes.First();
-        var message = await afterVoidProcessStage.CreateMessageIdForManualVoid(automationInfo, firstVoidData);
-        if (Helper.IsNotHaveMessage(message))
+        var matchInfo = await GetMatchInfo(automationInfo);
+        var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true);
+        var (normalTickets, specialTickets) = specialPlatformService.GroupTicketSaba(voidedTickets);
+        var (normalMessageId, specialMessageId) = await createMessageStage.Execute(automationInfo, matchInfo, allVoidDataInCurrentVoidTimes, normalTickets, specialTickets);
+
+        if (normalMessageId == 0 && specialMessageId == 0)
         {
             await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
             return;
@@ -55,8 +72,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
             return;
         }
 
-        var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true);
-        var isSentBatchMessage = await afterVoidProcessStage.SendBatchMessage(automationInfo, voidedTickets, message.MessageId, firstVoidData);
+        var isSentBatchMessage = await sendBatchMessageStage.Execute(automationInfo, normalTickets, specialTickets, normalMessageId, specialMessageId, firstVoidData);
         if (!isSentBatchMessage)
         {
             await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
@@ -73,21 +89,20 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
             }
         }
 
-        var isInsertedVoidedTransaction = await afterVoidProcessStage.InsertVoidedTransaction(automationInfo, voidedTickets, message.MessageId, voidedReason.ReasonId);
+        var isInsertedVoidedTransaction = await insertVoidedTransactionStage.Execute(automationInfo, normalTickets, specialTickets, normalMessageId, specialMessageId, voidedReason.ReasonId);
         if (!isInsertedVoidedTransaction)
         {
             await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
             return;
         }
 
-        var isUpdatedVoidingHistory = await afterVoidProcessStage.UpdateTicketVoidingHistory(automationInfo, message.MessageId, voidedReason.ReasonId, voidedTickets);
+        var isUpdatedVoidingHistory = await updateTicketVoidingHistoryStage.Execute(automationInfo, normalMessageId, specialMessageId, voidedReason.ReasonId, voidedTickets);
         if (!isUpdatedVoidingHistory)
         {
             await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
             return;
         }
 
-        var matchInfo = await GetMatchInfo(automationInfo);
         var (isSentEmail, currentEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
         if (!isSentEmail)
         {
