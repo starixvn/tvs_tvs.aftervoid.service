@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\AfterVoid\SendMessage\**" />
+    <EmbeddedResource Remove="Services\AfterVoid\SendMessage\**" />
+    <None Remove="Services\AfterVoid\SendMessage\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <AdditionalFiles Include="..\..\.sonarlint\tvs.aftervoid.service\CSharp\SonarLint.xml" Link="SonarLint.xml" />
   </ItemGroup>
 
@@ -19,10 +25,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TicketVoidingSystem\TicketVoidingSystem.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\AfterVoid\SendMessage\" />
   </ItemGroup>
 
 </Project>

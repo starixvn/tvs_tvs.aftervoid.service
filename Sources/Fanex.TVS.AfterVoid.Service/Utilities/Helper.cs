@@ -52,11 +52,6 @@ public static class Helper
         return IssueTypeConstant.ArchivedTicket == issueTypeId;
     }
 
-    public static bool IsNotHaveMessage(Message message)
-    {
-        return message == null || message.MessageId == 0;
-    }
-
     public static bool IsNotHaveVoidedReason(VoidedReason voidedReason)
     {
         return voidedReason == null || voidedReason.ReasonId == 0;

@@ -1,8 +1,8 @@
-﻿using Fanex.TVS.AfterVoid.Service.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using Fanex.TVS.AfterVoid.Service.Utilities;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
@@ -50,12 +50,11 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
     private async Task RunMainSteps(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
     {
         var matchInfo = await GetMatch(automationInfo);
-        var allVoidDataInCurrentVoidTimes = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
+        var allVoidDataInCurrentVoid = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
         var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true);
         var (normalTickets, specialTickets) = specialPlatformService.GroupTicketSaba(voidedTickets);
 
-        var (normalMessageId, specialMessageId) = await createMessageStage.Execute(automationInfo, matchInfo, allVoidDataInCurrentVoidTimes, normalTickets, specialTickets);
-
+        var (normalMessageId, specialMessageId, normalMessageContent) = await createMessageStage.Execute(automationInfo, matchInfo, allVoidDataInCurrentVoid, normalTickets, specialTickets);
         if (normalMessageId == 0 && specialMessageId == 0)
         {
             return;
@@ -75,7 +74,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
 
         if (!Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
         {
-            var isSentMessageToAdminSite = await afterVoidProcessStage.SendMessageToAdminSite(automationInfo, message);
+            var isSentMessageToAdminSite = await afterVoidProcessStage.SendMessageToAdminSite(automationInfo, normalMessageContent);
             if (!isSentMessageToAdminSite)
             {
                 return;
@@ -94,7 +93,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
             return;
         }
 
-        var (isSentEmail, currentEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, message);
+        var (isSentEmail, currentEmailResults) = await afterVoidProcessStage.SendEmail(automationInfo, voidedTickets, matchInfo, voidedReason, normalMessageContent);
         if (!isSentEmail)
         {
             return;

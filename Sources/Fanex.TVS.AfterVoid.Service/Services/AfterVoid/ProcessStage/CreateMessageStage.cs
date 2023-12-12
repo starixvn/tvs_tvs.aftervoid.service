@@ -1,9 +1,10 @@
-﻿using Fanex.TVS.AfterVoid.Service.Models;
-using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Models.Parameters;
+using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
@@ -12,8 +13,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 
 public interface CreateMessageStage
 {
-    Task<(int, int)> Execute(VoidBetAutomationInfo automationInfo, Match matchInfo, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes,
-        IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets);
+    Task<(int, int, Message)> Execute(CreateMessageStageParameter parameter);
 }
 
 public class CreateMessageStageImp : CreateMessageStage
@@ -40,84 +40,76 @@ public class CreateMessageStageImp : CreateMessageStage
         this.specialPlatformService = specialPlatformService;
     }
 
-    public async Task<(int, int)> Execute(VoidBetAutomationInfo automationInfo, Match matchInfo, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes,
-        IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets)
+    public async Task<(int, int, Message)> Execute(CreateMessageStageParameter parameter)
     {
         try
         {
-            var normalMessageId = await CreateMessageForNormalPlatform(automationInfo, matchInfo, allVoidDataInCurrentVoidTimes, normalTickets);
-            var specialMessageId = await CreateMessageForSpecialPlatform(automationInfo, matchInfo, allVoidDataInCurrentVoidTimes, specialTickets);
+            var normalMessageContent = await InitializeMessageContent(parameter.AutomationInfo, parameter.MatchInfo, parameter.AllVoidDataInCurrentVoid);
+            var normalMessageId = await CreateMessageForNormalPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.NormalTickets, normalMessageContent);
+            var specialMessageId = await CreateMessageForSpecialPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.SpecialTickets, normalMessageContent);
 
-            return (normalMessageId, specialMessageId);
+            return (normalMessageId, specialMessageId, normalMessageContent);
         }
         catch (Exception exception)
         {
-            await loggingService.ErrorAsync(
-                $"ERROR: {nameof(Execute)} - BroadcastSessionId: {automationInfo.BroadcastSessionId}", exception);
-            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-            await sendLetstalkServiceStage.InsertLetstalk(automationInfo.RequestId, automationInfo.BroadcastSessionId, ExecuteStatus.Failed);
-            await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
-
-            return (0, 0);
+            await HandleCatchExceptionAsync(exception, parameter.AutomationInfo);
+            return (0, 0, null);
         }
     }
 
-    private async Task<int> CreateMessageForNormalPlatform(VoidBetAutomationInfo automationInfo, Match matchInfo,
-        IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, IEnumerable<TicketEmailModel> voidedTickets)
+    private async Task HandleCatchExceptionAsync(Exception exception, VoidBetAutomationInfo automationInfo)
+    {
+        await loggingService.ErrorAsync(
+            $"ERROR: {nameof(CreateMessageStage)}.{nameof(Execute)} - BroadcastSessionId: {automationInfo.BroadcastSessionId}", exception);
+        await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
+        await sendLetstalkServiceStage.InsertLetstalk(automationInfo.RequestId, automationInfo.BroadcastSessionId, ExecuteStatus.Failed);
+        await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
+    }
+
+    private async Task<int> CreateMessageForNormalPlatform(VoidBetAutomationInfo automationInfo, Match matchInfo, IEnumerable<TicketEmailModel> voidedTickets, Message initMessage)
     {
         if (!voidedTickets.Any())
         {
             return 0;
         }
 
-        Message message;
         if (automationInfo.MessageId != null && automationInfo.MessageId != 0)
         {
-            message = await sendMessageService.GetMessage(automationInfo.MessageId.Value);
-        }
-        else
-        {
-            message = await InitializeMessageContent(automationInfo, matchInfo, allVoidDataInCurrentVoidTimes);
-            message.MessageId = await sendMessageService.InsertMessage(message, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, automationInfo.RequestInfo.Request.IssueTypeId);
-
-            await voidBetAutomationService.UpdateMessageIdByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, message.MessageId, null);
+            return automationInfo.MessageId.Value;
         }
 
-        return message.MessageId;
+        var normalMessageId = await sendMessageService.InsertMessage(initMessage, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, automationInfo.RequestInfo.Request.IssueTypeId);
+        await voidBetAutomationService.UpdateMessageIdByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, normalMessageId, null);
+
+        return normalMessageId;
     }
 
-    private async Task<int> CreateMessageForSpecialPlatform(VoidBetAutomationInfo automationInfo, Match matchInfo,
-        IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, IEnumerable<TicketEmailModel> voidedTickets)
+    private async Task<int> CreateMessageForSpecialPlatform(VoidBetAutomationInfo automationInfo, Match matchInfo, IEnumerable<TicketEmailModel> voidedTickets, Message initMessage)
     {
         if (!voidedTickets.Any())
         {
             return 0;
         }
 
-        Message message;
         if (automationInfo.MessageIdSpecial != null && automationInfo.MessageIdSpecial != 0)
         {
-            message = await sendMessageService.GetMessage(automationInfo.MessageIdSpecial.Value);
-        }
-        else
-        {
-            message = await InitializeMessageContent(automationInfo, matchInfo, allVoidDataInCurrentVoidTimes);
-            message = specialPlatformService.RemoveSabaInMessageContent(matchInfo, message);
-            message.MessageId = await sendMessageService.InsertMessage(message, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, automationInfo.RequestInfo.Request.IssueTypeId);
-
-            await voidBetAutomationService.UpdateMessageIdByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, null, message.MessageId);
+            return automationInfo.MessageIdSpecial.Value;
         }
 
-        return message.MessageId;
+        var messageSpecial = specialPlatformService.RemoveSabaInMessageContent(matchInfo, initMessage);
+        messageSpecial.MessageId = await sendMessageService.InsertMessage(messageSpecial, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, automationInfo.RequestInfo.Request.IssueTypeId);
+        await voidBetAutomationService.UpdateMessageIdByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, null, messageSpecial.MessageId);
+
+        return messageSpecial.MessageId;
     }
 
-    private async Task<Message> InitializeMessageContent(VoidBetAutomationInfo automationInfo, Match matchInfo, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes)
+    private async Task<Message> InitializeMessageContent(VoidBetAutomationInfo automationInfo, Match matchInfo, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoid)
     {
         if (automationInfo.IsAutoVoid)
         {
-            return await sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, allVoidDataInCurrentVoidTimes, automationInfo.RequestInfo);
+            return await sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, allVoidDataInCurrentVoid, automationInfo.RequestInfo);
         }
 
-        return sendMessageService.InitializeMessageContentForManualVoid(allVoidDataInCurrentVoidTimes.First());
+        return sendMessageService.InitializeMessageContentForManualVoid(allVoidDataInCurrentVoid.First());
     }
 }
