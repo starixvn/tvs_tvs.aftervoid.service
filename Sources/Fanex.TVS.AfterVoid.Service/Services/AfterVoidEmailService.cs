@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
@@ -13,8 +14,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services;
 
 public interface AfterVoidEmailService
 {
-    Task<IEnumerable<Result>> Execute(VoidBetAutomationInfo automationInfo,
-        IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message);
+    Task<IEnumerable<Result>> Execute(SendEmailStageParameter parameter);
 }
 
 public class AfterVoidEmailServiceImp : AfterVoidEmailService
@@ -28,16 +28,16 @@ public class AfterVoidEmailServiceImp : AfterVoidEmailService
         this.repository = repository;
     }
 
-    public async Task<IEnumerable<Result>> Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message)
+    public async Task<IEnumerable<Result>> Execute(SendEmailStageParameter parameter)
     {
-        if (Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
+        if (Helper.IsLikelyAbnormalBet(parameter.AutomationInfo.RequestInfo.Request.IssueTypeId))
         {
-            var subIssueType = await GetSubIssueTypeById(automationInfo.RequestInfo.EventByMatch.SubIssueTypeId);
-            reason.ReasonEnglish = $"{reason.ReasonEnglish}({subIssueType.SubIssueTypeName})";
-            reason.ReasonChineseSimplified = $"{reason.ReasonChineseSimplified}({subIssueType.SubIssueTypeNameCS})";
+            var subIssueType = await GetSubIssueTypeById(parameter.AutomationInfo.RequestInfo.EventByMatch.SubIssueTypeId);
+            parameter.VoidReason.ReasonEnglish = $"{parameter.VoidReason.ReasonEnglish}({subIssueType.SubIssueTypeName})";
+            parameter.VoidReason.ReasonChineseSimplified = $"{parameter.VoidReason.ReasonChineseSimplified}({subIssueType.SubIssueTypeNameCS})";
         }
 
-        var sendEmailApiModel = CreateSendEmailApiModel(automationInfo, emailTickets, match, reason, message);
+        var sendEmailApiModel = CreateSendEmailApiModel(parameter);
         var (isSentEmail, results) = await tvsWebSiteHttpClientService.SendEmail(sendEmailApiModel);
         if (isSentEmail)
         {
@@ -54,20 +54,20 @@ public class AfterVoidEmailServiceImp : AfterVoidEmailService
         return subIssueTypes.FirstOrDefault(x => x.SubIssueTypeId == subId);
     }
 
-    private static SendEmailApiModel CreateSendEmailApiModel(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets, Match match, VoidedReason reason, Message message)
+    private static SendEmailApiModel CreateSendEmailApiModel(SendEmailStageParameter parameter)
     {
         return new SendEmailApiModel
         {
-            RequestId = automationInfo.RequestId,
-            FilterBy = automationInfo.RequestInfo.EventByMatch.FilterBy,
-            SportType = automationInfo.RequestInfo.Request.SportType,
-            IssueTypeId = automationInfo.RequestInfo.Request.IssueTypeId,
-            VoidingHistoryId = automationInfo.VoidingHistoryId,
-            NegativeBalanceUsers = automationInfo.NegativeBalanceUsers,
-            Match = match,
-            Message = message,
-            VoidedReason = reason,
-            EmailTickets = emailTickets
+            RequestId = parameter.AutomationInfo.RequestId,
+            FilterBy = parameter.AutomationInfo.RequestInfo.EventByMatch.FilterBy,
+            SportType = parameter.AutomationInfo.RequestInfo.Request.SportType,
+            IssueTypeId = parameter.AutomationInfo.RequestInfo.Request.IssueTypeId,
+            VoidingHistoryId = parameter.AutomationInfo.VoidingHistoryId,
+            NegativeBalanceUsers = parameter.AutomationInfo.NegativeBalanceUsers,
+            Match = parameter.MatchInfo,
+            Message = parameter.NormalMessage,
+            VoidedReason = parameter.VoidReason,
+            EmailTickets = parameter.EmailTickets
         };
     }
 }

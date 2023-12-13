@@ -1,12 +1,11 @@
-﻿using Fanex.TVS.AfterVoid.Service.Constants;
-using Fanex.TVS.AfterVoid.Service.Extensions;
-using Fanex.TVS.AfterVoid.Service.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TicketVoidingSystem.Constants;
+using Fanex.TVS.AfterVoid.Service.Constants;
+using Fanex.TVS.AfterVoid.Service.Extensions;
+using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Resources;
 using TicketVoidingSystem.Services;
@@ -16,14 +15,6 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 public interface AfterVoidProcessStage
 {
     Task CallCashOutApi(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets);
-
-    Task<VoidedReason> CreateVoidedReason(VoidBetAutomationInfo automationInfo, int sportType,
-        VoidDataXmlModel voidData);
-
-    Task<bool> SendMessageToAdminSite(VoidBetAutomationInfo automationInfo, Message messageContent);
-
-    Task<(bool, IEnumerable<Result>)> SendEmail(VoidBetAutomationInfo automationInfo,
-        IEnumerable<TicketEmailModel> emailTickets, Match matchInfo, VoidedReason reason, Message message);
 
     Task UpdateEmailResult(VoidBetAutomationInfo automationInfo, IEnumerable<Result> currentEmailResults);
 
@@ -79,91 +70,6 @@ public class AfterVoidProcessStageImp : AfterVoidProcessStage
             await loggingService.ErrorAsync(
                 $"ERROR: {nameof(CallCashOutApi)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
                 exception);
-        }
-    }
-
-    public async Task<VoidedReason> CreateVoidedReason(VoidBetAutomationInfo automationInfo, int sportType, VoidDataXmlModel voidData)
-    {
-        try
-        {
-            VoidedReason reason;
-            if (automationInfo.ReasonId > 0)
-            {
-                reason = await sendMessageService.GetVoidedReason(automationInfo.ReasonId.Value);
-            }
-            else
-            {
-                reason = await sendMessageService.InitializeVoidReason(automationInfo.IsAutoVoid, automationInfo.RequestInfo.EventByMatch.SubIssueTypeId, sportType, voidData);
-                reason.ReasonId = await sendMessageService.InsertReason(reason.ReasonEnglish, reason.ReasonChineseSimplified);
-
-                await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { ReasonId = reason.ReasonId });
-            }
-
-            return reason;
-        }
-        catch (Exception exception)
-        {
-            await loggingService.ErrorAsync(
-                $"ERROR: {nameof(CreateVoidedReason)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
-                exception);
-            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-            await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
-
-            return null;
-        }
-    }
-
-    public async Task<bool> SendMessageToAdminSite(VoidBetAutomationInfo automationInfo, Message messageContent)
-    {
-        try
-        {
-            if (automationInfo.IsSentMessageToAdminSite == true)
-            {
-                return true;
-            }
-
-            await sendMessageService.InsertMessageIntoAdminSite(messageContent);
-            await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsSentMessageToAdminSite = true });
-
-            return true;
-        }
-        catch (Exception exception)
-        {
-            await loggingService.ErrorAsync(
-                $"ERROR: {nameof(SendMessageToAdminSite)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
-                $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
-                exception);
-            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-            await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
-
-            return false;
-        }
-    }
-
-    public async Task<(bool, IEnumerable<Result>)> SendEmail(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets,
-        Match matchInfo, VoidedReason reason, Message message)
-    {
-        try
-        {
-            if (automationInfo.IsSentEmail == true)
-            {
-                return (true, new List<Result>());
-            }
-
-            var results = await afterVoidEmailService.Execute(automationInfo, emailTickets, matchInfo, reason, message);
-            await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsSentEmail = true });
-
-            return (true, results);
-        }
-        catch (Exception exception)
-        {
-            await loggingService.ErrorAsync(
-                $"ERROR: {nameof(SendEmail)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
-                $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
-            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-            await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
-
-            return (false, new List<Result>());
         }
     }
 

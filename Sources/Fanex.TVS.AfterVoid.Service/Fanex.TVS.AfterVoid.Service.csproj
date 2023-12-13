@@ -5,13 +5,7 @@
     <CodeAnalysisRuleSet>Fanex.TVS.AfterVoid.Service.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Services\AfterVoid\SendMessage\**" />
-    <EmbeddedResource Remove="Services\AfterVoid\SendMessage\**" />
-    <None Remove="Services\AfterVoid\SendMessage\**" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ItemGroup>
     <AdditionalFiles Include="..\..\.sonarlint\tvs.aftervoid.service\CSharp\SonarLint.xml" Link="SonarLint.xml" />
   </ItemGroup>
 

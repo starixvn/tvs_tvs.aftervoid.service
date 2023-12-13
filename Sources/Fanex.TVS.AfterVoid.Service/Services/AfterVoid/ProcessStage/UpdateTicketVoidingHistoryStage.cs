@@ -1,9 +1,10 @@
-﻿using Fanex.TVS.AfterVoid.Service.Models;
-using Fanex.TVS.AfterVoid.Service.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Models.Parameters;
+using Fanex.TVS.AfterVoid.Service.Utilities;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
@@ -12,7 +13,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 
 public interface UpdateTicketVoidingHistoryStage
 {
-    Task<bool> Execute(VoidBetAutomationInfo automationInfo, int normalMessageId, int specialMessageId, int reasonId, IEnumerable<TicketEmailModel> emailTickets);
+    Task<bool> Execute(UpdateTicketVoidingHistoryStageParameter parameter);
 }
 
 public class UpdateTicketVoidingHistoryStageImp : UpdateTicketVoidingHistoryStage
@@ -50,35 +51,45 @@ public class UpdateTicketVoidingHistoryStageImp : UpdateTicketVoidingHistoryStag
         return null;
     }
 
-    public async Task<bool> Execute(VoidBetAutomationInfo automationInfo, int normalMessageId, int specialMessageId, int reasonId, IEnumerable<TicketEmailModel> emailTickets)
+    public async Task<bool> Execute(UpdateTicketVoidingHistoryStageParameter parameter)
     {
         try
         {
-            if (automationInfo.IsUpdatedVoidingHistory == true)
-            {
-                return true;
-            }
-
-            var transIds = Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId)
-                ? string.Join(",", emailTickets.Select(x => x.TransId)) : null;
-            var minWinLostDate = GetMinWinLostDateTickets(automationInfo.RequestInfo.Request.IssueTypeId, emailTickets);
-            var maxWinLostDate = GetMaxWinLostDateTickets(automationInfo.RequestInfo.Request.IssueTypeId, emailTickets);
-            await voidBetAutomationService.UpdateTicketVoidingHistory(automationInfo.VoidingHistoryId, reasonId,
-                normalMessageId, specialMessageId, transIds, minWinLostDate, maxWinLostDate);
-
-            await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsUpdatedVoidingHistory = true });
-
-            return true;
+            return await TryExecute(parameter);
         }
         catch (Exception exception)
         {
-            await loggingService.ErrorAsync(
-                $"ERROR: {nameof(Execute)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
-                $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
-            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-            await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
-
-            return false;
+            return await CatchException(exception, parameter.AutomationInfo);
         }
+    }
+
+    private async Task<bool> TryExecute(UpdateTicketVoidingHistoryStageParameter parameter)
+    {
+        if (parameter.AutomationInfo.IsUpdatedVoidingHistory == true)
+        {
+            return true;
+        }
+
+        var transIds = Helper.IsLikelyAbnormalBet(parameter.AutomationInfo.RequestInfo.Request.IssueTypeId)
+            ? string.Join(",", parameter.EmailTickets.Select(x => x.TransId)) : null;
+        var minWinLostDate = GetMinWinLostDateTickets(parameter.AutomationInfo.RequestInfo.Request.IssueTypeId, parameter.EmailTickets);
+        var maxWinLostDate = GetMaxWinLostDateTickets(parameter.AutomationInfo.RequestInfo.Request.IssueTypeId, parameter.EmailTickets);
+        await voidBetAutomationService.UpdateTicketVoidingHistory(parameter.AutomationInfo.VoidingHistoryId, parameter.VoidReasonId,
+            parameter.NormalMessageId, parameter.SpecialMessageId, transIds, minWinLostDate, maxWinLostDate);
+
+        await voidBetAutomationService.UpdateAfterVoidStep(parameter.AutomationInfo.RequestId, parameter.AutomationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsUpdatedVoidingHistory = true });
+
+        return true;
+    }
+
+    private async Task<bool> CatchException(Exception exception, VoidBetAutomationInfo automationInfo)
+    {
+        await loggingService.ErrorAsync(
+           $"ERROR: {nameof(UpdateTicketVoidingHistoryStage)}.{nameof(Execute)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
+           $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
+        await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
+        await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
+
+        return false;
     }
 }
