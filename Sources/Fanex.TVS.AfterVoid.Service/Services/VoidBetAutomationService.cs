@@ -77,27 +77,27 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         {
             RequestId = requestId
         };
-        var (requests, requestEvents, message) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(criteria);
+        var (requests, requestEvents, playerNames) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, PlayerName>(criteria);
         var firstRequest = requests.First();
         var viewModel = new RequestDetailViewModel
         {
             Request = firstRequest,
             EventByMatch = IsIssueTypeHasMatchId(firstRequest.IssueTypeId) ? requestEvents.FirstOrDefault(x => x.MatchId == matchId)
                 : requestEvents.FirstOrDefault(),
-            PlayerNamesSelected = firstRequest.IssueTypeId == IssueTypeConstant.NotParticipate ? GetPlayerNamesSelected(message.First()) : null
+            PlayerNamesSelected = firstRequest.IssueTypeId == IssueTypeConstant.NotParticipate ? GetPlayerNamesSelected(playerNames.First()) : null
         };
 
         return viewModel;
     }
 
-    private static TemplateContent GetPlayerNamesSelected(Message message)
+    private static TemplateContent GetPlayerNamesSelected(PlayerName playerName)
     {
         var playerNamesSelected = new TemplateContent
         {
-            MsgEnglish = message.PlayerNamesEnglish,
-            MsgChineseSimplified = message.PlayerNamesChineseSimplified,
-            MsgChineseNewSimplified = message.PlayerNamesChineseSimplified,
-            MsgChineseTraditional = message.PlayerNamesChineseTraditional
+            MsgEnglish = playerName.PlayerNamesEnglish,
+            MsgChineseSimplified = playerName.PlayerNamesChineseSimplified,
+            MsgChineseNewSimplified = playerName.PlayerNamesChineseSimplified,
+            MsgChineseTraditional = playerName.PlayerNamesChineseTraditional
         };
 
         return playerNamesSelected;
