@@ -2,7 +2,8 @@
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
-using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
 using NSubstitute;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;

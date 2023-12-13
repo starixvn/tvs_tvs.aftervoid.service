@@ -44,26 +44,31 @@ public class CreateMessageStageImp : CreateMessageStage
     {
         try
         {
-            var normalMessageContent = await InitializeMessageContent(parameter.AutomationInfo, parameter.MatchInfo, parameter.AllVoidDataInCurrentVoid);
-            var normalMessageId = await CreateMessageForNormalPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.NormalTickets, normalMessageContent);
-            var specialMessageId = await CreateMessageForSpecialPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.SpecialTickets, normalMessageContent);
-
-            return (normalMessageId, specialMessageId, normalMessageContent);
+            return await TryExecute(parameter);
         }
         catch (Exception exception)
         {
-            await HandleCatchExceptionAsync(exception, parameter.AutomationInfo);
-            return (0, 0, null);
+            return await CatchException(exception, parameter.AutomationInfo);
         }
     }
 
-    private async Task HandleCatchExceptionAsync(Exception exception, VoidBetAutomationInfo automationInfo)
+    public async Task<(int, int, Message)> TryExecute(CreateMessageStageParameter parameter)
+    {
+        var normalMessageContent = await InitializeMessageContent(parameter.AutomationInfo, parameter.MatchInfo, parameter.AllVoidDataInCurrentVoid);
+        var normalMessageId = await CreateMessageForNormalPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.NormalTickets, normalMessageContent);
+        var specialMessageId = await CreateMessageForSpecialPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.SpecialTickets, normalMessageContent);
+
+        return (normalMessageId, specialMessageId, normalMessageContent);
+    }
+
+    private async Task<(int, int, Message)> CatchException(Exception exception, VoidBetAutomationInfo automationInfo)
     {
         await loggingService.ErrorAsync(
             $"ERROR: {nameof(CreateMessageStage)}.{nameof(Execute)} - BroadcastSessionId: {automationInfo.BroadcastSessionId}", exception);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
         await sendLetstalkServiceStage.InsertLetstalk(automationInfo.RequestId, automationInfo.BroadcastSessionId, ExecuteStatus.Failed);
         await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
+        return (0, 0, null);
     }
 
     private async Task<int> CreateMessageForNormalPlatform(VoidBetAutomationInfo automationInfo, Match matchInfo, IEnumerable<TicketEmailModel> voidedTickets, Message initMessage)

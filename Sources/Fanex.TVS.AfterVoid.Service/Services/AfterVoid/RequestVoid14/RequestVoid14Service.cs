@@ -1,12 +1,12 @@
-﻿using Fanex.TVS.AfterVoid.Service.Models;
-using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
+namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestVoid14;
 
 public interface RequestVoid14Service
 {

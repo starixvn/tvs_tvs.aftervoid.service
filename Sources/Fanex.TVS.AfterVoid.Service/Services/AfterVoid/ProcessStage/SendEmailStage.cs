@@ -60,7 +60,7 @@ public class SendEmailStageImp : SendEmailStage
     private async Task<(bool, IEnumerable<Result>)> CatchException(Exception exception, VoidBetAutomationInfo automationInfo)
     {
         await loggingService.ErrorAsync(
-            $"ERROR: {nameof(SendEmailStage)}.{nameof(SendEmail)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
+            $"ERROR: {nameof(SendEmailStage)}.{nameof(Execute)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
             $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
         await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);

@@ -8,7 +8,7 @@ using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
+namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
 
 public interface RequestManualVoidService
 {
