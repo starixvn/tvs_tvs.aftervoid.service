@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Models;
+﻿using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
+using System.Threading.Tasks;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
@@ -46,7 +46,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
 
     private async Task ExecuteStepByStep(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
     {
-        var matchInfo = await GetMatch(automationInfo);
+        var matchInfo = await mainProcessStageService.GetMatchInfo(automationInfo.MatchId);
         var allVoidDataInCurrentVoid = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
         var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true);
         var (normalTickets, specialTickets) = specialPlatformService.GroupTicketSaba(voidedTickets);
@@ -89,7 +89,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
                 SpecialTickets = specialTickets,
                 NormalMessageId = normalMessageId,
                 SpecialMessageId = specialMessageId,
-                VoidReasonId = voidReason.ReasonId
+                VoidReasonId = voidReason?.ReasonId ?? 0
             });
 
         var isUpdatedVoidingHistory = await mainProcessStageService.UpdateTicketVoidingHistory(isInsertedVoidedTransaction,
@@ -98,7 +98,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
                 AutomationInfo = automationInfo,
                 NormalMessageId = normalMessageId,
                 SpecialMessageId = specialMessageId,
-                VoidReasonId = voidReason.ReasonId,
+                VoidReasonId = voidReason?.ReasonId ?? 0,
                 EmailTickets = voidedTickets
             });
 
@@ -130,11 +130,6 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
         {
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
         }
-    }
-
-    private async Task<Match> GetMatch(VoidBetAutomationInfo automationInfo)
-    {
-        return automationInfo.MatchId > 0 ? await voidBetAutomationService.GetMatchInfo(automationInfo.MatchId) : null;
     }
 
     private static int GetSportTypeId(Match matchInfo)

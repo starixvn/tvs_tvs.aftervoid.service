@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Models.Parameters;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
+using Fanex.TVS.AfterVoid.Service.Utilities;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Models;
-using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 
@@ -16,71 +18,87 @@ public interface RequestVoid14Service
 public class RequestVoid14ServiceImp : RequestVoid14Service
 {
     private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly AfterVoidProcessStage afterVoidProcessStage;
     private readonly NotificationSignalRService notificationSignalRService;
-    private readonly InsertVoidedTransactionStage insertVoidedTransactionStage;
-    private readonly UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage;
+    private readonly MainProcessStageService mainProcessStageService;
+    private readonly CallCashOutApiStage callCashOutApiStage;
+    private readonly WriteLogAfterVoidStage writeLogAfterVoidStage;
+    private readonly NotifyVoidResultsSignalRStage notifyVoidResultsSignalRStage;
+    private readonly CreateVoidReasonStage createVoidReasonStage;
 
-    public RequestVoid14ServiceImp(VoidBetAutomationService voidBetAutomationService,
-        AfterVoidProcessStage afterVoidProcessStage,
-        NotificationSignalRService notificationSignalRService, InsertVoidedTransactionStage insertVoidedTransactionStage,
-        UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage)
+    public RequestVoid14ServiceImp(VoidBetAutomationService voidBetAutomationService, MainProcessStageService mainProcessStageService,
+        NotificationSignalRService notificationSignalRService, CallCashOutApiStage callCashOutApiStage,
+        WriteLogAfterVoidStage writeLogAfterVoidStage, NotifyVoidResultsSignalRStage notifyVoidResultsSignalRStage,
+        CreateVoidReasonStage createVoidReasonStage)
     {
         this.voidBetAutomationService = voidBetAutomationService;
-        this.afterVoidProcessStage = afterVoidProcessStage;
         this.notificationSignalRService = notificationSignalRService;
-        this.insertVoidedTransactionStage = insertVoidedTransactionStage;
-        this.updateTicketVoidingHistoryStage = updateTicketVoidingHistoryStage;
+        this.voidBetAutomationService = voidBetAutomationService;
+        this.mainProcessStageService = mainProcessStageService;
+        this.notificationSignalRService = notificationSignalRService;
+        this.callCashOutApiStage = callCashOutApiStage;
+        this.writeLogAfterVoidStage = writeLogAfterVoidStage;
+        this.notifyVoidResultsSignalRStage = notifyVoidResultsSignalRStage;
+        this.createVoidReasonStage = createVoidReasonStage;
     }
 
     public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
     {
         if (automationInfo.StatusId != ExecuteStatus.Done)
         {
-            await RunMainSteps(automationInfo, isLastedInRequest, currentRequestStatus);
+            await ExecuteStepByStep(automationInfo, isLastedInRequest, currentRequestStatus);
         }
     }
 
-    private async Task RunMainSteps(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
+    private async Task ExecuteStepByStep(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
     {
+        var allVoidDataInCurrentVoid = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
         var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true);
-        var allVoidDataInCurrentVoidTimes = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
-        var firstVoidData = allVoidDataInCurrentVoidTimes.First();
-        var voidedReason = await afterVoidProcessStage.CreateVoidedReason(automationInfo, 0, firstVoidData);
-        if (voidedReason == null || voidedReason.ReasonId == 0)
+        var firstVoidData = allVoidDataInCurrentVoid.First();
+        var voidReason = await createVoidReasonStage.Execute(new CreateVoidReasonStageParameter
         {
-            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
-            return;
-        }
+            AutomationInfo = automationInfo,
+            SportTypeId = 0,
+            VoidData = firstVoidData
+        });
+        var isContinueInsertVoidedTransaction = !Helper.IsNotHaveVoidedReason(voidReason);
+        var isInsertedVoidedTransaction = await mainProcessStageService.InsertVoidedTransaction(isContinueInsertVoidedTransaction,
+            new InsertVoidedTransactionStageParameter
+            {
+                AutomationInfo = automationInfo,
+                NormalTickets = voidedTickets,
+                SpecialTickets = null,
+                NormalMessageId = 0,
+                SpecialMessageId = 0,
+                VoidReasonId = voidReason?.ReasonId ?? 0
+            });
+        var isUpdatedVoidingHistory = await mainProcessStageService.UpdateTicketVoidingHistory(isInsertedVoidedTransaction,
+            new UpdateTicketVoidingHistoryStageParameter
+            {
+                AutomationInfo = automationInfo,
+                NormalMessageId = 0,
+                SpecialMessageId = 0,
+                VoidReasonId = voidReason?.ReasonId ?? 0,
+                EmailTickets = voidedTickets
+            });
 
-        var isInsertedVoidedTransaction = await insertVoidedTransactionStage.Execute(automationInfo, voidedTickets, null, 0, 0, voidedReason.ReasonId);
-        if (!isInsertedVoidedTransaction)
-        {
-            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
-            return;
-        }
-
-        var isUpdatedVoidingHistory = await updateTicketVoidingHistoryStage.Execute(automationInfo, 0, 0, voidedReason.ReasonId, voidedTickets);
         if (!isUpdatedVoidingHistory)
         {
             await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
             return;
         }
 
-        await afterVoidProcessStage.CallCashOutApi(automationInfo, voidedTickets);
+        await callCashOutApiStage.Execute(automationInfo, voidedTickets);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
-
-        await ExecutePostMainStep(automationInfo, isLastedInRequest, currentRequestStatus, firstVoidData.CreatorName);
+        await CallSignalR(automationInfo, isLastedInRequest, currentRequestStatus, firstVoidData.CreatorName);
+        await writeLogAfterVoidStage.Execute(automationInfo, new List<Result>());
     }
 
-    private async Task ExecutePostMainStep(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, string creatorName)
+    private async Task CallSignalR(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, string creatorName)
     {
         if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
         {
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
-            await afterVoidProcessStage.NotifyVoidResultsSignalR(automationInfo, new List<Result>(), creatorName, new List<EmailResultModel>());
+            await notifyVoidResultsSignalRStage.Execute(automationInfo, new List<Result>(), creatorName, new List<EmailResultModel>());
         }
-
-        await afterVoidProcessStage.WriteLogAfterVoid(new List<Result>(), automationInfo);
     }
 }

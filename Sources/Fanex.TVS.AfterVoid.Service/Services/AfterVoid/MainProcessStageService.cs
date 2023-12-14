@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Models;
+﻿using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using Fanex.TVS.AfterVoid.Service.Utilities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using TicketVoidingSystem.Models;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestAutoVoid;
+namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 
 public interface MainProcessStageService
 {
@@ -23,6 +23,8 @@ public interface MainProcessStageService
     Task<bool> UpdateTicketVoidingHistory(bool isInsertedVoidedTransaction, UpdateTicketVoidingHistoryStageParameter parameter);
 
     Task<(bool, IEnumerable<Result>)> SendEmail(bool isUpdatedVoidingHistory, SendEmailStageParameter parameter);
+
+    Task<Match> GetMatchInfo(int matchId);
 }
 
 public class MainProcessStageServiceImp : MainProcessStageService
@@ -34,10 +36,11 @@ public class MainProcessStageServiceImp : MainProcessStageService
     private readonly InsertVoidedTransactionStage insertVoidedTransactionStage;
     private readonly UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage;
     private readonly SendEmailStage sendEmailStage;
+    private readonly VoidBetAutomationService voidBetAutomationService;
 
     public MainProcessStageServiceImp(CreateMessageStage createMessageStage, CreateVoidReasonStage createVoidReasonStage, SendBatchMessageStage sendBatchMessageStage,
         SendMessageToAdminSiteStage sendMessageToAdminSiteStage, InsertVoidedTransactionStage insertVoidedTransactionStage,
-        UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage, SendEmailStage sendEmailStage)
+        UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage, SendEmailStage sendEmailStage, VoidBetAutomationService voidBetAutomationService)
     {
         this.createMessageStage = createMessageStage;
         this.createVoidReasonStage = createVoidReasonStage;
@@ -46,6 +49,7 @@ public class MainProcessStageServiceImp : MainProcessStageService
         this.insertVoidedTransactionStage = insertVoidedTransactionStage;
         this.updateTicketVoidingHistoryStage = updateTicketVoidingHistoryStage;
         this.sendEmailStage = sendEmailStage;
+        this.voidBetAutomationService = voidBetAutomationService;
     }
 
     public async Task<(int, int, Message)> CreateMessage(CreateMessageStageParameter parameter)
@@ -88,9 +92,9 @@ public class MainProcessStageServiceImp : MainProcessStageService
         return true;
     }
 
-    public async Task<bool> InsertVoidedTransaction(bool isSentMessageToAdminSite, InsertVoidedTransactionStageParameter parameter)
+    public async Task<bool> InsertVoidedTransaction(bool isContinueInsertVoidedTransaction, InsertVoidedTransactionStageParameter parameter)
     {
-        if (!isSentMessageToAdminSite)
+        if (!isContinueInsertVoidedTransaction)
         {
             return false;
         }
@@ -116,5 +120,10 @@ public class MainProcessStageServiceImp : MainProcessStageService
         }
 
         return await sendEmailStage.Execute(parameter);
+    }
+
+    public async Task<Match> GetMatchInfo(int matchId)
+    {
+        return matchId > 0 ? await voidBetAutomationService.GetMatchInfo(matchId) : null;
     }
 }
