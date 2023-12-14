@@ -11,7 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.LoadConfig(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
-builder.Services.AddHttpClient<TicketVoidingSystemHttpClientService, TicketVoidingSystemHttpClientServiceImp>();
 builder.Services.AddHttpClient<TVSNewSiteHttpClientService, TVSNewSiteHttpClientServiceImp>();
 builder.Services.AddHttpClient<CashOutHttpClientService, CashOutHttpClientServiceImp>();
 builder.Services.AddFanexSql(builder.Configuration);

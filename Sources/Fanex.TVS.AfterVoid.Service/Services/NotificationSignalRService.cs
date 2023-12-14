@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.SignalR;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Resources;
-using TicketVoidingSystem.Services;
 using TicketVoidingSystem.SignalR;
 
 namespace Fanex.TVS.AfterVoid.Service.Services;
@@ -23,14 +22,11 @@ public interface NotificationSignalRService
 
 public class NotificationSignalRServiceImp : NotificationSignalRService
 {
-    private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService;
     private readonly VoidBetAutomationService voidBetAutomationService;
     private readonly IHubContext<NotificationHub, ClientEvent> hubContext;
 
-    public NotificationSignalRServiceImp(TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService, VoidBetAutomationService voidBetAutomationService
-        , IHubContext<NotificationHub, ClientEvent> hubContext)
+    public NotificationSignalRServiceImp(VoidBetAutomationService voidBetAutomationService, IHubContext<NotificationHub, ClientEvent> hubContext)
     {
-        this.ticketVoidingSystemHttpClientService = ticketVoidingSystemHttpClientService;
         this.voidBetAutomationService = voidBetAutomationService;
         this.hubContext = hubContext;
     }
@@ -38,7 +34,6 @@ public class NotificationSignalRServiceImp : NotificationSignalRService
     public async Task UpdateFailedStatusForRequest(int requestId)
     {
         var failedRequests = new List<RequestStatus> { new() { RequestId = requestId, Status = RequestStatusConstant.Failed } };
-        await ticketVoidingSystemHttpClientService.SignalRUpdateRequestStatusToAllUsers(failedRequests);
         await hubContext.Clients.All.updateRequestStatus(failedRequests);
     }
 
@@ -46,13 +41,11 @@ public class NotificationSignalRServiceImp : NotificationSignalRService
     {
         var requestInfo = await voidBetAutomationService.GetRequestSimpleInfo(requestId, matchId);
         var completedRequests = new List<RequestStatus> { new() { RequestId = requestId, Status = RequestStatusConstant.Completed, SimpleInfo = requestInfo } };
-        await ticketVoidingSystemHttpClientService.SignalRUpdateRequestStatusToAllUsers(completedRequests);
         await hubContext.Clients.All.updateRequestStatus(completedRequests);
     }
 
     public async Task NotifyVoidResultToUser(string userName, IEnumerable<Result> results)
     {
-        await ticketVoidingSystemHttpClientService.SignalRNotifyVoidResultToUser(userName, results);
         await hubContext.Clients.User(userName).showVoidResult(results);
     }
 

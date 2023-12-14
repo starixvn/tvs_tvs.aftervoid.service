@@ -32,10 +32,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="App_Data\Email\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Sources\Fanex.TVS.AfterVoid.Service\Fanex.TVS.AfterVoid.Service.csproj" />
     <ProjectReference Include="..\Sources\TicketVoidingSystem\TicketVoidingSystem.csproj" />
   </ItemGroup>
