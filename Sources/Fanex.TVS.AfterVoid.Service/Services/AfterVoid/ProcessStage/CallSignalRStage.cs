@@ -3,26 +3,47 @@ using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Models.Parameters;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Resources;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 
-public interface NotifyVoidResultsSignalRStage
+public interface CallSignalRStage
 {
-    Task Execute(VoidBetAutomationInfo automationInfo, IEnumerable<Result> currentEmailResults, string creatorName, IEnumerable<EmailResultModel> emailResultsHistory);
+    Task ExecuteForAutoVoid(bool isLastedInRequest, string currentRequestStatus, VoidBetAutomationInfo automationInfo);
+
+    Task ExecuteForManualVoid(CallSignalRManualVoidParameter parameter);
 }
 
-public class NotifyVoidResultsSignalRStageImp : NotifyVoidResultsSignalRStage
+public class CallSignalRStageImp : CallSignalRStage
 {
     private readonly NotificationSignalRService notificationSignalRService;
 
-    public NotifyVoidResultsSignalRStageImp(NotificationSignalRService notificationSignalRService)
+    public CallSignalRStageImp(NotificationSignalRService notificationSignalRService)
     {
         this.notificationSignalRService = notificationSignalRService;
     }
 
-    public async Task Execute(VoidBetAutomationInfo automationInfo, IEnumerable<Result> currentEmailResults, string creatorName, IEnumerable<EmailResultModel> emailResultsHistory)
+    public async Task ExecuteForAutoVoid(bool isLastedInRequest, string currentRequestStatus, VoidBetAutomationInfo automationInfo)
+    {
+        if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
+        {
+            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
+        }
+    }
+
+    public async Task ExecuteForManualVoid(CallSignalRManualVoidParameter parameter)
+    {
+        if (parameter.IsLastedInRequest && parameter.CurrentRequestStatus != RequestStatusConstant.Failed)
+        {
+            await notificationSignalRService.UpdateCompletedStatusForRequests(parameter.AutomationInfo.RequestId, parameter.AutomationInfo.MatchId);
+            await NotifyVoidResult(parameter.AutomationInfo, parameter.CurrentEmailResults, parameter.CreatorName, parameter.EmailResultsHistory);
+        }
+    }
+
+    private async Task NotifyVoidResult(VoidBetAutomationInfo automationInfo, IEnumerable<Result> currentEmailResults, string creatorName, IEnumerable<EmailResultModel> emailResultsHistory)
     {
         var signalRResults = new List<Result>();
         var successfulLicensees = GetLicenseeResult(currentEmailResults, emailResultsHistory, ErrorCode.LicenseeSuccess);

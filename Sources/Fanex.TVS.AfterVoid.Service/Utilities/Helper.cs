@@ -1,6 +1,5 @@
 ﻿using Fanex.TVS.AfterVoid.Service.Constants;
 using TicketVoidingSystem.Constants;
-using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Utilities;
 
@@ -50,11 +49,6 @@ public static class Helper
     public static bool IsArchivedTicket(int issueTypeId)
     {
         return IssueTypeConstant.ArchivedTicket == issueTypeId;
-    }
-
-    public static bool IsNotHaveVoidedReason(VoidedReason voidedReason)
-    {
-        return voidedReason == null || voidedReason.ReasonId == 0;
     }
 
     public static bool IsCanSendLetstalk(int issueTypeId)

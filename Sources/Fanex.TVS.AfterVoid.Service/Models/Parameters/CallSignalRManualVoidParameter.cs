@@ -3,7 +3,7 @@ using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Models.Parameters;
 
-public class NotificationSignalRParameter
+public class CallSignalRManualVoidParameter
 {
     public VoidBetAutomationInfo AutomationInfo { get; set; }
     public bool IsLastedInRequest { get; set; }

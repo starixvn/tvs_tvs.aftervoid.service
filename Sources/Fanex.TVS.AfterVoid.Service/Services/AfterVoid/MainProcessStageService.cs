@@ -1,9 +1,9 @@
-﻿using Fanex.TVS.AfterVoid.Service.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using Fanex.TVS.AfterVoid.Service.Utilities;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
@@ -12,17 +12,21 @@ public interface MainProcessStageService
 {
     Task<(int, int, Message)> CreateMessage(CreateMessageStageParameter parameter);
 
-    Task<VoidedReason> CreateVoidReason(int normalMessageId, int specialMessageId, CreateVoidReasonStageParameter parameter);
+    bool IsHaveMessage(int normalMessageId, int specialMessageId);
 
-    Task<bool> SendBatchMessage(VoidedReason voidedReason, SendBatchMessageStageParameter parameter);
+    Task<VoidedReason> CreateVoidReason(bool isContinue, CreateVoidReasonStageParameter parameter);
 
-    Task<bool> SendMessageToAdminSite(bool isSendBatchMessage, VoidBetAutomationInfo automationInfo, Message normalMessageContent);
+    bool IsHaveVoidReason(VoidedReason voidedReason);
 
-    Task<bool> InsertVoidedTransaction(bool isSentMessageToAdminSite, InsertVoidedTransactionStageParameter parameter);
+    Task<bool> SendBatchMessage(bool isContinue, SendBatchMessageStageParameter parameter);
 
-    Task<bool> UpdateTicketVoidingHistory(bool isInsertedVoidedTransaction, UpdateTicketVoidingHistoryStageParameter parameter);
+    Task<bool> SendMessageToAdminSite(bool isContinue, VoidBetAutomationInfo automationInfo, Message normalMessageContent);
 
-    Task<(bool, IEnumerable<Result>)> SendEmail(bool isUpdatedVoidingHistory, SendEmailStageParameter parameter);
+    Task<bool> InsertVoidedTransaction(bool isContinue, InsertVoidedTransactionStageParameter parameter);
+
+    Task<bool> UpdateTicketVoidingHistory(bool isContinue, UpdateTicketVoidingHistoryStageParameter parameter);
+
+    Task<(bool, IEnumerable<Result>)> SendEmail(bool isContinue, SendEmailStageParameter parameter);
 
     Task<Match> GetMatchInfo(int matchId);
 }
@@ -57,29 +61,39 @@ public class MainProcessStageServiceImp : MainProcessStageService
         return await createMessageStage.Execute(parameter);
     }
 
-    public async Task<VoidedReason> CreateVoidReason(int normalMessageId, int specialMessageId, CreateVoidReasonStageParameter parameter)
+    public bool IsHaveMessage(int normalMessageId, int specialMessageId)
     {
-        if (normalMessageId == 0 && specialMessageId == 0)
-        {
-            return null;
-        }
-
-        return await createVoidReasonStage.Execute(parameter);
+        return normalMessageId != 0 || specialMessageId != 0;
     }
 
-    public async Task<bool> SendBatchMessage(VoidedReason voidedReason, SendBatchMessageStageParameter parameter)
+    public async Task<VoidedReason> CreateVoidReason(bool isContinue, CreateVoidReasonStageParameter parameter)
     {
-        if (Helper.IsNotHaveVoidedReason(voidedReason))
+        if (isContinue)
         {
-            return false;
+            return await createVoidReasonStage.Execute(parameter);
         }
 
-        return await sendBatchMessageStage.Execute(parameter);
+        return null;
     }
 
-    public async Task<bool> SendMessageToAdminSite(bool isSendBatchMessage, VoidBetAutomationInfo automationInfo, Message normalMessageContent)
+    public bool IsHaveVoidReason(VoidedReason voidedReason)
     {
-        if (!isSendBatchMessage)
+        return voidedReason is { ReasonId: > 0 };
+    }
+
+    public async Task<bool> SendBatchMessage(bool isContinue, SendBatchMessageStageParameter parameter)
+    {
+        if (isContinue)
+        {
+            return await sendBatchMessageStage.Execute(parameter);
+        }
+
+        return false;
+    }
+
+    public async Task<bool> SendMessageToAdminSite(bool isContinue, VoidBetAutomationInfo automationInfo, Message normalMessageContent)
+    {
+        if (!isContinue)
         {
             return false;
         }
@@ -92,34 +106,34 @@ public class MainProcessStageServiceImp : MainProcessStageService
         return true;
     }
 
-    public async Task<bool> InsertVoidedTransaction(bool isContinueInsertVoidedTransaction, InsertVoidedTransactionStageParameter parameter)
+    public async Task<bool> InsertVoidedTransaction(bool isContinue, InsertVoidedTransactionStageParameter parameter)
     {
-        if (!isContinueInsertVoidedTransaction)
+        if (isContinue)
         {
-            return false;
+            return await insertVoidedTransactionStage.Execute(parameter);
         }
 
-        return await insertVoidedTransactionStage.Execute(parameter);
+        return false;
     }
 
-    public async Task<bool> UpdateTicketVoidingHistory(bool isInsertedVoidedTransaction, UpdateTicketVoidingHistoryStageParameter parameter)
+    public async Task<bool> UpdateTicketVoidingHistory(bool isContinue, UpdateTicketVoidingHistoryStageParameter parameter)
     {
-        if (!isInsertedVoidedTransaction)
+        if (isContinue)
         {
-            return false;
+            return await updateTicketVoidingHistoryStage.Execute(parameter);
         }
 
-        return await updateTicketVoidingHistoryStage.Execute(parameter);
+        return false;
     }
 
-    public async Task<(bool, IEnumerable<Result>)> SendEmail(bool isUpdatedVoidingHistory, SendEmailStageParameter parameter)
+    public async Task<(bool, IEnumerable<Result>)> SendEmail(bool isContinue, SendEmailStageParameter parameter)
     {
-        if (!isUpdatedVoidingHistory)
+        if (isContinue)
         {
-            return (false, new List<Result>());
+            return await sendEmailStage.Execute(parameter);
         }
 
-        return await sendEmailStage.Execute(parameter);
+        return (false, new List<Result>());
     }
 
     public async Task<Match> GetMatchInfo(int matchId)

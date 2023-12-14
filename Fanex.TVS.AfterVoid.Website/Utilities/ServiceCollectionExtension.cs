@@ -119,7 +119,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<RequestAutoVoidService, RequestAutoVoidServiceImp>();
         services.AddSingleton<RequestManualVoidService, RequestManualVoidServiceImp>();
         services.AddSingleton<RequestVoid14Service, RequestVoid14ServiceImp>();
-        services.AddSingleton<AfterVoidProcessStage, AfterVoidProcessStageImp>();
         services.AddSingleton<MessageItemService, MessageItemServiceImp>();
         services.AddSingleton<NotificationSignalRService, NotificationSignalRServiceImp>();
         services.AddSingleton<SendMessageService, SendMessageServiceImp>();
@@ -134,6 +133,14 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<InsertVoidedTransactionStage, InsertVoidedTransactionStageImp>();
         services.AddSingleton<CreateMessageStage, CreateMessageStageImp>();
         services.AddSingleton<SpecialPlatformService, SpecialPlatformServiceImp>();
+        services.AddSingleton<MainProcessStageService, MainProcessStageServiceImp>();
+        services.AddSingleton<CallCashOutApiStage, CallCashOutApiStageImp>();
+        services.AddSingleton<CallSignalRStage, CallSignalRStageImp>();
+        services.AddSingleton<CreateVoidReasonStage, CreateVoidReasonStageImp>();
+        services.AddSingleton<SendEmailStage, SendEmailStageImp>();
+        services.AddSingleton<SendMessageToAdminSiteStage, SendMessageToAdminSiteStageImp>();
+        services.AddSingleton<UpdateEmailResultStage, UpdateEmailResultStageImp>();
+        services.AddSingleton<WriteLogAfterVoidStage, WriteLogAfterVoidStageImp>();
     }
 
     public static void RegisterQuartzScheduler(this IServiceCollection services)

@@ -1,7 +1,7 @@
-﻿using Fanex.TVS.AfterVoid.Service.Models;
+﻿using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
-using System.Threading.Tasks;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
@@ -20,19 +20,19 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
     private readonly UpdateEmailResultStage updateEmailResultStage;
     private readonly CallCashOutApiStage callCashOutApiStage;
     private readonly WriteLogAfterVoidStage writeLogAfterVoidStage;
-    private readonly NotificationSignalRService notificationSignalRService;
+    private readonly CallSignalRStage callSignalRStage;
     private readonly SpecialPlatformService specialPlatformService;
 
-    public RequestAutoVoidServiceImp(VoidBetAutomationService voidBetAutomationService,
-        MainProcessStageService mainProcessStageService, UpdateEmailResultStage updateEmailResultStage, CallCashOutApiStage callCashOutApiStage, WriteLogAfterVoidStage writeLogAfterVoidStage,
-        NotificationSignalRService notificationSignalRService, SpecialPlatformService specialPlatformService)
+    public RequestAutoVoidServiceImp(VoidBetAutomationService voidBetAutomationService, MainProcessStageService mainProcessStageService,
+        UpdateEmailResultStage updateEmailResultStage, CallCashOutApiStage callCashOutApiStage, WriteLogAfterVoidStage writeLogAfterVoidStage,
+        CallSignalRStage callSignalRStage, SpecialPlatformService specialPlatformService)
     {
         this.voidBetAutomationService = voidBetAutomationService;
         this.mainProcessStageService = mainProcessStageService;
         this.updateEmailResultStage = updateEmailResultStage;
         this.callCashOutApiStage = callCashOutApiStage;
         this.writeLogAfterVoidStage = writeLogAfterVoidStage;
-        this.notificationSignalRService = notificationSignalRService;
+        this.callSignalRStage = callSignalRStage;
         this.specialPlatformService = specialPlatformService;
     }
 
@@ -61,7 +61,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
                 SpecialTickets = specialTickets
             });
 
-        var voidReason = await mainProcessStageService.CreateVoidReason(normalMessageId, specialMessageId,
+        var voidReason = await mainProcessStageService.CreateVoidReason(mainProcessStageService.IsHaveMessage(normalMessageId, specialMessageId),
             new CreateVoidReasonStageParameter
             {
                 AutomationInfo = automationInfo,
@@ -69,7 +69,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
                 VoidData = null
             });
 
-        var isSendBatchMessage = await mainProcessStageService.SendBatchMessage(voidReason,
+        var isSendBatchMessage = await mainProcessStageService.SendBatchMessage(mainProcessStageService.IsHaveVoidReason(voidReason),
             new SendBatchMessageStageParameter
             {
                 AutomationInfo = automationInfo,
@@ -120,16 +120,8 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
         await updateEmailResultStage.Execute(automationInfo, currentEmailResults);
         await callCashOutApiStage.Execute(automationInfo, voidedTickets);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
-        await CallSignalR(isLastedInRequest, currentRequestStatus, automationInfo);
+        await callSignalRStage.ExecuteForAutoVoid(isLastedInRequest, currentRequestStatus, automationInfo);
         await writeLogAfterVoidStage.Execute(automationInfo, currentEmailResults);
-    }
-
-    private async Task CallSignalR(bool isLastedInRequest, string currentRequestStatus, VoidBetAutomationInfo automationInfo)
-    {
-        if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
-        {
-            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
-        }
     }
 
     private static int GetSportTypeId(Match matchInfo)

@@ -1,9 +1,9 @@
-﻿using Fanex.TVS.AfterVoid.Service.Models;
-using Fanex.TVS.AfterVoid.Service.Models.Parameters;
-using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Models.Parameters;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Services;
 
@@ -23,13 +23,13 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
     private readonly UpdateEmailResultStage updateEmailResultStage;
     private readonly CallCashOutApiStage callCashOutApiStage;
     private readonly WriteLogAfterVoidStage writeLogAfterVoidStage;
-    private readonly NotifyVoidResultsSignalRStage notifyVoidResultsSignalRStage;
+    private readonly CallSignalRStage callSignalRStage;
 
     public RequestManualVoidServiceImp(
         VoidBetAutomationService voidBetAutomationService, MainProcessStageService mainProcessStageService,
         NotificationSignalRService notificationSignalRService, SpecialPlatformService specialPlatformService,
         UpdateEmailResultStage updateEmailResultStage, CallCashOutApiStage callCashOutApiStage,
-        WriteLogAfterVoidStage writeLogAfterVoidStage, NotifyVoidResultsSignalRStage notifyVoidResultsSignalRStage)
+        WriteLogAfterVoidStage writeLogAfterVoidStage, CallSignalRStage callSignalRStage)
     {
         this.voidBetAutomationService = voidBetAutomationService;
         this.mainProcessStageService = mainProcessStageService;
@@ -38,7 +38,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
         this.updateEmailResultStage = updateEmailResultStage;
         this.callCashOutApiStage = callCashOutApiStage;
         this.writeLogAfterVoidStage = writeLogAfterVoidStage;
-        this.notifyVoidResultsSignalRStage = notifyVoidResultsSignalRStage;
+        this.callSignalRStage = callSignalRStage;
     }
 
     public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory)
@@ -67,7 +67,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
                 SpecialTickets = specialTickets
             });
 
-        var voidReason = await mainProcessStageService.CreateVoidReason(normalMessageId, specialMessageId,
+        var voidReason = await mainProcessStageService.CreateVoidReason(mainProcessStageService.IsHaveMessage(normalMessageId, specialMessageId),
             new CreateVoidReasonStageParameter
             {
                 AutomationInfo = automationInfo,
@@ -75,7 +75,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
                 VoidData = firstVoidData
             });
 
-        var isSendBatchMessage = await mainProcessStageService.SendBatchMessage(voidReason,
+        var isSendBatchMessage = await mainProcessStageService.SendBatchMessage(mainProcessStageService.IsHaveVoidReason(voidReason),
             new SendBatchMessageStageParameter
             {
                 AutomationInfo = automationInfo,
@@ -124,10 +124,11 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
             await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
             return;
         }
+
         await updateEmailResultStage.Execute(automationInfo, currentEmailResults);
         await callCashOutApiStage.Execute(automationInfo, voidedTickets);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
-        await CallSignalR(new NotificationSignalRParameter
+        await callSignalRStage.ExecuteForManualVoid(new CallSignalRManualVoidParameter
         {
             AutomationInfo = automationInfo,
             IsLastedInRequest = isLastedInRequest,
@@ -137,14 +138,5 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
             EmailResultsHistory = emailResultsHistory
         });
         await writeLogAfterVoidStage.Execute(automationInfo, currentEmailResults);
-    }
-
-    private async Task CallSignalR(NotificationSignalRParameter parameter)
-    {
-        if (parameter.IsLastedInRequest && parameter.CurrentRequestStatus != RequestStatusConstant.Failed)
-        {
-            await notificationSignalRService.UpdateCompletedStatusForRequests(parameter.AutomationInfo.RequestId, parameter.AutomationInfo.MatchId);
-            await notifyVoidResultsSignalRStage.Execute(parameter.AutomationInfo, parameter.CurrentEmailResults, parameter.CreatorName, parameter.EmailResultsHistory);
-        }
     }
 }
