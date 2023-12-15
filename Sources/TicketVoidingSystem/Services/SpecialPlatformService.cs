@@ -1,9 +1,9 @@
-﻿using Fanex.TVS.AfterVoid.Service.Constants;
-using Force.DeepCloner;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using Fanex.TVS.AfterVoid.Service.Constants;
+using Force.DeepCloner;
 using TicketVoidingSystem.Extensions;
 using TicketVoidingSystem.Models;
 
@@ -18,11 +18,14 @@ public interface SpecialPlatformService
 
 public class SpecialPlatformServiceImp : SpecialPlatformService
 {
+    private static bool IsTicketSpecialPlatform(TicketEmailModel ticket)
+    {
+        return ticket.LeagueGroupId.IsLeagueGroupIdSaBa() && (ticket.IsChinaView || ticket.SpecialPlatform == SpecialPlatformConstant.JollySports);
+    }
+
     public (IEnumerable<TicketEmailModel> NormalGroup, IEnumerable<TicketEmailModel> SpecialPlatformGroup) GroupTicketSaba(IEnumerable<TicketEmailModel> tickets)
     {
-        var specialPlatformTickets = tickets.Where(x =>
-            x.LeagueGroupId.IsLeagueGroupIdSaBa() && (x.IsChinaView || x.SpecialPlatform == SpecialPlatformConstant.JollySports));
-
+        var specialPlatformTickets = tickets.Where(IsTicketSpecialPlatform);
         var normalTickets = tickets.Except(specialPlatformTickets);
 
         return (normalTickets, specialPlatformTickets);
@@ -30,6 +33,11 @@ public class SpecialPlatformServiceImp : SpecialPlatformService
 
     public Message RemoveSabaInMessageContent(Match match, Message message)
     {
+        if (match == null)
+        {
+            return message;
+        }
+
         var outputMessage = message.DeepClone();
         var leagueNameReplaced = match.OriginLeagueName.Replace("SABA ", "", StringComparison.InvariantCultureIgnoreCase);
         var leagueNameSimplifiedReplaced = match.OriginLeagueNameSimplified.Replace("沙巴", "", StringComparison.InvariantCultureIgnoreCase);
