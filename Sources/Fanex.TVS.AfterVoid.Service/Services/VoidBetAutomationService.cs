@@ -1,12 +1,12 @@
-﻿using Fanex.Data.Repository;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb;
 using Fanex.TVS.AfterVoid.Service.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 
@@ -21,8 +21,6 @@ public interface VoidBetAutomationService
     Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int matchId);
 
     Task UpdateServiceStatusByVoidingHistory(int requestId, int voidingHistoryId, int statusId);
-
-    Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int? messageId, int? messageIdSpecial);
 
     Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory);
 
@@ -127,17 +125,6 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
     public async Task UpdateServiceStatusByVoidingHistory(int requestId, int voidingHistoryId, int statusId)
     {
         await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateStatusByVoidingHistory, requestId, voidingHistoryId, statusId, null);
-    }
-
-    public async Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int? messageId, int? messageIdSpecial)
-    {
-        var afterVoidHistory = new VoidBetAutomationInfo
-        {
-            MessageId = messageId,
-            MessageIdSpecial = messageIdSpecial
-        };
-
-        await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateMessageIdByVoidingHistory, requestId, voidingHistoryId, null, afterVoidHistory);
     }
 
     public async Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory)

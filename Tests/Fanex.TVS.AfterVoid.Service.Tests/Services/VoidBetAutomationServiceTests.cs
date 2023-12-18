@@ -195,27 +195,6 @@ public class VoidBetAutomationServiceTests
     }
 
     [Fact]
-    public async Task UpdateMessageIdByVoidingHistory_ShouldCallUpdateVoidBetAutomationServiceInfo()
-    {
-        // Arrange
-        const int fakeRequestId = 113;
-        const int fakeVoidingHistoryId = 211;
-        const int fakeMessageId = 331;
-        var repository = Substitute.For<IDynamicRepository>();
-        var voidBetAutomationService = new VoidBetAutomationServiceImp(repository);
-
-        // Act
-        await voidBetAutomationService.UpdateMessageIdByVoidingHistory(fakeRequestId, fakeVoidingHistoryId,
-            fakeMessageId);
-
-        // Assert
-        await repository.Received(1).ExecuteAsync(Arg.Is<UpdateVoidBetAutomationInfoCriteria>(x =>
-            x.UpdateType == VoidBetAutomationServiceUpdateType.UpdateMessageIdByVoidingHistory &&
-            x.RequestId == fakeRequestId
-            && x.VoidingHistoryId == fakeVoidingHistoryId && x.MessageId == fakeMessageId));
-    }
-
-    [Fact]
     public async Task UpdateAfterVoidStep_ShouldCallUpdateVoidBetAutomationServiceInfo()
     {
         // Arrange
@@ -292,6 +271,7 @@ public class VoidBetAutomationServiceTests
         // Assert
         AssertExtension.Equal(fakeTicketEmail, actual);
     }
+
     [Fact]
     public async Task GetVoidDataFromVoidingHistory_ReturnExpectedModel()
     {

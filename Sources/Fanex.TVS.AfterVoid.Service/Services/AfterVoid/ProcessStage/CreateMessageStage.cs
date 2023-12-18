@@ -84,7 +84,7 @@ public class CreateMessageStageImp : CreateMessageStage
         }
 
         var normalMessageId = await sendMessageService.InsertMessage(initMessage, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, automationInfo.RequestInfo.Request.IssueTypeId);
-        await voidBetAutomationService.UpdateMessageIdByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, normalMessageId, null);
+        await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { MessageId = normalMessageId });
 
         return normalMessageId;
     }
@@ -103,7 +103,7 @@ public class CreateMessageStageImp : CreateMessageStage
 
         var messageSpecial = specialPlatformService.RemoveSabaInMessageContent(matchInfo, initMessage);
         messageSpecial.MessageId = await sendMessageService.InsertMessage(messageSpecial, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, automationInfo.RequestInfo.Request.IssueTypeId);
-        await voidBetAutomationService.UpdateMessageIdByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, null, messageSpecial.MessageId);
+        await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { MessageIdSpecial = messageSpecial.MessageId });
 
         return messageSpecial.MessageId;
     }
