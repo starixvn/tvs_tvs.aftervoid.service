@@ -9,6 +9,7 @@ using Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services;
 
@@ -40,10 +41,12 @@ public interface VoidBetAutomationService
 public class VoidBetAutomationServiceImp : VoidBetAutomationService
 {
     private readonly IDynamicRepository repository;
+    private readonly MatchService matchService;
 
-    public VoidBetAutomationServiceImp(IDynamicRepository repository)
+    public VoidBetAutomationServiceImp(IDynamicRepository repository, MatchService matchService)
     {
         this.repository = repository;
+        this.matchService = matchService;
     }
 
     public async Task<(VoidBetAutomationInfo, bool, string, IEnumerable<EmailResultModel>)> GetVoidBetAutomationRunAfterVoid()
@@ -208,7 +211,9 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
 
     public async Task<Match> GetMatchInfo(int matchId)
     {
-        return await repository.GetAsync<Match>(new GetMatchInfoCriteria { MatchId = matchId, IsMatch3rd = false });
+        var match = await repository.GetAsync<Match>(new GetMatchInfoCriteria { MatchId = matchId, IsMatch3rd = false });
+        match = matchService.UpdateMatchInfoFromRemotingRef(match);
+        return match;
     }
 
     public async Task UpdateTicketVoidingHistory(int voidingHistoryId, int? reasonId, int? messageId, int? messageIdSpecial,

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
-using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
@@ -18,24 +17,18 @@ public class CreateVoidReasonStageImp : CreateVoidReasonStage
 {
     private readonly LoggingService loggingService;
     private readonly NotificationSignalRService notificationSignalRService;
-    private readonly SendLetstalkServiceStage sendLetstalkServiceStage;
     private readonly SendMessageService sendMessageService;
-    private readonly SpecialPlatformService specialPlatformService;
     private readonly VoidBetAutomationService voidBetAutomationService;
 
     public CreateVoidReasonStageImp(VoidBetAutomationService voidBetAutomationService,
         SendMessageService sendMessageService,
         NotificationSignalRService notificationSignalRService,
-        LoggingService loggingService,
-        SendLetstalkServiceStage sendLetstalkServiceStage,
-        SpecialPlatformService specialPlatformService)
+        LoggingService loggingService)
     {
         this.voidBetAutomationService = voidBetAutomationService;
         this.sendMessageService = sendMessageService;
         this.notificationSignalRService = notificationSignalRService;
         this.loggingService = loggingService;
-        this.sendLetstalkServiceStage = sendLetstalkServiceStage;
-        this.specialPlatformService = specialPlatformService;
     }
 
     public async Task<VoidedReason> Execute(CreateVoidReasonStageParameter parameter)

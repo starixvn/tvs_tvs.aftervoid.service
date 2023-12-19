@@ -141,6 +141,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<SendMessageToAdminSiteStage, SendMessageToAdminSiteStageImp>();
         services.AddSingleton<UpdateEmailResultStage, UpdateEmailResultStageImp>();
         services.AddSingleton<WriteLogAfterVoidStage, WriteLogAfterVoidStageImp>();
+        services.AddSingleton<RemotingRefWrapperService, RemotingRefWrapperServiceImp>();
+        services.AddSingleton<MatchService, MatchServiceImp>();
     }
 
     public static void RegisterQuartzScheduler(this IServiceCollection services)
