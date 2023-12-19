@@ -230,7 +230,7 @@ public class CreateMessageStageTests
         sendMessageService.InitializeMessageContentForAutoVoid(Arg.Any<Match>(), Arg.Any<IEnumerable<VoidDataXmlModel>>(), Arg.Any<RequestDetailViewModel>())
             .ReturnsForAnyArgs(new Message());
         Service = new CreateMessageStageImp(voidBetAutomationService, null, notificationSignalRService, loggingService,
-            sendLetstalkServiceStage, specialPlatformService);
+            sendLetstalkServiceStage, null);
         const string error = "ERROR: CreateMessageStage.Execute - BroadcastSessionId: 1";
 
         // Act

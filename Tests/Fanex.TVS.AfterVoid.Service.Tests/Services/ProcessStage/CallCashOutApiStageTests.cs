@@ -43,7 +43,7 @@ public class CallCashOutApiStageTests
             VoidingHistoryId = 1
         };
 
-        Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, loggingService);
+        Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
 
         // Act
         await Service.Execute(automationInfo, emailTickets);
@@ -71,7 +71,7 @@ public class CallCashOutApiStageTests
             BroadcastSessionId = "1"
         };
         const string error = "ERROR: CallCashOutApiStage.Execute - SessionId: 1 - VDHistoryId: 1 - RequestId: 1";
-        Service = new CallCashOutApiStageImp(voidBetAutomationService, null, loggingService);
+        Service = new CallCashOutApiStageImp(null, null, loggingService);
 
         // Act
         await Service.Execute(automationInfo, emailTickets);
@@ -97,7 +97,7 @@ public class CallCashOutApiStageTests
             VoidingHistoryId = 1
         };
 
-        Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, loggingService);
+        Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
 
         // Act
         await Service.Execute(automationInfo, emailTickets);
@@ -124,7 +124,7 @@ public class CallCashOutApiStageTests
             VoidingHistoryId = 1
         };
 
-        Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, loggingService);
+        Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
 
         // Act
         await Service.Execute(automationInfo, emailTickets);
