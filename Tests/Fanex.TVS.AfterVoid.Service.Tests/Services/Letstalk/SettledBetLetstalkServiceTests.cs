@@ -19,7 +19,7 @@ public class SettledBetLetstalkServiceTests
     private static void SetupTestEnv()
     {
         RefDataTypeContainer
-            .ConnectTo(new Uri("http://remotingref-api.nexdev.net/main/"))
+            .ConnectTo(new Uri("http://remotingref-api-core.nexdev.net/"))
             .FromApplication("NAP-SpecialDelete-LOCAL")
             .RegisterSupportedLanguages("en-US", "zh-TW", "zh-CN");
     }
