@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid;
 
-public class AfterVoidServiceImpTests
+public class AfterVoidServiceITests
 {
     private LoggingService loggingService;
     private RequestAutoVoidService requestAutoVoidService;
@@ -76,7 +76,7 @@ public class AfterVoidServiceImpTests
         // Arrange
         InitFakeServiceTests();
         var requestInfo = new RequestDetailViewModel
-            { Request = new RequestModel { IssueTypeId = IssueTypeConstant.ArchivedTicket } };
+        { Request = new RequestModel { IssueTypeId = IssueTypeConstant.ArchivedTicket } };
         var fakeAutomationStatistic =
             Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsAutoVoid = false).Build();
         voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
@@ -105,7 +105,7 @@ public class AfterVoidServiceImpTests
         // Arrange
         InitFakeServiceTests();
         var requestInfo = new RequestDetailViewModel
-            { Request = new RequestModel { IssueTypeId = issueTypeId } };
+        { Request = new RequestModel { IssueTypeId = issueTypeId } };
         var fakeAutomationStatistic =
             Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsAutoVoid = false).Build();
         voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()

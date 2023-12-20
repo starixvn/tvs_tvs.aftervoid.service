@@ -10,7 +10,7 @@ using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Tests.Services.ProcessStage;
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class CallSignalRStageTests
 {

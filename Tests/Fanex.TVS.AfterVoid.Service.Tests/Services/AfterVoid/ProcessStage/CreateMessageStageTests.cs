@@ -13,7 +13,7 @@ using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Tests.Services.ProcessStage;
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class CreateMessageStageTests
 {

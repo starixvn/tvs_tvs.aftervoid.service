@@ -76,7 +76,6 @@ public class UpdateTicketVoidingHistoryStageImp : UpdateTicketVoidingHistoryStag
         var maxWinLostDate = GetMaxWinLostDateTickets(parameter.AutomationInfo.RequestInfo.Request.IssueTypeId, parameter.EmailTickets);
         await voidBetAutomationService.UpdateTicketVoidingHistory(parameter.AutomationInfo.VoidingHistoryId, parameter.VoidReasonId,
             parameter.NormalMessageId, parameter.SpecialMessageId, transIds, minWinLostDate, maxWinLostDate);
-
         await voidBetAutomationService.UpdateAfterVoidStep(parameter.AutomationInfo.RequestId, parameter.AutomationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsUpdatedVoidingHistory = true });
 
         return true;

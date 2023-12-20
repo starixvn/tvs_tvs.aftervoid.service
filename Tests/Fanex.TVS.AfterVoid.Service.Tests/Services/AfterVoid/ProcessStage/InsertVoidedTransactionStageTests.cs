@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services;
@@ -12,17 +11,17 @@ using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Tests.Services.ProcessStage;
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
-public class SendBatchMessageStageTests
+public class InsertVoidedTransactionStageTests
 {
-    private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly SendMessageService sendMessageService;
     private readonly VoidBetAutomationService voidBetAutomationService;
-    public SendBatchMessageStage Service;
+    private readonly SendMessageService sendMessageService;
+    private readonly NotificationSignalRService notificationSignalRService;
+    private readonly LoggingService loggingService;
+    public InsertVoidedTransactionStage Service;
 
-    public SendBatchMessageStageTests()
+    public InsertVoidedTransactionStageTests()
     {
         loggingService = Substitute.For<LoggingService>();
         notificationSignalRService = Substitute.For<NotificationSignalRService>();
@@ -31,18 +30,18 @@ public class SendBatchMessageStageTests
     }
 
     [Fact]
-    public async Task Execute_HadSentBatchMessage_ReturnTrue()
+    public async Task Execute_HadInsertedVoidedTransaction_ReturnTrue()
     {
         // Arrange
         var automationInfo = new VoidBetAutomationInfo
         {
-            IsSentBatchMessage = true
+            IsInsertedVoidedTransaction = true
         };
-        var parameter = new SendBatchMessageStageParameter
+        var parameter = new InsertVoidedTransactionStageParameter
         {
             AutomationInfo = automationInfo
         };
-        Service = new SendBatchMessageStageImp(null, null, null, null);
+        Service = new InsertVoidedTransactionStageImp(null, null, null, null);
 
         // Act
         var actual = await Service.Execute(parameter);
@@ -72,24 +71,24 @@ public class SendBatchMessageStageTests
             RequestInfo = requestInfo,
             MatchId = 1,
             RequestId = 1,
-            VoidingHistoryId = 1,
-            IsAutoVoid = true
+            VoidingHistoryId = 1
         };
-        var parameter = new SendBatchMessageStageParameter
+        var parameter = new InsertVoidedTransactionStageParameter
         {
             AutomationInfo = automationInfo,
             NormalMessageId = 1,
+            VoidReasonId = 1,
             NormalTickets = emailTickets,
-            SpecialTickets = new List<TicketEmailModel>(),
+            SpecialTickets = new List<TicketEmailModel>()
         };
 
-        Service = new SendBatchMessageStageImp(voidBetAutomationService, sendMessageService, null, null);
+        Service = new InsertVoidedTransactionStageImp(voidBetAutomationService, sendMessageService, null, null);
 
         // Act
         var actual = await Service.Execute(parameter);
 
         // Assert
-        await sendMessageService.Received(1).SendMessage(emailTickets, 1, 1, AutoVoidConstant.ActorId);
+        await sendMessageService.Received(1).InsertVoidedTransaction(Arg.Any<IEnumerable<TicketEmailModel>>(), Arg.Any<int>(), 1, 1, 1, 1);
         await voidBetAutomationService.Received(1).UpdateAfterVoidStep(1, 1, Arg.Any<VoidBetAutomationInfo>());
         Assert.True(actual);
     }
@@ -115,26 +114,25 @@ public class SendBatchMessageStageTests
             RequestInfo = requestInfo,
             MatchId = 1,
             RequestId = 1,
-            VoidingHistoryId = 1,
-            IsAutoVoid = false
+            VoidingHistoryId = 1
         };
-        var parameter = new SendBatchMessageStageParameter
+        var parameter = new InsertVoidedTransactionStageParameter
         {
             AutomationInfo = automationInfo,
             NormalMessageId = 1,
             SpecialMessageId = 2,
             SpecialTickets = emailTickets,
+            VoidReasonId = 1,
             NormalTickets = emailTickets,
-            VoidData = new VoidDataXmlModel { CreatorId = 1 }
         };
 
-        Service = new SendBatchMessageStageImp(voidBetAutomationService, sendMessageService, null, null);
+        Service = new InsertVoidedTransactionStageImp(voidBetAutomationService, sendMessageService, null, null);
 
         // Act
         var actual = await Service.Execute(parameter);
 
         // Assert
-        await sendMessageService.Received(2).SendMessage(emailTickets, Arg.Any<int>(), 1, 1);
+        await sendMessageService.Received(2).InsertVoidedTransaction(Arg.Any<IEnumerable<TicketEmailModel>>(), Arg.Any<int>(), 1, 1, 1, 1);
         await voidBetAutomationService.Received(1).UpdateAfterVoidStep(1, 1, Arg.Any<VoidBetAutomationInfo>());
         Assert.True(actual);
     }
@@ -161,18 +159,18 @@ public class SendBatchMessageStageTests
             MatchId = 1,
             RequestId = 1,
             VoidingHistoryId = 1,
-            IsAutoVoid = true,
             BroadcastSessionId = "1"
         };
-        var parameter = new SendBatchMessageStageParameter
+        var parameter = new InsertVoidedTransactionStageParameter
         {
             AutomationInfo = automationInfo,
             NormalMessageId = 1,
+            VoidReasonId = 1,
             NormalTickets = emailTickets,
-            SpecialTickets = new List<TicketEmailModel>(),
+            SpecialTickets = null
         };
-        const string error = "ERROR: SendBatchMessageStage.Execute - SessionId: 1 - VDHistoryId: 1 - RequestId: 1";
-        Service = new SendBatchMessageStageImp(voidBetAutomationService, null, notificationSignalRService, loggingService);
+        const string error = "ERROR: InsertVoidedTransactionStage.Execute - BroadcastSessionId: 1 - VDHistoryId: 1 - RequestId: 1";
+        Service = new InsertVoidedTransactionStageImp(voidBetAutomationService, null, notificationSignalRService, loggingService);
 
         // Act
         _ = await Service.Execute(parameter);
