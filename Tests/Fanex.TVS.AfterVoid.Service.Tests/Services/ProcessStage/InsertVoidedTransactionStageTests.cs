@@ -50,48 +50,48 @@ public class InsertVoidedTransactionStageTests
         Assert.True(actual);
     }
 
-    //[Fact]
-    //public async Task Execute_HasOnlyNormalTickets_CalledExpected()
-    //{
-    //    // Arrange
-    //    var emailTickets = new List<TicketEmailModel>
-    //    {
-    //        new() { IsCancelCashOut = true},
-    //        new() { IsCancelCashOut = false}
-    //    };
-    //    var requestInfo = new RequestDetailViewModel
-    //    {
-    //        EventByMatch = new RequestEventModel { SubIssueTypeId = 1 },
-    //        Request = new RequestModel { IssueTypeId = 1 }
-    //    };
+    [Fact]
+    public async Task Execute_HasOnlyNormalTickets_CalledExpected()
+    {
+        // Arrange
+        var emailTickets = new List<TicketEmailModel>
+        {
+            new() { IsCancelCashOut = true},
+            new() { IsCancelCashOut = false}
+        };
+        var requestInfo = new RequestDetailViewModel
+        {
+            EventByMatch = new RequestEventModel { SubIssueTypeId = 1 },
+            Request = new RequestModel { IssueTypeId = 1 }
+        };
 
-    //    var automationInfo = new VoidBetAutomationInfo
-    //    {
-    //        IsInsertedVoidedTransaction = false,
-    //        RequestInfo = requestInfo,
-    //        MatchId = 1,
-    //        RequestId = 1,
-    //        VoidingHistoryId = 1
-    //    };
-    //    var parameter = new InsertVoidedTransactionStageParameter
-    //    {
-    //        AutomationInfo = automationInfo,
-    //        NormalMessageId = 1,
-    //        VoidReasonId = 1,
-    //        NormalTickets = emailTickets,
-    //        SpecialTickets = null
-    //    };
+        var automationInfo = new VoidBetAutomationInfo
+        {
+            IsInsertedVoidedTransaction = false,
+            RequestInfo = requestInfo,
+            MatchId = 1,
+            RequestId = 1,
+            VoidingHistoryId = 1
+        };
+        var parameter = new InsertVoidedTransactionStageParameter
+        {
+            AutomationInfo = automationInfo,
+            NormalMessageId = 1,
+            VoidReasonId = 1,
+            NormalTickets = emailTickets,
+            SpecialTickets = new List<TicketEmailModel>()
+        };
 
-    //    Service = new InsertVoidedTransactionStageImp(voidBetAutomationService, sendMessageService, null, null);
+        Service = new InsertVoidedTransactionStageImp(voidBetAutomationService, sendMessageService, null, null);
 
-    //    // Act
-    //    var actual = await Service.Execute(parameter);
+        // Act
+        var actual = await Service.Execute(parameter);
 
-    //    // Assert
-    //    await sendMessageService.Received(1).InsertVoidedTransaction(Arg.Any<IEnumerable<TicketEmailModel>>(), Arg.Any<int>(), 1, 1, 1, 1);
-    //    await voidBetAutomationService.Received(1).UpdateAfterVoidStep(1, 1, Arg.Any<VoidBetAutomationInfo>());
-    //    Assert.True(actual);
-    //}
+        // Assert
+        await sendMessageService.Received(1).InsertVoidedTransaction(Arg.Any<IEnumerable<TicketEmailModel>>(), Arg.Any<int>(), 1, 1, 1, 1);
+        await voidBetAutomationService.Received(1).UpdateAfterVoidStep(1, 1, Arg.Any<VoidBetAutomationInfo>());
+        Assert.True(actual);
+    }
 
     [Fact]
     public async Task Execute_HasNormalAndSpecialTickets_CalledExpected()
@@ -140,7 +140,6 @@ public class InsertVoidedTransactionStageTests
     [Fact]
     public async Task Execute_HasException_CalledExpected()
     {
-        // Arrange
         // Arrange
         var emailTickets = new List<TicketEmailModel>
         {
