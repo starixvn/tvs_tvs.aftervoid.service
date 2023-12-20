@@ -112,6 +112,7 @@ public static class ServiceCollectionExtensions
 
     public static void RegisterBusinessService(this IServiceCollection services)
     {
+        services.AddSingleton<IRemotingRefService, RemotingRefService>();
         services.AddSingleton<IDynamicRepository, DynamicRepository>();
         services.AddSingleton<LoggingService, LoggingServiceImp>();
         services.AddSingleton<AfterVoidService, AfterVoidServiceImp>();

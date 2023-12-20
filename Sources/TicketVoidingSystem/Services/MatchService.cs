@@ -17,6 +17,11 @@ public class MatchServiceImp : MatchService
     private const int SportType164 = 164;
     private const int SportType207 = 207;
 
+    public MatchServiceImp(RemotingRefWrapperService remotingRefWrapperService)
+    {
+        this.remotingRefWrapperService = remotingRefWrapperService;
+    }
+
     public Match UpdateMatchInfoFromRemotingRef(Match match)
     {
         if (match == null)
