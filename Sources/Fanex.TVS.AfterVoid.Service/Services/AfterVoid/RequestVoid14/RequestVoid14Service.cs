@@ -61,7 +61,7 @@ public class RequestVoid14ServiceImp : RequestVoid14Service
             {
                 AutomationInfo = automationInfo,
                 NormalTickets = voidedTickets,
-                SpecialTickets = null,
+                SpecialTickets = Enumerable.Empty<TicketEmailModel>(),
                 NormalMessageId = 0,
                 SpecialMessageId = 0,
                 VoidReasonId = voidReason?.ReasonId ?? 0
