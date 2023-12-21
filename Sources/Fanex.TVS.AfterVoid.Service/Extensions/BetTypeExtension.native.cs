@@ -6,7 +6,7 @@ public static class BetTypeExtension
 {
     public static bool IsParlay(this int id)
     {
-        return id is 29 or 2799;
+        return id is BetTypeConstant.FirstParlay or BetTypeConstant.SecondParlay;
     }
 
     public static bool IsParlayAndBetBuilder(this int id)
@@ -31,7 +31,8 @@ public static class BetTypeExtension
 
     public static bool IsSingleMatchParlay(this int id)
     {
-        return id == 38;
+        const int betTypeSingleMatchParlay = 38;
+        return id == betTypeSingleMatchParlay;
     }
 
     public static bool IsVirtualSportBetType(this int id)

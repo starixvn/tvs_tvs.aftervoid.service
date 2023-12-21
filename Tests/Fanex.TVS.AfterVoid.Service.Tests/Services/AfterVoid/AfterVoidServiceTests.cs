@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid;
 
-public class AfterVoidServiceITests
+public class AfterVoidServiceTests
 {
     private LoggingService loggingService;
     private RequestAutoVoidService requestAutoVoidService;

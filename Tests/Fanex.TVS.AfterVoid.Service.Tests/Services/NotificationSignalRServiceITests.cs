@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services;
 
-public class NotificationSignalRServiceImpTests
+public class NotificationSignalRServiceITests
 {
     [Fact]
     public async Task UpdateFailedStatusForRequest_ShouldCallUpdateApi()

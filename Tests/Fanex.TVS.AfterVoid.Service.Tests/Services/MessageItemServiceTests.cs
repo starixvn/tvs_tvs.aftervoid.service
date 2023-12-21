@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services;
 
-public class MessageItemServiceImpTests
+public class MessageItemServiceTests
 {
     [Fact]
     public void CreateMessageItems_()

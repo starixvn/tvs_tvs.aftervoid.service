@@ -9,12 +9,7 @@ using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid
-{
-    internal class MainProcessStageServiceTests
-    {
-    }
-}
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid;
 
 public class MainProcessStageServiceTests
 {
@@ -117,6 +112,19 @@ public class MainProcessStageServiceTests
     }
 
     [Fact]
+    public void IsHaveVoidReason_HasVoidedReasonIsNull_ReturnFalse()
+    {
+        // Arrange
+        Service = new MainProcessStageServiceImp(null, null, null, null, null, null, null, null);
+
+        // Act
+        var actual = Service.IsHaveVoidReason((VoidedReason)null);
+
+        // Assert
+        Assert.False(actual);
+    }
+
+    [Fact]
     public async Task SendBatchMessage_CalledExpected()
     {
         // Arrange
@@ -127,7 +135,7 @@ public class MainProcessStageServiceTests
         _ = await Service.SendBatchMessage(true, default);
 
         // Assert
-        await createVoidReasonStage.Received(1).Execute(Arg.Any<CreateVoidReasonStageParameter>());
+        await sendBatchMessageStage.Execute(Arg.Any<SendBatchMessageStageParameter>());
     }
 
     [Fact]
@@ -135,7 +143,7 @@ public class MainProcessStageServiceTests
     {
         // Arrange
         sendBatchMessageStage.Execute(Arg.Any<SendBatchMessageStageParameter>()).ReturnsForAnyArgs(true);
-        Service = new MainProcessStageServiceImp(null, null, sendBatchMessageStage, null, null, null, null, null);
+        Service = new MainProcessStageServiceImp(null, null, null, null, null, null, null, null);
 
         // Act
         _ = await Service.SendBatchMessage(false, default);
@@ -145,19 +153,19 @@ public class MainProcessStageServiceTests
     }
 
     [Fact]
-    public async Task SendMessageToAdminSite_HasIssueTypeIsAbnormalBet_CalledExpected()
+    public async Task SendMessageToAdminSite_IssueTypeNotAbnormalBet_CalledExpected()
     {
         // Arrange
         var automationInfo = new VoidBetAutomationInfo
         {
             RequestInfo = new RequestDetailViewModel
-            { Request = new RequestModel { IssueTypeId = IssueTypeConstant.AbnormalBet } }
+            { Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted } }
         };
         sendMessageToAdminSiteStage.Execute(automationInfo, Arg.Any<Message>()).ReturnsForAnyArgs(true);
-        Service = new MainProcessStageServiceImp(null, null, sendBatchMessageStage, null, null, null, null, null);
+        Service = new MainProcessStageServiceImp(null, null, null, sendMessageToAdminSiteStage, null, null, null, null);
 
         // Act
-        _ = await Service.SendMessageToAdminSite(true, automationInfo, default);
+        _ = await Service.SendMessageToAdminSite(true, automationInfo, new Message());
 
         // Assert
         await sendMessageToAdminSiteStage.Received(1).Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<Message>());
@@ -170,10 +178,10 @@ public class MainProcessStageServiceTests
         var automationInfo = new VoidBetAutomationInfo
         {
             RequestInfo = new RequestDetailViewModel
-            { Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted } }
+            { Request = new RequestModel { IssueTypeId = IssueTypeConstant.AbnormalBet } }
         };
         sendMessageToAdminSiteStage.Execute(automationInfo, Arg.Any<Message>()).ReturnsForAnyArgs(true);
-        Service = new MainProcessStageServiceImp(null, null, sendBatchMessageStage, null, null, null, null, null);
+        Service = new MainProcessStageServiceImp(null, null, null, sendMessageToAdminSiteStage, null, null, null, null);
 
         // Act
         var actual = await Service.SendMessageToAdminSite(true, automationInfo, default);
@@ -200,5 +208,117 @@ public class MainProcessStageServiceTests
 
         // Assert
         Assert.False(actual);
+    }
+
+    [Fact]
+    public async Task InsertVoidedTransaction_CalledExpected()
+    {
+        // Arrange
+        insertVoidedTransactionStage.Execute(Arg.Any<InsertVoidedTransactionStageParameter>()).ReturnsForAnyArgs(true);
+        Service = new MainProcessStageServiceImp(null, null, null, null, insertVoidedTransactionStage, null, null, null);
+
+        // Act
+        _ = await Service.InsertVoidedTransaction(true, default);
+
+        // Assert
+        await insertVoidedTransactionStage.Received(1).Execute(Arg.Any<InsertVoidedTransactionStageParameter>());
+    }
+
+    [Fact]
+    public async Task InsertVoidedTransaction_NotCalledExpected()
+    {
+        // Arrange
+        insertVoidedTransactionStage.Execute(Arg.Any<InsertVoidedTransactionStageParameter>()).ReturnsForAnyArgs(true);
+        Service = new MainProcessStageServiceImp(null, null, null, null, insertVoidedTransactionStage, null, null, null);
+
+        // Act
+        _ = await Service.InsertVoidedTransaction(false, default);
+
+        // Assert
+        await insertVoidedTransactionStage.Received(0).Execute(Arg.Any<InsertVoidedTransactionStageParameter>());
+    }
+
+    [Fact]
+    public async Task UpdateTicketVoidingHistory_CalledExpected()
+    {
+        // Arrange
+        updateTicketVoidingHistoryStage.Execute(Arg.Any<UpdateTicketVoidingHistoryStageParameter>()).ReturnsForAnyArgs(true);
+        Service = new MainProcessStageServiceImp(null, null, null, null, null, updateTicketVoidingHistoryStage, null, null);
+
+        // Act
+        _ = await Service.UpdateTicketVoidingHistory(true, default);
+
+        // Assert
+        await updateTicketVoidingHistoryStage.Received(1).Execute(Arg.Any<UpdateTicketVoidingHistoryStageParameter>());
+    }
+
+    [Fact]
+    public async Task UpdateTicketVoidingHistory_NotCalledExpected()
+    {
+        // Arrange
+        updateTicketVoidingHistoryStage.Execute(Arg.Any<UpdateTicketVoidingHistoryStageParameter>()).ReturnsForAnyArgs(true);
+        Service = new MainProcessStageServiceImp(null, null, null, null, null, updateTicketVoidingHistoryStage, null, null);
+
+        // Act
+        _ = await Service.UpdateTicketVoidingHistory(false, default);
+
+        // Assert
+        await updateTicketVoidingHistoryStage.Received(0).Execute(Arg.Any<UpdateTicketVoidingHistoryStageParameter>());
+    }
+
+    [Fact]
+    public async Task SendEmail_CalledExpected()
+    {
+        // Arrange
+        sendEmailStage.Execute(Arg.Any<SendEmailStageParameter>()).ReturnsForAnyArgs((true, null));
+        Service = new MainProcessStageServiceImp(null, null, null, null, null, null, sendEmailStage, null);
+
+        // Act
+        _ = await Service.SendEmail(true, default);
+
+        // Assert
+        await sendEmailStage.Received(1).Execute(Arg.Any<SendEmailStageParameter>());
+    }
+
+    [Fact]
+    public async Task SendEmail_NotCalledExpected()
+    {
+        // Arrange
+        sendEmailStage.Execute(Arg.Any<SendEmailStageParameter>()).ReturnsForAnyArgs((true, null));
+        Service = new MainProcessStageServiceImp(null, null, null, null, null, null, sendEmailStage, null);
+
+        // Act
+        _ = await Service.SendEmail(false, default);
+
+        // Assert
+        await sendEmailStage.Received(0).Execute(Arg.Any<SendEmailStageParameter>());
+    }
+
+    [Fact]
+    public async Task GetMatchInfo_HasMatchId_CalledExpected()
+    {
+        // Arrange
+        voidBetAutomationService.GetMatchInfo(1).ReturnsForAnyArgs(new Match());
+        Service = new MainProcessStageServiceImp(null, null, null, null, null, null, null, voidBetAutomationService);
+
+        // Act
+        _ = await Service.GetMatchInfo(1);
+
+        // Assert
+        await voidBetAutomationService.Received(1).GetMatchInfo(1);
+    }
+
+    [Fact]
+    public async Task GetMatchInfo_NotHasMatchId_NotCalledExpected()
+    {
+        // Arrange
+        voidBetAutomationService.GetMatchInfo(Arg.Any<int>()).ReturnsForAnyArgs(new Match());
+        Service = new MainProcessStageServiceImp(null, null, null, null, null, null, null, voidBetAutomationService);
+
+        // Act
+        _ = await Service.GetMatchInfo(0);
+
+        // Assert
+        await voidBetAutomationService.Received(0).GetMatchInfo(Arg.Any<int>());
     }
 }

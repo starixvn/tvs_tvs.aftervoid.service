@@ -4,7 +4,7 @@ using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Tests.Services;
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services.TicketVoidingSystem.Services;
 
 public class SpecialPlatformServiceTests
 {
