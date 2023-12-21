@@ -20,7 +20,7 @@ public class SpecialPlatformServiceImp : SpecialPlatformService
 {
     private static bool IsTicketSpecialPlatform(TicketEmailModel ticket)
     {
-        return ticket.LeagueGroupId.IsLeagueGroupIdSaBa() && (ticket.IsChinaView || ticket.SpecialPlatform == SpecialPlatformConstant.JollySports);
+        return ticket.LeagueGroupId.IsLeagueGroupIdSaBa() && (ticket.IsChinaView || ticket.SpecialPlatform >= SpecialPlatformConstant.JollySports);
     }
 
     public (IEnumerable<TicketEmailModel> NormalGroup, IEnumerable<TicketEmailModel> SpecialPlatformGroup) GroupTicketSaba(IEnumerable<TicketEmailModel> tickets)
