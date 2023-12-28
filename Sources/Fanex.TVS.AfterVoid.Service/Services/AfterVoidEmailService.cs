@@ -19,12 +19,12 @@ public interface AfterVoidEmailService
 
 public class AfterVoidEmailServiceImp : AfterVoidEmailService
 {
-    private readonly TVSNewSiteHttpClientService tvsNewSiteHttpClientService;
+    private readonly TVSWebSiteHttpClientService tvsWebSiteHttpClientService;
     private readonly IDynamicRepository repository;
 
-    public AfterVoidEmailServiceImp(TVSNewSiteHttpClientService tvsNewSiteHttpClientService, IDynamicRepository repository)
+    public AfterVoidEmailServiceImp(TVSWebSiteHttpClientService tvsWebSiteHttpClientService, IDynamicRepository repository)
     {
-        this.tvsNewSiteHttpClientService = tvsNewSiteHttpClientService;
+        this.tvsWebSiteHttpClientService = tvsWebSiteHttpClientService;
         this.repository = repository;
     }
 
@@ -38,7 +38,7 @@ public class AfterVoidEmailServiceImp : AfterVoidEmailService
         }
 
         var sendEmailApiModel = CreateSendEmailApiModel(automationInfo, emailTickets, match, reason, message);
-        var (isSentEmail, results) = await tvsNewSiteHttpClientService.SendEmail(sendEmailApiModel);
+        var (isSentEmail, results) = await tvsWebSiteHttpClientService.SendEmail(sendEmailApiModel);
         if (isSentEmail)
         {
             return results;

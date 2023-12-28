@@ -41,13 +41,13 @@ public class SendMessageServiceImp : SendMessageService
 {
     private readonly IDynamicRepository repository;
     private readonly MessageItemService messageItemService;
-    private readonly TVSNewSiteHttpClientService tvsNewSiteHttpClientService;
+    private readonly TVSWebSiteHttpClientService tvsWebSiteHttpClientService;
 
-    public SendMessageServiceImp(IDynamicRepository repository, MessageItemService messageItemService, TVSNewSiteHttpClientService tvsNewSiteHttpClientService)
+    public SendMessageServiceImp(IDynamicRepository repository, MessageItemService messageItemService, TVSWebSiteHttpClientService tvsWebSiteHttpClientService)
     {
         this.repository = repository;
         this.messageItemService = messageItemService;
-        this.tvsNewSiteHttpClientService = tvsNewSiteHttpClientService;
+        this.tvsWebSiteHttpClientService = tvsWebSiteHttpClientService;
     }
 
     public async Task SendMessage(IEnumerable<TicketEmailModel> tickets, int messageId, int issueTypeId, int creatorId)
@@ -163,8 +163,8 @@ public class SendMessageServiceImp : SendMessageService
             var sportCS = "";
             if (sportType > 0)
             {
-                sportEn = $"{await tvsNewSiteHttpClientService.GetSportTypeNameFromBetList(sportType, LanguageCode.English)} - ";
-                sportCS = $"{await tvsNewSiteHttpClientService.GetSportTypeNameFromBetList(sportType, LanguageCode.ChineseSimplified)} - ";
+                sportEn = $"{await tvsWebSiteHttpClientService.GetSportTypeNameFromBetList(sportType, LanguageCode.English)} - ";
+                sportCS = $"{await tvsWebSiteHttpClientService.GetSportTypeNameFromBetList(sportType, LanguageCode.ChineseSimplified)} - ";
             }
             reason.ReasonEnglish = $"{sportEn}{reason.ReasonEnglish}";
             reason.ReasonChineseSimplified = $"{sportCS}{reason.ReasonChineseSimplified}";

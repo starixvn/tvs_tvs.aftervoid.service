@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.LoadConfig(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
-builder.Services.AddHttpClient<TVSNewSiteHttpClientService, TVSNewSiteHttpClientServiceImp>();
+builder.Services.AddHttpClient<TVSWebSiteHttpClientService, TVSWebSiteHttpClientServiceImp>();
 builder.Services.AddHttpClient<CashOutHttpClientService, CashOutHttpClientServiceImp>();
 builder.Services.AddFanexSql(builder.Configuration);
 builder.Services.RegisterFanexExceptionHandler();

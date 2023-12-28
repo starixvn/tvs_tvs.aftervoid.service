@@ -10,7 +10,7 @@ using TicketVoidingSystem.Utilities;
 
 namespace TicketVoidingSystem.Services;
 
-public interface TVSNewSiteHttpClientService
+public interface TVSWebSiteHttpClientService
 {
     Task<string> GetSportTypeNameFromBetList(int sportType, string languageCode);
 
@@ -20,15 +20,15 @@ public interface TVSNewSiteHttpClientService
     Task<(bool, IEnumerable<Result>)> SendEmail(SendEmailApiModel model);
 }
 
-public class TVSNewSiteHttpClientServiceImp : TVSNewSiteHttpClientService
+public class TVSWebSiteHttpClientServiceImp : TVSWebSiteHttpClientService
 {
     private readonly HttpClient httpClient;
     private readonly LoggingService loggingService;
 
-    public TVSNewSiteHttpClientServiceImp(HttpClient client, LoggingService loggingService)
+    public TVSWebSiteHttpClientServiceImp(HttpClient client, LoggingService loggingService)
     {
         httpClient = client;
-        httpClient.BaseAddress = new Uri(AppSettingService.AppSetting.TVSNewSiteUrl);
+        httpClient.BaseAddress = new Uri(AppSettingService.AppSetting.TVSWebSiteUrl);
         httpClient.Timeout = TimeSpan.FromMinutes(5);
         httpClient.DefaultRequestHeaders.Clear();
         httpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Json);
@@ -44,7 +44,7 @@ public class TVSNewSiteHttpClientServiceImp : TVSNewSiteHttpClientService
             return await Helper.DeserializeResponseStream<string>(response);
         }
 
-        await LogService.ErrorAsync($"{AppSettingService.AppSetting.TVSNewSiteUrl}{actionName}" +
+        await LogService.ErrorAsync($"{AppSettingService.AppSetting.TVSWebSiteUrl}{actionName}" +
                                     $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
         return string.Empty;
     }
@@ -59,7 +59,7 @@ public class TVSNewSiteHttpClientServiceImp : TVSNewSiteHttpClientService
             return (true, responseData);
         }
 
-        await loggingService.ErrorAsync($"{AppSettingService.AppSetting.TVSNewSiteUrl}{actionName}" +
+        await loggingService.ErrorAsync($"{AppSettingService.AppSetting.TVSWebSiteUrl}{actionName}" +
                                         $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
         return (false, null);
     }
@@ -77,7 +77,7 @@ public class TVSNewSiteHttpClientServiceImp : TVSNewSiteHttpClientService
             return responseData != null ? (true, responseData) : (false, null);
         }
 
-        await LogService.ErrorAsync($"{AppSettingService.AppSetting.TVSNewSiteUrl}{actionName}" +
+        await LogService.ErrorAsync($"{AppSettingService.AppSetting.TVSWebSiteUrl}{actionName}" +
                                     $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
         return (false, null);
     }
