@@ -8,8 +8,6 @@ public class AppSettingModel
 
     public RedisConfig RedisConfig { get; init; }
 
-    public FanexMailService FanexMailService { get; init; }
-
     public LetstalkConfig LetstalkConfig { get; init; }
 
     public string ServiceName { get; init; }
@@ -17,8 +15,6 @@ public class AppSettingModel
     public string SentryClientKey { get; init; }
 
     public string CategorySentryLog { get; init; }
-
-    public string TicketVoidingSystemUrl { get; init; }
 
     public string TVSNewSiteUrl { get; init; }
 
@@ -33,13 +29,6 @@ public class RedisConfig
     public string Password { get; init; }
     public int DefaultDatabase { get; init; }
     public string SignalRChannelPrefix { get; init; }
-}
-
-public class FanexMailService
-{
-    public string MailingList { get; init; }
-    public string AppMailId { get; init; }
-    public string AppMailAddress { get; init; }
 }
 
 public class LetstalkConfig

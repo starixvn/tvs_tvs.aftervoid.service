@@ -17,22 +17,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fanex.Caching.Redis.AspNetCore" Version="2.2.3" />
-    <PackageReference Include="Fanex.Data.SqlServer" Version="4.2.2" />
+    <PackageReference Include="Fanex.Caching.Redis.AspNetCore" Version="2.2.4" />
+    <PackageReference Include="Fanex.Data.SqlServer" Version="4.2.3" />
     <PackageReference Include="Fanex.Logging" Version="2.0.1" />
     <PackageReference Include="Fanex.Logging.Extensions.AspNetCore" Version="1.0.1-beta1" />
     <PackageReference Include="Fanex.Logging.Sentry" Version="1.0.6" />
-    <PackageReference Include="Fanex.RemotingRef" Version="1.5.0.1-beta2" />
+    <PackageReference Include="Fanex.RemotingRef" Version="1.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="7.0.1" />
     <PackageReference Include="ONEbook.UM" Version="3.1.6" />
-    <PackageReference Include="ONEbook.UM.AspNetCore" Version="3.1.0" />
+    <PackageReference Include="ONEbook.UM.AspNetCore" Version="3.1.1.1" />
     <PackageReference Include="ONEbook.UM.Transport" Version="3.1.2" />
     <PackageReference Include="Quartz" Version="3.7.0" />
     <PackageReference Include="Quartz.Extensions.Hosting" Version="3.7.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="App_Data\Email\" />
   </ItemGroup>
 
   <ItemGroup>
