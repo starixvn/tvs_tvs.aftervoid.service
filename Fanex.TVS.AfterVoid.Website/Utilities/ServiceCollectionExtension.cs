@@ -26,6 +26,7 @@ using ONEbook.UM.Services;
 using ONEbook.UM.Transport;
 using Quartz;
 using Sentry;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
@@ -91,7 +92,7 @@ public static class ServiceCollectionExtensions
         RefDataTypeContainer
             .ConnectTo(new Uri(AppSettingService.AppSetting.FanexRemotingRefServiceUrl))
             .FromApplication(AppSettingService.AppSetting.ServiceName)
-            .RegisterSupportedLanguages("en-US", "zh-TW", "zh-CN", "zh-Hans");
+            .RegisterSupportedLanguages(LanguageCode.English, LanguageCode.ChineseTraditional, LanguageCode.ChineseSimplified, LanguageCode.NewChineseSimplified);
     }
 
     public static void RegisterLetstalk(this IServiceCollection services)
