@@ -34,18 +34,18 @@ public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
     private readonly IDynamicRepository repository;
     private readonly LoggingService loggingService;
     private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly TVSNewSiteHttpClientService tvsNewSiteHttpClientService;
+    private readonly TVSWebSiteHttpClientService tvsWebSiteHttpClientService;
 
     public SendLetstalkServiceStageImp(
         IDynamicRepository repository,
         LoggingService loggingService,
         VoidBetAutomationService voidBetAutomationService,
-        TVSNewSiteHttpClientService tvsNewSiteHttpClientService)
+        TVSWebSiteHttpClientService tvsWebSiteHttpClientService)
     {
         this.repository = repository;
         this.loggingService = loggingService;
         this.voidBetAutomationService = voidBetAutomationService;
-        this.tvsNewSiteHttpClientService = tvsNewSiteHttpClientService;
+        this.tvsWebSiteHttpClientService = tvsWebSiteHttpClientService;
     }
 
     public async Task<IEnumerable<VoidBetAutomationInfo>> GetVoidBetAutomationRunLetstalk()
@@ -57,7 +57,7 @@ public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
 
     public async Task<byte[]> GetContentExcelVoidedTicket(int requestId, int matchId, int issueTypeId, string voidingHistoryIds)
     {
-        var (isSentEmail, results) = await tvsNewSiteHttpClientService.GetExcelVoidedTicketForSendLetstalk(requestId, matchId, issueTypeId, voidingHistoryIds);
+        var (isSentEmail, results) = await tvsWebSiteHttpClientService.GetExcelVoidedTicketForSendLetstalk(requestId, matchId, issueTypeId, voidingHistoryIds);
         if (isSentEmail)
         {
             return results;

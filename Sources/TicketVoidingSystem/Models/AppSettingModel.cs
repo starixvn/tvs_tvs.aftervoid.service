@@ -16,7 +16,7 @@ public class AppSettingModel
 
     public string CategorySentryLog { get; init; }
 
-    public string TVSNewSiteUrl { get; init; }
+    public string TVSWebSiteUrl { get; init; }
 
     public string FanexRemotingRefServiceUrl { get; init; }
 

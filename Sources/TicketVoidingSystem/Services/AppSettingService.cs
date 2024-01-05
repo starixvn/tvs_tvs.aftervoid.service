@@ -27,7 +27,7 @@ public static class AppSettingService
                 AbnormalBetRequest = configuration.GetValue<string>($"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.AbnormalBetRequest)}"),
                 IsProdEnv = configuration.GetValue<bool>($"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.IsProdEnv)}")
             },
-            TVSNewSiteUrl = configuration.GetValue<string>(nameof(AppSettingModel.TVSNewSiteUrl)),
+            TVSWebSiteUrl = configuration.GetValue<string>(nameof(AppSettingModel.TVSWebSiteUrl)),
             CategorySentryLog = configuration.GetValue<string>(nameof(AppSettingModel.CategorySentryLog)),
             SentryClientKey = configuration.GetValue<string>(nameof(AppSettingModel.SentryClientKey)),
             ServiceName = configuration.GetValue<string>(nameof(AppSettingModel.ServiceName)),
