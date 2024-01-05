@@ -9,6 +9,8 @@ namespace Fanex.TVS.AfterVoid.Service.Extensions;
 public interface IMessageExtensionsNonStatic
 {
     string CreateTicketsXml(IEnumerable<TicketEmailModel> emailTickets);
+
+    string CreateTicketsXml(IEnumerable<BetId> betIds);
 }
 
 public class MessageExtensionsNonStatic : IMessageExtensionsNonStatic
@@ -29,6 +31,20 @@ public class MessageExtensionsNonStatic : IMessageExtensionsNonStatic
                 new XAttribute("WinLost", ticket.ZzzWinlost ?? string.Empty),
                 new XAttribute("VoidingHistoryId", ticket.VoidingHistoryId),
                 new XAttribute("SiteDbGroupId", ticket.SiteDbGroupId));
+            custInfo.Add(element);
+        }
+
+        return custInfo.ToString();
+    }
+
+    public string CreateTicketsXml(IEnumerable<BetId> betIds)
+    {
+        var custInfo = new XElement("root");
+        foreach (var ticket in betIds)
+        {
+            var element = new XElement("r",
+                new XAttribute("TransId", ticket.TransId),
+                new XAttribute("MatchId", ticket.MatchId));
             custInfo.Add(element);
         }
 
@@ -74,5 +90,10 @@ public static class MessageExtensions
     public static string CreateTicketsXml(this IEnumerable<TicketEmailModel> emailTickets)
     {
         return Implementation.CreateTicketsXml(emailTickets);
+    }
+
+    public static string CreateTicketsXml(this IEnumerable<BetId> betIds)
+    {
+        return Implementation.CreateTicketsXml(betIds);
     }
 }

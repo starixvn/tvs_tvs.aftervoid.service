@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Fanex.Caching.Redis;
 using Fanex.Data.Repository;
 using Fanex.LetstalkService.Client;
@@ -14,6 +13,8 @@ using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage.AutoRecoverStage;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestAutoRecover;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestAutoVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestVoid14;
@@ -144,6 +145,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<WriteLogAfterVoidStage, WriteLogAfterVoidStageImp>();
         services.AddSingleton<RemotingRefWrapperService, RemotingRefWrapperServiceImp>();
         services.AddSingleton<MatchService, MatchServiceImp>();
+        services.AddSingleton<DeletedMessageStage, DeletedMessageStageImp>();
+        services.AddSingleton<SendEmailRecoverStage, SendEmailRecoverStageImp>();
+        services.AddSingleton<DeleteTransactionStage, DeleteTransactionStageImp>();
+        services.AddSingleton<RequestAutoRecoverService, RequestAutoRecoverServiceImp>();
+        services.AddSingleton<MainRecoverProcessStageService, MainRecoverProcessStageServiceImp>();
     }
 
     public static void RegisterQuartzScheduler(this IServiceCollection services)

@@ -43,4 +43,8 @@ public class VoidBetAutomationInfo
     public string VoidResults { get; set; }
 
     public RequestDetailViewModel RequestInfo { get; set; }
+
+    public bool? IsDeletedMessage { get; set; }
+
+    public bool? IsDeletedVoidedTransaction { get; set; }
 }

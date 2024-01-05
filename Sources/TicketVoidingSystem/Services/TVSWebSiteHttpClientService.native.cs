@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Fanex.Logging;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Models.SendEmailRecover;
 using TicketVoidingSystem.Utilities;
 
 namespace TicketVoidingSystem.Services;
@@ -18,6 +19,8 @@ public interface TVSWebSiteHttpClientService
         string voidingHistoryIds);
 
     Task<(bool, IEnumerable<Result>)> SendEmail(SendEmailApiModel model);
+
+    Task<(bool, IEnumerable<Result>)> SendEmailRecover(SendEmailRecoverApiModel model);
 }
 
 public class TVSWebSiteHttpClientServiceImp : TVSWebSiteHttpClientService
@@ -69,6 +72,22 @@ public class TVSWebSiteHttpClientServiceImp : TVSWebSiteHttpClientService
         var actionName = model.IssueTypeId is IssueTypeConstant.DuplicateTickets
             ? "api/SendEmail/SendEmailDuplicateTickets"
             : "api/SendEmail/Send";
+        using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(model));
+        if (response.IsSuccessStatusCode)
+        {
+            await LogResponseStream(response);
+            var responseData = await Helper.DeserializeResponseStream<IEnumerable<Result>>(response);
+            return responseData != null ? (true, responseData) : (false, null);
+        }
+
+        await LogService.ErrorAsync($"{AppSettingService.AppSetting.TVSWebSiteUrl}{actionName}" +
+                                    $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
+        return (false, null);
+    }
+
+    public async Task<(bool, IEnumerable<Result>)> SendEmailRecover(SendEmailRecoverApiModel model)
+    {
+        const string actionName = "api/SendEmail/SendEmailRecoverTickets";
         using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(model));
         if (response.IsSuccessStatusCode)
         {
