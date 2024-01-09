@@ -83,7 +83,7 @@ public class RequestVoid14ServiceImp : RequestVoid14Service
             return;
         }
 
-        await callCashOutApiStage.Execute(automationInfo, voidedTickets);
+        await callCashOutApiStage.ExecuteForVoid(automationInfo, voidedTickets);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await callSignalRStage.ExecuteForManualVoid(new CallSignalRManualVoidParameter
         {
