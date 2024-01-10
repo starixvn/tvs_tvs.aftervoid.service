@@ -5,7 +5,7 @@ using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
-using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage.AutoRecoverStage;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage.AutoRecover;
 using NSubstitute;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;

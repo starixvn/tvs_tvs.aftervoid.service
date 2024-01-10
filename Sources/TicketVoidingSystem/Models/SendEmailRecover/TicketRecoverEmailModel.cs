@@ -88,5 +88,5 @@ public class TicketRecoverEmailModel
 
     public bool IsSettled { get; set; }
 
-    public string CurrencyCode { get; set; }
+    public string CurrencyName { get; set; }
 }
