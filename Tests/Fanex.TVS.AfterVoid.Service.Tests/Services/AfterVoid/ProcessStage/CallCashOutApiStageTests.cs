@@ -27,7 +27,7 @@ public class CallCashOutApiStageTests
     }
 
     [Fact]
-    public async Task Execute_CallCashOutApiSuccess_CalledExpected()
+    public async Task ExecuteForVoid_CallCashOutApiSuccess_CalledExpected()
     {
         // Arrange
         var emailTickets = new List<TicketEmailModel>
@@ -46,7 +46,7 @@ public class CallCashOutApiStageTests
         Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
 
         // Act
-        await Service.Execute(automationInfo, emailTickets);
+        await Service.ExecuteForVoid(automationInfo, emailTickets);
 
         // Assert
         await cashOutHttpClientService.Received(1).VoidBet(Arg.Any<CashOutApiModel>());
@@ -54,7 +54,7 @@ public class CallCashOutApiStageTests
     }
 
     [Fact]
-    public async Task Execute_HasException_CalledExpected()
+    public async Task ExecuteForVoid_HasException_CalledExpected()
     {
         // Arrange
         var emailTickets = new List<TicketEmailModel>
@@ -70,18 +70,18 @@ public class CallCashOutApiStageTests
             VoidingHistoryId = 1,
             BroadcastSessionId = "1"
         };
-        const string error = "ERROR: CallCashOutApiStage.Execute - SessionId: 1 - VDHistoryId: 1 - RequestId: 1";
+        const string error = "ERROR: CallCashOutApiStage.ExecuteForVoid - SessionId: 1 - VDHistoryId: 1 - RequestId: 1";
         Service = new CallCashOutApiStageImp(null, null, loggingService);
 
         // Act
-        await Service.Execute(automationInfo, emailTickets);
+        await Service.ExecuteForVoid(automationInfo, emailTickets);
 
         // Assert
         await loggingService.Received(1).ErrorAsync(error, Arg.Any<Exception>());
     }
 
     [Fact]
-    public async Task Execute_IsRunExternalService_NotCallCashOutApi()
+    public async Task ExecuteForVoid_IsRunExternalService_NotCallCashOutApi()
     {
         // Arrange
         var emailTickets = new List<TicketEmailModel>
@@ -100,7 +100,7 @@ public class CallCashOutApiStageTests
         Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
 
         // Act
-        await Service.Execute(automationInfo, emailTickets);
+        await Service.ExecuteForVoid(automationInfo, emailTickets);
 
         // Assert
         await cashOutHttpClientService.Received(0).VoidBet(Arg.Any<CashOutApiModel>());
@@ -108,7 +108,7 @@ public class CallCashOutApiStageTests
     }
 
     [Fact]
-    public async Task Execute_NoHasTicketCashOut_NotCallCashOutApi()
+    public async Task ExecuteForVoid_NoHasTicketCashOut_NotCallCashOutApi()
     {
         // Arrange
         var emailTickets = new List<TicketEmailModel>
@@ -127,7 +127,115 @@ public class CallCashOutApiStageTests
         Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
 
         // Act
-        await Service.Execute(automationInfo, emailTickets);
+        await Service.ExecuteForVoid(automationInfo, emailTickets);
+
+        // Assert
+        await cashOutHttpClientService.Received(0).VoidBet(Arg.Any<CashOutApiModel>());
+        await voidBetAutomationService.Received(0).UpdateAfterVoidStep(1, 1, Arg.Any<VoidBetAutomationInfo>());
+    }
+
+    [Fact]
+    public async Task ExecuteForRecover_CallCashOutApiSuccess_CalledExpected()
+    {
+        // Arrange
+        var emailTickets = new List<TicketEmailModel>
+        {
+            new() { IsCashOut = true, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
+            new() { IsCashOut = true, SportType = 1},
+            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball}
+        };
+        var automationInfo = new VoidBetAutomationInfo
+        {
+            IsRunExternalService = false,
+            RequestId = 1,
+            VoidingHistoryId = 1
+        };
+
+        Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
+
+        // Act
+        await Service.ExecuteForRecover(automationInfo, emailTickets);
+
+        // Assert
+        await cashOutHttpClientService.Received(1).UndoVoidBet(Arg.Any<CashOutApiModel>());
+        await voidBetAutomationService.Received(1).UpdateAfterVoidStep(1, 1, Arg.Any<VoidBetAutomationInfo>());
+    }
+
+    [Fact]
+    public async Task ExecuteForRecover_HasException_CalledExpected()
+    {
+        // Arrange
+        var emailTickets = new List<TicketEmailModel>
+        {
+            new() { IsCashOut = true, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
+            new() { IsCashOut = true, SportType = 1},
+            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball}
+        };
+        var automationInfo = new VoidBetAutomationInfo
+        {
+            IsRunExternalService = false,
+            RequestId = 1,
+            VoidingHistoryId = 1,
+            BroadcastSessionId = "1"
+        };
+        const string error = "ERROR: CallCashOutApiStage.ExecuteForRecover - SessionId: 1 - VDHistoryId: 1 - RequestId: 1";
+        Service = new CallCashOutApiStageImp(null, null, loggingService);
+
+        // Act
+        await Service.ExecuteForRecover(automationInfo, emailTickets);
+
+        // Assert
+        await loggingService.Received(1).ErrorAsync(error, Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public async Task ExecuteForRecover_IsRunExternalService_NotCallCashOutApi()
+    {
+        // Arrange
+        var emailTickets = new List<TicketEmailModel>
+        {
+            new() { IsCashOut = true, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
+            new() { IsCashOut = true, SportType = 1},
+            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball}
+        };
+        var automationInfo = new VoidBetAutomationInfo
+        {
+            IsRunExternalService = true,
+            RequestId = 1,
+            VoidingHistoryId = 1
+        };
+
+        Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
+
+        // Act
+        await Service.ExecuteForRecover(automationInfo, emailTickets);
+
+        // Assert
+        await cashOutHttpClientService.Received(0).VoidBet(Arg.Any<CashOutApiModel>());
+        await voidBetAutomationService.Received(0).UpdateAfterVoidStep(1, 1, Arg.Any<VoidBetAutomationInfo>());
+    }
+
+    [Fact]
+    public async Task ExecuteForRecover_NoHasTicketCashOut_NotCallCashOutApi()
+    {
+        // Arrange
+        var emailTickets = new List<TicketEmailModel>
+        {
+            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
+            new() { IsCashOut = true, SportType = 1},
+            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball}
+        };
+        var automationInfo = new VoidBetAutomationInfo
+        {
+            IsRunExternalService = false,
+            RequestId = 1,
+            VoidingHistoryId = 1
+        };
+
+        Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
+
+        // Act
+        await Service.ExecuteForRecover(automationInfo, emailTickets);
 
         // Assert
         await cashOutHttpClientService.Received(0).VoidBet(Arg.Any<CashOutApiModel>());

@@ -14,10 +14,6 @@ using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.RequestManualVoid;
 
-internal class RequestManualVoidServiceTests
-{
-}
-
 public class RequestManualVoidServiceTests
 {
     private readonly VoidBetAutomationService voidBetAutomationService;
@@ -126,7 +122,7 @@ public class RequestManualVoidServiceTests
         await mainProcessStageService.Received(1).UpdateTicketVoidingHistory(isInsertedVoidedTransaction, Arg.Any<UpdateTicketVoidingHistoryStageParameter>());
         await mainProcessStageService.Received(1).SendEmail(isUpdatedVoidingHistory, Arg.Any<SendEmailStageParameter>());
         await updateEmailResultStage.Received(1).Execute(automationInfo, Arg.Any<IEnumerable<Result>>());
-        await callCashOutApiStage.Received(1).Execute(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
+        await callCashOutApiStage.Received(1).ExecuteForVoid(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
         await voidBetAutomationService.Received(1).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await callSignalRStage.Received(1).ExecuteForManualVoid(Arg.Any<CallSignalRManualVoidParameter>());
         await writeLogAfterVoidStage.Received(1).Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<Result>>());
@@ -187,7 +183,7 @@ public class RequestManualVoidServiceTests
 
         // Assert
         await updateEmailResultStage.Received(0).Execute(automationInfo, Arg.Any<IEnumerable<Result>>());
-        await callCashOutApiStage.Received(0).Execute(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
+        await callCashOutApiStage.Received(0).ExecuteForVoid(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
         await voidBetAutomationService.Received(0).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await callSignalRStage.Received(0).ExecuteForManualVoid(Arg.Any<CallSignalRManualVoidParameter>());
         await writeLogAfterVoidStage.Received(0).Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<Result>>());

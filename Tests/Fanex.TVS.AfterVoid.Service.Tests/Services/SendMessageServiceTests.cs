@@ -53,7 +53,7 @@ public class SendMessageServiceTests
 
     private readonly MessageItemService messageItemService = Substitute.For<MessageItemService>();
     private readonly IDynamicRepository repository = Substitute.For<IDynamicRepository>();
-    private readonly TVSWebSiteHttpClientService tvsWebSiteHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
+    private readonly TVSWebSiteHttpClientService ticketVoidingSystemHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
 
     [Theory]
     [InlineData(IssueTypeConstant.AbnormalBet, 1)]
@@ -269,7 +269,7 @@ public class SendMessageServiceTests
         const int fakeSportType = 22;
         var fakeReason = Builder<VoidedReason>.CreateNew().Build();
         repository.GetAsync<VoidedReason>(Arg.Any<GetReasonNameCriteria>()).Returns(fakeReason);
-        tvsWebSiteHttpClientService.GetSportTypeNameFromBetList(fakeSportType, Arg.Any<string>()).Returns("a");
+        ticketVoidingSystemHttpClientService.GetSportTypeNameFromBetList(fakeSportType, Arg.Any<string>()).Returns("a");
         var service = new SendMessageServiceImp(repository, null, tvsWebSiteHttpClientService);
 
         var actual = await service.InitializeVoidReason(true, fakeSubIssueType, fakeSportType, null);
