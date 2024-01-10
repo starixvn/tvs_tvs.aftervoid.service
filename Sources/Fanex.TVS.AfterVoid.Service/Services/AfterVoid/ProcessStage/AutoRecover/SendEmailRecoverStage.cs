@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Models.SendEmailRecover;
 using TicketVoidingSystem.Services;
 
-namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage.AutoRecoverStage;
+namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage.AutoRecover;
 
 public interface SendEmailRecoverStage
 {
-    Task<(bool, IEnumerable<Result>)> Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> tickets);
+    Task<(bool, IEnumerable<Result>)> Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> tickets);
 }
 
 public class SendEmailRecoverStageImp : SendEmailRecoverStage
@@ -33,7 +34,7 @@ public class SendEmailRecoverStageImp : SendEmailRecoverStage
         this.tvsWebSiteHttpClientService = tvsWebSiteHttpClientService;
     }
 
-    public async Task<(bool, IEnumerable<Result>)> Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> tickets)
+    public async Task<(bool, IEnumerable<Result>)> Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> tickets)
     {
         try
         {
@@ -45,7 +46,7 @@ public class SendEmailRecoverStageImp : SendEmailRecoverStage
         }
     }
 
-    private async Task<(bool, IEnumerable<Result>)> TryExecute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> tickets)
+    private async Task<(bool, IEnumerable<Result>)> TryExecute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> tickets)
     {
         if (automationInfo.IsSentEmail == true)
         {
@@ -76,12 +77,13 @@ public class SendEmailRecoverStageImp : SendEmailRecoverStage
         return (false, new List<Result>());
     }
 
-    private static SendEmailRecoverApiModel CreateSendEmailRecoverApiModel(IEnumerable<TicketEmailModel> tickets, string negativeBalanceUsers)
+    private static SendEmailRecoverApiModel CreateSendEmailRecoverApiModel(IEnumerable<TicketRecoverEmailModel> tickets, string negativeBalanceUsers)
     {
         return new SendEmailRecoverApiModel
         {
-            EmailRecoverTickets = tickets,
-            NegativeBalanceUsers = negativeBalanceUsers
+            Tickets = tickets,
+            NegativeBalanceUsers = negativeBalanceUsers,
+            ActorUsername = AutoVoidConstant.ActorName
         };
     }
 }

@@ -4,6 +4,7 @@ namespace TicketVoidingSystem.Models.SendEmailRecover;
 
 public class SendEmailRecoverApiModel
 {
-    public IEnumerable<TicketEmailModel> EmailRecoverTickets { get; set; }
+    public string ActorUsername { get; set; }
     public string NegativeBalanceUsers { get; set; }
+    public IEnumerable<TicketRecoverEmailModel> Tickets { get; set; }
 }

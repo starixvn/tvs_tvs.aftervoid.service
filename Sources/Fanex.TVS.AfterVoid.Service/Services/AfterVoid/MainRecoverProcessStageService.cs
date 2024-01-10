@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
-using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage.AutoRecoverStage;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage.AutoRecover;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Models.SendEmailRecover;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 
@@ -12,7 +13,7 @@ public interface MainRecoverProcessStageService
 
     Task<bool> DeleteTransaction(bool isContinue, VoidBetAutomationInfo automationInfo, IEnumerable<BetId> betIds);
 
-    Task<(bool, IEnumerable<Result>)> SendEmail(bool isContinue, VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> tickets);
+    Task<(bool, IEnumerable<Result>)> SendEmail(bool isContinue, VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> tickets);
 }
 
 public class MainRecoverProcessStageServiceImp : MainRecoverProcessStageService
@@ -45,7 +46,7 @@ public class MainRecoverProcessStageServiceImp : MainRecoverProcessStageService
         return await deleteTransactionStage.Execute(automationInfo, betIds);
     }
 
-    public async Task<(bool, IEnumerable<Result>)> SendEmail(bool isContinue, VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> tickets)
+    public async Task<(bool, IEnumerable<Result>)> SendEmail(bool isContinue, VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> tickets)
     {
         if (!isContinue)
         {

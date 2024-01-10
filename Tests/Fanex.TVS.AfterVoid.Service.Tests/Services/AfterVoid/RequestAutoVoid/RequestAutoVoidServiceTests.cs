@@ -11,13 +11,11 @@ using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 using Xunit;
-using Match = TicketVoidingSystem.Models.Match;
 
-namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.RequestAutoVoid
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.RequestAutoVoid;
+
+internal class RequestAutoVoidServiceTests
 {
-    internal class RequestAutoVoidServiceTests
-    {
-    }
 }
 
 public class RequestAutoVoidServiceTests

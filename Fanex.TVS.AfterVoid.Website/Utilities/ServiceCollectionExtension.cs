@@ -13,7 +13,7 @@ using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
-using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage.AutoRecoverStage;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage.AutoRecover;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestAutoRecover;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestAutoVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Models.SendEmailRecover;
 using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
@@ -13,7 +14,7 @@ public interface CallCashOutApiStage
 {
     Task ExecuteForVoid(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets);
 
-    Task ExecuteForRecover(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets);
+    Task ExecuteForRecover(VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> emailTickets);
 }
 
 public class CallCashOutApiStageImp : CallCashOutApiStage
@@ -65,7 +66,7 @@ public class CallCashOutApiStageImp : CallCashOutApiStage
                                         $" - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
     }
 
-    public async Task ExecuteForRecover(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets)
+    public async Task ExecuteForRecover(VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> emailTickets)
     {
         try
         {
@@ -77,7 +78,7 @@ public class CallCashOutApiStageImp : CallCashOutApiStage
         }
     }
 
-    private async Task TryExecuteForRecover(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets)
+    private async Task TryExecuteForRecover(VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> emailTickets)
     {
         if (automationInfo.IsRunExternalService == true)
         {
