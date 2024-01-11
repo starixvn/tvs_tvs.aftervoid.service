@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Models.Parameters;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage.AutoRecover;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Models.SendEmailRecover;
@@ -13,6 +15,8 @@ public interface MainRecoverProcessStageService
 
     Task<bool> DeleteTransaction(bool isContinue, VoidBetAutomationInfo automationInfo, IEnumerable<BetId> betIds);
 
+    Task<bool> UpdateTicketVoidingHistory(bool isContinue, UpdateTicketVoidingHistoryStageParameter parameter);
+
     Task<(bool, IEnumerable<Result>)> SendEmail(bool isContinue, VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> tickets);
 }
 
@@ -21,14 +25,15 @@ public class MainRecoverProcessStageServiceImp : MainRecoverProcessStageService
     private readonly DeletedMessageStage deletedMessageStage;
     private readonly DeleteTransactionStage deleteTransactionStage;
     private readonly SendEmailRecoverStage sendEmailRecoverStage;
+    private readonly UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage;
 
-    public MainRecoverProcessStageServiceImp(DeletedMessageStage deletedMessageStage,
-        DeleteTransactionStage deleteTransactionStage,
-        SendEmailRecoverStage sendEmailRecoverStage)
+    public MainRecoverProcessStageServiceImp(DeletedMessageStage deletedMessageStage, DeleteTransactionStage deleteTransactionStage,
+        SendEmailRecoverStage sendEmailRecoverStage, UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage)
     {
         this.deletedMessageStage = deletedMessageStage;
         this.deleteTransactionStage = deleteTransactionStage;
         this.sendEmailRecoverStage = sendEmailRecoverStage;
+        this.updateTicketVoidingHistoryStage = updateTicketVoidingHistoryStage;
     }
 
     public async Task<bool> DeletedMessage(VoidBetAutomationInfo automationInfo, string transIds)
@@ -44,6 +49,16 @@ public class MainRecoverProcessStageServiceImp : MainRecoverProcessStageService
         }
 
         return await deleteTransactionStage.Execute(automationInfo, betIds);
+    }
+
+    public async Task<bool> UpdateTicketVoidingHistory(bool isContinue, UpdateTicketVoidingHistoryStageParameter parameter)
+    {
+        if (isContinue)
+        {
+            return await updateTicketVoidingHistoryStage.Execute(parameter);
+        }
+
+        return false;
     }
 
     public async Task<(bool, IEnumerable<Result>)> SendEmail(bool isContinue, VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> tickets)

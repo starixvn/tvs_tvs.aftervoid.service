@@ -52,8 +52,13 @@ public class RequestAutoRecoverServiceImp : RequestAutoRecoverService
         var isDeletedMessage = await mainRecoverProcessStageService.DeletedMessage(automationInfo, string.Join(",", recoveredTickets.Select(x => x.TransId)));
         var betIds = recoveredTickets.Select(x => new BetId { TransId = x.TransId.ToString(), MatchId = x.MatchId });
         var isDeleteTransaction = await mainRecoverProcessStageService.DeleteTransaction(isDeletedMessage, automationInfo, betIds);
+        var isUpdatedVoidingHistory = await mainRecoverProcessStageService.UpdateTicketVoidingHistory(isDeleteTransaction,
+            new UpdateTicketVoidingHistoryStageParameter
+            {
+                AutomationInfo = automationInfo
+            });
 
-        var (isSentEmail, currentEmailResults) = await mainRecoverProcessStageService.SendEmail(isDeleteTransaction, automationInfo, recoveredTickets);
+        var (isSentEmail, currentEmailResults) = await mainRecoverProcessStageService.SendEmail(isUpdatedVoidingHistory, automationInfo, recoveredTickets);
 
         if (!isSentEmail)
         {
