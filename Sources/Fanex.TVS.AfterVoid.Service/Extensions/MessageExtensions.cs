@@ -54,12 +54,7 @@ public class MessageExtensionsNonStatic : IMessageExtensionsNonStatic
 
 public static class MessageExtensions
 {
-    private static IMessageExtensionsNonStatic Implementation = new MessageExtensionsNonStatic();
-
-    public static void MockImplementationForUnitTest(IMessageExtensionsNonStatic implementation)
-    {
-        Implementation = implementation;
-    }
+    private static readonly IMessageExtensionsNonStatic Implementation = new MessageExtensionsNonStatic();
 
     public static string InsertSpace(this string text)
     {

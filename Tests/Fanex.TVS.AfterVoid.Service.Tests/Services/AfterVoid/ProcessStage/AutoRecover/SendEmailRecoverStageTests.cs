@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
-using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage.AutoRecoverStage;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage.AutoRecover;
 using NSubstitute;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
@@ -11,7 +11,7 @@ using TicketVoidingSystem.Models.SendEmailRecover;
 using TicketVoidingSystem.Services;
 using Xunit;
 
-namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage.AutoRecoverStage;
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage.AutoRecover;
 
 public class SendEmailRecoverStageTests
 {
@@ -44,7 +44,7 @@ public class SendEmailRecoverStageTests
             VoidingHistoryId = 1,
             RequestId = 1
         };
-        var tickets = new List<TicketEmailModel> { new() };
+        var tickets = new List<TicketRecoverEmailModel> { new() };
         var expectedResults = new List<Result>();
         var tvsWebSiteHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
@@ -74,7 +74,7 @@ public class SendEmailRecoverStageTests
             BroadcastSessionId = "1"
         };
         const string error = "ERROR: SendEmailRecoverStage.Execute - BroadcastSessionId: 1 - VDHistoryId: 1 - RequestId: 1";
-        var tickets = new List<TicketEmailModel> { new() };
+        var tickets = new List<TicketRecoverEmailModel> { new() };
         var expectedResults = new List<Result>();
         var loggingService = Substitute.For<LoggingService>();
         var notificationSignalRService = Substitute.For<NotificationSignalRService>();
@@ -105,7 +105,7 @@ public class SendEmailRecoverStageTests
             BroadcastSessionId = "1"
         };
         const string error = "ERROR: SendEmailRecoverStage.Execute - BroadcastSessionId: 1 - VDHistoryId: 1 - RequestId: 1";
-        var tickets = new List<TicketEmailModel> { new() };
+        var tickets = new List<TicketRecoverEmailModel> { new() };
         var expectedResults = new List<Result>();
         var tvsWebSiteHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
         var loggingService = Substitute.For<LoggingService>();

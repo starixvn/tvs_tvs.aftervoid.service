@@ -9,6 +9,7 @@ using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestAutoRecover;
 using NSubstitute;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Models.SendEmailRecover;
 using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.RequestAutoRecover;
@@ -73,7 +74,7 @@ public class RequestAutoRecoverServiceTests
             SiteDbGroupId = 0
         };
         var allVoidDataInCurrentVoid = new List<VoidDataXmlModel> { new() { SingleTransIds = "1, 2" } };
-        var recoveredTickets = new List<TicketEmailModel>
+        var recoveredTickets = new List<TicketRecoverEmailModel>
         {
             new(),
             new()
@@ -86,7 +87,7 @@ public class RequestAutoRecoverServiceTests
             .ReturnsForAnyArgs(true);
         MainRecoverProcessStageService.DeleteTransaction(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<BetId>>()).ReturnsForAnyArgs(true);
         MainRecoverProcessStageService
-            .SendEmail(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketEmailModel>>())
+            .SendEmail(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketRecoverEmailModel>>())
             .ReturnsForAnyArgs((true, currentEmailResults));
 
         FakeInitDataForService(VoidBetAutomationService, UpdateEmailResultStage, WriteLogAfterVoidStage, CallSignalRStage, MainRecoverProcessStageService, CallCashOutApiStage);
@@ -101,9 +102,9 @@ public class RequestAutoRecoverServiceTests
             .DeletedMessage(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>());
         await MainRecoverProcessStageService.Received(1).DeleteTransaction(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<BetId>>());
         await MainRecoverProcessStageService.Received(1)
-            .SendEmail(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketEmailModel>>());
+            .SendEmail(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketRecoverEmailModel>>());
         await UpdateEmailResultStage.Received(1).Execute(automationInfo, Arg.Any<IEnumerable<Result>>());
-        await CallCashOutApiStage.Received(1).ExecuteForRecover(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
+        await CallCashOutApiStage.Received(1).ExecuteForRecover(automationInfo, Arg.Any<IEnumerable<TicketRecoverEmailModel>>());
         await VoidBetAutomationService.Received(1).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await CallSignalRStage.Received(1).ExecuteForManualVoid(Arg.Any<CallSignalRManualVoidParameter>());
         await WriteLogAfterVoidStage.Received(1).Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<Result>>());
@@ -130,7 +131,7 @@ public class RequestAutoRecoverServiceTests
             SiteDbGroupId = 0
         };
         var allVoidDataInCurrentVoid = new List<VoidDataXmlModel> { new() { SingleTransIds = "1, 2" } };
-        var recoveredTickets = new List<TicketEmailModel>
+        var recoveredTickets = new List<TicketRecoverEmailModel>
         {
             new(),
             new()
@@ -143,7 +144,7 @@ public class RequestAutoRecoverServiceTests
             .ReturnsForAnyArgs(true);
         MainRecoverProcessStageService.DeleteTransaction(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<BetId>>()).ReturnsForAnyArgs(true);
         MainRecoverProcessStageService
-            .SendEmail(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketEmailModel>>())
+            .SendEmail(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketRecoverEmailModel>>())
             .ReturnsForAnyArgs((false, currentEmailResults));
 
         FakeInitDataForService(VoidBetAutomationService, UpdateEmailResultStage, WriteLogAfterVoidStage, CallSignalRStage, MainRecoverProcessStageService, CallCashOutApiStage);
@@ -158,9 +159,9 @@ public class RequestAutoRecoverServiceTests
             .DeletedMessage(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>());
         await MainRecoverProcessStageService.Received(1).DeleteTransaction(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<BetId>>());
         await MainRecoverProcessStageService.Received(1)
-            .SendEmail(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketEmailModel>>());
+            .SendEmail(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketRecoverEmailModel>>());
         await UpdateEmailResultStage.Received(0).Execute(automationInfo, Arg.Any<IEnumerable<Result>>());
-        await CallCashOutApiStage.Received(0).ExecuteForRecover(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
+        await CallCashOutApiStage.Received(0).ExecuteForRecover(automationInfo, Arg.Any<IEnumerable<TicketRecoverEmailModel>>());
         await VoidBetAutomationService.Received(0).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await CallSignalRStage.Received(0).ExecuteForManualVoid(Arg.Any<CallSignalRManualVoidParameter>());
         await WriteLogAfterVoidStage.Received(0).Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<Result>>());

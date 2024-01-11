@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Constants;
@@ -102,19 +103,39 @@ public class SendMessageServiceTests
         Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);
     }
 
-    [Fact]
-    public async Task InitializeMessageContentForAutoVoid_HasNotMatch_ShouldReturnExpectedData()
+    [Theory]
+    [InlineData(1, 1)]
+    [InlineData(1, 2)]
+    [InlineData(2, 2)]
+    public async Task InitializeMessageContentForAutoVoid_HasNotMatch_ShouldReturnExpectedData(int subIssueTypeId, int sportType)
     {
-        var fakeTemplate = Builder<TemplateModel>.CreateListOfSize(6)
+        var fakeTemplateSetting = new List<TemplateSetting>
+        {
+            new (){SubIssueTypeId = 1, SportType = 1, TemplateId = 1},
+            new (){SubIssueTypeId = 1, SportType = null, TemplateId = 2}
+        };
+        var fakeTemplate = Builder<TemplateModel>.CreateListOfSize(8)
             .Random(1).With(x => x.TemplateId = 37)
             .Random(1).With(x => x.TemplateId = 34)
             .Random(1).With(x => x.TemplateId = 1)
             .Build();
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
+        repository.FetchAsync<TemplateSetting>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplateSetting);
         var requestInfo = new RequestDetailViewModel
         {
-            Request = new RequestModel { IssueTypeId = 1 },
-            EventByMatch = new RequestEventModel { SubIssueTypeId = 1 }
+            Request = new RequestModel { IssueTypeId = 1, SportType = sportType },
+            EventByMatch = new RequestEventModel
+            {
+                SubIssueTypeId = subIssueTypeId,
+                KickOffTime = DateTimeOffset.Now.DateTime
+            },
+            PlayerNamesSelected = new TemplateContent
+            {
+                MsgEnglish = "a",
+                MsgChineseNewSimplified = "a",
+                MsgChineseSimplified = "a",
+                MsgChineseTraditional = "a"
+            }
         };
         var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>
         {

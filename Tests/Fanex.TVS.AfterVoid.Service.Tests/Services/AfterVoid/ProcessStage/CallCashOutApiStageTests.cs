@@ -7,6 +7,7 @@ using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using NSubstitute;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Models.SendEmailRecover;
 using TicketVoidingSystem.Services;
 using Xunit;
 
@@ -138,7 +139,7 @@ public class CallCashOutApiStageTests
     public async Task ExecuteForRecover_CallCashOutApiSuccess_CalledExpected()
     {
         // Arrange
-        var emailTickets = new List<TicketEmailModel>
+        var emailTickets = new List<TicketRecoverEmailModel>
         {
             new() { IsCashOut = true, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
             new() { IsCashOut = true, SportType = 1},
@@ -165,7 +166,7 @@ public class CallCashOutApiStageTests
     public async Task ExecuteForRecover_HasException_CalledExpected()
     {
         // Arrange
-        var emailTickets = new List<TicketEmailModel>
+        var emailTickets = new List<TicketRecoverEmailModel>
         {
             new() { IsCashOut = true, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
             new() { IsCashOut = true, SportType = 1},
@@ -192,7 +193,7 @@ public class CallCashOutApiStageTests
     public async Task ExecuteForRecover_IsRunExternalService_NotCallCashOutApi()
     {
         // Arrange
-        var emailTickets = new List<TicketEmailModel>
+        var emailTickets = new List<TicketRecoverEmailModel>
         {
             new() { IsCashOut = true, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
             new() { IsCashOut = true, SportType = 1},
@@ -219,7 +220,7 @@ public class CallCashOutApiStageTests
     public async Task ExecuteForRecover_NoHasTicketCashOut_NotCallCashOutApi()
     {
         // Arrange
-        var emailTickets = new List<TicketEmailModel>
+        var emailTickets = new List<TicketRecoverEmailModel>
         {
             new() { IsCashOut = false, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
             new() { IsCashOut = true, SportType = 1},
