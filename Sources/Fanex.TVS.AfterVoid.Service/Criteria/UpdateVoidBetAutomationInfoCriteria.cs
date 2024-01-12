@@ -32,6 +32,10 @@ public class UpdateVoidBetAutomationInfoCriteria : NonQueryCommand
 
     public bool? IsSentLetsTalk { get; set; }
 
+    public bool? IsDeletedMessage { get; set; }
+
+    public bool? IsDeletedVoidedTransaction { get; set; }
+
     public string VoidResults { get; set; }
 
     public override string GetSettingKey() => "TicketVoiding_VoidBetAutomation_Service_Upd";

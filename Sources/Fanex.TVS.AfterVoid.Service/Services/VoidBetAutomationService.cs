@@ -169,6 +169,8 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
             criteria.IsUpdatedVoidingHistory = afterVoidHistory.IsUpdatedVoidingHistory;
             criteria.IsSentEmail = afterVoidHistory.IsSentEmail;
             criteria.IsSentLetsTalk = afterVoidHistory.IsSentLetsTalk;
+            criteria.IsDeletedMessage = afterVoidHistory.IsDeletedMessage;
+            criteria.IsDeletedVoidedTransaction = afterVoidHistory.IsDeletedVoidedTransaction;
             criteria.VoidResults = afterVoidHistory.VoidResults;
         }
 
