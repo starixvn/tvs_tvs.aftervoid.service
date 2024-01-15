@@ -40,8 +40,6 @@ public class TicketEmailModel : EmailSupport, SendMessageDbModel
     public string UserName { get; set; }
     public string OperatorID { get; set; }
     public byte WalletType { get; set; }
-
-    public string Winlost { get; set; }
     public DateTime WinLostDate { get; set; }
     public bool IsMixParlay { get; set; }
     public string SubStatus { get; set; }
@@ -78,4 +76,7 @@ public class TicketEmailModel : EmailSupport, SendMessageDbModel
     public int LeagueGroupId { get; set; }
     public bool IsChinaView { get; set; }
     public int SpecialPlatform { get; set; }
+    public decimal WinLost { get; set; }
+    public int VoidingHistoryId { get; set; }
+    public int SiteDbGroupId { get; set; }
 }
