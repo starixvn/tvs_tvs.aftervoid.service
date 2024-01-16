@@ -34,8 +34,7 @@ public interface VoidBetAutomationService
 
     Task<Match> GetMatchInfo(int matchId);
 
-    Task UpdateTicketVoidingHistory(int voidingHistoryId, int? reasonId, int? messageId, int? messageIdSpecial,
-        string transIds, DateTime? minWinLostDate, DateTime? maxWinLostDate);
+    Task UpdateTicketVoidingHistory(int voidingHistoryId, int? reasonId, int? messageId, int? messageIdSpecial);
 }
 
 public class VoidBetAutomationServiceImp : VoidBetAutomationService
@@ -216,8 +215,7 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         return match;
     }
 
-    public async Task UpdateTicketVoidingHistory(int voidingHistoryId, int? reasonId, int? messageId, int? messageIdSpecial,
-        string transIds, DateTime? minWinLostDate, DateTime? maxWinLostDate)
+    public async Task UpdateTicketVoidingHistory(int voidingHistoryId, int? reasonId, int? messageId, int? messageIdSpecial)
     {
         var command = new UpdateHistoryCommand
         {
@@ -225,10 +223,7 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
             StatusId = ExecuteStatus.Done,
             ReasonId = reasonId,
             MessageId = messageId,
-            MessageIdSpecial = messageIdSpecial,
-            TransIds = transIds,
-            MinWinLostDate = minWinLostDate,
-            MaxWinLostDate = maxWinLostDate
+            MessageIdSpecial = messageIdSpecial
         };
 
         await repository.ExecuteAsync(command);

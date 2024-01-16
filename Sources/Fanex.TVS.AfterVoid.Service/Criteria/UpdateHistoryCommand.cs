@@ -1,5 +1,4 @@
 ﻿using Fanex.Data.Repository;
-using System;
 
 namespace Fanex.TVS.AfterVoid.Service.Criteria;
 
@@ -10,9 +9,6 @@ public class UpdateHistoryCommand : NonQueryCommand
     public int? MessageId { get; set; }
     public int? MessageIdSpecial { get; set; }
     public int? ReasonId { get; set; }
-    public string TransIds { get; set; }
-    public DateTime? MinWinLostDate { get; set; }
-    public DateTime? MaxWinLostDate { get; set; }
 
     public override string GetSettingKey() => "TicketVoiding_VoidingHistory_Update";
 
