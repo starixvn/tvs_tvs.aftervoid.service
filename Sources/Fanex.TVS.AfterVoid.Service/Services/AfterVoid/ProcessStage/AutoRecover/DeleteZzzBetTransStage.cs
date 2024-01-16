@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
-using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Constants;
@@ -9,19 +9,19 @@ using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage.AutoRecover;
 
-public interface DeletedMessageStage
+public interface DeleteZzzBetTransStage
 {
     Task<bool> Execute(VoidBetAutomationInfo automationInfo, string transIds);
 }
 
-public class DeletedMessageStageImp : DeletedMessageStage
+public class DeleteZzzBetTransStageImp : DeleteZzzBetTransStage
 {
     private readonly LoggingService loggingService;
     private readonly NotificationSignalRService notificationSignalRService;
     private readonly VoidBetAutomationService voidBetAutomationService;
     private readonly IDynamicRepository repository;
 
-    public DeletedMessageStageImp(IDynamicRepository repository, VoidBetAutomationService voidBetAutomationService,
+    public DeleteZzzBetTransStageImp(IDynamicRepository repository, VoidBetAutomationService voidBetAutomationService,
         NotificationSignalRService notificationSignalRService, LoggingService loggingService)
     {
         this.voidBetAutomationService = voidBetAutomationService;
@@ -44,23 +44,34 @@ public class DeletedMessageStageImp : DeletedMessageStage
 
     private async Task<bool> TryExecute(VoidBetAutomationInfo automationInfo, string transIds)
     {
-        var command = new DeleteMessageCommand
-        {
-            UserId = AutoVoidConstant.ActorId,
-            TransIds = transIds
-        };
-        await repository.ExecuteAsync(command);
-
+        await ExecuteDeleteZzzBetTrans(transIds, automationInfo.RequestInfo.EventByMatch.FilterBy);
         await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId,
-        new VoidBetAutomationInfo { IsDeletedMessage = true });
+            new VoidBetAutomationInfo { IsDeletedZzzBetTrans = true });
 
         return true;
+    }
+
+    private async Task ExecuteDeleteZzzBetTrans(string transIds, int? filterBy)
+    {
+        var tasks = SiteDbGroupConstant.ServerList.Select(x => ExecuteDeleteZzzBetTransByServer(x.Id, transIds, filterBy));
+        await Task.WhenAll(tasks);
+    }
+
+    private async Task ExecuteDeleteZzzBetTransByServer(int siteDbGroupId, string transIds, int? filterBy)
+    {
+        var command = new DeleteZzzBetTransCommand
+        {
+            SiteDbGroupId = siteDbGroupId,
+            TransIds = transIds,
+            Type = filterBy
+        };
+        await repository.ExecuteAsync(command);
     }
 
     private async Task<bool> CatchException(Exception exception, VoidBetAutomationInfo automationInfo)
     {
         await loggingService.ErrorAsync(
-            $"ERROR: {nameof(DeletedMessageStage)}.{nameof(Execute)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
+            $"ERROR: {nameof(DeleteZzzBetTransStage)}.{nameof(Execute)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
             $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
             exception);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);

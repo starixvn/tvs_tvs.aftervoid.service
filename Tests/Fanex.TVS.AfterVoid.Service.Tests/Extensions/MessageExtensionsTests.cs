@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Fanex.TVS.AfterVoid.Service.Extensions;
 using TicketVoidingSystem.Models;
 using Xunit;
@@ -36,28 +37,25 @@ public class MessageExtensionsTests
         Assert.Equal(expected, actual);
     }
 
-    //[Fact]
-    //public void CreateInfoXml_ImplementationHasCalled()
-    //{
-    //    const string expected = "";
-    //    var messageExtensionsNonStatic = Substitute.For<IMessageExtensionsNonStatic>();
-    //    messageExtensionsNonStatic.CreateTicketsXml(Arg.Any<TicketEmailModel>()).ReturnsForAnyArgs(expected);
-    //    MessageExtensions.MockImplementationForUnitTest(messageExtensionsNonStatic);
-
-    //    var actual = new List<TicketEmailModel>().CreateTicketsXml();
-
-    //    messageExtensionsNonStatic.Received(1).CreateTicketsXml(Arg.Any<IEnumerable<TicketEmailModel>>());
-    //    Assert.Equal(expected, actual);
-    //}
-
     [Fact]
     public void MessageExtensionsNonStaticCreateInfoXml_ReturnExpected()
     {
-        var tickets = new List<TicketEmailModel> { new() { TransId = 12312312, CustId = 1, MatchId = 1 } };
-        var staticExtension = new MessageExtensionsNonStatic();
+        var tickets = new List<TicketEmailModel> { new()
+        {
+            TransId = 12312312, CustId = 1, MatchId = 1,
+            WinLostDate = DateTimeOffset.MinValue.DateTime,
+            Status = "Done",
+            BetTypeId = 1,
+            Stake = 1,
+            WinLost = "100",
+            VoidingHistoryId = 1,
+            SiteDbGroupId = 0
+        } };
+        const string expected = "<root>\r\n  <r TransId=\"12312312\" CustId=\"1\" MatchId=\"1\" WinLostDate=\"0001-01-01T00:00:00\" Status=\"Done\" " +
+                                "BetTypeId=\"1\" Stake=\"1\" WinLost=\"100\" VoidingHistoryId=\"1\" SiteDbGroupId=\"0\" />\r\n</root>";
 
-        var actual = staticExtension.CreateTicketsXml(tickets);
+        var actual = tickets.CreateTicketsXml();
 
-        Assert.NotNull(actual);
+        Assert.Equal(expected, actual);
     }
 }

@@ -33,7 +33,14 @@ public class SendMessageServiceTests
             SagUserName = "SagUserName",
             TransId = 123456789,
             IsMixParlay = false,
-            MatchId = 111
+            MatchId = 111,
+            WinLostDate = DateTimeOffset.MinValue.DateTime,
+            Status = "Done",
+            BetTypeId = 1,
+            Stake = 1,
+            WinLost = "100",
+            VoidingHistoryId = 1,
+            SiteDbGroupId = 0
         },
         new()
         {
@@ -48,7 +55,14 @@ public class SendMessageServiceTests
             SagUserName = "SagUserName",
             TransId = 987654321,
             IsMixParlay = true,
-            MatchId = 1111
+            MatchId = 1111,
+            WinLostDate = DateTimeOffset.MinValue.DateTime,
+            Status = "Running",
+            BetTypeId = 1,
+            Stake = 1,
+            WinLost = "100",
+            VoidingHistoryId = 1,
+            SiteDbGroupId = 0
         }
     };
 
@@ -230,7 +244,7 @@ public class SendMessageServiceTests
             fakeData.IssueTypeId, fakeData.SubIssueTypeId, fakeData.MatchId);
 
         // Assert
-        await repository.Received().ExecuteAsync(Arg.Any<InsertVoidedTransactionCommand>());
+        await repository.Received(1).ExecuteAsync(Arg.Any<InsertVoidedTransactionCommand>());
     }
 
     [Theory]

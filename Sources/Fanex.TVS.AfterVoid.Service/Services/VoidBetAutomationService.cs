@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
@@ -169,6 +168,7 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
             criteria.IsUpdatedVoidingHistory = afterVoidHistory.IsUpdatedVoidingHistory;
             criteria.IsSentEmail = afterVoidHistory.IsSentEmail;
             criteria.IsSentLetsTalk = afterVoidHistory.IsSentLetsTalk;
+            criteria.IsDeletedZzzBetTrans = afterVoidHistory.IsDeletedZzzBetTrans;
             criteria.IsDeletedMessage = afterVoidHistory.IsDeletedMessage;
             criteria.IsDeletedVoidedTransaction = afterVoidHistory.IsDeletedVoidedTransaction;
             criteria.VoidResults = afterVoidHistory.VoidResults;

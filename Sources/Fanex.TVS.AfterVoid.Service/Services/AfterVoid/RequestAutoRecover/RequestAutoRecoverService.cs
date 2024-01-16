@@ -49,8 +49,9 @@ public class RequestAutoRecoverServiceImp : RequestAutoRecoverService
         var allVoidDataInCurrentVoid = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
         var firstVoidData = allVoidDataInCurrentVoid.First();
         var recoveredTickets = await voidBetAutomationService.GetRecoveredTicketsByVoidingHistory(firstVoidData.SingleTransIds, automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId);
-        var isDeletedMessage = await mainRecoverProcessStageService.DeletedMessage(automationInfo, string.Join(",", recoveredTickets.Select(x => x.TransId)));
         var betIds = recoveredTickets.Select(x => new BetId { TransId = x.TransId.ToString(), MatchId = x.MatchId });
+        var isDeletedZzzBetTrans = await mainRecoverProcessStageService.DeleteZzzBetTrans(automationInfo, string.Join(",", recoveredTickets.Select(x => x.TransId)));
+        var isDeletedMessage = await mainRecoverProcessStageService.DeleteMessage(isDeletedZzzBetTrans, automationInfo, string.Join(",", recoveredTickets.Select(x => x.TransId)));
         var isDeleteTransaction = await mainRecoverProcessStageService.DeleteTransaction(isDeletedMessage, automationInfo, betIds);
         var isUpdatedVoidingHistory = await mainRecoverProcessStageService.UpdateTicketVoidingHistory(isDeleteTransaction,
             new UpdateTicketVoidingHistoryStageParameter

@@ -1,6 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Functions>
     <Function Name="Send Email after Auto Void">
+        <Setting Key="DBCTG.TicketVoiding_zzzBettrans_Delete" SpName="TicketVoiding_zzzBettrans_Delete" DbName="DBCTG.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="DBSIG.TicketVoiding_zzzBettrans_Delete" SpName="TicketVoiding_zzzBettrans_Delete" DbName="DBSIG.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="DBSIG2.TicketVoiding_zzzBettrans_Delete" SpName="TicketVoiding_zzzBettrans_Delete" DbName="DBSIG2.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="DBSIG3.TicketVoiding_zzzBettrans_Delete" SpName="TicketVoiding_zzzBettrans_Delete" DbName="DBSIG3.bodb02.bodbAdminNet" TimeOut="600" />
         <Setting Key="DBCTG.TicketVoiding_Email_VoidedTicket_Select" SpName="TicketVoiding_Email_VoidedTicket_Select" DbName="DBCTG.bodb02.bodbAdminNet" TimeOut="600" />
         <Setting Key="DBSIG.TicketVoiding_Email_VoidedTicket_Select" SpName="TicketVoiding_Email_VoidedTicket_Select" DbName="DBSIG.bodb02.bodbAdminNet" TimeOut="600" />
         <Setting Key="DBSIG2.TicketVoiding_Email_VoidedTicket_Select" SpName="TicketVoiding_Email_VoidedTicket_Select" DbName="DBSIG2.bodb02.bodbAdminNet" TimeOut="600" />

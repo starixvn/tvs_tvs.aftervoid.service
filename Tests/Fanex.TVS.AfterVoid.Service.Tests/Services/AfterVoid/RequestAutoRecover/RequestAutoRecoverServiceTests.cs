@@ -50,7 +50,7 @@ public class RequestAutoRecoverServiceTests
         await Service.Execute(automationInfo, true, "", null);
 
         // Assert
-        await MainRecoverProcessStageService.Received(0).DeletedMessage(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>());
+        await MainRecoverProcessStageService.Received(0).DeleteMessage(Arg.Any<bool>(), Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>());
     }
 
     [Fact]
@@ -81,7 +81,8 @@ public class RequestAutoRecoverServiceTests
 
         VoidBetAutomationService.GetVoidDataFromVoidingHistory(1).ReturnsForAnyArgs(allVoidDataInCurrentVoid);
         VoidBetAutomationService.GetRecoveredTicketsByVoidingHistory("1, 2", automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId).ReturnsForAnyArgs(recoveredTickets);
-        MainRecoverProcessStageService.DeletedMessage(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>()).ReturnsForAnyArgs(true);
+        MainRecoverProcessStageService.DeleteZzzBetTrans(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>()).ReturnsForAnyArgs(true);
+        MainRecoverProcessStageService.DeleteMessage(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>()).ReturnsForAnyArgs(true);
         MainRecoverProcessStageService.DeleteTransaction(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<BetId>>()).ReturnsForAnyArgs(true);
         MainRecoverProcessStageService.SendEmail(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketRecoverEmailModel>>()).ReturnsForAnyArgs((true, currentEmailResults));
         MainRecoverProcessStageService.UpdateTicketVoidingHistory(true, Arg.Any<UpdateTicketVoidingHistoryStageParameter>()).ReturnsForAnyArgs(true);
@@ -93,7 +94,8 @@ public class RequestAutoRecoverServiceTests
         // Assert
         await VoidBetAutomationService.Received(1).GetVoidDataFromVoidingHistory(1);
         await VoidBetAutomationService.Received(1).GetRecoveredTicketsByVoidingHistory("1, 2", automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId);
-        await MainRecoverProcessStageService.Received(1).DeletedMessage(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>());
+        await MainRecoverProcessStageService.Received(1).DeleteZzzBetTrans(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>());
+        await MainRecoverProcessStageService.Received(1).DeleteMessage(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>());
         await MainRecoverProcessStageService.Received(1).DeleteTransaction(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<BetId>>());
         await MainRecoverProcessStageService.Received(1).SendEmail(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketRecoverEmailModel>>());
         await MainRecoverProcessStageService.Received(1).UpdateTicketVoidingHistory(true, Arg.Any<UpdateTicketVoidingHistoryStageParameter>());
@@ -134,7 +136,8 @@ public class RequestAutoRecoverServiceTests
 
         VoidBetAutomationService.GetVoidDataFromVoidingHistory(1).ReturnsForAnyArgs(allVoidDataInCurrentVoid);
         VoidBetAutomationService.GetRecoveredTicketsByVoidingHistory("1, 2", automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId).ReturnsForAnyArgs(recoveredTickets);
-        MainRecoverProcessStageService.DeletedMessage(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>()).ReturnsForAnyArgs(true);
+        MainRecoverProcessStageService.DeleteZzzBetTrans(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>()).ReturnsForAnyArgs(true);
+        MainRecoverProcessStageService.DeleteMessage(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>()).ReturnsForAnyArgs(true);
         MainRecoverProcessStageService.DeleteTransaction(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<BetId>>()).ReturnsForAnyArgs(true);
         MainRecoverProcessStageService.SendEmail(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketRecoverEmailModel>>()).ReturnsForAnyArgs((false, currentEmailResults));
         MainRecoverProcessStageService.UpdateTicketVoidingHistory(true, Arg.Any<UpdateTicketVoidingHistoryStageParameter>()).ReturnsForAnyArgs(true);
@@ -146,7 +149,8 @@ public class RequestAutoRecoverServiceTests
         // Assert
         await VoidBetAutomationService.Received(1).GetVoidDataFromVoidingHistory(1);
         await VoidBetAutomationService.Received(1).GetRecoveredTicketsByVoidingHistory("1, 2", automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId);
-        await MainRecoverProcessStageService.Received(1).DeletedMessage(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>());
+        await MainRecoverProcessStageService.Received(1).DeleteZzzBetTrans(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>());
+        await MainRecoverProcessStageService.Received(1).DeleteMessage(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>());
         await MainRecoverProcessStageService.Received(1).DeleteTransaction(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<BetId>>());
         await MainRecoverProcessStageService.Received(1).SendEmail(true, Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketRecoverEmailModel>>());
         await UpdateEmailResultStage.Received(0).Execute(automationInfo, Arg.Any<IEnumerable<Result>>());

@@ -145,9 +145,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<WriteLogAfterVoidStage, WriteLogAfterVoidStageImp>();
         services.AddSingleton<RemotingRefWrapperService, RemotingRefWrapperServiceImp>();
         services.AddSingleton<MatchService, MatchServiceImp>();
-        services.AddSingleton<DeletedMessageStage, DeletedMessageStageImp>();
+        services.AddSingleton<DeleteMessageStage, DeleteMessageStageImp>();
         services.AddSingleton<SendEmailRecoverStage, SendEmailRecoverStageImp>();
         services.AddSingleton<DeleteTransactionStage, DeleteTransactionStageImp>();
+        services.AddSingleton<DeleteZzzBetTransStage, DeleteZzzBetTransStageImp>();
         services.AddSingleton<RequestAutoRecoverService, RequestAutoRecoverServiceImp>();
         services.AddSingleton<MainRecoverProcessStageService, MainRecoverProcessStageServiceImp>();
     }

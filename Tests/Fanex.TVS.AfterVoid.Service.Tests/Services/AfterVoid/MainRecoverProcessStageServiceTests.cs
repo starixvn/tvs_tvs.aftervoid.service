@@ -19,16 +19,37 @@ public class MainRecoverProcessStageServiceTests
     [InlineData("", false, false)]
     [InlineData("1", false, false)]
     [InlineData("1", true, true)]
-    public async Task DeletedMessage_ReturnExpected(string transIds, bool isDeletedMessage, bool expected)
+    public async Task DeleteZzzBetTrans_ReturnExpected(string transIds, bool isDeletedZzzBetTrans, bool expected)
     {
         // Arrange
-        var deletedMessageStage = Substitute.For<DeletedMessageStage>();
+        var deleteZzzBetTransStage = Substitute.For<DeleteZzzBetTransStage>();
 
-        deletedMessageStage.Execute(Arg.Any<VoidBetAutomationInfo>(), transIds).ReturnsForAnyArgs(isDeletedMessage);
-        var service = new MainRecoverProcessStageServiceImp(deletedMessageStage, null, null, null);
+        deleteZzzBetTransStage.Execute(Arg.Any<VoidBetAutomationInfo>(), transIds).ReturnsForAnyArgs(isDeletedZzzBetTrans);
+        var service = new MainRecoverProcessStageServiceImp(null, null, null, null, deleteZzzBetTransStage);
 
         // Act
-        var actual = await service.DeletedMessage(null, transIds);
+        var actual = await service.DeleteZzzBetTrans(null, transIds);
+
+        // Assert
+        Assert.Equal(expected, actual);
+    }
+
+    [Theory]
+    [InlineData(true, "", true, false)]
+    [InlineData(true, "", false, false)]
+    [InlineData(true, "1", false, false)]
+    [InlineData(true, "1", true, true)]
+    [InlineData(false, "1", true, false)]
+    public async Task DeletedMessage_ReturnExpected(bool isContinue, string transIds, bool isDeletedMessage, bool expected)
+    {
+        // Arrange
+        var deletedMessageStage = Substitute.For<DeleteMessageStage>();
+
+        deletedMessageStage.Execute(Arg.Any<VoidBetAutomationInfo>(), transIds).ReturnsForAnyArgs(isDeletedMessage);
+        var service = new MainRecoverProcessStageServiceImp(deletedMessageStage, null, null, null, null);
+
+        // Act
+        var actual = await service.DeleteMessage(isContinue, null, transIds);
 
         // Assert
         Assert.Equal(expected, actual);
@@ -44,7 +65,7 @@ public class MainRecoverProcessStageServiceTests
         var deleteTransactionStage = Substitute.For<DeleteTransactionStage>();
 
         deleteTransactionStage.Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<BetId>>()).ReturnsForAnyArgs(isDeleteTransaction);
-        var service = new MainRecoverProcessStageServiceImp(null, deleteTransactionStage, null, null);
+        var service = new MainRecoverProcessStageServiceImp(null, deleteTransactionStage, null, null, null);
 
         // Act
         var actual = await service.DeleteTransaction(isContinue, null, null);
@@ -62,7 +83,7 @@ public class MainRecoverProcessStageServiceTests
         // Arrange
         var updateTicketVoidingHistoryStage = Substitute.For<UpdateTicketVoidingHistoryStage>();
         updateTicketVoidingHistoryStage.Execute(Arg.Any<UpdateTicketVoidingHistoryStageParameter>()).ReturnsForAnyArgs(isUpdateTicketVoidingHistory);
-        var service = new MainRecoverProcessStageServiceImp(null, null, null, updateTicketVoidingHistoryStage);
+        var service = new MainRecoverProcessStageServiceImp(null, null, null, updateTicketVoidingHistoryStage, null);
 
         // Act
         var actual = await service.UpdateTicketVoidingHistory(isContinue, default);
@@ -81,7 +102,7 @@ public class MainRecoverProcessStageServiceTests
         var sendEmailRecoverStage = Substitute.For<SendEmailRecoverStage>();
 
         sendEmailRecoverStage.Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketRecoverEmailModel>>()).ReturnsForAnyArgs((isSendEmail, new List<Result>()));
-        var service = new MainRecoverProcessStageServiceImp(null, null, sendEmailRecoverStage, default);
+        var service = new MainRecoverProcessStageServiceImp(null, null, sendEmailRecoverStage, default, null);
 
         // Act
         var (actual, _) = await service.SendEmail(isContinue, null, null);

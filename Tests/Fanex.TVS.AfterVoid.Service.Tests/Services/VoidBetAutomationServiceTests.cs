@@ -311,6 +311,7 @@ public class VoidBetAutomationServiceTests
 
         // Act
         await service.UpdateTicketVoidingHistory(fakeVoidingHistoryId, fakeStatusId, fakeReasonId,
+            fakeMessageId);
 
         // Assert
         await repository.Received(1).ExecuteAsync(Arg.Any<UpdateHistoryCommand>());

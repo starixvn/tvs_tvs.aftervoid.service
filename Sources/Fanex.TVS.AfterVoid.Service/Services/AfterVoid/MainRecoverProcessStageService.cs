@@ -11,7 +11,9 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 
 public interface MainRecoverProcessStageService
 {
-    Task<bool> DeletedMessage(VoidBetAutomationInfo automationInfo, string transIds);
+    Task<bool> DeleteZzzBetTrans(VoidBetAutomationInfo automationInfo, string transIds);
+
+    Task<bool> DeleteMessage(bool isContinue, VoidBetAutomationInfo automationInfo, string transIds);
 
     Task<bool> DeleteTransaction(bool isContinue, VoidBetAutomationInfo automationInfo, IEnumerable<BetId> betIds);
 
@@ -22,22 +24,34 @@ public interface MainRecoverProcessStageService
 
 public class MainRecoverProcessStageServiceImp : MainRecoverProcessStageService
 {
-    private readonly DeletedMessageStage deletedMessageStage;
+    private readonly DeleteZzzBetTransStage deleteZzzBetTransStage;
+    private readonly DeleteMessageStage deletedMessageStage;
     private readonly DeleteTransactionStage deleteTransactionStage;
     private readonly SendEmailRecoverStage sendEmailRecoverStage;
     private readonly UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage;
 
-    public MainRecoverProcessStageServiceImp(DeletedMessageStage deletedMessageStage, DeleteTransactionStage deleteTransactionStage,
-        SendEmailRecoverStage sendEmailRecoverStage, UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage)
+    public MainRecoverProcessStageServiceImp(DeleteMessageStage deletedMessageStage, DeleteTransactionStage deleteTransactionStage,
+        SendEmailRecoverStage sendEmailRecoverStage, UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage, DeleteZzzBetTransStage deleteZzzBetTransStage)
     {
+        this.deleteZzzBetTransStage = deleteZzzBetTransStage;
         this.deletedMessageStage = deletedMessageStage;
         this.deleteTransactionStage = deleteTransactionStage;
         this.sendEmailRecoverStage = sendEmailRecoverStage;
         this.updateTicketVoidingHistoryStage = updateTicketVoidingHistoryStage;
     }
 
-    public async Task<bool> DeletedMessage(VoidBetAutomationInfo automationInfo, string transIds)
+    public async Task<bool> DeleteZzzBetTrans(VoidBetAutomationInfo automationInfo, string transIds)
     {
+        return !string.IsNullOrWhiteSpace(transIds) && await deleteZzzBetTransStage.Execute(automationInfo, transIds);
+    }
+
+    public async Task<bool> DeleteMessage(bool isContinue, VoidBetAutomationInfo automationInfo, string transIds)
+    {
+        if (!isContinue)
+        {
+            return false;
+        }
+
         return !string.IsNullOrWhiteSpace(transIds) && await deletedMessageStage.Execute(automationInfo, transIds);
     }
 
