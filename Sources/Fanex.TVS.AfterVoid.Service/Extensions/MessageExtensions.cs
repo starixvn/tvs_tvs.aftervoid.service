@@ -26,7 +26,7 @@ public class MessageExtensionsNonStatic : IMessageExtensionsNonStatic
                 new XAttribute("Status", ticket.Status),
                 new XAttribute("BetTypeId", ticket.BetTypeId),
                 new XAttribute("Stake", ticket.Stake),
-                new XAttribute("WinLost", ticket.WinLost),
+                new XAttribute("WinLost", ticket.ZzzWinlost),
                 new XAttribute("VoidingHistoryId", ticket.VoidingHistoryId),
                 new XAttribute("SiteDbGroupId", ticket.SiteDbGroupId));
             custInfo.Add(element);
