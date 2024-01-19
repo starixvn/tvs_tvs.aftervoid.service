@@ -23,10 +23,10 @@ public class MessageExtensionsNonStatic : IMessageExtensionsNonStatic
                 new XAttribute("CustId", ticket.CustId),
                 new XAttribute("MatchId", ticket.MatchId),
                 new XAttribute("WinLostDate", ticket.WinLostDate),
-                new XAttribute("Status", ticket.Status),
+                new XAttribute("Status", ticket.Status ?? string.Empty),
                 new XAttribute("BetTypeId", ticket.BetTypeId),
                 new XAttribute("Stake", ticket.Stake),
-                new XAttribute("WinLost", ticket.ZzzWinlost),
+                new XAttribute("WinLost", ticket.ZzzWinlost ?? string.Empty),
                 new XAttribute("VoidingHistoryId", ticket.VoidingHistoryId),
                 new XAttribute("SiteDbGroupId", ticket.SiteDbGroupId));
             custInfo.Add(element);
