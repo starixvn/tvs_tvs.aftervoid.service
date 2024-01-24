@@ -69,15 +69,7 @@ public class RequestAutoRecoverServiceImp : RequestAutoRecoverService
         await updateEmailResultStage.Execute(automationInfo, currentEmailResults);
         await callCashOutApiStage.ExecuteForRecover(automationInfo, recoveredTickets);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
-        await callSignalRStage.ExecuteForManualVoid(new CallSignalRManualVoidParameter
-        {
-            AutomationInfo = automationInfo,
-            IsLastedInRequest = isLastedInRequest,
-            CurrentRequestStatus = currentRequestStatus,
-            CreatorName = firstVoidData.CreatorName,
-            CurrentEmailResults = currentEmailResults,
-            EmailResultsHistory = emailResultsHistory
-        });
+        await callSignalRStage.ExecuteForAutoRecover(isLastedInRequest, currentRequestStatus, automationInfo);
         await writeLogAfterVoidStage.Execute(automationInfo, currentEmailResults);
     }
 }

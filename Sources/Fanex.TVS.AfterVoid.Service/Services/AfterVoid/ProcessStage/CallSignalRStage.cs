@@ -14,6 +14,8 @@ public interface CallSignalRStage
 {
     Task ExecuteForAutoVoid(bool isLastedInRequest, string currentRequestStatus, VoidBetAutomationInfo automationInfo);
 
+    Task ExecuteForAutoRecover(bool isLastedInRequest, string currentRequestStatus, VoidBetAutomationInfo automationInfo);
+
     Task ExecuteForManualVoid(CallSignalRManualVoidParameter parameter);
 }
 
@@ -31,6 +33,16 @@ public class CallSignalRStageImp : CallSignalRStage
         if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
         {
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
+        }
+    }
+
+    public async Task ExecuteForAutoRecover(bool isLastedInRequest, string currentRequestStatus, VoidBetAutomationInfo automationInfo)
+    {
+        if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
+        {
+            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
+            var signalRResults = new List<Result> { new() { ErrorCode = ErrorCode.VoidRequestSuccess, ErrorMsg = $"Request ID: {automationInfo.RequestId} recovered successfully!" } };
+            await notificationSignalRService.NotifyVoidResultToUser(automationInfo.RequestInfo.Request.RequestedBy, signalRResults);
         }
     }
 
