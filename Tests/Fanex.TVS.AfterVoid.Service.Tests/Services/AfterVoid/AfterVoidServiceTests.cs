@@ -93,7 +93,7 @@ public class AfterVoidServiceTests
 
         // Assert
         await loggingService.Received(1).InfoAsync(Arg.Any<string>());
-        await requestAutoRecoverService.Received(1).Received().Execute(automationInfo, false, "", Arg.Any<IEnumerable<EmailResultModel>>());
+        await requestAutoRecoverService.Received(1).Received().Execute(automationInfo, false, "");
     }
 
     [Fact]

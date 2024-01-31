@@ -47,7 +47,7 @@ public class RequestAutoRecoverServiceTests
         FakeInitDataForService(null, null, null, null, MainRecoverProcessStageService, null);
 
         // Act
-        await Service.Execute(automationInfo, true, "", null);
+        await Service.Execute(automationInfo, true, "");
 
         // Assert
         await MainRecoverProcessStageService.Received(0).DeleteMessage(Arg.Any<bool>(), Arg.Any<VoidBetAutomationInfo>(), Arg.Any<string>());
@@ -89,7 +89,7 @@ public class RequestAutoRecoverServiceTests
         FakeInitDataForService(VoidBetAutomationService, UpdateEmailResultStage, WriteLogAfterVoidStage, CallSignalRStage, MainRecoverProcessStageService, CallCashOutApiStage);
 
         // Act
-        await Service.Execute(automationInfo, true, "", null);
+        await Service.Execute(automationInfo, true, "");
 
         // Assert
         await VoidBetAutomationService.Received(1).GetVoidDataFromVoidingHistory(1);
@@ -102,7 +102,7 @@ public class RequestAutoRecoverServiceTests
         await UpdateEmailResultStage.Received(1).Execute(automationInfo, Arg.Any<IEnumerable<Result>>());
         await CallCashOutApiStage.Received(1).ExecuteForRecover(automationInfo, Arg.Any<IEnumerable<TicketRecoverEmailModel>>());
         await VoidBetAutomationService.Received(1).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
-        await CallSignalRStage.Received(1).ExecuteForManualVoid(Arg.Any<CallSignalRManualVoidParameter>());
+        await CallSignalRStage.Received(1).ExecuteForAutoRecover(Arg.Any<bool>(), Arg.Any<string>(), Arg.Any<VoidBetAutomationInfo>());
         await WriteLogAfterVoidStage.Received(1).Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<Result>>());
     }
 
@@ -144,7 +144,7 @@ public class RequestAutoRecoverServiceTests
         FakeInitDataForService(VoidBetAutomationService, UpdateEmailResultStage, WriteLogAfterVoidStage, CallSignalRStage, MainRecoverProcessStageService, CallCashOutApiStage);
 
         // Act
-        await Service.Execute(automationInfo, true, "", null);
+        await Service.Execute(automationInfo, true, "");
 
         // Assert
         await VoidBetAutomationService.Received(1).GetVoidDataFromVoidingHistory(1);

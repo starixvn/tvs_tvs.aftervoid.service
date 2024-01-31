@@ -55,7 +55,7 @@ public class AfterVoidServiceImp : AfterVoidService
 
         if (requestsWillRunAfterVoid.IsAutoVoid)
         {
-            await ExecuteForAutoQueue(requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus, emailResultsHistory);
+            await ExecuteForAutoQueue(requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus);
         }
         else
         {
@@ -74,11 +74,11 @@ public class AfterVoidServiceImp : AfterVoidService
         automationInfo.RequestInfo = await voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId);
     }
 
-    private async Task ExecuteForAutoQueue(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory)
+    private async Task ExecuteForAutoQueue(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
     {
         if (automationInfo.RequestInfo.Request.ActionId == VoidActionTypeConstant.AutoRecoverInstant)
         {
-            await requestAutoRecoverService.Execute(automationInfo, isLastedInRequest, currentRequestStatus, emailResultsHistory);
+            await requestAutoRecoverService.Execute(automationInfo, isLastedInRequest, currentRequestStatus);
         }
         else
         {

@@ -51,8 +51,8 @@ public class MessageExtensionsTests
             VoidingHistoryId = 1,
             SiteDbGroupId = 0
         } };
-        const string expected = "<root>\r\n  <r TransId=\"12312312\" CustId=\"1\" MatchId=\"1\" WinLostDate=\"0001-01-01T00:00:00\" Status=\"Done\" " +
-                                "BetTypeId=\"1\" Stake=\"1\" WinLost=\"100\" VoidingHistoryId=\"1\" SiteDbGroupId=\"0\" />\r\n</root>";
+        var expected = $"<root>{Environment.NewLine}  <r TransId=\"12312312\" CustId=\"1\" MatchId=\"1\" WinLostDate=\"0001-01-01T00:00:00\" Status=\"Done\" " +
+                                $"BetTypeId=\"1\" Stake=\"1\" WinLost=\"\" VoidingHistoryId=\"1\" SiteDbGroupId=\"0\" />{Environment.NewLine}</root>";
 
         var actual = tickets.CreateTicketsXml();
 

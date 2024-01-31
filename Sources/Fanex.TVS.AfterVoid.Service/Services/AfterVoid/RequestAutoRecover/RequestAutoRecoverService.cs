@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
@@ -11,7 +10,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestAutoRecover;
 
 public interface RequestAutoRecoverService
 {
-    Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory);
+    Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus);
 }
 
 public class RequestAutoRecoverServiceImp : RequestAutoRecoverService
@@ -35,16 +34,15 @@ public class RequestAutoRecoverServiceImp : RequestAutoRecoverService
         this.callCashOutApiStage = callCashOutApiStage;
     }
 
-    public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus,
-        IEnumerable<EmailResultModel> emailResultsHistory)
+    public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
     {
         if (automationInfo.StatusId != ExecuteStatus.Done)
         {
-            await ExecuteStepByStep(automationInfo, isLastedInRequest, currentRequestStatus, emailResultsHistory);
+            await ExecuteStepByStep(automationInfo, isLastedInRequest, currentRequestStatus);
         }
     }
 
-    private async Task ExecuteStepByStep(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory)
+    private async Task ExecuteStepByStep(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
     {
         var allVoidDataInCurrentVoid = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
         var firstVoidData = allVoidDataInCurrentVoid.First();
