@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Constants;
@@ -41,7 +42,13 @@ public class CallSignalRStageImp : CallSignalRStage
         if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
         {
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
-            var signalRResults = new List<Result> { new() { ErrorCode = ErrorCode.VoidRequestSuccess, ErrorMsg = $"Request ID: {automationInfo.RequestId} recovered successfully!" } };
+
+            var messageSuccessful = $"Request ID: {automationInfo.RequestId} recovered successfully!";
+            if (automationInfo.RequestInfo.Request.IsHasResettledTicket)
+            {
+                messageSuccessful += $"{Environment.NewLine}Please be aware that some tickets have been re-settled automatically.";
+            }
+            var signalRResults = new List<Result> { new() { ErrorCode = ErrorCode.VoidRequestSuccess, ErrorMsg = messageSuccessful } };
             await notificationSignalRService.NotifyVoidResultToUser(automationInfo.RequestInfo.Request.RequestedBy, signalRResults);
         }
     }

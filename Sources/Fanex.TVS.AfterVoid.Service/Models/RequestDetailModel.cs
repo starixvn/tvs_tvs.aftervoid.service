@@ -37,6 +37,7 @@ public class RequestModel
 
     public string RequestedBy { get; set; }
     public string VoidedBy { get; set; }
+    public bool IsHasResettledTicket { get; set; }
 }
 
 [XmlRoot(ElementName = "r")]
