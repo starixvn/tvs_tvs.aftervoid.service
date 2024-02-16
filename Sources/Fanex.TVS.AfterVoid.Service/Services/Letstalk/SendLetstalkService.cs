@@ -162,9 +162,9 @@ public class SendLetstalkServiceImp : SendLetstalkService
 
     private static void UpdateTimeByTickets(NotificationLetstalkModel letstalkModel, IEnumerable<TicketEmailModel> emailTickets)
     {
-        letstalkModel.VoidFromDate = emailTickets.Select(x => x.WinLostDate).Min(x => x).ZoneManila()
+        letstalkModel.VoidFromDate = emailTickets.Select(x => x?.WinLostDate).Min(x => x)?.ZoneManila()
             .ToString(FormatKey.ShortDateFormatWithSlash);
-        letstalkModel.VoidToDate = emailTickets.Select(x => x.WinLostDate).Max(x => x).ZoneManila()
+        letstalkModel.VoidToDate = emailTickets.Select(x => x.WinLostDate).Max(x => x)?.ZoneManila()
             .ToString(FormatKey.ShortDateFormatWithSlash);
     }
 

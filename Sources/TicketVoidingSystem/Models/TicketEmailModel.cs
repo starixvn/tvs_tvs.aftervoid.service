@@ -40,7 +40,7 @@ public class TicketEmailModel : EmailSupport, SendMessageDbModel
     public string UserName { get; set; }
     public string OperatorID { get; set; }
     public byte WalletType { get; set; }
-    public DateTime WinLostDate { get; set; }
+    public DateTime? WinLostDate { get; set; }
     public bool IsMixParlay { get; set; }
     public string SubStatus { get; set; }
     public long SubTransId { get; set; }
