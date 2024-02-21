@@ -2,9 +2,13 @@
 
 public static class BetTypeConstant
 {
-    public const int FirstParlay = 29;
+    public const int MixParlay = 29;
 
-    public const int SecondParlay = 2799;
+    public const int VirtualSportParlay = 2799;
+
+    public const int VirtualSport4Parlay = 10449;
+
+    public const int VirtualSport4MatchWinner = 10400;
 
     public const int FirstNumberGame = 81;
 
@@ -33,6 +37,4 @@ public static class BetTypeConstant
     public const int FirstHalfHandicap = 7;
 
     public const int FirstHalfOverUnder = 8;
-
-    public const int SystemParlay = 29;
 }
