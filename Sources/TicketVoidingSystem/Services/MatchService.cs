@@ -59,6 +59,7 @@ public class MatchServiceImp : MatchService
         match.OriginLeagueName = match.LeagueName;
         match.OriginLeagueNameSimplified = match.LeagueNameSimplified;
         match.OriginLeagueNameNewSimplified = match.LeagueNameNewSimplified;
+        match.OriginLeagueNameTraditional = match.LeagueNameTraditional;
 
         return match;
     }
