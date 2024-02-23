@@ -18,14 +18,14 @@ public class SendLetstalkServiceStageTests
 {
     private LoggingService loggingService;
     private IDynamicRepository repository;
-    private TVSNewSiteHttpClientService tvsNewSiteHttpClientService;
+    private TVSWebSiteHttpClientService tvsNewSiteHttpClientService;
     private VoidBetAutomationService voidBetAutomationService;
 
     internal void InitFakeServiceTests()
     {
         repository = Substitute.For<IDynamicRepository>();
         loggingService = Substitute.For<LoggingService>();
-        tvsNewSiteHttpClientService = Substitute.For<TVSNewSiteHttpClientService>();
+        tvsNewSiteHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
         voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
     }
 

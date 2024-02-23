@@ -97,9 +97,27 @@ public class SpecialPlatformServiceTests
     public void RemoveSabaInMessageContent_HasMatchNotNull_ReturnExpected()
     {
         // Arrange
-        var match = new Match { OriginLeagueName = "saBa 123", OriginLeagueNameSimplified = "沙巴123" };
-        var message = new Message { ContentEnglish = "aaa saBa 123 saBaa", ContentChineseSimplified = "aaa 沙巴123 沙巴12" };
-        var expected = new Message { ContentEnglish = "aaa 123 saBaa", ContentChineseSimplified = "aaa 123 沙巴12" };
+        var match = new Match
+        {
+            OriginLeagueName = "saBa 123",
+            OriginLeagueNameSimplified = "沙巴123",
+            OriginLeagueNameNewSimplified = "沙巴123",
+            OriginLeagueNameTraditional = "沙巴123"
+        };
+        var message = new Message
+        {
+            ContentEnglish = "aaa saBa 123 saBaa",
+            ContentChineseSimplified = "aaa 沙巴123 沙巴12",
+            ContentNewChineseSimplified = "aaa 沙巴123 沙巴12",
+            ContentChineseTraditional = "aaa 沙巴123 沙巴12"
+        };
+        var expected = new Message
+        {
+            ContentEnglish = "aaa 123 saBaa",
+            ContentChineseSimplified = "aaa 123 沙巴12",
+            ContentNewChineseSimplified = "aaa 123 沙巴12",
+            ContentChineseTraditional = "aaa 123 沙巴12"
+        };
         var service = new SpecialPlatformServiceImp();
 
         // Act

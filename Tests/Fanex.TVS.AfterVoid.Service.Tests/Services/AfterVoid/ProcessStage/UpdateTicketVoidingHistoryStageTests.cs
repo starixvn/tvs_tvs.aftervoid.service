@@ -6,6 +6,7 @@ using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
@@ -81,8 +82,7 @@ public class UpdateTicketVoidingHistoryStageTests
         var actual = await Service.Execute(parameter);
 
         // Assert
-        await voidBetAutomationService.Received(1).UpdateTicketVoidingHistory(parameter.AutomationInfo.VoidingHistoryId, parameter.VoidReasonId,
-            parameter.NormalMessageId, parameter.SpecialMessageId, null, Arg.Any<DateTime>(), Arg.Any<DateTime>());
+        await voidBetAutomationService.Received(1).UpdateTicketVoidingHistory(parameter.AutomationInfo.VoidingHistoryId, parameter.VoidReasonId, parameter.NormalMessageId, parameter.SpecialMessageId);
         await voidBetAutomationService.Received(1).UpdateAfterVoidStep(parameter.AutomationInfo.RequestId, parameter.AutomationInfo.VoidingHistoryId, Arg.Any<VoidBetAutomationInfo>());
         Assert.True(actual);
     }
@@ -124,7 +124,7 @@ public class UpdateTicketVoidingHistoryStageTests
 
         // Assert
         await voidBetAutomationService.Received(1).UpdateTicketVoidingHistory(parameter.AutomationInfo.VoidingHistoryId, parameter.VoidReasonId,
-            parameter.NormalMessageId, parameter.SpecialMessageId, "1,2", null, null);
+            parameter.NormalMessageId, parameter.SpecialMessageId);
         await voidBetAutomationService.Received(1).UpdateAfterVoidStep(parameter.AutomationInfo.RequestId, parameter.AutomationInfo.VoidingHistoryId, Arg.Any<VoidBetAutomationInfo>());
         Assert.True(actual);
     }
@@ -155,6 +155,9 @@ public class UpdateTicketVoidingHistoryStageTests
             NormalMessageId = 1,
             SpecialMessageId = 2
         };
+        voidBetAutomationService
+            .When(x => x.UpdateTicketVoidingHistory(Arg.Any<int>(), Arg.Any<int?>(), Arg.Any<int?>(), Arg.Any<int?>()))
+            .Do(x => x.Throws(new Exception()));
         const string error = "ERROR: UpdateTicketVoidingHistoryStage.Execute - BroadcastSessionId: 1 - VDHistoryId: 1 - RequestId: 1";
         Service = new UpdateTicketVoidingHistoryStageImp(voidBetAutomationService, notificationSignalRService, loggingService);
 

@@ -17,12 +17,12 @@ public class AfterVoidEmailServiceTests
 {
     private readonly IDynamicRepository repository;
     private readonly AfterVoidEmailServiceImp service;
-    private readonly TVSNewSiteHttpClientService tvsNewSiteHttpClientService;
+    private readonly TVSWebSiteHttpClientService tvsNewSiteHttpClientService;
 
     public AfterVoidEmailServiceTests()
     {
         repository = Substitute.For<IDynamicRepository>();
-        tvsNewSiteHttpClientService = Substitute.For<TVSNewSiteHttpClientService>();
+        tvsNewSiteHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
         service = new AfterVoidEmailServiceImp(tvsNewSiteHttpClientService, repository);
     }
 

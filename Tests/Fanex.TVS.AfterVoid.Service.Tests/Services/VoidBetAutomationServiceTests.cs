@@ -303,15 +303,13 @@ public class VoidBetAutomationServiceTests
     public async Task UpdateTicketVoidingHistory_ShouldCallExecuteAsync()
     {
         // Arrange
-        const byte fakeStatusId = 1;
         const int fakeVoidingHistoryId = 331;
         const int fakeReasonId = 111;
         const int fakeMessageId = 222;
         Service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        await Service.UpdateTicketVoidingHistory(fakeVoidingHistoryId, fakeStatusId, fakeReasonId,
-            fakeMessageId, null, null, null);
+        await Service.UpdateTicketVoidingHistory(fakeVoidingHistoryId, fakeReasonId, fakeMessageId, 1);
 
         // Assert
         await repository.Received(1).ExecuteAsync(Arg.Any<UpdateHistoryCommand>());
