@@ -34,7 +34,7 @@ public class NotificationSignalRServiceITests
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetRequestSimpleInfo(default, default).ReturnsForAnyArgs(fakeRequestSimple);
         var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
-        var service = new NotificationSignalRServiceImp(voidBetAutomationService,
+        var service = new NotificationSignalRServiceImp(voidBetAutomationService, hubContext);
 
         await service.UpdateCompletedStatusForRequests(1, 1);
 

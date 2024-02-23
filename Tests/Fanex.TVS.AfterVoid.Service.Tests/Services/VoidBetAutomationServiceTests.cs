@@ -310,8 +310,7 @@ public class VoidBetAutomationServiceTests
         service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        await service.UpdateTicketVoidingHistory(fakeVoidingHistoryId, fakeStatusId, fakeReasonId,
-            fakeMessageId);
+        await service.UpdateTicketVoidingHistory(fakeVoidingHistoryId, fakeReasonId, fakeMessageId, 1);
 
         // Assert
         await repository.Received(1).ExecuteAsync(Arg.Any<UpdateHistoryCommand>());

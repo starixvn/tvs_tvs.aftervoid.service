@@ -103,6 +103,60 @@ public class CallSignalRStageTests
     }
 
     [Theory]
+    [InlineData(true, RequestStatusConstant.Completed, true)]
+    [InlineData(true, RequestStatusConstant.Completed, false)]
+    [InlineData(true, RequestStatusConstant.Running, true)]
+    [InlineData(true, RequestStatusConstant.Running, false)]
+    public async Task ExecuteForAutoRecover_HasValidData_CalledSignalR(bool isLastedInRequest, string currentRequestStatus, bool isHasResettledTicket)
+    {
+        // Arrange
+        var requestInfo = new RequestDetailViewModel
+        {
+            Request = new RequestModel
+            {
+                IsHasResettledTicket = isHasResettledTicket,
+                RequestedBy = "a"
+            }
+        };
+        var automationInfo = new VoidBetAutomationInfo
+        {
+            RequestInfo = requestInfo,
+            MatchId = 1,
+            RequestId = 1
+        };
+
+        Service = new CallSignalRStageImp(notificationSignalRService);
+
+        // Act
+        await Service.ExecuteForAutoRecover(isLastedInRequest, currentRequestStatus, automationInfo);
+
+        // Assert
+        await notificationSignalRService.Received(1).UpdateCompletedStatusForRequests(1, 1);
+        await notificationSignalRService.Received(1).NotifyVoidResultToUser("a", Arg.Any<List<Result>>());
+    }
+
+    [Theory]
+    [InlineData(false, RequestStatusConstant.Completed, true)]
+    [InlineData(false, RequestStatusConstant.Completed, false)]
+    [InlineData(false, RequestStatusConstant.Running, true)]
+    [InlineData(false, RequestStatusConstant.Running, false)]
+    [InlineData(false, RequestStatusConstant.Failed, false)]
+    public async Task ExecuteForAutoRecover_HasValidData_NotCalledSignalR(bool isLastedInRequest, string currentRequestStatus, bool isHasResettledTicket)
+    {
+        // Arrange
+        var automationInfo = new VoidBetAutomationInfo();
+
+        Service = new CallSignalRStageImp(notificationSignalRService);
+
+        // Act
+        await Service.ExecuteForAutoRecover(isLastedInRequest, currentRequestStatus, automationInfo);
+
+        // Assert
+        await notificationSignalRService.Received(0).UpdateCompletedStatusForRequests(1, 1);
+        await notificationSignalRService.Received(0).NotifyVoidResultToUser("a", Arg.Any<List<Result>>());
+    }
+
+    [Theory]
     [InlineData(false, "Completed")]
     [InlineData(true, "Failed")]
     [InlineData(false, "Failed")]
