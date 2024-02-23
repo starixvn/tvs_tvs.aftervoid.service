@@ -18,6 +18,8 @@ public interface SpecialPlatformService
 
 public class SpecialPlatformServiceImp : SpecialPlatformService
 {
+    private const string BrandNameSaba = "SABA ";
+
     private static bool IsTicketSpecialPlatform(TicketEmailModel ticket)
     {
         return ticket.LeagueGroupId.IsLeagueGroupIdSaBa() && (ticket.IsChinaView || ticket.SpecialPlatform >= SpecialPlatformConstant.JollySports);
@@ -39,10 +41,10 @@ public class SpecialPlatformServiceImp : SpecialPlatformService
         }
 
         var outputMessage = message.DeepClone();
-        var leagueNameReplaced = match.OriginLeagueName.Replace("SABA ", "", StringComparison.InvariantCultureIgnoreCase);
+        var leagueNameReplaced = match.OriginLeagueName.Replace(BrandNameSaba, "", StringComparison.InvariantCultureIgnoreCase);
 
         var leagueNameSimplifiedReplaced = match.OriginLeagueNameSimplified.Replace("沙巴", "", StringComparison.InvariantCultureIgnoreCase)
-            .Replace("SABA ", "", StringComparison.InvariantCultureIgnoreCase);
+            .Replace(BrandNameSaba, "", StringComparison.InvariantCultureIgnoreCase);
         outputMessage.ContentEnglish = outputMessage.ContentEnglish.Replace(match.OriginLeagueName, leagueNameReplaced, StringComparison.InvariantCultureIgnoreCase);
         var serializedContentChineseSimplified = JsonSerializer.Serialize(outputMessage.ContentChineseSimplified);
         var deSerializedContentChineseSimplified = JsonSerializer.Deserialize<string>(serializedContentChineseSimplified);
@@ -50,14 +52,14 @@ public class SpecialPlatformServiceImp : SpecialPlatformService
             leagueNameSimplifiedReplaced, StringComparison.InvariantCultureIgnoreCase);
 
         var leagueNameTraditionalReplaced = match.OriginLeagueNameTraditional.Replace("沙巴", "", StringComparison.InvariantCultureIgnoreCase)
-            .Replace("SABA ", "", StringComparison.InvariantCultureIgnoreCase);
+            .Replace(BrandNameSaba, "", StringComparison.InvariantCultureIgnoreCase);
         var serializedContentChineseTraditional = JsonSerializer.Serialize(outputMessage.ContentChineseTraditional);
         var deSerializedContentChineseTraditional = JsonSerializer.Deserialize<string>(serializedContentChineseTraditional);
         outputMessage.ContentChineseTraditional = deSerializedContentChineseTraditional.Replace(match.OriginLeagueNameTraditional,
             leagueNameTraditionalReplaced, StringComparison.InvariantCultureIgnoreCase);
 
         var leagueNameNewSimplifiedReplaced = match.OriginLeagueNameNewSimplified.Replace("沙巴", "", StringComparison.InvariantCultureIgnoreCase)
-            .Replace("SABA ", "", StringComparison.InvariantCultureIgnoreCase);
+            .Replace(BrandNameSaba, "", StringComparison.InvariantCultureIgnoreCase);
         var serializedContentNewChineseSimplified = JsonSerializer.Serialize(outputMessage.ContentNewChineseSimplified);
         var deSerializedContentNewChineseSimplified = JsonSerializer.Deserialize<string>(serializedContentNewChineseSimplified);
         outputMessage.ContentNewChineseSimplified = deSerializedContentNewChineseSimplified.Replace(match.OriginLeagueNameNewSimplified,
