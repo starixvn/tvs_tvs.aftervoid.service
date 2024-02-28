@@ -9,6 +9,7 @@ using Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services;
 
@@ -22,8 +23,6 @@ public interface VoidBetAutomationService
 
     Task UpdateServiceStatusByVoidingHistory(int requestId, int voidingHistoryId, int statusId);
 
-    Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int messageId);
-
     Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory);
 
     Task UpdateEmailResultByVoidingHistory(int requestId, int voidingHistoryId, string content);
@@ -35,17 +34,18 @@ public interface VoidBetAutomationService
 
     Task<Match> GetMatchInfo(int matchId);
 
-    Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId,
-        string transIds, DateTime? minWinLostDate, DateTime? maxWinLostDate);
+    Task UpdateTicketVoidingHistory(int voidingHistoryId, int? reasonId, int? messageId, int? messageIdSpecial);
 }
 
 public class VoidBetAutomationServiceImp : VoidBetAutomationService
 {
     private readonly IDynamicRepository repository;
+    private readonly MatchService matchService;
 
-    public VoidBetAutomationServiceImp(IDynamicRepository repository)
+    public VoidBetAutomationServiceImp(IDynamicRepository repository, MatchService matchService)
     {
         this.repository = repository;
+        this.matchService = matchService;
     }
 
     public async Task<(VoidBetAutomationInfo, bool, string, IEnumerable<EmailResultModel>)> GetVoidBetAutomationRunAfterVoid()
@@ -77,27 +77,27 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         {
             RequestId = requestId
         };
-        var (requests, requestEvents, message) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, Message>(criteria);
+        var (requests, requestEvents, playerNames) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, PlayerName>(criteria);
         var firstRequest = requests.First();
         var viewModel = new RequestDetailViewModel
         {
             Request = firstRequest,
             EventByMatch = IsIssueTypeHasMatchId(firstRequest.IssueTypeId) ? requestEvents.FirstOrDefault(x => x.MatchId == matchId)
                 : requestEvents.FirstOrDefault(),
-            PlayerNamesSelected = firstRequest.IssueTypeId == IssueTypeConstant.NotParticipate ? GetPlayerNamesSelected(message.First()) : null
+            PlayerNamesSelected = firstRequest.IssueTypeId == IssueTypeConstant.NotParticipate ? GetPlayerNamesSelected(playerNames.First()) : null
         };
 
         return viewModel;
     }
 
-    private static TemplateContent GetPlayerNamesSelected(Message message)
+    private static TemplateContent GetPlayerNamesSelected(PlayerName playerName)
     {
         var playerNamesSelected = new TemplateContent
         {
-            MsgEnglish = message.PlayerNamesEnglish,
-            MsgChineseSimplified = message.PlayerNamesChineseSimplified,
-            MsgChineseNewSimplified = message.PlayerNamesChineseSimplified,
-            MsgChineseTraditional = message.PlayerNamesChineseTraditional
+            MsgEnglish = playerName.PlayerNamesEnglish,
+            MsgChineseSimplified = playerName.PlayerNamesChineseSimplified,
+            MsgChineseNewSimplified = playerName.PlayerNamesChineseSimplified,
+            MsgChineseTraditional = playerName.PlayerNamesChineseTraditional
         };
 
         return playerNamesSelected;
@@ -129,16 +129,6 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateStatusByVoidingHistory, requestId, voidingHistoryId, statusId, null);
     }
 
-    public async Task UpdateMessageIdByVoidingHistory(int requestId, int voidingHistoryId, int messageId)
-    {
-        var afterVoidHistory = new VoidBetAutomationInfo
-        {
-            MessageId = messageId
-        };
-
-        await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateMessageIdByVoidingHistory, requestId, voidingHistoryId, null, afterVoidHistory);
-    }
-
     public async Task UpdateAfterVoidStep(int requestId, int voidingHistoryId, VoidBetAutomationInfo afterVoidHistory)
     {
         await UpdateVoidBetAutomationServiceInfo(VoidBetAutomationServiceUpdateType.UpdateAfterVoidStep, requestId, voidingHistoryId, null, afterVoidHistory);
@@ -168,6 +158,7 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         {
             criteria.IsRunExternalService = afterVoidHistory.IsRunExternalService;
             criteria.MessageId = afterVoidHistory.MessageId;
+            criteria.MessageIdSpecial = afterVoidHistory.MessageIdSpecial;
             criteria.ReasonId = afterVoidHistory.ReasonId;
             criteria.IsSentBatchMessage = afterVoidHistory.IsSentBatchMessage;
             criteria.IsSentMessageToAdminSite = afterVoidHistory.IsSentMessageToAdminSite;
@@ -219,21 +210,20 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
 
     public async Task<Match> GetMatchInfo(int matchId)
     {
-        return await repository.GetAsync<Match>(new GetMatchInfoCriteria { MatchId = matchId, IsMatch3rd = false });
+        var match = await repository.GetAsync<Match>(new GetMatchInfoCriteria { MatchId = matchId, IsMatch3rd = false });
+        match = matchService.UpdateMatchInfoFromRemotingRef(match);
+        return match;
     }
 
-    public async Task UpdateTicketVoidingHistory(int voidingHistoryId, int? statusId, int? reasonId, int? messageId,
-        string transIds, DateTime? minWinLostDate, DateTime? maxWinLostDate)
+    public async Task UpdateTicketVoidingHistory(int voidingHistoryId, int? reasonId, int? messageId, int? messageIdSpecial)
     {
         var command = new UpdateHistoryCommand
         {
             VoidingHistoryId = voidingHistoryId,
-            StatusId = statusId,
+            StatusId = ExecuteStatus.Done,
             ReasonId = reasonId,
             MessageId = messageId,
-            TransIds = transIds,
-            MinWinLostDate = minWinLostDate,
-            MaxWinLostDate = maxWinLostDate
+            MessageIdSpecial = messageIdSpecial
         };
 
         await repository.ExecuteAsync(command);

@@ -34,7 +34,7 @@ public class AbnormalBetLetstalkServiceTests
         int? filterBy, bool isProdEnvironment)
     {
         AppSettingService.AppSetting = new AppSettingModel
-            { LetstalkConfig = new LetstalkConfig { IsProdEnv = isProdEnvironment } };
+        { LetstalkConfig = new LetstalkConfig { IsProdEnv = isProdEnvironment } };
         var fakeNotificationLetstalkModel =
             Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         fakeNotificationLetstalkModel.IssueTypeId = issueId;
@@ -64,9 +64,11 @@ public class AbnormalBetLetstalkServiceTests
     public async Task SendToAbnormalBetGroup_ShouldReturnTrueWhenHaveNotContent()
     {
         AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true } };
-        var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(10)
-            .Random(2).With(x => x.IsCredit = true)
-            .Build();
+        var fakeTicketEmail = new List<TicketEmailModel>
+        {
+            new(){ IsCredit = true, IsInstantSettlementTicket = true, BetTypeId = 1, IsCashOut = false },
+            new(){ IsCredit = true, IsInstantSettlementTicket = false, BetTypeId = 1, IsCashOut = false }
+        };
         var letstalkService = Substitute.For<LetstalkClientService>();
         var sendLetstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
         var service = new AbnormalBetLetstalkServiceImp(sendLetstalkServiceStage, letstalkService);
@@ -80,7 +82,7 @@ public class AbnormalBetLetstalkServiceTests
     public async Task SendToAbnormalBetGroup_ShouldReturnTrue()
     {
         AppSettingService.AppSetting = new AppSettingModel
-            { LetstalkConfig = new LetstalkConfig { IsProdEnv = false } };
+        { LetstalkConfig = new LetstalkConfig { IsProdEnv = false } };
         var fakeNotificationLetstalkModel =
             Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         fakeNotificationLetstalkModel.IssueTypeId = 11;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Fanex.Caching.Redis;
 using Fanex.Data.Repository;
 using Fanex.LetstalkService.Client;
@@ -12,6 +13,10 @@ using Fanex.Logging.Sentry;
 using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestAutoVoid;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestVoid14;
 using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using Fanex.TVS.AfterVoid.Service.Utilities.AutoMapper;
 using Fanex.TVS.AfterVoid.Website.Jobs;
@@ -107,6 +112,7 @@ public static class ServiceCollectionExtensions
 
     public static void RegisterBusinessService(this IServiceCollection services)
     {
+        services.AddSingleton<IRemotingRefService, RemotingRefService>();
         services.AddSingleton<IDynamicRepository, DynamicRepository>();
         services.AddSingleton<LoggingService, LoggingServiceImp>();
         services.AddSingleton<AfterVoidService, AfterVoidServiceImp>();
@@ -114,7 +120,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<RequestAutoVoidService, RequestAutoVoidServiceImp>();
         services.AddSingleton<RequestManualVoidService, RequestManualVoidServiceImp>();
         services.AddSingleton<RequestVoid14Service, RequestVoid14ServiceImp>();
-        services.AddSingleton<AfterVoidProcessStage, AfterVoidProcessStageImp>();
         services.AddSingleton<MessageItemService, MessageItemServiceImp>();
         services.AddSingleton<NotificationSignalRService, NotificationSignalRServiceImp>();
         services.AddSingleton<SendMessageService, SendMessageServiceImp>();
@@ -124,6 +129,21 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<AbnormalBetLetstalkService, AbnormalBetLetstalkServiceImp>();
         services.AddSingleton<SendLetstalkServiceStage, SendLetstalkServiceStageImp>();
         services.AddSingleton<SettledBetLetstalkService, SettledBetLetstalkServiceImp>();
+        services.AddSingleton<UpdateTicketVoidingHistoryStage, UpdateTicketVoidingHistoryStageImp>();
+        services.AddSingleton<SendBatchMessageStage, SendBatchMessageStageImp>();
+        services.AddSingleton<InsertVoidedTransactionStage, InsertVoidedTransactionStageImp>();
+        services.AddSingleton<CreateMessageStage, CreateMessageStageImp>();
+        services.AddSingleton<SpecialPlatformService, SpecialPlatformServiceImp>();
+        services.AddSingleton<MainProcessStageService, MainProcessStageServiceImp>();
+        services.AddSingleton<CallCashOutApiStage, CallCashOutApiStageImp>();
+        services.AddSingleton<CallSignalRStage, CallSignalRStageImp>();
+        services.AddSingleton<CreateVoidReasonStage, CreateVoidReasonStageImp>();
+        services.AddSingleton<SendEmailStage, SendEmailStageImp>();
+        services.AddSingleton<SendMessageToAdminSiteStage, SendMessageToAdminSiteStageImp>();
+        services.AddSingleton<UpdateEmailResultStage, UpdateEmailResultStageImp>();
+        services.AddSingleton<WriteLogAfterVoidStage, WriteLogAfterVoidStageImp>();
+        services.AddSingleton<RemotingRefWrapperService, RemotingRefWrapperServiceImp>();
+        services.AddSingleton<MatchService, MatchServiceImp>();
     }
 
     public static void RegisterQuartzScheduler(this IServiceCollection services)

@@ -1,7 +1,5 @@
 ﻿using System;
 using Newtonsoft.Json;
-using TicketVoidingSystem.Constants;
-using TicketVoidingSystem.Resources;
 using TicketVoidingSystem.Utilities;
 
 namespace TicketVoidingSystem.Models;
@@ -12,27 +10,23 @@ public class Match
 
     public int HomeId { get; set; }
 
-    public string HomeName => IsNeutral ?
-        RemotingWrapper.GetTeamName(HomeId, LanguageCode.English) + " (N)" : RemotingWrapper.GetTeamName(HomeId, LanguageCode.English);
+    public string HomeName { get; set; }
 
-    public string HomeNameSimplified => IsNeutral ?
-        RemotingWrapper.GetTeamName(HomeId, LanguageCode.ChineseSimplified) + " (中)" : RemotingWrapper.GetTeamName(HomeId, LanguageCode.ChineseSimplified);
+    public string HomeNameSimplified { get; set; }
 
-    public string HomeNameNewSimplified => IsNeutral ?
-        RemotingWrapper.GetTeamName(HomeId, LanguageCode.NewChineseSimplified) + " (中)" : RemotingWrapper.GetTeamName(HomeId, LanguageCode.NewChineseSimplified);
+    public string HomeNameNewSimplified { get; set; }
 
-    public string HomeNameTraditional => IsNeutral ?
-        RemotingWrapper.GetTeamName(HomeId, LanguageCode.ChineseTraditional) + " (中)" : RemotingWrapper.GetTeamName(HomeId, LanguageCode.ChineseTraditional);
+    public string HomeNameTraditional { get; set; }
 
     public int AwayId { get; set; }
 
-    public string AwayName => RemotingWrapper.GetTeamName(AwayId, LanguageCode.English);
+    public string AwayName { get; set; }
 
-    public string AwayNameSimplified => RemotingWrapper.GetTeamName(AwayId, LanguageCode.ChineseSimplified);
+    public string AwayNameSimplified { get; set; }
 
-    public string AwayNameNewSimplified => RemotingWrapper.GetTeamName(AwayId, LanguageCode.NewChineseSimplified);
+    public string AwayNameNewSimplified { get; set; }
 
-    public string AwayNameTraditional => RemotingWrapper.GetTeamName(AwayId, LanguageCode.ChineseTraditional);
+    public string AwayNameTraditional { get; set; }
 
     public string MatchCode { get; set; }
 
@@ -44,65 +38,21 @@ public class Match
 
     public int LeagueGroupId { get; set; }
 
-    public string LeagueName => RemotingWrapper.GetLeagueName(LeagueId, LanguageCode.English);
+    public string LeagueName { get; set; }
 
-    public string LeagueNameSimplified => RemotingWrapper.GetLeagueName(LeagueId, LanguageCode.ChineseSimplified);
+    public string LeagueNameSimplified { get; set; }
 
-    public string LeagueNameNewSimplified => RemotingWrapper.GetLeagueName(LeagueId, LanguageCode.NewChineseSimplified);
+    public string LeagueNameNewSimplified { get; set; }
 
-    public string LeagueNameTraditional => RemotingWrapper.GetLeagueName(LeagueId, LanguageCode.ChineseTraditional);
+    public string LeagueNameTraditional { get; set; }
 
     public bool IsOutright { get; set; }
 
-    public string MatchEvent
-    {
-        get
-        {
-            switch (SportType)
-            {
-                case 161:
-                    return Labels.NumberGameNo + MatchCode;
+    public string MatchEvent { get; set; }
 
-                case 164:
-                    return $"Happy 5 No .{MatchCode}";
+    public string MatchEventSimplified { get; set; }
 
-                case 160:
-                    return $"Lucky 3 Game No.{MatchCode}";
-
-                case 207:
-                    return $"{RemotingWrapper.GetBFName(HomeId)} - vs - {RemotingWrapper.GetBFName(AwayId)}";
-
-                default:
-                    return IsOutright ? $"{HomeName} - {LeagueName}" : $"{HomeName} - vs - {AwayName}";
-            }
-        }
-    }
-
-    public string MatchEventSimplified
-    {
-        get
-        {
-            if (SportType == 161 || SportType == 160 || SportType == 207)
-            {
-                return string.Empty;
-            }
-
-            return IsOutright ? $"{HomeNameSimplified} - {LeagueNameSimplified}" : $"{HomeNameSimplified} - vs - {AwayNameSimplified}";
-        }
-    }
-
-    public string MatchEventNewSimplified
-    {
-        get
-        {
-            if (SportType == 161 || SportType == 160 || SportType == 207)
-            {
-                return string.Empty;
-            }
-
-            return IsOutright ? $"{HomeNameNewSimplified} - {LeagueNameNewSimplified}" : $"{HomeNameNewSimplified} - vs - {AwayNameNewSimplified}";
-        }
-    }
+    public string MatchEventNewSimplified { get; set; }
 
     public bool IsNeutral { get; set; }
 
@@ -113,17 +63,19 @@ public class Match
 
     public int SportType { get; set; }
 
-    public string SportTypeName => RemotingWrapper.GetSportName(SportType.ToString(), LanguageCode.English);
+    public string SportTypeName { get; set; }
 
-    public string SportTypeNameSimplified => RemotingWrapper.GetSportName(SportType.ToString(), LanguageCode.ChineseSimplified);
+    public string SportTypeNameSimplified { get; set; }
 
-    public string SportTypeNameNewSimplified => RemotingWrapper.GetSportName(SportType.ToString(), LanguageCode.NewChineseSimplified);
+    public string SportTypeNameNewSimplified { get; set; }
 
-    public string SportTypeNameTraditional => RemotingWrapper.GetSportName(SportType.ToString(), LanguageCode.ChineseTraditional);
+    public string SportTypeNameTraditional { get; set; }
 
-    public string OriginLeagueName => this.LeagueName;
+    public string OriginLeagueName { get; set; }
 
-    public string OriginLeagueNameSimplified => this.LeagueNameSimplified;
+    public string OriginLeagueNameSimplified { get; set; }
 
-    public string OriginLeagueNameNewSimplified => this.LeagueNameNewSimplified;
+    public string OriginLeagueNameNewSimplified { get; set; }
+
+    public string OriginLeagueNameTraditional { get; set; }
 }

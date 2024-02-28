@@ -21,7 +21,14 @@ public class MessageExtensionsNonStatic : IMessageExtensionsNonStatic
             var element = new XElement("r",
                 new XAttribute("TransId", ticket.TransId),
                 new XAttribute("CustId", ticket.CustId),
-                new XAttribute("MatchId", ticket.MatchId));
+                new XAttribute("MatchId", ticket.MatchId),
+                ticket.WinLostDate == null ? new XAttribute("WinLostDate", string.Empty) : new XAttribute("WinLostDate", ticket.WinLostDate),
+                new XAttribute("Status", ticket.Status ?? string.Empty),
+                new XAttribute("BetTypeId", ticket.BetTypeId),
+                new XAttribute("Stake", ticket.Stake),
+                new XAttribute("WinLost", ticket.ZzzWinlost ?? string.Empty),
+                new XAttribute("VoidingHistoryId", ticket.VoidingHistoryId),
+                new XAttribute("SiteDbGroupId", ticket.SiteDbGroupId));
             custInfo.Add(element);
         }
 

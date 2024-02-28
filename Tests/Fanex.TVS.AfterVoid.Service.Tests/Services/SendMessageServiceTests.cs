@@ -53,7 +53,7 @@ public class SendMessageServiceTests
 
     private readonly MessageItemService messageItemService = Substitute.For<MessageItemService>();
     private readonly IDynamicRepository repository = Substitute.For<IDynamicRepository>();
-    private readonly TicketVoidingSystemHttpClientService ticketVoidingSystemHttpClientService = Substitute.For<TicketVoidingSystemHttpClientService>();
+    private readonly TVSWebSiteHttpClientService tvsWebSiteHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
 
     [Theory]
     [InlineData(IssueTypeConstant.AbnormalBet, 1)]
@@ -113,8 +113,8 @@ public class SendMessageServiceTests
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
         var requestInfo = new RequestDetailViewModel
         {
-            Request = new RequestModel{ IssueTypeId  = 1},
-            EventByMatch = new RequestEventModel{ SubIssueTypeId =1}
+            Request = new RequestModel { IssueTypeId = 1 },
+            EventByMatch = new RequestEventModel { SubIssueTypeId = 1 }
         };
         var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>
         {
@@ -201,7 +201,7 @@ public class SendMessageServiceTests
             MainTransIds = "12345679",
             SubTransIds = "98754321"
         };
-        var ticketVoidingApi = Substitute.For<TicketVoidingSystemHttpClientService>();
+        var ticketVoidingApi = Substitute.For<TVSWebSiteHttpClientService>();
         var service = new SendMessageServiceImp(repository, messageItemService, ticketVoidingApi);
 
         // Act
@@ -269,8 +269,8 @@ public class SendMessageServiceTests
         const int fakeSportType = 22;
         var fakeReason = Builder<VoidedReason>.CreateNew().Build();
         repository.GetAsync<VoidedReason>(Arg.Any<GetReasonNameCriteria>()).Returns(fakeReason);
-        ticketVoidingSystemHttpClientService.BetListGetSportTypeName(fakeSportType, Arg.Any<string>()).Returns("a");
-        var service = new SendMessageServiceImp(repository, null, ticketVoidingSystemHttpClientService);
+        tvsWebSiteHttpClientService.GetSportTypeNameFromBetList(fakeSportType, Arg.Any<string>()).Returns("a");
+        var service = new SendMessageServiceImp(repository, null, tvsWebSiteHttpClientService);
 
         var actual = await service.InitializeVoidReason(true, fakeSubIssueType, fakeSportType, null);
 
@@ -278,8 +278,8 @@ public class SendMessageServiceTests
         Assert.NotNull(actual.ReasonChineseSimplified);
         await repository.Received(1).GetAsync<VoidedReason>(Arg.Is<GetReasonNameCriteria>(x =>
             x.SubIssueTypeId == fakeSubIssueType && x.SportType == fakeSportType));
-        await ticketVoidingSystemHttpClientService.Received(2)
-            .BetListGetSportTypeName(Arg.Is<int>(x => x == fakeSportType), Arg.Any<string>());
+        await tvsWebSiteHttpClientService.Received(2)
+            .GetSportTypeNameFromBetList(Arg.Is<int>(x => x == fakeSportType), Arg.Any<string>());
     }
 
     [Fact]
@@ -288,7 +288,9 @@ public class SendMessageServiceTests
         // Arrange
         var criteria = new InsertReasonCommand
         {
-            ReasonEnglish = "Reason English", ReasonChineseSimplified = "Reason Chinese Simplified", ReasonId = 12345
+            ReasonEnglish = "Reason English",
+            ReasonChineseSimplified = "Reason Chinese Simplified",
+            ReasonId = 12345
         };
         repository.When(repo => repo.ExecuteAsync(criteria)).Do(_ => { criteria.ReasonId = 12345; });
 

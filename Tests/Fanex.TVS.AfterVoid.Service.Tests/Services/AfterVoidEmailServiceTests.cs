@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services;
 using FizzWare.NBuilder;
 using NSubstitute;
@@ -12,16 +13,16 @@ using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services;
 
-public class AfterVoidEmailServiceImpTests
+public class AfterVoidEmailServiceTests
 {
     private readonly IDynamicRepository repository;
     private readonly AfterVoidEmailServiceImp service;
-    private readonly TVSNewSiteHttpClientService tvsNewSiteHttpClientService;
+    private readonly TVSWebSiteHttpClientService tvsNewSiteHttpClientService;
 
-    public AfterVoidEmailServiceImpTests()
+    public AfterVoidEmailServiceTests()
     {
         repository = Substitute.For<IDynamicRepository>();
-        tvsNewSiteHttpClientService = Substitute.For<TVSNewSiteHttpClientService>();
+        tvsNewSiteHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
         service = new AfterVoidEmailServiceImp(tvsNewSiteHttpClientService, repository);
     }
 
@@ -42,13 +43,20 @@ public class AfterVoidEmailServiceImpTests
         var fakeResults = Builder<Result>.CreateListOfSize(3).Build();
         var fakeSubIssueTypes = Builder<SubIssueType>.CreateListOfSize(2).Random(1).With(x => x.SubIssueTypeId = 20)
             .Build();
-
+        var parameter = new SendEmailStageParameter
+        {
+            AutomationInfo = fakeAutomationInfo,
+            VoidReason = fakeReason,
+            MatchInfo = fakeMatch,
+            NormalMessage = fakeMessage,
+            EmailTickets = fakeTicketEmails
+        };
         repository.FetchAsync<SubIssueType>(Arg.Any<GetSubIssueTypeCriteria>()).ReturnsForAnyArgs(fakeSubIssueTypes);
         tvsNewSiteHttpClientService.SendEmail(Arg.Any<SendEmailApiModel>()).ReturnsForAnyArgs(
             (true, fakeResults));
 
         // Act
-        var actual = await service.Execute(fakeAutomationInfo, fakeTicketEmails, fakeMatch, fakeReason, fakeMessage);
+        var actual = await service.Execute(parameter);
 
         // Assert
         await repository.Received(1).FetchAsync<SubIssueType>(Arg.Any<GetSubIssueTypeCriteria>());
@@ -72,7 +80,14 @@ public class AfterVoidEmailServiceImpTests
         var fakeResults = Builder<Result>.CreateListOfSize(3).Build();
         var fakeSubIssueTypes = Builder<SubIssueType>.CreateListOfSize(2).Random(1).With(x => x.SubIssueTypeId = 20)
             .Build();
-
+        var parameter = new SendEmailStageParameter
+        {
+            AutomationInfo = fakeAutomationInfo,
+            VoidReason = fakeReason,
+            MatchInfo = fakeMatch,
+            NormalMessage = fakeMessage,
+            EmailTickets = fakeTicketEmails
+        };
         repository.FetchAsync<SubIssueType>(Arg.Any<GetSubIssueTypeCriteria>()).ReturnsForAnyArgs(fakeSubIssueTypes);
         tvsNewSiteHttpClientService.SendEmail(Arg.Any<SendEmailApiModel>()).ReturnsForAnyArgs(
             (false, fakeResults));
@@ -80,6 +95,6 @@ public class AfterVoidEmailServiceImpTests
         // Act
         // Assert
         await Assert.ThrowsAsync<ExternalException>(async () =>
-            await service.Execute(fakeAutomationInfo, fakeTicketEmails, fakeMatch, fakeReason, fakeMessage));
+            await service.Execute(parameter));
     }
 }

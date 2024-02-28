@@ -24,6 +24,8 @@ public class VoidBetAutomationInfo
 
     public int? MessageId { get; set; }
 
+    public int? MessageIdSpecial { get; set; }
+
     public int? ReasonId { get; set; }
 
     public bool? IsSentBatchMessage { get; set; }
