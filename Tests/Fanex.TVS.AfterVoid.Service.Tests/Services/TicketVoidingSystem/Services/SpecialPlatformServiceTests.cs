@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Fanex.TVS.AfterVoid.Service.Constants;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 using Xunit;

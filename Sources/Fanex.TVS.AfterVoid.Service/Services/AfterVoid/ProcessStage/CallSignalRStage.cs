@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Constants;
@@ -13,6 +14,8 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 public interface CallSignalRStage
 {
     Task ExecuteForAutoVoid(bool isLastedInRequest, string currentRequestStatus, VoidBetAutomationInfo automationInfo);
+
+    Task ExecuteForAutoRecover(bool isLastedInRequest, string currentRequestStatus, VoidBetAutomationInfo automationInfo);
 
     Task ExecuteForManualVoid(CallSignalRManualVoidParameter parameter);
 }
@@ -31,6 +34,22 @@ public class CallSignalRStageImp : CallSignalRStage
         if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
         {
             await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
+        }
+    }
+
+    public async Task ExecuteForAutoRecover(bool isLastedInRequest, string currentRequestStatus, VoidBetAutomationInfo automationInfo)
+    {
+        if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
+        {
+            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
+
+            var messageSuccessful = $"Request ID: {automationInfo.RequestId} recovered successfully!";
+            if (automationInfo.RequestInfo.Request.IsHasResettledTicket)
+            {
+                messageSuccessful += $"{Environment.NewLine}Please be aware that some tickets have been re-settled automatically.";
+            }
+            var signalRResults = new List<Result> { new() { ErrorCode = ErrorCode.VoidRequestSuccess, ErrorMsg = messageSuccessful } };
+            await notificationSignalRService.NotifyVoidResultToUser(automationInfo.RequestInfo.Request.RequestedBy, signalRResults);
         }
     }
 

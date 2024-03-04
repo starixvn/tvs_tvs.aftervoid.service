@@ -15,7 +15,7 @@ public class TicketEmailModel : EmailSupport, SendMessageDbModel
     public decimal Handicap1 { get; set; }
     public decimal Handicap2 { get; set; }
     public long HomeId { get; set; }
-    public int? MatchId { get; set; }
+    public int MatchId { get; set; }
     public string MatchCode { get; set; }
     public bool IsLive { get; set; }
     public bool IsNeutral { get; set; }

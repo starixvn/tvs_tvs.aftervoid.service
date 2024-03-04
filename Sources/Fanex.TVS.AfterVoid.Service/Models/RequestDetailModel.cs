@@ -37,6 +37,7 @@ public class RequestModel
 
     public string RequestedBy { get; set; }
     public string VoidedBy { get; set; }
+    public bool IsHasResettledTicket { get; set; }
 }
 
 [XmlRoot(ElementName = "r")]
@@ -73,7 +74,7 @@ public class RequestEventModel
     public string TransIds { get; set; }
 
     [JsonConverter(typeof(ClientDateGMT8JsonConverter))]
-    public DateTime KickOffTime { get; set; }
+    public DateTime? KickOffTime { get; set; }
 
     public int? HTHomeScore { get; set; }
     public int? HTAwayScore { get; set; }

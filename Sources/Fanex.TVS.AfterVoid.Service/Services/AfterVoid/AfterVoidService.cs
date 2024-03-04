@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestAutoRecover;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestAutoVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestVoid14;
@@ -22,18 +24,20 @@ public class AfterVoidServiceImp : AfterVoidService
     private readonly RequestAutoVoidService requestAutoVoidService;
     private readonly RequestManualVoidService requestManualVoidService;
     private readonly RequestVoid14Service requestVoid14Service;
+    private readonly RequestAutoRecoverService requestAutoRecoverService;
     private readonly LoggingService loggingService;
 
     public AfterVoidServiceImp(VoidBetAutomationService voidBetAutomationService,
         RequestAutoVoidService requestAutoVoidService,
         RequestManualVoidService requestManualVoidService,
-        RequestVoid14Service requestVoid14Service,
+        RequestVoid14Service requestVoid14Service, RequestAutoRecoverService requestAutoRecoverService,
         LoggingService loggingService)
     {
         this.voidBetAutomationService = voidBetAutomationService;
         this.requestAutoVoidService = requestAutoVoidService;
         this.requestManualVoidService = requestManualVoidService;
         this.requestVoid14Service = requestVoid14Service;
+        this.requestAutoRecoverService = requestAutoRecoverService;
         this.loggingService = loggingService;
     }
 
@@ -51,7 +55,7 @@ public class AfterVoidServiceImp : AfterVoidService
 
         if (requestsWillRunAfterVoid.IsAutoVoid)
         {
-            await requestAutoVoidService.Execute(requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus);
+            await ExecuteForAutoQueue(requestsWillRunAfterVoid, isLastedInRequest, currentRequestStatus);
         }
         else
         {
@@ -70,8 +74,20 @@ public class AfterVoidServiceImp : AfterVoidService
         automationInfo.RequestInfo = await voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId);
     }
 
-    private async Task ExecuteForManualVoid(int issueTypeId, VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus
-        , IEnumerable<EmailResultModel> emailResultsHistory)
+    private async Task ExecuteForAutoQueue(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
+    {
+        if (automationInfo.RequestInfo.Request.ActionId == VoidActionTypeConstant.AutoRecoverInstant)
+        {
+            await requestAutoRecoverService.Execute(automationInfo, isLastedInRequest, currentRequestStatus);
+        }
+        else
+        {
+            await requestAutoVoidService.Execute(automationInfo, isLastedInRequest, currentRequestStatus);
+        }
+    }
+
+    private async Task ExecuteForManualVoid(int issueTypeId, VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus,
+        IEnumerable<EmailResultModel> emailResultsHistory)
     {
         if (Helper.IsArchivedTicket(issueTypeId))
         {

@@ -1,10 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Functions>
     <Function Name="Send Email after Auto Void">
+        <Setting Key="DBCTG.TicketVoiding_zzzBettrans_Delete" SpName="TicketVoiding_zzzBettrans_Delete" DbName="DBCTG.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="DBSIG.TicketVoiding_zzzBettrans_Delete" SpName="TicketVoiding_zzzBettrans_Delete" DbName="DBSIG.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="DBSIG2.TicketVoiding_zzzBettrans_Delete" SpName="TicketVoiding_zzzBettrans_Delete" DbName="DBSIG2.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="DBSIG3.TicketVoiding_zzzBettrans_Delete" SpName="TicketVoiding_zzzBettrans_Delete" DbName="DBSIG3.bodb02.bodbAdminNet" TimeOut="600" />
         <Setting Key="DBCTG.TicketVoiding_Email_VoidedTicket_Select" SpName="TicketVoiding_Email_VoidedTicket_Select" DbName="DBCTG.bodb02.bodbAdminNet" TimeOut="600" />
         <Setting Key="DBSIG.TicketVoiding_Email_VoidedTicket_Select" SpName="TicketVoiding_Email_VoidedTicket_Select" DbName="DBSIG.bodb02.bodbAdminNet" TimeOut="600" />
         <Setting Key="DBSIG2.TicketVoiding_Email_VoidedTicket_Select" SpName="TicketVoiding_Email_VoidedTicket_Select" DbName="DBSIG2.bodb02.bodbAdminNet" TimeOut="600" />
         <Setting Key="DBSIG3.TicketVoiding_Email_VoidedTicket_Select" SpName="TicketVoiding_Email_VoidedTicket_Select" DbName="DBSIG3.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="DBCTG.TicketVoiding_Email_RecoveredTicket_Select" SpName="TicketVoiding_Email_RecoveredTicket_Select" DbName="DBCTG.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="DBSIG.TicketVoiding_Email_RecoveredTicket_Select" SpName="TicketVoiding_Email_RecoveredTicket_Select" DbName="DBSIG.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="DBSIG2.TicketVoiding_Email_RecoveredTicket_Select" SpName="TicketVoiding_Email_RecoveredTicket_Select" DbName="DBSIG2.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="DBSIG3.TicketVoiding_Email_RecoveredTicket_Select" SpName="TicketVoiding_Email_RecoveredTicket_Select" DbName="DBSIG3.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="NAP_RecoverBet_MessageDel" SpName="NAP_RecoverBet_MessageDel" DbName="DBMSG.bodb_Message.bodbAdminNet" TimeOut="600" />
+        <Setting Key="TicketVoiding_VoidedTransaction_Delete" SpName="TicketVoiding_VoidedTransaction_Delete" DbName="DBCTG.bodb02.bodbAdminNet" TimeOut="600" />
         <Setting Key="NAP_SpecialDelete_Message_Select" SpName="NAP_SpecialDelete_Message_Select" DbName="DBMSG.bodb_Message.bodbAdminNet" TimeOut="600" />
         <Setting Key="NAP_SpecialDelete_Message_Insert" SpName="NAP_SpecialDelete_Message_Insert" DbName="DBMSG.bodb_Message.bodbAdminNet" TimeOut="600" />
         <Setting Key="NAP_SpecialDelete_MatchInfo_Select" SpName="NAP_SpecialDelete_MatchInfo_Select" DbName="DBPRO.bodb02.bodbAdminNet" TimeOut="600" />

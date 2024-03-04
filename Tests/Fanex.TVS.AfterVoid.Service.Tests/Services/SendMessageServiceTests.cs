@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Constants;
@@ -32,7 +33,14 @@ public class SendMessageServiceTests
             SagUserName = "SagUserName",
             TransId = 123456789,
             IsMixParlay = false,
-            MatchId = 111
+            MatchId = 111,
+            WinLostDate = DateTimeOffset.MinValue.DateTime,
+            Status = "Done",
+            BetTypeId = 1,
+            Stake = 1,
+            WinLost = "100",
+            VoidingHistoryId = 1,
+            SiteDbGroupId = 0
         },
         new()
         {
@@ -47,13 +55,20 @@ public class SendMessageServiceTests
             SagUserName = "SagUserName",
             TransId = 987654321,
             IsMixParlay = true,
-            MatchId = 1111
+            MatchId = 1111,
+            WinLostDate = DateTimeOffset.MinValue.DateTime,
+            Status = "Running",
+            BetTypeId = 1,
+            Stake = 1,
+            WinLost = "100",
+            VoidingHistoryId = 1,
+            SiteDbGroupId = 0
         }
     };
 
     private readonly MessageItemService messageItemService = Substitute.For<MessageItemService>();
     private readonly IDynamicRepository repository = Substitute.For<IDynamicRepository>();
-    private readonly TVSWebSiteHttpClientService tvsWebSiteHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
+    private readonly TVSWebSiteHttpClientService ticketVoidingSystemHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
 
     [Theory]
     [InlineData(IssueTypeConstant.AbnormalBet, 1)]
@@ -102,19 +117,39 @@ public class SendMessageServiceTests
         Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);
     }
 
-    [Fact]
-    public async Task InitializeMessageContentForAutoVoid_HasNotMatch_ShouldReturnExpectedData()
+    [Theory]
+    [InlineData(1, 1)]
+    [InlineData(1, 2)]
+    [InlineData(2, 2)]
+    public async Task InitializeMessageContentForAutoVoid_HasNotMatch_ShouldReturnExpectedData(int subIssueTypeId, int sportType)
     {
-        var fakeTemplate = Builder<TemplateModel>.CreateListOfSize(6)
+        var fakeTemplateSetting = new List<TemplateSetting>
+        {
+            new (){SubIssueTypeId = 1, SportType = 1, TemplateId = 1},
+            new (){SubIssueTypeId = 1, SportType = null, TemplateId = 2}
+        };
+        var fakeTemplate = Builder<TemplateModel>.CreateListOfSize(8)
             .Random(1).With(x => x.TemplateId = 37)
             .Random(1).With(x => x.TemplateId = 34)
             .Random(1).With(x => x.TemplateId = 1)
             .Build();
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
+        repository.FetchAsync<TemplateSetting>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplateSetting);
         var requestInfo = new RequestDetailViewModel
         {
-            Request = new RequestModel { IssueTypeId = 1 },
-            EventByMatch = new RequestEventModel { SubIssueTypeId = 1 }
+            Request = new RequestModel { IssueTypeId = 1, SportType = sportType },
+            EventByMatch = new RequestEventModel
+            {
+                SubIssueTypeId = subIssueTypeId,
+                KickOffTime = DateTimeOffset.Now.DateTime
+            },
+            PlayerNamesSelected = new TemplateContent
+            {
+                MsgEnglish = "a",
+                MsgChineseNewSimplified = "a",
+                MsgChineseSimplified = "a",
+                MsgChineseTraditional = "a"
+            }
         };
         var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>
         {
@@ -209,7 +244,7 @@ public class SendMessageServiceTests
             fakeData.IssueTypeId, fakeData.SubIssueTypeId, fakeData.MatchId);
 
         // Assert
-        await repository.Received().ExecuteAsync(Arg.Any<InsertVoidedTransactionCommand>());
+        await repository.Received(1).ExecuteAsync(Arg.Any<InsertVoidedTransactionCommand>());
     }
 
     [Theory]
@@ -269,8 +304,8 @@ public class SendMessageServiceTests
         const int fakeSportType = 22;
         var fakeReason = Builder<VoidedReason>.CreateNew().Build();
         repository.GetAsync<VoidedReason>(Arg.Any<GetReasonNameCriteria>()).Returns(fakeReason);
-        tvsWebSiteHttpClientService.GetSportTypeNameFromBetList(fakeSportType, Arg.Any<string>()).Returns("a");
-        var service = new SendMessageServiceImp(repository, null, tvsWebSiteHttpClientService);
+        ticketVoidingSystemHttpClientService.GetSportTypeNameFromBetList(fakeSportType, Arg.Any<string>()).Returns("a");
+        var service = new SendMessageServiceImp(repository, null, ticketVoidingSystemHttpClientService);
 
         var actual = await service.InitializeVoidReason(true, fakeSubIssueType, fakeSportType, null);
 
@@ -278,7 +313,7 @@ public class SendMessageServiceTests
         Assert.NotNull(actual.ReasonChineseSimplified);
         await repository.Received(1).GetAsync<VoidedReason>(Arg.Is<GetReasonNameCriteria>(x =>
             x.SubIssueTypeId == fakeSubIssueType && x.SportType == fakeSportType));
-        await tvsWebSiteHttpClientService.Received(2)
+        await ticketVoidingSystemHttpClientService.Received(2)
             .GetSportTypeNameFromBetList(Arg.Is<int>(x => x == fakeSportType), Arg.Any<string>());
     }
 

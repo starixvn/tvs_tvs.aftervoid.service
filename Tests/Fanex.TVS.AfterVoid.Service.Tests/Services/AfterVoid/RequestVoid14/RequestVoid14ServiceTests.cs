@@ -88,7 +88,7 @@ public class RequestVoid14ServiceTests
         await mainProcessStageService.Received(1).CreateVoidReason(true, Arg.Any<CreateVoidReasonStageParameter>());
         await mainProcessStageService.Received(1).InsertVoidedTransaction(isSentMessageToAdminSite, Arg.Any<InsertVoidedTransactionStageParameter>());
         await mainProcessStageService.Received(1).UpdateTicketVoidingHistory(isInsertedVoidedTransaction, Arg.Any<UpdateTicketVoidingHistoryStageParameter>());
-        await callCashOutApiStage.Received(1).Execute(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
+        await callCashOutApiStage.Received(1).ExecuteForVoid(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
         await voidBetAutomationService.Received(1).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await callSignalRStage.Received(1).ExecuteForManualVoid(Arg.Any<CallSignalRManualVoidParameter>());
         await writeLogAfterVoidStage.Received(1).Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<Result>>());
@@ -127,7 +127,7 @@ public class RequestVoid14ServiceTests
 
         // Assert
         await notificationSignalRService.Received(1).NotifyErrorWhenExecuteAfterVoidServiceToUser("a");
-        await callCashOutApiStage.Received(0).Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketEmailModel>>());
+        await callCashOutApiStage.Received(0).ExecuteForVoid(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketEmailModel>>());
         await voidBetAutomationService.Received(0).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await callSignalRStage.Received(0).ExecuteForManualVoid(Arg.Any<CallSignalRManualVoidParameter>());
         await writeLogAfterVoidStage.Received(0).Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<Result>>());

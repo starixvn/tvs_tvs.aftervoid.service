@@ -126,7 +126,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
         }
 
         await updateEmailResultStage.Execute(automationInfo, currentEmailResults);
-        await callCashOutApiStage.Execute(automationInfo, voidedTickets);
+        await callCashOutApiStage.ExecuteForVoid(automationInfo, voidedTickets);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await callSignalRStage.ExecuteForManualVoid(new CallSignalRManualVoidParameter
         {

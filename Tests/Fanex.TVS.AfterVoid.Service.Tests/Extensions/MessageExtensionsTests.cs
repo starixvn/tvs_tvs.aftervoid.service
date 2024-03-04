@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Fanex.TVS.AfterVoid.Service.Extensions;
-using NSubstitute;
 using TicketVoidingSystem.Models;
 using Xunit;
 
@@ -9,12 +9,21 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Extensions;
 public class MessageExtensionsTests
 {
     [Fact]
-    public void InsertSpace_ReturnStringEmpty()
+    public void InsertSpace_ReturnExpected()
     {
         const string text = "111@@111";
         var actual = text.InsertSpace();
 
         Assert.Equal("111 @@ 111", actual);
+    }
+
+    [Fact]
+    public void InsertSpace_ReturnStringEmpty()
+    {
+        const string text = "";
+        var actual = text.InsertSpace();
+
+        Assert.Equal(string.Empty, actual);
     }
 
     [Fact]
@@ -29,27 +38,24 @@ public class MessageExtensionsTests
     }
 
     [Fact]
-    public void CreateInfoXml_ImplementationHasCalled()
-    {
-        const string expected = "";
-        var messageExtensionsNonStatic = Substitute.For<IMessageExtensionsNonStatic>();
-        messageExtensionsNonStatic.CreateTicketsXml(default).ReturnsForAnyArgs(expected);
-        MessageExtensions.MockImplementationForUnitTest(messageExtensionsNonStatic);
-
-        var actual = new List<TicketEmailModel>().CreateTicketsXml();
-
-        messageExtensionsNonStatic.Received(1).CreateTicketsXml(Arg.Any<IEnumerable<TicketEmailModel>>());
-        Assert.Equal(expected, actual);
-    }
-
-    [Fact]
     public void MessageExtensionsNonStaticCreateInfoXml_ReturnExpected()
     {
-        var tickets = new List<TicketEmailModel> { new() { TransId = 12312312, CustId = 1, MatchId = 1 } };
-        var staticExtension = new MessageExtensionsNonStatic();
+        var tickets = new List<TicketEmailModel> { new()
+        {
+            TransId = 12312312, CustId = 1, MatchId = 1,
+            WinLostDate = DateTimeOffset.MinValue.DateTime,
+            Status = "Done",
+            BetTypeId = 1,
+            Stake = 1,
+            WinLost = "100",
+            VoidingHistoryId = 1,
+            SiteDbGroupId = 0
+        } };
+        var expected = $"<root>{Environment.NewLine}  <r TransId=\"12312312\" CustId=\"1\" MatchId=\"1\" WinLostDate=\"0001-01-01T00:00:00\" Status=\"Done\" " +
+                                $"BetTypeId=\"1\" Stake=\"1\" WinLost=\"\" VoidingHistoryId=\"1\" SiteDbGroupId=\"0\" />{Environment.NewLine}</root>";
 
-        var actual = staticExtension.CreateTicketsXml(tickets);
+        var actual = tickets.CreateTicketsXml();
 
-        Assert.NotNull(actual);
+        Assert.Equal(expected, actual);
     }
 }

@@ -9,6 +9,7 @@ using Fanex.TVS.AfterVoid.Service.Services;
 using NSubstitute;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Models.SendEmailRecover;
 using TicketVoidingSystem.Services;
 using Xunit;
 
@@ -18,7 +19,7 @@ public class VoidBetAutomationServiceTests
 {
     private readonly IDynamicRepository repository;
     private readonly MatchService matchService;
-    private VoidBetAutomationService Service;
+    private VoidBetAutomationService service;
 
     public VoidBetAutomationServiceTests()
     {
@@ -39,10 +40,10 @@ public class VoidBetAutomationServiceTests
         repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(
                 Arg.Any<GetAutomationInfoAfterVoidCriteria>())
             .ReturnsForAnyArgs((automationInfo, voidingHistoryModels, new List<EmailResultModel>()));
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        var actual = await Service.GetVoidBetAutomationRunAfterVoid();
+        var actual = await service.GetVoidBetAutomationRunAfterVoid();
 
         // Assert
         Assert.StrictEqual(automationInfo.First(), actual.Item1);
@@ -62,10 +63,10 @@ public class VoidBetAutomationServiceTests
         repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(
                 Arg.Any<GetAutomationInfoAfterVoidCriteria>())
             .ReturnsForAnyArgs((automationInfo, voidingHistoryModels, new List<EmailResultModel>()));
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        var actual = await Service.GetVoidBetAutomationRunAfterVoid();
+        var actual = await service.GetVoidBetAutomationRunAfterVoid();
 
         // Assert
         Assert.StrictEqual(automationInfo.First(), actual.Item1);
@@ -85,10 +86,10 @@ public class VoidBetAutomationServiceTests
         repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(
                 Arg.Any<GetAutomationInfoAfterVoidCriteria>())
             .ReturnsForAnyArgs((automationInfo, voidingHistoryModels, new List<EmailResultModel>()));
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        var actual = await Service.GetVoidBetAutomationRunAfterVoid();
+        var actual = await service.GetVoidBetAutomationRunAfterVoid();
 
         // Assert
         Assert.StrictEqual(automationInfo.First(), actual.Item1);
@@ -122,10 +123,10 @@ public class VoidBetAutomationServiceTests
         };
         repository.FetchMultipleAsync<RequestModel, RequestEventModel, PlayerName>(Arg.Any<SelectRequestCriteria>())
             .ReturnsForAnyArgs((fakeRequests, fakeRequestEvents, playerNames));
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        var actual = await Service.GetRequestById(0, 100);
+        var actual = await service.GetRequestById(0, 100);
 
         // Assert
         AssertExtension.Equal(fakeRequests[0], actual.Request);
@@ -149,10 +150,10 @@ public class VoidBetAutomationServiceTests
         var playerNames = new List<PlayerName> { new() };
         repository.FetchMultipleAsync<RequestModel, RequestEventModel, PlayerName>(Arg.Any<SelectRequestCriteria>())
             .ReturnsForAnyArgs((fakeRequests, fakeRequestEvents, playerNames));
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        var actual = await Service.GetRequestById(0, 113);
+        var actual = await service.GetRequestById(0, 113);
 
         // Assert
         Assert.StrictEqual(fakeRequests[0], actual.Request);
@@ -169,10 +170,10 @@ public class VoidBetAutomationServiceTests
         repository.GetAsync<RequestSimpleInfo>(
                 Arg.Is<GetRequestSimpleInfoCriteria>(x => x.RequestId == fakeRequestId))
             .ReturnsForAnyArgs(expectedRequestInfo);
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        var actual = await Service.GetRequestSimpleInfo(fakeRequestId, fakeVoidingHistoryId);
+        var actual = await service.GetRequestSimpleInfo(fakeRequestId, fakeVoidingHistoryId);
 
         // Assert
         Assert.StrictEqual(expectedRequestInfo, actual);
@@ -185,10 +186,10 @@ public class VoidBetAutomationServiceTests
         const int fakeRequestId = 113;
         const int fakeVoidingHistoryId = 211;
         const int fakeStatusId = 311;
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        await Service.UpdateServiceStatusByVoidingHistory(fakeRequestId, fakeVoidingHistoryId,
+        await service.UpdateServiceStatusByVoidingHistory(fakeRequestId, fakeVoidingHistoryId,
             fakeStatusId);
 
         // Assert
@@ -202,10 +203,10 @@ public class VoidBetAutomationServiceTests
         const int fakeRequestId = 211;
         const int fakeVoidingHistoryId = 331;
         var fakeAfterVoidHistory = new VoidBetAutomationInfo { ReasonId = 444 };
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        await Service.UpdateAfterVoidStep(fakeRequestId, fakeVoidingHistoryId, fakeAfterVoidHistory);
+        await service.UpdateAfterVoidStep(fakeRequestId, fakeVoidingHistoryId, fakeAfterVoidHistory);
 
         // Assert
         await repository.Received(1).ExecuteAsync(Arg.Any<UpdateVoidBetAutomationInfoCriteria>());
@@ -218,10 +219,10 @@ public class VoidBetAutomationServiceTests
         const int fakeRequestId = 211;
         const int fakeVoidingHistoryId = 331;
         const string fakeVoidResultContent = "abc";
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        await Service.UpdateEmailResultByVoidingHistory(fakeRequestId, fakeVoidingHistoryId,
+        await service.UpdateEmailResultByVoidingHistory(fakeRequestId, fakeVoidingHistoryId,
             fakeVoidResultContent);
 
         // Assert
@@ -237,10 +238,10 @@ public class VoidBetAutomationServiceTests
             .ReturnsForAnyArgs(fakeTicketEmail);
         repository.GetAsync<CheckRequestOfITUserModel>(Arg.Any<GetTicketsEmailCriteria>())
             .ReturnsForAnyArgs(new CheckRequestOfITUserModel());
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        var actual = await Service.GetVoidedTicketsByVoidingHistory(1, 1, true);
+        var actual = await service.GetVoidedTicketsByVoidingHistory(1, 1, true);
 
         // Assert
         AssertExtension.Equal(fakeTicketEmail, actual);
@@ -255,10 +256,10 @@ public class VoidBetAutomationServiceTests
             .ReturnsForAnyArgs(fakeTicketEmail);
         repository.GetAsync<CheckRequestOfITUserModel>(Arg.Any<GetTicketsEmailCriteria>())
             .ReturnsForAnyArgs((CheckRequestOfITUserModel)null);
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        var actual = await Service.GetVoidedTicketsByVoidingHistory(1, 1, true);
+        var actual = await service.GetVoidedTicketsByVoidingHistory(1, 1, true);
 
         // Assert
         AssertExtension.Equal(fakeTicketEmail, actual);
@@ -272,10 +273,10 @@ public class VoidBetAutomationServiceTests
         var fakeVoidDataXml = new List<VoidDataXmlModel> { new() { ContentEnglish = "zbc" } };
         repository.FetchAsync<VoidDataXmlModel>(Arg.Any<GetVoidingHistoryCriteria>())
             .ReturnsForAnyArgs(fakeVoidDataXml);
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        var actual = await Service.GetVoidDataFromVoidingHistory(fakeVoidingHistoryId);
+        var actual = await service.GetVoidDataFromVoidingHistory(fakeVoidingHistoryId);
 
         // Assert
         AssertExtension.Equal(fakeVoidDataXml, actual);
@@ -290,10 +291,10 @@ public class VoidBetAutomationServiceTests
         repository.GetAsync<Match>(
             Arg.Is<GetMatchInfoCriteria>(x => x.MatchId == fakeMatchId)).ReturnsForAnyArgs(fakeMatch);
         matchService.UpdateMatchInfoFromRemotingRef(Arg.Any<Match>()).ReturnsForAnyArgs(fakeMatch);
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        var actual = await Service.GetMatchInfo(fakeMatchId);
+        var actual = await service.GetMatchInfo(fakeMatchId);
 
         // Assert
         Assert.StrictEqual(fakeMatch, actual);
@@ -306,12 +307,48 @@ public class VoidBetAutomationServiceTests
         const int fakeVoidingHistoryId = 331;
         const int fakeReasonId = 111;
         const int fakeMessageId = 222;
-        Service = new VoidBetAutomationServiceImp(repository, matchService);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
-        await Service.UpdateTicketVoidingHistory(fakeVoidingHistoryId, fakeReasonId, fakeMessageId, 1);
+        await service.UpdateTicketVoidingHistory(fakeVoidingHistoryId, fakeReasonId, fakeMessageId, 1);
 
         // Assert
         await repository.Received(1).ExecuteAsync(Arg.Any<UpdateHistoryCommand>());
+    }
+
+    [Fact]
+    public async Task GetRecoveredTicketsByVoidingHistory_CalledExpected()
+    {
+        // Arrange
+        var fakeTicketEmail = new List<TicketRecoverEmailModel> { new() { TransId = 113 } };
+        repository.FetchAsync<TicketRecoverEmailModel>(Arg.Any<GetTicketsRecoverEmailCriteria>())
+            .ReturnsForAnyArgs(fakeTicketEmail);
+        repository.GetAsync<CheckRequestOfITUserModel>(Arg.Any<GetTicketsEmailCriteria>())
+            .ReturnsForAnyArgs(new CheckRequestOfITUserModel());
+        service = new VoidBetAutomationServiceImp(repository, matchService);
+
+        // Act
+        _ = await service.GetRecoveredTicketsByVoidingHistory("1, 2", 1, 0);
+
+        // Assert
+        await repository.Received(1).FetchAsync<TicketRecoverEmailModel>(Arg.Any<GetTicketsRecoverEmailCriteria>());
+    }
+
+    [Fact]
+    public async Task GetRecoveredTicketsByVoidingHistory_HasCheckRequestOfITUserReturnNull_CalledExpected()
+    {
+        // Arrange
+        var fakeTicketEmail = new List<TicketRecoverEmailModel> { new() { TransId = 113 } };
+        repository.FetchAsync<TicketRecoverEmailModel>(Arg.Any<GetTicketsRecoverEmailCriteria>())
+            .ReturnsForAnyArgs(fakeTicketEmail);
+        repository.GetAsync<CheckRequestOfITUserModel>(Arg.Any<GetTicketsEmailCriteria>())
+            .ReturnsForAnyArgs((CheckRequestOfITUserModel)null);
+        service = new VoidBetAutomationServiceImp(repository, matchService);
+
+        // Act
+        _ = await service.GetRecoveredTicketsByVoidingHistory("1, 2", 1, 0);
+
+        // Assert
+        await repository.Received(1).FetchAsync<TicketRecoverEmailModel>(Arg.Any<GetTicketsRecoverEmailCriteria>());
     }
 }

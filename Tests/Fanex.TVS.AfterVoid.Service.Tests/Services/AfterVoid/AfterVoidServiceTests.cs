@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
+using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestAutoRecover;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestAutoVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestVoid14;
@@ -21,6 +23,7 @@ public class AfterVoidServiceTests
     private RequestManualVoidService requestManualVoidService;
     private RequestVoid14Service requestVoid14Service;
     private VoidBetAutomationService voidBetAutomationService;
+    private RequestAutoRecoverService requestAutoRecoverService;
 
     internal void InitFakeServiceTests()
     {
@@ -29,6 +32,7 @@ public class AfterVoidServiceTests
         requestAutoVoidService = Substitute.For<RequestAutoVoidService>();
         voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         requestVoid14Service = Substitute.For<RequestVoid14Service>();
+        requestAutoRecoverService = Substitute.For<RequestAutoRecoverService>();
     }
 
     [Fact]
@@ -39,7 +43,7 @@ public class AfterVoidServiceTests
         voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
             .ReturnsForAnyArgs((null, false, "", new List<EmailResultModel>()));
         voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(new RequestDetailViewModel());
-        var service = new AfterVoidServiceImp(voidBetAutomationService, default, default, default, default);
+        var service = new AfterVoidServiceImp(voidBetAutomationService, default, default, default, default, default);
 
         // Act
         await service.Execute();
@@ -53,13 +57,13 @@ public class AfterVoidServiceTests
     {
         // Arrange
         InitFakeServiceTests();
-        var requestInfo = new RequestDetailViewModel();
+        var requestInfo = new RequestDetailViewModel { Request = new RequestModel { ActionId = VoidActionTypeConstant.AutoVoidInstantId } };
         var automationInfo = new VoidBetAutomationInfo { RequestInfo = requestInfo, MatchId = 1, IsAutoVoid = true };
         voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
             .ReturnsForAnyArgs((automationInfo, false, "", new List<EmailResultModel>()));
         voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId)
             .ReturnsForAnyArgs(requestInfo);
-        var service = new AfterVoidServiceImp(voidBetAutomationService, requestAutoVoidService, default, default,
+        var service = new AfterVoidServiceImp(voidBetAutomationService, requestAutoVoidService, default, default, default,
             loggingService);
 
         // Act
@@ -68,6 +72,28 @@ public class AfterVoidServiceTests
         // Assert
         await loggingService.Received(1).InfoAsync(Arg.Any<string>());
         await requestAutoVoidService.Received(1).Received().Execute(automationInfo, false, "");
+    }
+
+    [Fact]
+    public async Task Execute_ShouldCallAutoRecoverService()
+    {
+        // Arrange
+        InitFakeServiceTests();
+        var requestInfo = new RequestDetailViewModel { Request = new RequestModel { ActionId = VoidActionTypeConstant.AutoRecoverInstant } };
+        var automationInfo = new VoidBetAutomationInfo { RequestInfo = requestInfo, MatchId = 1, IsAutoVoid = true };
+        voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
+            .ReturnsForAnyArgs((automationInfo, false, "", new List<EmailResultModel>()));
+        voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId)
+            .ReturnsForAnyArgs(requestInfo);
+        var service = new AfterVoidServiceImp(voidBetAutomationService, default, default, default, requestAutoRecoverService,
+            loggingService);
+
+        // Act
+        await service.Execute();
+
+        // Assert
+        await loggingService.Received(1).InfoAsync(Arg.Any<string>());
+        await requestAutoRecoverService.Received(1).Received().Execute(automationInfo, false, "");
     }
 
     [Fact]
@@ -82,7 +108,7 @@ public class AfterVoidServiceTests
         voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
             .ReturnsForAnyArgs((fakeAutomationStatistic, false, "", new List<EmailResultModel>()));
         voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
-        var service = new AfterVoidServiceImp(voidBetAutomationService, default, default, requestVoid14Service,
+        var service = new AfterVoidServiceImp(voidBetAutomationService, default, default, requestVoid14Service, default,
             loggingService);
 
         // Act
@@ -111,7 +137,7 @@ public class AfterVoidServiceTests
         voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
             .ReturnsForAnyArgs((fakeAutomationStatistic, false, "", new List<EmailResultModel>()));
         voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
-        var service = new AfterVoidServiceImp(voidBetAutomationService, default, requestManualVoidService, default,
+        var service = new AfterVoidServiceImp(voidBetAutomationService, default, requestManualVoidService, default, default,
             loggingService);
 
         // Act

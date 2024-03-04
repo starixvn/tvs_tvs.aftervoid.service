@@ -27,4 +27,6 @@ public static class ErrorCode
     public const int Authorize = 403;
 
     public const int NegativeBalanceUsers = 138;
+
+    public const int SendMessageOrEmailFail = 136;
 }

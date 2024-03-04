@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
@@ -9,6 +8,7 @@ using Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Models.SendEmailRecover;
 using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services;
@@ -35,6 +35,8 @@ public interface VoidBetAutomationService
     Task<Match> GetMatchInfo(int matchId);
 
     Task UpdateTicketVoidingHistory(int voidingHistoryId, int? reasonId, int? messageId, int? messageIdSpecial);
+
+    Task<IEnumerable<TicketRecoverEmailModel>> GetRecoveredTicketsByVoidingHistory(string singleTransIds, int voidingHistoryId, int siteDbGroupId);
 }
 
 public class VoidBetAutomationServiceImp : VoidBetAutomationService
@@ -166,6 +168,9 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
             criteria.IsUpdatedVoidingHistory = afterVoidHistory.IsUpdatedVoidingHistory;
             criteria.IsSentEmail = afterVoidHistory.IsSentEmail;
             criteria.IsSentLetsTalk = afterVoidHistory.IsSentLetsTalk;
+            criteria.IsDeletedZzzBetTrans = afterVoidHistory.IsDeletedZzzBetTrans;
+            criteria.IsDeletedMessage = afterVoidHistory.IsDeletedMessage;
+            criteria.IsDeletedVoidedTransaction = afterVoidHistory.IsDeletedVoidedTransaction;
             criteria.VoidResults = afterVoidHistory.VoidResults;
         }
 
@@ -227,5 +232,20 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         };
 
         await repository.ExecuteAsync(command);
+    }
+
+    public async Task<IEnumerable<TicketRecoverEmailModel>> GetRecoveredTicketsByVoidingHistory(string singleTransIds, int voidingHistoryId, int siteDbGroupId)
+    {
+        var checkITUser = await CheckRequestOfITUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
+        var criteria = new GetTicketsRecoverEmailCriteria
+        {
+            SiteDbGroupId = siteDbGroupId,
+            SingleTransIds = singleTransIds,
+            IsITSupport = checkITUser.IsITSupport,
+            IsITSupportCreatedRequest = checkITUser.IsITSupportCreatedRequest,
+            IsInsertRoutineTask = true
+        };
+
+        return await repository.FetchAsync<TicketRecoverEmailModel>(criteria);
     }
 }

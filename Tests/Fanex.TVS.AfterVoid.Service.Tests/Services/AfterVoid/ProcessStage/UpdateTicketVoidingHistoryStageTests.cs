@@ -166,8 +166,8 @@ public class UpdateTicketVoidingHistoryStageTests
 
         // Assert
         await loggingService.Received(1).ErrorAsync(error, Arg.Any<Exception>());
-        await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-        await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
+        await voidBetAutomationService.Received(1).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
+        await notificationSignalRService.Received(1).UpdateFailedStatusForRequest(automationInfo.RequestId);
         Assert.False(actual);
     }
 }

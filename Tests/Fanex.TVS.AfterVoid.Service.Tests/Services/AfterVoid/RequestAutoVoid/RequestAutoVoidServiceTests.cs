@@ -13,12 +13,7 @@ using TicketVoidingSystem.Services;
 using Xunit;
 using Match = TicketVoidingSystem.Models.Match;
 
-namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.RequestAutoVoid
-{
-    internal class RequestAutoVoidServiceTests
-    {
-    }
-}
+namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.RequestAutoVoid;
 
 public class RequestAutoVoidServiceTests
 {
@@ -126,7 +121,7 @@ public class RequestAutoVoidServiceTests
         await mainProcessStageService.Received(1).UpdateTicketVoidingHistory(isInsertedVoidedTransaction, Arg.Any<UpdateTicketVoidingHistoryStageParameter>());
         await mainProcessStageService.Received(1).SendEmail(isUpdatedVoidingHistory, Arg.Any<SendEmailStageParameter>());
         await updateEmailResultStage.Received(1).Execute(automationInfo, Arg.Any<IEnumerable<Result>>());
-        await callCashOutApiStage.Received(1).Execute(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
+        await callCashOutApiStage.Received(1).ExecuteForVoid(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
         await voidBetAutomationService.Received(1).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await callSignalRStage.Received(1).ExecuteForAutoVoid(true, "", Arg.Any<VoidBetAutomationInfo>());
         await writeLogAfterVoidStage.Received(1).Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<Result>>());
@@ -187,7 +182,7 @@ public class RequestAutoVoidServiceTests
 
         // Assert
         await updateEmailResultStage.Received(0).Execute(automationInfo, Arg.Any<IEnumerable<Result>>());
-        await callCashOutApiStage.Received(0).Execute(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
+        await callCashOutApiStage.Received(0).ExecuteForVoid(automationInfo, Arg.Any<IEnumerable<TicketEmailModel>>());
         await voidBetAutomationService.Received(0).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await callSignalRStage.Received(0).ExecuteForAutoVoid(true, "", Arg.Any<VoidBetAutomationInfo>());
         await writeLogAfterVoidStage.Received(0).Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<Result>>());

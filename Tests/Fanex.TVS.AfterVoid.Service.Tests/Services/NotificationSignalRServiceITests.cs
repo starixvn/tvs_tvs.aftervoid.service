@@ -7,7 +7,6 @@ using FizzWare.NBuilder;
 using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
 using TicketVoidingSystem.Models;
-using TicketVoidingSystem.Services;
 using TicketVoidingSystem.SignalR;
 using Xunit;
 
@@ -18,11 +17,11 @@ public class NotificationSignalRServiceITests
     [Fact]
     public async Task UpdateFailedStatusForRequest_ShouldCallUpdateApi()
     {
+        var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
-        var service = new NotificationSignalRServiceImp(default, hubContext);
+        var service = new NotificationSignalRServiceImp(voidBetAutomationService, hubContext);
 
         await service.UpdateFailedStatusForRequest(1);
-
         await hubContext.Clients.All.Received(1).updateRequestStatus(Arg.Is<IEnumerable<RequestStatus>>(x =>
             x.Count() == 1
             && x.Any(y => y.RequestId == 1)));
@@ -34,7 +33,6 @@ public class NotificationSignalRServiceITests
         var fakeRequestSimple = Builder<RequestSimpleInfo>.CreateNew().Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetRequestSimpleInfo(default, default).ReturnsForAnyArgs(fakeRequestSimple);
-        var ticketVoidingSystemHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
         var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
         var service = new NotificationSignalRServiceImp(voidBetAutomationService, hubContext);
 

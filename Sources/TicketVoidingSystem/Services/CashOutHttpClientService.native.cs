@@ -14,6 +14,8 @@ namespace TicketVoidingSystem.Services;
 public interface CashOutHttpClientService
 {
     Task VoidBet(CashOutApiModel requestModel);
+
+    Task UndoVoidBet(CashOutApiModel requestModel);
 }
 
 [ExcludeFromCodeCoverage]
@@ -45,6 +47,19 @@ public class CashOutHttpClientServiceImp : CashOutHttpClientService
     public async Task VoidBet(CashOutApiModel requestModel)
     {
         const string actionName = "VoidBet";
+        using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(requestModel));
+        if (response.IsSuccessStatusCode)
+        {
+            await LogService.InfoAsync(await CreateLogResponse(actionName, response));
+            return;
+        }
+
+        await LogService.ErrorAsync(await CreateLogResponse(actionName, response));
+    }
+
+    public async Task UndoVoidBet(CashOutApiModel requestModel)
+    {
+        const string actionName = "UndoVoidBet";
         using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(requestModel));
         if (response.IsSuccessStatusCode)
         {

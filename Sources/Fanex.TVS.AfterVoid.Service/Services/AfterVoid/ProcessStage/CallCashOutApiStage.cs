@@ -5,13 +5,16 @@ using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Models.SendEmailRecover;
 using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 
 public interface CallCashOutApiStage
 {
-    Task Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets);
+    Task ExecuteForVoid(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets);
+
+    Task ExecuteForRecover(VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> emailTickets);
 }
 
 public class CallCashOutApiStageImp : CallCashOutApiStage
@@ -29,19 +32,19 @@ public class CallCashOutApiStageImp : CallCashOutApiStage
         this.loggingService = loggingService;
     }
 
-    public async Task Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets)
+    public async Task ExecuteForVoid(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets)
     {
         try
         {
-            await TryExecute(automationInfo, emailTickets);
+            await TryExecuteForVoid(automationInfo, emailTickets);
         }
         catch (Exception exception)
         {
-            await CatchException(exception, automationInfo);
+            await CatchExceptionForVoid(exception, automationInfo);
         }
     }
 
-    private async Task TryExecute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets)
+    private async Task TryExecuteForVoid(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets)
     {
         if (automationInfo.IsRunExternalService == true)
         {
@@ -57,9 +60,43 @@ public class CallCashOutApiStageImp : CallCashOutApiStage
         await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsRunExternalService = true });
     }
 
-    private async Task CatchException(Exception exception, VoidBetAutomationInfo automationInfo)
+    private async Task CatchExceptionForVoid(Exception exception, VoidBetAutomationInfo automationInfo)
     {
-        await loggingService.ErrorAsync($"ERROR: {nameof(CallCashOutApiStage)}.{nameof(Execute)} - SessionId: {automationInfo.BroadcastSessionId}" +
+        await loggingService.ErrorAsync($"ERROR: {nameof(CallCashOutApiStage)}.{nameof(ExecuteForVoid)} - SessionId: {automationInfo.BroadcastSessionId}" +
+                                        $" - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
+    }
+
+    public async Task ExecuteForRecover(VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> emailTickets)
+    {
+        try
+        {
+            await TryExecuteForRecover(automationInfo, emailTickets);
+        }
+        catch (Exception exception)
+        {
+            await CatchExceptionForRecover(exception, automationInfo);
+        }
+    }
+
+    private async Task TryExecuteForRecover(VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> emailTickets)
+    {
+        if (automationInfo.IsRunExternalService == true)
+        {
+            return;
+        }
+        var basketballCashOutTickets = emailTickets.Where(x => x.IsCashOut && x.SportType == SportTypeConstant.Basketball);
+        if (!basketballCashOutTickets.Any())
+        {
+            return;
+        }
+        var requestModel = new CashOutApiModel { VoidBetInfos = basketballCashOutTickets.Select(x => new VoidBetInfo { TransId = x.TransId.ToString(), CustId = x.CustId.ToString() }) };
+        await cashOutHttpClientService.UndoVoidBet(requestModel);
+        await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsRunExternalService = true });
+    }
+
+    private async Task CatchExceptionForRecover(Exception exception, VoidBetAutomationInfo automationInfo)
+    {
+        await loggingService.ErrorAsync($"ERROR: {nameof(CallCashOutApiStage)}.{nameof(ExecuteForRecover)} - SessionId: {automationInfo.BroadcastSessionId}" +
                                         $" - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
     }
 }
