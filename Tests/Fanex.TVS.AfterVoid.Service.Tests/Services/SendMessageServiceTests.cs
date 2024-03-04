@@ -106,7 +106,8 @@ public class SendMessageServiceTests
         var requestInfo = new RequestDetailViewModel
         {
             Request = new RequestModel { IssueTypeId = issueTypeId },
-            EventByMatch = new RequestEventModel { SubIssueTypeId = 1, FilterBy = filterBy }
+            EventByMatch = new RequestEventModel { SubIssueTypeId = 1, FilterBy = filterBy, KickOffTime = DateTimeOffset.Now.DateTime },
+            PlayerNamesSelected = new TemplateContent()
         };
         var service = new SendMessageServiceImp(repository, null, null);
 
