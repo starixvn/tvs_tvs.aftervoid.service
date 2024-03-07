@@ -319,7 +319,7 @@ public class SendMessageServiceImp : SendMessageService
 
     private static void ReplaceKoTime(TemplateModel model, RequestEventModel eventByMatch)
     {
-        var kickOffTimeDateGmt8 = eventByMatch.KickOffTime?.AddHours(12);
+        var kickOffTimeDateGmt8 = eventByMatch.KickOffTime?.AddHours(12).AddSeconds(-1);
         const string eventDatePlaceholder = "{{KO time}}";
         const string eventDateFormat = "dd/MM hh:mm:ss tt";
         model.MsgEnglish = model.MsgEnglish.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(eventDateFormat));
