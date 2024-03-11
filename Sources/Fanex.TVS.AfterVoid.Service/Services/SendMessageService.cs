@@ -345,10 +345,10 @@ public class SendMessageServiceImp : SendMessageService
     private static void ReplaceParlay(TemplateModel model, int issueTypeId, int? filterBy)
     {
         const string parlayPlaceholder = "{{Parlay}}";
-        var parlayEnglish = Helper.IsAbnormalBetMixParlay(issueTypeId, filterBy) ? "[Parlay]" : "";
-        var parlayChineseTraditional = Helper.IsAbnormalBetMixParlay(issueTypeId, filterBy) ? "[串關]" : "";
-        var parlayChineseSimplified = Helper.IsAbnormalBetMixParlay(issueTypeId, filterBy) ? "[串关]" : "";
-        var parlayChineseNewSimplified = Helper.IsAbnormalBetMixParlay(issueTypeId, filterBy) ? "[串关]" : "";
+        var parlayEnglish = Helper.IsAbnormalBetParlay(issueTypeId, filterBy) ? "[Parlay]" : "";
+        var parlayChineseTraditional = Helper.IsAbnormalBetParlay(issueTypeId, filterBy) ? "[串關]" : "";
+        var parlayChineseSimplified = Helper.IsAbnormalBetParlay(issueTypeId, filterBy) ? "[串关]" : "";
+        var parlayChineseNewSimplified = Helper.IsAbnormalBetParlay(issueTypeId, filterBy) ? "[串关]" : "";
         model.MsgEnglish = model.MsgEnglish.Replace(parlayPlaceholder, parlayEnglish);
         model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(parlayPlaceholder, parlayChineseTraditional);
         model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(parlayPlaceholder, parlayChineseSimplified);
@@ -409,11 +409,10 @@ public class SendMessageServiceImp : SendMessageService
         var subIssueTypeId = requestInfo.EventByMatch.SubIssueTypeId;
         var templateSettings = await repository.FetchAsync<TemplateSetting>(new GetTemplateSettingCriteria()).ConfigureAwait(false);
 
-        const int filterMixParlay = 1;
         return issueTypeId switch
         {
-            IssueTypeConstant.DuplicateTickets when filterBy == filterMixParlay => MessageTemplateIdConstant.SixtyFive,
-            IssueTypeConstant.AbnormalBet when filterBy == filterMixParlay => MessageTemplateIdConstant.ThirtySeven,
+            IssueTypeConstant.DuplicateTickets when filterBy == FilterByConstant.MixParlay => MessageTemplateIdConstant.SixtyFive,
+            IssueTypeConstant.AbnormalBet when Helper.IsAbnormalBetParlay(issueTypeId, filterBy) => MessageTemplateIdConstant.ThirtySeven,
             _ => GetTemplateIdByFilter(subIssueTypeId, sportType, templateSettings)
         };
     }
