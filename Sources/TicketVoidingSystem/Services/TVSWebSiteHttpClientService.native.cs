@@ -32,7 +32,7 @@ public class TVSWebSiteHttpClientServiceImp : TVSWebSiteHttpClientService
     {
         httpClient = client;
         httpClient.BaseAddress = new Uri(AppSettingService.AppSetting.TVSWebSiteUrl);
-        httpClient.Timeout = TimeSpan.FromMinutes(5);
+        httpClient.Timeout = TimeSpan.FromMinutes(15);
         httpClient.DefaultRequestHeaders.Clear();
         httpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Json);
         this.loggingService = loggingService;
