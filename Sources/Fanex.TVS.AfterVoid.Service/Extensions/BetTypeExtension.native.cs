@@ -6,7 +6,7 @@ public static class BetTypeExtension
 {
     public static bool IsParlay(this int id)
     {
-        return id is BetTypeConstant.FirstParlay or BetTypeConstant.SecondParlay;
+        return id is BetTypeConstant.MixParlay or BetTypeConstant.VirtualSportParlay or BetTypeConstant.VirtualSport4Parlay;
     }
 
     public static bool IsParlayAndBetBuilder(this int id)
@@ -37,7 +37,14 @@ public static class BetTypeExtension
 
     public static bool IsVirtualSportBetType(this int id)
     {
-        return id is >= BetTypeConstant.FirstVirtualSport and <= BetTypeConstant.SecondVirtualSport or >= BetTypeConstant.ThirdVirtualSport and <= BetTypeConstant.FourthVirtualSport;
+        return id is >= BetTypeConstant.FirstVirtualSport and <= BetTypeConstant.SecondVirtualSport
+            or >= BetTypeConstant.ThirdVirtualSport and <= BetTypeConstant.FourthVirtualSport
+               || id.IsVirtualSport4BetType();
+    }
+
+    private static bool IsVirtualSport4BetType(this int id)
+    {
+        return id is BetTypeConstant.VirtualSport4Parlay or BetTypeConstant.VirtualSport4MatchWinner;
     }
 
     public static bool IsHideHandicap(this int id)
