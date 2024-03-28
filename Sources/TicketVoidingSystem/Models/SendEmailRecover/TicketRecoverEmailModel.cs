@@ -89,4 +89,6 @@ public class TicketRecoverEmailModel
     public bool IsSettled { get; set; }
 
     public string CurrencyName { get; set; }
+
+    public decimal MasterOdds { get; set; }
 }
