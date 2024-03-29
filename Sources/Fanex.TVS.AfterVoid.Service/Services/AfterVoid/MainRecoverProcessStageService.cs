@@ -42,7 +42,7 @@ public class MainRecoverProcessStageServiceImp : MainRecoverProcessStageService
 
     public async Task<bool> DeleteZzzBetTrans(VoidBetAutomationInfo automationInfo, string transIds)
     {
-        return !string.IsNullOrWhiteSpace(transIds) && await deleteZzzBetTransStage.Execute(automationInfo, transIds);
+        return await deleteZzzBetTransStage.Execute(automationInfo, transIds);
     }
 
     public async Task<bool> DeleteMessage(bool isContinue, VoidBetAutomationInfo automationInfo, string transIds)
@@ -52,7 +52,7 @@ public class MainRecoverProcessStageServiceImp : MainRecoverProcessStageService
             return false;
         }
 
-        return !string.IsNullOrWhiteSpace(transIds) && await deletedMessageStage.Execute(automationInfo, transIds);
+        return await deletedMessageStage.Execute(automationInfo, transIds);
     }
 
     public async Task<bool> DeleteTransaction(bool isContinue, VoidBetAutomationInfo automationInfo, IEnumerable<BetId> betIds)
@@ -67,12 +67,12 @@ public class MainRecoverProcessStageServiceImp : MainRecoverProcessStageService
 
     public async Task<bool> UpdateTicketVoidingHistory(bool isContinue, UpdateTicketVoidingHistoryStageParameter parameter)
     {
-        if (isContinue)
+        if (!isContinue)
         {
-            return await updateTicketVoidingHistoryStage.Execute(parameter);
+            return false;
         }
 
-        return false;
+        return await updateTicketVoidingHistoryStage.Execute(parameter);
     }
 
     public async Task<(bool, IEnumerable<Result>)> SendEmail(bool isContinue, VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> tickets)

@@ -46,6 +46,11 @@ public class DeleteTransactionStageImp : DeleteTransactionStage
 
     private async Task<bool> TryExecute(VoidBetAutomationInfo automationInfo, IEnumerable<BetId> betIds)
     {
+        if (automationInfo.IsDeletedVoidedTransaction == true)
+        {
+            return true;
+        }
+
         var command = new DeleteVoidedTransactionCommand
         {
             TicketsXml = betIds.CreateTicketsXml()

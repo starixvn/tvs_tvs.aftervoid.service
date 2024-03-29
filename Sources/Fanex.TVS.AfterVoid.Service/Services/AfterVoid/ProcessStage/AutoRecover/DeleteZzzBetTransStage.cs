@@ -44,6 +44,16 @@ public class DeleteZzzBetTransStageImp : DeleteZzzBetTransStage
 
     private async Task<bool> TryExecute(VoidBetAutomationInfo automationInfo, string transIds)
     {
+        if (automationInfo.IsDeletedZzzBetTrans == true)
+        {
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(transIds))
+        {
+            return false;
+        }
+
         await ExecuteDeleteZzzBetTrans(transIds, automationInfo.RequestInfo.EventByMatch.FilterBy);
         await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId,
             new VoidBetAutomationInfo { IsDeletedZzzBetTrans = true });
