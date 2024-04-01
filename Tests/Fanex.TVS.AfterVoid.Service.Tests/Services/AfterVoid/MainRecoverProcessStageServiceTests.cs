@@ -15,7 +15,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid;
 public class MainRecoverProcessStageServiceTests
 {
     [Theory]
-    [InlineData("", true, false)]
+    [InlineData("", true, true)]
     [InlineData("", false, false)]
     [InlineData("1", false, false)]
     [InlineData("1", true, true)]
@@ -35,8 +35,6 @@ public class MainRecoverProcessStageServiceTests
     }
 
     [Theory]
-    [InlineData(true, "", true, false)]
-    [InlineData(true, "", false, false)]
     [InlineData(true, "1", false, false)]
     [InlineData(true, "1", true, true)]
     [InlineData(false, "1", true, false)]
@@ -44,12 +42,15 @@ public class MainRecoverProcessStageServiceTests
     {
         // Arrange
         var deletedMessageStage = Substitute.For<DeleteMessageStage>();
-
+        var automationInfo = new VoidBetAutomationInfo
+        {
+            IsDeletedMessage = false
+        };
         deletedMessageStage.Execute(Arg.Any<VoidBetAutomationInfo>(), transIds).ReturnsForAnyArgs(isDeletedMessage);
         var service = new MainRecoverProcessStageServiceImp(deletedMessageStage, null, null, null, null);
 
         // Act
-        var actual = await service.DeleteMessage(isContinue, null, transIds);
+        var actual = await service.DeleteMessage(isContinue, automationInfo, transIds);
 
         // Assert
         Assert.Equal(expected, actual);

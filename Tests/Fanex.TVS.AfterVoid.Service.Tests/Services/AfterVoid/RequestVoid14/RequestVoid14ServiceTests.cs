@@ -15,15 +15,15 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.RequestVoid14;
 
 public class RequestVoid14ServiceTests
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly MainProcessStageService mainProcessStageService;
-    private readonly CallCashOutApiStage callCashOutApiStage;
-    private readonly WriteLogAfterVoidStage writeLogAfterVoidStage;
-    private readonly CallSignalRStage callSignalRStage;
+    private VoidBetAutomationService voidBetAutomationService;
+    private NotificationSignalRService notificationSignalRService;
+    private MainProcessStageService mainProcessStageService;
+    private CallCashOutApiStage callCashOutApiStage;
+    private WriteLogAfterVoidStage writeLogAfterVoidStage;
+    private CallSignalRStage callSignalRStage;
     public RequestVoid14Service Service;
 
-    public RequestVoid14ServiceTests()
+    internal void InItService()
     {
         mainProcessStageService = Substitute.For<MainProcessStageService>();
         voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
@@ -41,6 +41,7 @@ public class RequestVoid14ServiceTests
         {
             StatusId = ExecuteStatus.Done
         };
+        InItService();
         Service = new RequestVoid14ServiceImp(null, null, null, null, null, null);
 
         // Act
@@ -71,6 +72,7 @@ public class RequestVoid14ServiceTests
         const bool isSentMessageToAdminSite = true;
         const bool isInsertedVoidedTransaction = true;
         const bool isUpdatedVoidingHistory = true;
+        InItService();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(allVoidDataInCurrentVoid);
         voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true).ReturnsForAnyArgs(voidedTickets);
         mainProcessStageService.CreateVoidReason(true, Arg.Any<CreateVoidReasonStageParameter>()).ReturnsForAnyArgs(voidReason);
@@ -114,6 +116,7 @@ public class RequestVoid14ServiceTests
         const bool isSentMessageToAdminSite = true;
         const bool isInsertedVoidedTransaction = true;
         const bool isUpdatedVoidingHistory = false;
+        InItService();
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(allVoidDataInCurrentVoid);
         voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true).ReturnsForAnyArgs(voidedTickets);
         mainProcessStageService.CreateVoidReason(true, Arg.Any<CreateVoidReasonStageParameter>()).ReturnsForAnyArgs((VoidedReason)null);

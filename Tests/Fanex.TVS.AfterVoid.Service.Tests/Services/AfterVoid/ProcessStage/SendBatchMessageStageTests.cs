@@ -16,13 +16,13 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class SendBatchMessageStageTests
 {
-    private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly SendMessageService sendMessageService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
+    private LoggingService loggingService;
+    private NotificationSignalRService notificationSignalRService;
+    private SendMessageService sendMessageService;
+    private VoidBetAutomationService voidBetAutomationService;
     public SendBatchMessageStage Service;
 
-    public SendBatchMessageStageTests()
+    internal void InItService()
     {
         loggingService = Substitute.For<LoggingService>();
         notificationSignalRService = Substitute.For<NotificationSignalRService>();
@@ -42,6 +42,7 @@ public class SendBatchMessageStageTests
         {
             AutomationInfo = automationInfo
         };
+        InItService();
         Service = new SendBatchMessageStageImp(null, null, null, null);
 
         // Act
@@ -83,6 +84,7 @@ public class SendBatchMessageStageTests
             SpecialTickets = new List<TicketEmailModel>(),
         };
 
+        InItService();
         Service = new SendBatchMessageStageImp(voidBetAutomationService, sendMessageService, null, null);
 
         // Act
@@ -128,6 +130,7 @@ public class SendBatchMessageStageTests
             VoidData = new VoidDataXmlModel { CreatorId = 1 }
         };
 
+        InItService();
         Service = new SendBatchMessageStageImp(voidBetAutomationService, sendMessageService, null, null);
 
         // Act
@@ -172,6 +175,7 @@ public class SendBatchMessageStageTests
             SpecialTickets = new List<TicketEmailModel>(),
         };
         const string error = "ERROR: SendBatchMessageStage.Execute - SessionId: 1 - VDHistoryId: 1 - RequestId: 1";
+        InItService();
         Service = new SendBatchMessageStageImp(voidBetAutomationService, null, notificationSignalRService, loggingService);
 
         // Act

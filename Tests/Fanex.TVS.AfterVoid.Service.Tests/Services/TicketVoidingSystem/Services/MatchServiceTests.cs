@@ -7,18 +7,14 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.TicketVoidingSystem.Service
 
 public class MatchServiceTests
 {
-    private readonly RemotingRefWrapperService remotingRefWrapperService;
+    private RemotingRefWrapperService remotingRefWrapperService;
     private MatchService service;
-
-    public MatchServiceTests()
-    {
-        remotingRefWrapperService = Substitute.For<RemotingRefWrapperService>();
-    }
 
     [Fact]
     public void UpdateMatchInfoFromRemotingRef_HasMatchIsNull_ReturnNull()
     {
         // Arrange
+        remotingRefWrapperService = Substitute.For<RemotingRefWrapperService>();
         service = new MatchServiceImp(remotingRefWrapperService);
 
         // Act
@@ -33,6 +29,7 @@ public class MatchServiceTests
     {
         // Arrange
         var query = new Match();
+        remotingRefWrapperService = Substitute.For<RemotingRefWrapperService>();
         remotingRefWrapperService.GetTeamName(default, default).ReturnsForAnyArgs("TeamName");
         remotingRefWrapperService.GetLeagueName(default, default).ReturnsForAnyArgs("LeagueName");
         remotingRefWrapperService.GetSportName(default, default).ReturnsForAnyArgs("SportName");
@@ -74,6 +71,7 @@ public class MatchServiceTests
     {
         // Arrange
         var query = new Match { IsOutright = true, IsNeutral = true };
+        remotingRefWrapperService = Substitute.For<RemotingRefWrapperService>();
         remotingRefWrapperService.GetTeamName(default, default).ReturnsForAnyArgs("TeamName");
         remotingRefWrapperService.GetLeagueName(default, default).ReturnsForAnyArgs("LeagueName");
         remotingRefWrapperService.GetSportName(default, default).ReturnsForAnyArgs("SportName");
@@ -122,6 +120,7 @@ public class MatchServiceTests
     {
         // Arrange
         var query = new Match { SportType = sportType };
+        remotingRefWrapperService = Substitute.For<RemotingRefWrapperService>();
         remotingRefWrapperService.GetTeamName(default, default).ReturnsForAnyArgs("TeamName");
         remotingRefWrapperService.GetLeagueName(default, default).ReturnsForAnyArgs("LeagueName");
         remotingRefWrapperService.GetSportName(default, default).ReturnsForAnyArgs("SportName");

@@ -11,13 +11,8 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class WriteLogAfterVoidStageTests
 {
-    private readonly LoggingService loggingService;
+    private LoggingService loggingService;
     public WriteLogAfterVoidStage Service;
-
-    public WriteLogAfterVoidStageTests()
-    {
-        loggingService = Substitute.For<LoggingService>();
-    }
 
     [Fact]
     public async Task Execute_CalledExpected()
@@ -31,6 +26,7 @@ public class WriteLogAfterVoidStageTests
             BroadcastSessionId = "1"
         };
         var results = new List<Result> { new() { ErrorCode = 1, ErrorMsg = "111" } };
+        loggingService = Substitute.For<LoggingService>();
         Service = new WriteLogAfterVoidStageImp(loggingService);
 
         // Act

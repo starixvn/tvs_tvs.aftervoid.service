@@ -15,13 +15,13 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class SendEmailStageTests
 {
-    private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly AfterVoidEmailService afterVoidEmailService;
+    private LoggingService loggingService;
+    private NotificationSignalRService notificationSignalRService;
+    private VoidBetAutomationService voidBetAutomationService;
+    private AfterVoidEmailService afterVoidEmailService;
     public SendEmailStage Service;
 
-    public SendEmailStageTests()
+    internal void InItService()
     {
         loggingService = Substitute.For<LoggingService>();
         notificationSignalRService = Substitute.For<NotificationSignalRService>();
@@ -42,6 +42,7 @@ public class SendEmailStageTests
             AutomationInfo = automationInfo
         };
         var expectedResults = new List<Result>();
+        InItService();
         Service = new SendEmailStageImp(null, null, null, null);
 
         // Act
@@ -67,6 +68,7 @@ public class SendEmailStageTests
             AutomationInfo = automationInfo
         };
         var expectedResults = new List<Result>();
+        InItService();
         afterVoidEmailService.Execute(Arg.Any<SendEmailStageParameter>()).ReturnsForAnyArgs(expectedResults);
         Service = new SendEmailStageImp(voidBetAutomationService, null, null, afterVoidEmailService);
 
@@ -97,6 +99,7 @@ public class SendEmailStageTests
         };
 
         const string error = "ERROR: SendEmailStage.Execute - BroadcastSessionId: 1 - VDHistoryId: 1 - RequestId: 1";
+        InItService();
         Service = new SendEmailStageImp(voidBetAutomationService, notificationSignalRService, loggingService, null);
 
         // Act

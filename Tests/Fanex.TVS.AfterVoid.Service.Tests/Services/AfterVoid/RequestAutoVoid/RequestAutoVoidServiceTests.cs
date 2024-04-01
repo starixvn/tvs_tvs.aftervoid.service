@@ -17,16 +17,16 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.RequestAutoVoid;
 
 public class RequestAutoVoidServiceTests
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly MainProcessStageService mainProcessStageService;
-    private readonly UpdateEmailResultStage updateEmailResultStage;
-    private readonly CallCashOutApiStage callCashOutApiStage;
-    private readonly WriteLogAfterVoidStage writeLogAfterVoidStage;
-    private readonly CallSignalRStage callSignalRStage;
-    private readonly SpecialPlatformService specialPlatformService;
+    private VoidBetAutomationService voidBetAutomationService;
+    private MainProcessStageService mainProcessStageService;
+    private UpdateEmailResultStage updateEmailResultStage;
+    private CallCashOutApiStage callCashOutApiStage;
+    private WriteLogAfterVoidStage writeLogAfterVoidStage;
+    private CallSignalRStage callSignalRStage;
+    private SpecialPlatformService specialPlatformService;
     public RequestAutoVoidService Service;
 
-    public RequestAutoVoidServiceTests()
+    internal void InItService()
     {
         mainProcessStageService = Substitute.For<MainProcessStageService>();
         updateEmailResultStage = Substitute.For<UpdateEmailResultStage>();
@@ -45,6 +45,7 @@ public class RequestAutoVoidServiceTests
         {
             StatusId = ExecuteStatus.Done
         };
+        InItService();
         Service = new RequestAutoVoidServiceImp(null, null, null, null, null, null, null);
 
         // Act
@@ -88,6 +89,7 @@ public class RequestAutoVoidServiceTests
         const bool isInsertedVoidedTransaction = true;
         const bool isUpdatedVoidingHistory = true;
         const bool isSentEmail = true;
+        InItService();
         mainProcessStageService.GetMatchInfo(automationInfo.MatchId).ReturnsForAnyArgs(matchInfo);
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(allVoidDataInCurrentVoid);
         voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true).ReturnsForAnyArgs(voidedTickets);
@@ -159,6 +161,7 @@ public class RequestAutoVoidServiceTests
         const bool isInsertedVoidedTransaction = true;
         const bool isUpdatedVoidingHistory = true;
         const bool isSentEmail = false;
+        InItService();
         mainProcessStageService.GetMatchInfo(automationInfo.MatchId).ReturnsForAnyArgs((Match)null);
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(allVoidDataInCurrentVoid);
         voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true).ReturnsForAnyArgs(voidedTickets);

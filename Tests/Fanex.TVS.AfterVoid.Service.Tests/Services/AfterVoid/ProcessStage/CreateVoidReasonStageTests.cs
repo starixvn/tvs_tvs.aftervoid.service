@@ -14,13 +14,13 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class CreateVoidReasonStageTests
 {
-    private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly SendMessageService sendMessageService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
+    private LoggingService loggingService;
+    private NotificationSignalRService notificationSignalRService;
+    private SendMessageService sendMessageService;
+    private VoidBetAutomationService voidBetAutomationService;
     public CreateVoidReasonStage Service;
 
-    public CreateVoidReasonStageTests()
+    internal void InItService()
     {
         loggingService = Substitute.For<LoggingService>();
         notificationSignalRService = Substitute.For<NotificationSignalRService>();
@@ -41,6 +41,7 @@ public class CreateVoidReasonStageTests
         {
             AutomationInfo = automationInfo
         };
+        InItService();
         sendMessageService.GetVoidedReason(1).ReturnsForAnyArgs(reason);
         Service = new CreateVoidReasonStageImp(null, sendMessageService, null, null);
 
@@ -72,6 +73,7 @@ public class CreateVoidReasonStageTests
             SportTypeId = 1,
             VoidData = null,
         };
+        InItService();
         sendMessageService.InitializeVoidReason(true, 1, 1, null).ReturnsForAnyArgs(reason);
         sendMessageService.InsertReason("1", "1").ReturnsForAnyArgs(1);
         Service = new CreateVoidReasonStageImp(voidBetAutomationService, sendMessageService, null, null);
@@ -101,6 +103,7 @@ public class CreateVoidReasonStageTests
             AutomationInfo = automationInfo
         };
         const string error = "ERROR: CreateVoidReasonStage.Execute - SessionId: 1 - VDHistoryId: 1 - RequestId: 1";
+        InItService();
         Service = new CreateVoidReasonStageImp(voidBetAutomationService, null, notificationSignalRService, loggingService);
 
         // Act

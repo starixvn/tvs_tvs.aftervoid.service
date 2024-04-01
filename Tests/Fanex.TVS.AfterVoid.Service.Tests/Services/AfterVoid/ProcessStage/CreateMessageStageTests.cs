@@ -17,15 +17,15 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class CreateMessageStageTests
 {
-    private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly SendLetstalkServiceStage sendLetstalkServiceStage;
-    private readonly SendMessageService sendMessageService;
-    private readonly SpecialPlatformService specialPlatformService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
+    private LoggingService loggingService;
+    private NotificationSignalRService notificationSignalRService;
+    private SendLetstalkServiceStage sendLetstalkServiceStage;
+    private SendMessageService sendMessageService;
+    private SpecialPlatformService specialPlatformService;
+    private VoidBetAutomationService voidBetAutomationService;
     public CreateMessageStage Service;
 
-    public CreateMessageStageTests()
+    internal void InItService()
     {
         loggingService = Substitute.For<LoggingService>();
         notificationSignalRService = Substitute.For<NotificationSignalRService>();
@@ -61,6 +61,7 @@ public class CreateMessageStageTests
             SpecialTickets = specialTickets,
             MatchInfo = matchInfo,
         };
+        InItService();
         specialPlatformService.RemoveSabaInMessageContent(Arg.Any<Match>(), Arg.Any<Message>())
             .ReturnsForAnyArgs(new Message());
         sendMessageService.InsertMessage(Arg.Any<Message>(), 1, 1, 1).ReturnsForAnyArgs(1);
@@ -100,6 +101,7 @@ public class CreateMessageStageTests
             SpecialTickets = specialTickets,
             MatchInfo = null,
         };
+        InItService();
         sendMessageService.InitializeMessageContentForManualVoid(allVoidDataInCurrentVoid.First())
             .ReturnsForAnyArgs(new Message());
         sendMessageService.InsertMessage(Arg.Any<Message>(), 1, 1, 1).ReturnsForAnyArgs(1);
@@ -141,6 +143,7 @@ public class CreateMessageStageTests
             SpecialTickets = specialTickets,
             MatchInfo = null,
         };
+        InItService();
         specialPlatformService.RemoveSabaInMessageContent(null, Arg.Any<Message>()).ReturnsForAnyArgs(new Message());
         sendMessageService.InitializeMessageContentForManualVoid(allVoidDataInCurrentVoid.First())
             .ReturnsForAnyArgs(new Message());
@@ -184,6 +187,7 @@ public class CreateMessageStageTests
             SpecialTickets = specialTickets,
             MatchInfo = matchInfo,
         };
+        InItService();
         sendMessageService.InitializeMessageContentForAutoVoid(Arg.Any<Match>(), Arg.Any<IEnumerable<VoidDataXmlModel>>(), Arg.Any<RequestDetailViewModel>())
             .ReturnsForAnyArgs(new Message());
         Service = new CreateMessageStageImp(voidBetAutomationService, sendMessageService, notificationSignalRService, loggingService,
@@ -227,6 +231,7 @@ public class CreateMessageStageTests
             SpecialTickets = specialTickets,
             MatchInfo = matchInfo,
         };
+        InItService();
         sendMessageService.InitializeMessageContentForAutoVoid(Arg.Any<Match>(), Arg.Any<IEnumerable<VoidDataXmlModel>>(), Arg.Any<RequestDetailViewModel>())
             .ReturnsForAnyArgs(new Message());
         Service = new CreateMessageStageImp(voidBetAutomationService, null, notificationSignalRService, loggingService,
