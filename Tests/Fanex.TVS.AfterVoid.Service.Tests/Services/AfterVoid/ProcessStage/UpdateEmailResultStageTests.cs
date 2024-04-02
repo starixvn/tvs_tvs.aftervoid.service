@@ -12,13 +12,8 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class UpdateEmailResultStageTests
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
+    private VoidBetAutomationService voidBetAutomationService;
     public UpdateEmailResultStage Service;
-
-    public UpdateEmailResultStageTests()
-    {
-        voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-    }
 
     [Fact]
     public async Task Execute_NotHasError_NotCalledUpdateEmailResultByVoidingHistory()
@@ -30,6 +25,7 @@ public class UpdateEmailResultStageTests
             VoidingHistoryId = 1
         };
         var currentEmailResults = new List<Result> { new() };
+        voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         Service = new UpdateEmailResultStageImp(null);
 
         // Act
@@ -55,6 +51,7 @@ public class UpdateEmailResultStageTests
             new(){ ErrorCode = ErrorCode.LicenseeSuccess },
             new(){ ErrorCode = ErrorCode.LicenseeFail }
         };
+        voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         Service = new UpdateEmailResultStageImp(voidBetAutomationService);
 
         // Act

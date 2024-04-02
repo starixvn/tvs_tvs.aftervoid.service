@@ -15,13 +15,13 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class InsertVoidedTransactionStageTests
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly SendMessageService sendMessageService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly LoggingService loggingService;
+    private VoidBetAutomationService voidBetAutomationService;
+    private SendMessageService sendMessageService;
+    private NotificationSignalRService notificationSignalRService;
+    private LoggingService loggingService;
     public InsertVoidedTransactionStage Service;
 
-    public InsertVoidedTransactionStageTests()
+    internal void InItService()
     {
         loggingService = Substitute.For<LoggingService>();
         notificationSignalRService = Substitute.For<NotificationSignalRService>();
@@ -41,6 +41,7 @@ public class InsertVoidedTransactionStageTests
         {
             AutomationInfo = automationInfo
         };
+        InItService();
         Service = new InsertVoidedTransactionStageImp(null, null, null, null);
 
         // Act
@@ -82,6 +83,7 @@ public class InsertVoidedTransactionStageTests
             SpecialTickets = new List<TicketEmailModel>()
         };
 
+        InItService();
         Service = new InsertVoidedTransactionStageImp(voidBetAutomationService, sendMessageService, null, null);
 
         // Act
@@ -126,6 +128,7 @@ public class InsertVoidedTransactionStageTests
             NormalTickets = emailTickets,
         };
 
+        InItService();
         Service = new InsertVoidedTransactionStageImp(voidBetAutomationService, sendMessageService, null, null);
 
         // Act
@@ -170,6 +173,7 @@ public class InsertVoidedTransactionStageTests
             SpecialTickets = null
         };
         const string error = "ERROR: InsertVoidedTransactionStage.Execute - BroadcastSessionId: 1 - VDHistoryId: 1 - RequestId: 1";
+        InItService();
         Service = new InsertVoidedTransactionStageImp(voidBetAutomationService, null, notificationSignalRService, loggingService);
 
         // Act

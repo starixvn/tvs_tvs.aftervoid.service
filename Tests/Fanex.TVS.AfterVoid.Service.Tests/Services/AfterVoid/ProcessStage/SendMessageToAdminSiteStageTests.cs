@@ -13,13 +13,13 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class SendMessageToAdminSiteStageTests
 {
-    private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly SendMessageService sendMessageService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
+    private LoggingService loggingService;
+    private NotificationSignalRService notificationSignalRService;
+    private SendMessageService sendMessageService;
+    private VoidBetAutomationService voidBetAutomationService;
     public SendMessageToAdminSiteStage Service;
 
-    public SendMessageToAdminSiteStageTests()
+    internal void InItService()
     {
         loggingService = Substitute.For<LoggingService>();
         notificationSignalRService = Substitute.For<NotificationSignalRService>();
@@ -36,6 +36,7 @@ public class SendMessageToAdminSiteStageTests
             IsSentMessageToAdminSite = true
         };
 
+        InItService();
         Service = new SendMessageToAdminSiteStageImp(null, null, null, null);
 
         // Act
@@ -55,6 +56,7 @@ public class SendMessageToAdminSiteStageTests
             VoidingHistoryId = 1,
             RequestId = 1
         };
+        InItService();
         Service = new SendMessageToAdminSiteStageImp(voidBetAutomationService, sendMessageService, null, null);
 
         // Act
@@ -79,6 +81,7 @@ public class SendMessageToAdminSiteStageTests
         };
 
         const string error = "ERROR: SendMessageToAdminSiteStage.Execute - BroadcastSessionId: 1 - VDHistoryId: 1 - RequestId: 1";
+        InItService();
         Service = new SendMessageToAdminSiteStageImp(voidBetAutomationService, null, notificationSignalRService, loggingService);
 
         // Act

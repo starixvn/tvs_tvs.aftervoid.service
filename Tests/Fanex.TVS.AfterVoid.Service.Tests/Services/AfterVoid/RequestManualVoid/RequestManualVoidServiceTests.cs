@@ -16,17 +16,17 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.RequestManualVoid
 
 public class RequestManualVoidServiceTests
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly MainProcessStageService mainProcessStageService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly SpecialPlatformService specialPlatformService;
-    private readonly UpdateEmailResultStage updateEmailResultStage;
-    private readonly CallCashOutApiStage callCashOutApiStage;
-    private readonly WriteLogAfterVoidStage writeLogAfterVoidStage;
-    private readonly CallSignalRStage callSignalRStage;
+    private VoidBetAutomationService voidBetAutomationService;
+    private MainProcessStageService mainProcessStageService;
+    private NotificationSignalRService notificationSignalRService;
+    private SpecialPlatformService specialPlatformService;
+    private UpdateEmailResultStage updateEmailResultStage;
+    private CallCashOutApiStage callCashOutApiStage;
+    private WriteLogAfterVoidStage writeLogAfterVoidStage;
+    private CallSignalRStage callSignalRStage;
     public RequestManualVoidService Service;
 
-    public RequestManualVoidServiceTests()
+    internal void InItService()
     {
         mainProcessStageService = Substitute.For<MainProcessStageService>();
         updateEmailResultStage = Substitute.For<UpdateEmailResultStage>();
@@ -46,6 +46,7 @@ public class RequestManualVoidServiceTests
         {
             StatusId = ExecuteStatus.Done
         };
+        InItService();
         Service = new RequestManualVoidServiceImp(null, null, null, null, null, null, null, null);
 
         // Act
@@ -89,6 +90,7 @@ public class RequestManualVoidServiceTests
         const bool isInsertedVoidedTransaction = true;
         const bool isUpdatedVoidingHistory = true;
         const bool isSentEmail = true;
+        InItService();
         mainProcessStageService.GetMatchInfo(automationInfo.MatchId).ReturnsForAnyArgs(matchInfo);
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(allVoidDataInCurrentVoid);
         voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true).ReturnsForAnyArgs(voidedTickets);
@@ -160,6 +162,7 @@ public class RequestManualVoidServiceTests
         const bool isInsertedVoidedTransaction = true;
         const bool isUpdatedVoidingHistory = true;
         const bool isSentEmail = false;
+        InItService();
         mainProcessStageService.GetMatchInfo(automationInfo.MatchId).ReturnsForAnyArgs((Match)null);
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(allVoidDataInCurrentVoid);
         voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true).ReturnsForAnyArgs(voidedTickets);

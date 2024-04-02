@@ -16,12 +16,12 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class UpdateTicketVoidingHistoryStageTests
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly LoggingService loggingService;
+    private VoidBetAutomationService voidBetAutomationService;
+    private NotificationSignalRService notificationSignalRService;
+    private LoggingService loggingService;
     public UpdateTicketVoidingHistoryStage Service;
 
-    public UpdateTicketVoidingHistoryStageTests()
+    internal void InItService()
     {
         loggingService = Substitute.For<LoggingService>();
         notificationSignalRService = Substitute.For<NotificationSignalRService>();
@@ -37,6 +37,7 @@ public class UpdateTicketVoidingHistoryStageTests
             IsUpdatedVoidingHistory = true
         };
         var parameter = new UpdateTicketVoidingHistoryStageParameter { AutomationInfo = automationInfo };
+        InItService();
         Service = new UpdateTicketVoidingHistoryStageImp(null, null, null);
 
         // Act
@@ -76,6 +77,7 @@ public class UpdateTicketVoidingHistoryStageTests
             NormalMessageId = 1,
             SpecialMessageId = 2
         };
+        InItService();
         Service = new UpdateTicketVoidingHistoryStageImp(voidBetAutomationService, null, null);
 
         // Act
@@ -117,6 +119,7 @@ public class UpdateTicketVoidingHistoryStageTests
             NormalMessageId = 1,
             SpecialMessageId = 2
         };
+        InItService();
         Service = new UpdateTicketVoidingHistoryStageImp(voidBetAutomationService, null, null);
 
         // Act
@@ -155,8 +158,8 @@ public class UpdateTicketVoidingHistoryStageTests
             NormalMessageId = 1,
             SpecialMessageId = 2
         };
-        voidBetAutomationService
-            .When(x => x.UpdateTicketVoidingHistory(Arg.Any<int>(), Arg.Any<int?>(), Arg.Any<int?>(), Arg.Any<int?>()))
+        InItService();
+        voidBetAutomationService.When(x => x.UpdateTicketVoidingHistory(Arg.Any<int>(), Arg.Any<int?>(), Arg.Any<int?>(), Arg.Any<int?>()))
             .Do(x => x.Throws(new Exception()));
         const string error = "ERROR: UpdateTicketVoidingHistoryStage.Execute - BroadcastSessionId: 1 - VDHistoryId: 1 - RequestId: 1";
         Service = new UpdateTicketVoidingHistoryStageImp(voidBetAutomationService, notificationSignalRService, loggingService);

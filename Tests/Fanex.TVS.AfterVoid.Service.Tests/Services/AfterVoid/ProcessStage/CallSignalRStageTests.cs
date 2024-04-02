@@ -14,13 +14,8 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class CallSignalRStageTests
 {
-    private readonly NotificationSignalRService notificationSignalRService;
+    private NotificationSignalRService notificationSignalRService;
     public CallSignalRStageImp Service;
-
-    public CallSignalRStageTests()
-    {
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
-    }
 
     [Fact]
     public async Task ExecuteForAutoVoid_HasValidData_CalledExpected()
@@ -31,6 +26,7 @@ public class CallSignalRStageTests
             RequestId = 1,
             MatchId = 1
         };
+        notificationSignalRService = Substitute.For<NotificationSignalRService>();
         Service = new CallSignalRStageImp(notificationSignalRService);
 
         // Act
@@ -52,6 +48,7 @@ public class CallSignalRStageTests
             RequestId = 1,
             MatchId = 1
         };
+        notificationSignalRService = Substitute.For<NotificationSignalRService>();
         Service = new CallSignalRStageImp(notificationSignalRService);
 
         // Act
@@ -91,7 +88,7 @@ public class CallSignalRStageTests
             EmailResultsHistory = emailResultsHistory,
             CurrentEmailResults = currentEmailResults
         };
-
+        notificationSignalRService = Substitute.For<NotificationSignalRService>();
         Service = new CallSignalRStageImp(notificationSignalRService);
 
         // Act
@@ -124,7 +121,7 @@ public class CallSignalRStageTests
             MatchId = 1,
             RequestId = 1
         };
-
+        notificationSignalRService = Substitute.For<NotificationSignalRService>();
         Service = new CallSignalRStageImp(notificationSignalRService);
 
         // Act
@@ -145,7 +142,7 @@ public class CallSignalRStageTests
     {
         // Arrange
         var automationInfo = new VoidBetAutomationInfo();
-
+        notificationSignalRService = Substitute.For<NotificationSignalRService>();
         Service = new CallSignalRStageImp(notificationSignalRService);
 
         // Act
@@ -168,6 +165,7 @@ public class CallSignalRStageTests
             IsLastedInRequest = isLastedInRequest,
             CurrentRequestStatus = currentRequestStatus
         };
+        notificationSignalRService = Substitute.For<NotificationSignalRService>();
         Service = new CallSignalRStageImp(notificationSignalRService);
 
         // Act

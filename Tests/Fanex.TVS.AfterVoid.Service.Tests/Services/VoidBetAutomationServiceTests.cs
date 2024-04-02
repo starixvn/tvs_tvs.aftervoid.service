@@ -17,11 +17,11 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services;
 
 public class VoidBetAutomationServiceTests
 {
-    private readonly IDynamicRepository repository;
-    private readonly MatchService matchService;
+    private IDynamicRepository repository;
+    private MatchService matchService;
     private VoidBetAutomationService service;
 
-    public VoidBetAutomationServiceTests()
+    internal void InItService()
     {
         repository = Substitute.For<IDynamicRepository>();
         matchService = Substitute.For<MatchService>();
@@ -37,6 +37,7 @@ public class VoidBetAutomationServiceTests
             new() { AfterVoidStatusId = ExecuteStatus.Failed }
         };
         var automationInfo = new List<VoidBetAutomationInfo> { new() { RequestId = 2 } };
+        InItService();
         repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(
                 Arg.Any<GetAutomationInfoAfterVoidCriteria>())
             .ReturnsForAnyArgs((automationInfo, voidingHistoryModels, new List<EmailResultModel>()));
@@ -60,6 +61,7 @@ public class VoidBetAutomationServiceTests
             new() { VoidingHistoryStatusId = ExecuteStatus.Running }
         };
         var automationInfo = new List<VoidBetAutomationInfo> { new() { RequestId = 2 } };
+        InItService();
         repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(
                 Arg.Any<GetAutomationInfoAfterVoidCriteria>())
             .ReturnsForAnyArgs((automationInfo, voidingHistoryModels, new List<EmailResultModel>()));
@@ -83,6 +85,7 @@ public class VoidBetAutomationServiceTests
             new() { AfterVoidStatusId = ExecuteStatus.Done }
         };
         var automationInfo = new List<VoidBetAutomationInfo> { new() { RequestId = 2 } };
+        InItService();
         repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(
                 Arg.Any<GetAutomationInfoAfterVoidCriteria>())
             .ReturnsForAnyArgs((automationInfo, voidingHistoryModels, new List<EmailResultModel>()));
@@ -121,6 +124,7 @@ public class VoidBetAutomationServiceTests
         {
             new() { PlayerNamesEnglish = "a & b", PlayerNamesChineseTraditional = "a & b", PlayerNamesChineseSimplified = "a & b" }
         };
+        InItService();
         repository.FetchMultipleAsync<RequestModel, RequestEventModel, PlayerName>(Arg.Any<SelectRequestCriteria>())
             .ReturnsForAnyArgs((fakeRequests, fakeRequestEvents, playerNames));
         service = new VoidBetAutomationServiceImp(repository, matchService);
@@ -148,6 +152,7 @@ public class VoidBetAutomationServiceTests
             new() { MatchId = 113 }
         };
         var playerNames = new List<PlayerName> { new() };
+        InItService();
         repository.FetchMultipleAsync<RequestModel, RequestEventModel, PlayerName>(Arg.Any<SelectRequestCriteria>())
             .ReturnsForAnyArgs((fakeRequests, fakeRequestEvents, playerNames));
         service = new VoidBetAutomationServiceImp(repository, matchService);
@@ -167,6 +172,7 @@ public class VoidBetAutomationServiceTests
         const int fakeRequestId = 113;
         const int fakeVoidingHistoryId = 211;
         var expectedRequestInfo = new RequestSimpleInfo { MatchId = 111 };
+        InItService();
         repository.GetAsync<RequestSimpleInfo>(
                 Arg.Is<GetRequestSimpleInfoCriteria>(x => x.RequestId == fakeRequestId))
             .ReturnsForAnyArgs(expectedRequestInfo);
@@ -186,6 +192,7 @@ public class VoidBetAutomationServiceTests
         const int fakeRequestId = 113;
         const int fakeVoidingHistoryId = 211;
         const int fakeStatusId = 311;
+        InItService();
         service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
@@ -203,6 +210,7 @@ public class VoidBetAutomationServiceTests
         const int fakeRequestId = 211;
         const int fakeVoidingHistoryId = 331;
         var fakeAfterVoidHistory = new VoidBetAutomationInfo { ReasonId = 444 };
+        InItService();
         service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
@@ -219,6 +227,7 @@ public class VoidBetAutomationServiceTests
         const int fakeRequestId = 211;
         const int fakeVoidingHistoryId = 331;
         const string fakeVoidResultContent = "abc";
+        InItService();
         service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
@@ -234,6 +243,7 @@ public class VoidBetAutomationServiceTests
     {
         // Arrange
         var fakeTicketEmail = new List<TicketEmailModel> { new() { BetId = 113 } };
+        InItService();
         repository.FetchAsync<TicketEmailModel>(Arg.Any<GetTicketsEmailCriteria>())
             .ReturnsForAnyArgs(fakeTicketEmail);
         repository.GetAsync<CheckRequestOfITUserModel>(Arg.Any<GetTicketsEmailCriteria>())
@@ -252,6 +262,7 @@ public class VoidBetAutomationServiceTests
     {
         // Arrange
         var fakeTicketEmail = new List<TicketEmailModel> { new() { BetId = 113 } };
+        InItService();
         repository.FetchAsync<TicketEmailModel>(Arg.Any<GetTicketsEmailCriteria>())
             .ReturnsForAnyArgs(fakeTicketEmail);
         repository.GetAsync<CheckRequestOfITUserModel>(Arg.Any<GetTicketsEmailCriteria>())
@@ -271,6 +282,7 @@ public class VoidBetAutomationServiceTests
         // Arrange
         const int fakeVoidingHistoryId = 331;
         var fakeVoidDataXml = new List<VoidDataXmlModel> { new() { ContentEnglish = "zbc" } };
+        InItService();
         repository.FetchAsync<VoidDataXmlModel>(Arg.Any<GetVoidingHistoryCriteria>())
             .ReturnsForAnyArgs(fakeVoidDataXml);
         service = new VoidBetAutomationServiceImp(repository, matchService);
@@ -288,6 +300,7 @@ public class VoidBetAutomationServiceTests
         // Arrange
         const int fakeMatchId = 331;
         var fakeMatch = new Match { MatchCode = "ppp00" };
+        InItService();
         repository.GetAsync<Match>(
             Arg.Is<GetMatchInfoCriteria>(x => x.MatchId == fakeMatchId)).ReturnsForAnyArgs(fakeMatch);
         matchService.UpdateMatchInfoFromRemotingRef(Arg.Any<Match>()).ReturnsForAnyArgs(fakeMatch);
@@ -307,6 +320,7 @@ public class VoidBetAutomationServiceTests
         const int fakeVoidingHistoryId = 331;
         const int fakeReasonId = 111;
         const int fakeMessageId = 222;
+        InItService();
         service = new VoidBetAutomationServiceImp(repository, matchService);
 
         // Act
@@ -321,6 +335,7 @@ public class VoidBetAutomationServiceTests
     {
         // Arrange
         var fakeTicketEmail = new List<TicketRecoverEmailModel> { new() { TransId = 113 } };
+        InItService();
         repository.FetchAsync<TicketRecoverEmailModel>(Arg.Any<GetTicketsRecoverEmailCriteria>())
             .ReturnsForAnyArgs(fakeTicketEmail);
         repository.GetAsync<CheckRequestOfITUserModel>(Arg.Any<GetTicketsEmailCriteria>())
@@ -339,6 +354,7 @@ public class VoidBetAutomationServiceTests
     {
         // Arrange
         var fakeTicketEmail = new List<TicketRecoverEmailModel> { new() { TransId = 113 } };
+        InItService();
         repository.FetchAsync<TicketRecoverEmailModel>(Arg.Any<GetTicketsRecoverEmailCriteria>())
             .ReturnsForAnyArgs(fakeTicketEmail);
         repository.GetAsync<CheckRequestOfITUserModel>(Arg.Any<GetTicketsEmailCriteria>())

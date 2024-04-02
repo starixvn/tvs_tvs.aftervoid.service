@@ -13,17 +13,17 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid;
 
 public class MainProcessStageServiceTests
 {
-    private readonly CreateMessageStage createMessageStage;
-    private readonly CreateVoidReasonStage createVoidReasonStage;
-    private readonly SendBatchMessageStage sendBatchMessageStage;
-    private readonly SendMessageToAdminSiteStage sendMessageToAdminSiteStage;
-    private readonly InsertVoidedTransactionStage insertVoidedTransactionStage;
-    private readonly UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage;
-    private readonly SendEmailStage sendEmailStage;
-    private readonly VoidBetAutomationService voidBetAutomationService;
+    private CreateMessageStage createMessageStage;
+    private CreateVoidReasonStage createVoidReasonStage;
+    private SendBatchMessageStage sendBatchMessageStage;
+    private SendMessageToAdminSiteStage sendMessageToAdminSiteStage;
+    private InsertVoidedTransactionStage insertVoidedTransactionStage;
+    private UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage;
+    private SendEmailStage sendEmailStage;
+    private VoidBetAutomationService voidBetAutomationService;
     public MainProcessStageService Service;
 
-    public MainProcessStageServiceTests()
+    internal void InItService()
     {
         createMessageStage = Substitute.For<CreateMessageStage>();
         createVoidReasonStage = Substitute.For<CreateVoidReasonStage>();
@@ -39,11 +39,12 @@ public class MainProcessStageServiceTests
     public async Task CreateMessage_CalledExpected()
     {
         // Arrange
+        InItService();
         createMessageStage.Execute(Arg.Any<CreateMessageStageParameter>()).ReturnsForAnyArgs((1, 2, new Message()));
         Service = new MainProcessStageServiceImp(createMessageStage, null, null, null, null, null, null, null);
 
         // Act
-        (_, _, _) = await Service.CreateMessage(null);
+        _ = await Service.CreateMessage(null);
 
         // Assert
         await createMessageStage.Received(1).Execute(Arg.Any<CreateMessageStageParameter>());
@@ -57,6 +58,7 @@ public class MainProcessStageServiceTests
     public void IsHaveMessage_ReturnExpected(int normalMessageId, int specialMessageId, bool expected)
     {
         // Arrange
+        InItService();
         Service = new MainProcessStageServiceImp(createMessageStage, null, null, null, null, null, null, null);
 
         // Act
@@ -70,6 +72,7 @@ public class MainProcessStageServiceTests
     public async Task CreateVoidReason_CalledExpected()
     {
         // Arrange
+        InItService();
         createVoidReasonStage.Execute(Arg.Any<CreateVoidReasonStageParameter>()).ReturnsForAnyArgs(new VoidedReason());
         Service = new MainProcessStageServiceImp(null, createVoidReasonStage, null, null, null, null, null, null);
 
@@ -84,6 +87,7 @@ public class MainProcessStageServiceTests
     public async Task CreateVoidReason_NotCalledExpected()
     {
         // Arrange
+        InItService();
         createVoidReasonStage.Execute(Arg.Any<CreateVoidReasonStageParameter>()).ReturnsForAnyArgs(new VoidedReason());
         Service = new MainProcessStageServiceImp(null, createVoidReasonStage, null, null, null, null, null, null);
 
@@ -102,6 +106,7 @@ public class MainProcessStageServiceTests
     {
         // Arrange
         var voidedReason = new VoidedReason { ReasonId = reasonId };
+        InItService();
         Service = new MainProcessStageServiceImp(null, null, null, null, null, null, null, null);
 
         // Act
@@ -115,10 +120,11 @@ public class MainProcessStageServiceTests
     public void IsHaveVoidReason_HasVoidedReasonIsNull_ReturnFalse()
     {
         // Arrange
+        InItService();
         Service = new MainProcessStageServiceImp(null, null, null, null, null, null, null, null);
 
         // Act
-        var actual = Service.IsHaveVoidReason((VoidedReason)null);
+        var actual = Service.IsHaveVoidReason(null);
 
         // Assert
         Assert.False(actual);
@@ -128,6 +134,7 @@ public class MainProcessStageServiceTests
     public async Task SendBatchMessage_CalledExpected()
     {
         // Arrange
+        InItService();
         sendBatchMessageStage.Execute(Arg.Any<SendBatchMessageStageParameter>()).ReturnsForAnyArgs(true);
         Service = new MainProcessStageServiceImp(null, null, sendBatchMessageStage, null, null, null, null, null);
 
@@ -142,6 +149,7 @@ public class MainProcessStageServiceTests
     public async Task SendBatchMessage_NotCalledExpected()
     {
         // Arrange
+        InItService();
         sendBatchMessageStage.Execute(Arg.Any<SendBatchMessageStageParameter>()).ReturnsForAnyArgs(true);
         Service = new MainProcessStageServiceImp(null, null, null, null, null, null, null, null);
 
@@ -161,6 +169,7 @@ public class MainProcessStageServiceTests
             RequestInfo = new RequestDetailViewModel
             { Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted } }
         };
+        InItService();
         sendMessageToAdminSiteStage.Execute(automationInfo, Arg.Any<Message>()).ReturnsForAnyArgs(true);
         Service = new MainProcessStageServiceImp(null, null, null, sendMessageToAdminSiteStage, null, null, null, null);
 
@@ -180,6 +189,7 @@ public class MainProcessStageServiceTests
             RequestInfo = new RequestDetailViewModel
             { Request = new RequestModel { IssueTypeId = IssueTypeConstant.AbnormalBet } }
         };
+        InItService();
         sendMessageToAdminSiteStage.Execute(automationInfo, Arg.Any<Message>()).ReturnsForAnyArgs(true);
         Service = new MainProcessStageServiceImp(null, null, null, sendMessageToAdminSiteStage, null, null, null, null);
 
@@ -200,6 +210,7 @@ public class MainProcessStageServiceTests
             RequestInfo = new RequestDetailViewModel
             { Request = new RequestModel { IssueTypeId = IssueTypeConstant.AbnormalBet } }
         };
+        InItService();
         sendMessageToAdminSiteStage.Execute(automationInfo, Arg.Any<Message>()).ReturnsForAnyArgs(true);
         Service = new MainProcessStageServiceImp(null, null, sendBatchMessageStage, null, null, null, null, null);
 
@@ -214,6 +225,7 @@ public class MainProcessStageServiceTests
     public async Task InsertVoidedTransaction_CalledExpected()
     {
         // Arrange
+        InItService();
         insertVoidedTransactionStage.Execute(Arg.Any<InsertVoidedTransactionStageParameter>()).ReturnsForAnyArgs(true);
         Service = new MainProcessStageServiceImp(null, null, null, null, insertVoidedTransactionStage, null, null, null);
 
@@ -228,6 +240,7 @@ public class MainProcessStageServiceTests
     public async Task InsertVoidedTransaction_NotCalledExpected()
     {
         // Arrange
+        InItService();
         insertVoidedTransactionStage.Execute(Arg.Any<InsertVoidedTransactionStageParameter>()).ReturnsForAnyArgs(true);
         Service = new MainProcessStageServiceImp(null, null, null, null, insertVoidedTransactionStage, null, null, null);
 
@@ -242,6 +255,7 @@ public class MainProcessStageServiceTests
     public async Task UpdateTicketVoidingHistory_CalledExpected()
     {
         // Arrange
+        InItService();
         updateTicketVoidingHistoryStage.Execute(Arg.Any<UpdateTicketVoidingHistoryStageParameter>()).ReturnsForAnyArgs(true);
         Service = new MainProcessStageServiceImp(null, null, null, null, null, updateTicketVoidingHistoryStage, null, null);
 
@@ -256,6 +270,7 @@ public class MainProcessStageServiceTests
     public async Task UpdateTicketVoidingHistory_NotCalledExpected()
     {
         // Arrange
+        InItService();
         updateTicketVoidingHistoryStage.Execute(Arg.Any<UpdateTicketVoidingHistoryStageParameter>()).ReturnsForAnyArgs(true);
         Service = new MainProcessStageServiceImp(null, null, null, null, null, updateTicketVoidingHistoryStage, null, null);
 
@@ -270,6 +285,7 @@ public class MainProcessStageServiceTests
     public async Task SendEmail_CalledExpected()
     {
         // Arrange
+        InItService();
         sendEmailStage.Execute(Arg.Any<SendEmailStageParameter>()).ReturnsForAnyArgs((true, null));
         Service = new MainProcessStageServiceImp(null, null, null, null, null, null, sendEmailStage, null);
 
@@ -284,6 +300,7 @@ public class MainProcessStageServiceTests
     public async Task SendEmail_NotCalledExpected()
     {
         // Arrange
+        InItService();
         sendEmailStage.Execute(Arg.Any<SendEmailStageParameter>()).ReturnsForAnyArgs((true, null));
         Service = new MainProcessStageServiceImp(null, null, null, null, null, null, sendEmailStage, null);
 
@@ -298,6 +315,7 @@ public class MainProcessStageServiceTests
     public async Task GetMatchInfo_HasMatchId_CalledExpected()
     {
         // Arrange
+        InItService();
         voidBetAutomationService.GetMatchInfo(1).ReturnsForAnyArgs(new Match());
         Service = new MainProcessStageServiceImp(null, null, null, null, null, null, null, voidBetAutomationService);
 
@@ -312,6 +330,7 @@ public class MainProcessStageServiceTests
     public async Task GetMatchInfo_NotHasMatchId_NotCalledExpected()
     {
         // Arrange
+        InItService();
         voidBetAutomationService.GetMatchInfo(Arg.Any<int>()).ReturnsForAnyArgs(new Match());
         Service = new MainProcessStageServiceImp(null, null, null, null, null, null, null, voidBetAutomationService);
 

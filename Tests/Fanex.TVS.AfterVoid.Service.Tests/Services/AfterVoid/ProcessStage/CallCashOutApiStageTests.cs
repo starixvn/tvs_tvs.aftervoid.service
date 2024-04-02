@@ -15,12 +15,12 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class CallCashOutApiStageTests
 {
-    private readonly LoggingService loggingService;
-    private readonly CashOutHttpClientService cashOutHttpClientService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
+    private LoggingService loggingService;
+    private CashOutHttpClientService cashOutHttpClientService;
+    private VoidBetAutomationService voidBetAutomationService;
     public CallCashOutApiStage Service;
 
-    public CallCashOutApiStageTests()
+    internal void InItService()
     {
         loggingService = Substitute.For<LoggingService>();
         voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
@@ -43,7 +43,7 @@ public class CallCashOutApiStageTests
             RequestId = 1,
             VoidingHistoryId = 1
         };
-
+        InItService();
         Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
 
         // Act
@@ -72,6 +72,7 @@ public class CallCashOutApiStageTests
             BroadcastSessionId = "1"
         };
         const string error = "ERROR: CallCashOutApiStage.ExecuteForVoid - SessionId: 1 - VDHistoryId: 1 - RequestId: 1";
+        InItService();
         Service = new CallCashOutApiStageImp(null, null, loggingService);
 
         // Act
@@ -97,7 +98,7 @@ public class CallCashOutApiStageTests
             RequestId = 1,
             VoidingHistoryId = 1
         };
-
+        InItService();
         Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
 
         // Act
@@ -124,7 +125,7 @@ public class CallCashOutApiStageTests
             RequestId = 1,
             VoidingHistoryId = 1
         };
-
+        InItService();
         Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
 
         // Act
@@ -151,7 +152,7 @@ public class CallCashOutApiStageTests
             RequestId = 1,
             VoidingHistoryId = 1
         };
-
+        InItService();
         Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
 
         // Act
@@ -180,6 +181,7 @@ public class CallCashOutApiStageTests
             BroadcastSessionId = "1"
         };
         const string error = "ERROR: CallCashOutApiStage.ExecuteForRecover - SessionId: 1 - VDHistoryId: 1 - RequestId: 1";
+        InItService();
         Service = new CallCashOutApiStageImp(null, null, loggingService);
 
         // Act
@@ -205,7 +207,7 @@ public class CallCashOutApiStageTests
             RequestId = 1,
             VoidingHistoryId = 1
         };
-
+        InItService();
         Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
 
         // Act
@@ -232,7 +234,7 @@ public class CallCashOutApiStageTests
             RequestId = 1,
             VoidingHistoryId = 1
         };
-
+        InItService();
         Service = new CallCashOutApiStageImp(voidBetAutomationService, cashOutHttpClientService, null);
 
         // Act

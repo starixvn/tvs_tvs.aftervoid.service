@@ -35,7 +35,7 @@ public class DeleteZzzBetTransStageTests : IClassFixture<AppSettingFixture>
         var service = new DeleteZzzBetTransStageImp(repository, voidBetAutomationService, null, null);
 
         // Act
-        var actual = await service.Execute(automationInfo, null);
+        var actual = await service.Execute(automationInfo, "123");
 
         // Assert
         Assert.True(actual);
