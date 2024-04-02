@@ -44,6 +44,11 @@ public class DeleteMessageStageImp : DeleteMessageStage
 
     private async Task<bool> TryExecute(VoidBetAutomationInfo automationInfo, string transIds)
     {
+        if (automationInfo.IsDeletedMessage == true)
+        {
+            return true;
+        }
+
         var command = new DeleteMessageCommand
         {
             UserId = AutoVoidConstant.ActorId,
