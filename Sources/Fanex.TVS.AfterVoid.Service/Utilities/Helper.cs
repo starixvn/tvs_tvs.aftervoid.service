@@ -30,10 +30,9 @@ public static class Helper
         return IssueTypeConstant.AbnormalBet == issueTypeId;
     }
 
-    public static bool IsAbnormalBetMixParlay(int issueTypeId, int? filterBy)
+    public static bool IsAbnormalBetParlay(int issueTypeId, int? filterBy)
     {
-        const int filterByMixParlay = 1;
-        return IssueTypeConstant.AbnormalBet == issueTypeId && filterBy == filterByMixParlay;
+        return IssueTypeConstant.AbnormalBet == issueTypeId && filterBy is FilterByConstant.MixParlay or FilterByConstant.SystemParlay;
     }
 
     public static bool IsAbnormalAccount(int issueTypeId)

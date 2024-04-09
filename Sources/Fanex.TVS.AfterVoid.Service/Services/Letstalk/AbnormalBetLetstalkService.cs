@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Fanex.LetstalkService.Client;
 using Fanex.LetstalkService.Core.Models;
+using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Constants;
@@ -81,9 +82,10 @@ public class AbnormalBetLetstalkServiceImp : AbnormalBetLetstalkService
     {
         return model.IssueTypeId switch
         {
-            IssueTypeConstant.AbnormalBet when model.FilterBy == null => "Void Abnormal Bet Notification",
             IssueTypeConstant.AbnormalBetRealMember => "Void AB (Real Member) Notification",
-            IssueTypeConstant.AbnormalBet when model.FilterBy == 1 => "Void Abnormal Bet Notification - Mix Parlay",
+            IssueTypeConstant.AbnormalBet when model.FilterBy == null => "Void Abnormal Bet Notification",
+            IssueTypeConstant.AbnormalBet when model.FilterBy == FilterByConstant.MixParlay => "Void Abnormal Bet Notification - Mix Parlay",
+            IssueTypeConstant.AbnormalBet when model.FilterBy == FilterByConstant.SystemParlay => "Void Abnormal Bet Notification - System Parlay",
             _ => string.Empty
         };
     }
@@ -96,7 +98,8 @@ public class AbnormalBetLetstalkServiceImp : AbnormalBetLetstalkService
             case IssueTypeConstant.AbnormalBetRealMember:
                 return CreateMessageContentAbnormalBetWithMatch(model);
 
-            case IssueTypeConstant.AbnormalBet when model.FilterBy == 1:
+            case IssueTypeConstant.AbnormalBet when model.FilterBy == FilterByConstant.MixParlay:
+            case IssueTypeConstant.AbnormalBet when model.FilterBy == FilterByConstant.SystemParlay:
                 return CreateMessageContentAbnormalBetWithNoneMatch(model);
 
             default:

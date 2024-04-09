@@ -28,7 +28,7 @@ public class HelperTests
     [InlineData(IssueTypeConstant.DangerAccepted, 0, false)]
     public void IsAbnormalBetMixParlay_ReturnResult(int issueTypeId, int? filterBy, bool expected)
     {
-        var actual = Helper.IsAbnormalBetMixParlay(issueTypeId, filterBy);
+        var actual = Helper.IsAbnormalBetParlay(issueTypeId, filterBy);
 
         Assert.Equal(expected, actual);
     }
