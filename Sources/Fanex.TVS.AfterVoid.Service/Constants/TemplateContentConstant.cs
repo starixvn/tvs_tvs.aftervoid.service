@@ -27,4 +27,12 @@ public static class TemplateContentConstant
         MsgChineseSimplified = "",
         MsgChineseNewSimplified = ""
     };
+
+    public static readonly TemplateContent Live = new()
+    {
+        MsgEnglish = "*Live*",
+        MsgChineseTraditional = "*走地*",
+        MsgChineseSimplified = "*走地*",
+        MsgChineseNewSimplified = "*走地*"
+    };
 }

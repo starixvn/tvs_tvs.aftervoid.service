@@ -257,7 +257,7 @@ public class SendMessageServiceImp : SendMessageService
         ReplaceKoTime(model, requestInfo.EventByMatch);
         ReplaceCheckStatement(model, allVoidDataInCurrentVoidTimes);
         ReplaceParlay(model, requestInfo.Request.IssueTypeId, requestInfo.EventByMatch.FilterBy);
-        ReplaceEventType(model);
+        ReplaceEventType(model, requestInfo.Request.IssueTypeId, requestInfo.IsAllLiveTickets);
         ReplacePlacedFromTimeRange(model, allVoidDataInCurrentVoidTimes);
         ReplacePlayerName(model, requestInfo.PlayerNamesSelected);
     }
@@ -355,9 +355,15 @@ public class SendMessageServiceImp : SendMessageService
         model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(parlayPlaceholder, parlayChineseNewSimplified);
     }
 
-    private static void ReplaceEventType(TemplateModel model)
+    private static void ReplaceEventType(TemplateModel model, int issueTypeId, bool isAllLiveTickets)
     {
-        ReplaceForEachLanguage(model, TemplatePlaceholderConstant.EventType, TemplateContentConstant.Empty);
+        var eventType = TemplateContentConstant.Empty;
+        if (issueTypeId is IssueTypeConstant.NotParticipate or IssueTypeConstant.ReducedOver)
+        {
+            eventType = isAllLiveTickets ? TemplateContentConstant.Live : TemplateContentConstant.Empty;
+        }
+
+        ReplaceForEachLanguage(model, TemplatePlaceholderConstant.EventType, eventType);
     }
 
     private static void ReplacePlacedFromTimeRange(TemplateModel model, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes)
