@@ -54,6 +54,7 @@ public class CreateMessageStageImp : CreateMessageStage
 
     public async Task<(int, int, Message)> TryExecute(CreateMessageStageParameter parameter)
     {
+        parameter.AutomationInfo.RequestInfo.IsAllLiveTickets = parameter.NormalTickets.All(x => x.IsLive) && parameter.SpecialTickets.All(x => x.IsLive);
         var normalMessageContent = await InitializeMessageContent(parameter.AutomationInfo, parameter.MatchInfo, parameter.AllVoidDataInCurrentVoid);
         var normalMessageId = await CreateMessageForNormalPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.NormalTickets, normalMessageContent);
         var specialMessageId = await CreateMessageForSpecialPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.SpecialTickets, normalMessageContent);

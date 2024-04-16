@@ -9,4 +9,5 @@ public class RequestDetailViewModel
     public IEnumerable<Message> Messages { get; set; }
     public RequestEventModel EventByMatch { get; set; }
     public TemplateContent PlayerNamesSelected { get; set; }
+    public bool IsAllLiveTickets { get; set; }
 }
