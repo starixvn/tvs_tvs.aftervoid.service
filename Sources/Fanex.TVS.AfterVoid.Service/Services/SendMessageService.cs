@@ -358,7 +358,7 @@ public class SendMessageServiceImp : SendMessageService
     private static void ReplaceEventType(TemplateModel model, int issueTypeId, bool isAllLiveTickets)
     {
         var eventType = TemplateContentConstant.Empty;
-        if (issueTypeId is IssueTypeConstant.NotParticipate or IssueTypeConstant.ReducedOver)
+        if (issueTypeId is IssueTypeConstant.NotParticipate or IssueTypeConstant.ReducedOver or IssueTypeConstant.Abandoned)
         {
             eventType = isAllLiveTickets ? TemplateContentConstant.Live : TemplateContentConstant.Empty;
         }
