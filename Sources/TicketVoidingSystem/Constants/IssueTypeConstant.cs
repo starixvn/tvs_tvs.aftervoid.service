@@ -5,7 +5,6 @@ public static class IssueTypeConstant
     public const int EarlyKickOffTime = 8;
     public const int WrongKickOffTime = 9;
     public const int AbnormalBet = 11;
-    public const int AbnormalBetRealMember = 15;
     public const int DangerAccepted = 1;
     public const int RedCard = 10;
     public const int AbnormalAccount = 13;

@@ -11,7 +11,6 @@ public class HelperTests
 
     [Theory]
     [InlineData(IssueTypeConstant.AbnormalBet, "", MessageContentType.VoidAbnormal)]
-    [InlineData(IssueTypeConstant.AbnormalBetRealMember, "", MessageContentType.VoidAbnormal)]
     [InlineData(IssueTypeConstant.AbnormalAccount, "", MessageContentType.VoidAbnormal)]
     [InlineData(IssueTypeConstant.DangerAccepted, MessageContentVoid, MessageContentType.VoidSettled)]
     [InlineData(IssueTypeConstant.DangerAccepted, "", MessageContentType.VoidUnsettled)]

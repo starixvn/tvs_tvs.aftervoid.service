@@ -86,7 +86,7 @@ public class SendLetstalkServiceImp : SendLetstalkService
             var notificationLetstalkModel = CreateNotificationLetstalkModel(group, matchInfo, voidDataXmlList, emailTickets);
             var isSendLetstalkSettledBet = settledBetLetstalkService.Send(notificationLetstalkModel, emailTickets);
             var isSendLetstalkAbnormalBet = true;
-            if (Helper.IsLikelyAbnormalBet(group.RequestInfo.Request.IssueTypeId))
+            if (Helper.IsAbnormalBet(group.RequestInfo.Request.IssueTypeId))
             {
                 isSendLetstalkAbnormalBet = await abnormalBetLetstalkServiceImp.Send(notificationLetstalkModel, emailTickets);
             }

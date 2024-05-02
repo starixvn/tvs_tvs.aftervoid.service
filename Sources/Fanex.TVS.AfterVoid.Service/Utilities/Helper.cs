@@ -7,7 +7,7 @@ public static class Helper
 {
     public static int GetMessageContentType(int issueTypeId, string messageContent)
     {
-        if (IsLikelyAbnormalBet(issueTypeId) || IsAbnormalAccount(issueTypeId))
+        if (IsAbnormalBet(issueTypeId) || IsAbnormalAccount(issueTypeId))
         {
             return MessageContentType.VoidAbnormal;
         }
@@ -18,11 +18,6 @@ public static class Helper
         }
 
         return MessageContentType.VoidUnsettled;
-    }
-
-    public static bool IsLikelyAbnormalBet(int issueTypeId)
-    {
-        return IsAbnormalBet(issueTypeId) || IsAbnormalBetRealMember(issueTypeId);
     }
 
     public static bool IsAbnormalBet(int issueTypeId)
@@ -38,11 +33,6 @@ public static class Helper
     public static bool IsAbnormalAccount(int issueTypeId)
     {
         return IssueTypeConstant.AbnormalAccount == issueTypeId;
-    }
-
-    public static bool IsAbnormalBetRealMember(int issueTypeId)
-    {
-        return IssueTypeConstant.AbnormalBetRealMember == issueTypeId;
     }
 
     public static bool IsArchivedTicket(int issueTypeId)
