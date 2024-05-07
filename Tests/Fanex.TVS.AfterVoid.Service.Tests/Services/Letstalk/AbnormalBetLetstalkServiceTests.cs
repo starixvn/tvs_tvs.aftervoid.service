@@ -66,8 +66,8 @@ public class AbnormalBetLetstalkServiceTests
         AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true } };
         var fakeTicketEmail = new List<TicketEmailModel>
         {
-            new(){ IsCredit = true, IsInstantSettlementTicket = true, BetTypeId = 1, IsCashOut = false },
-            new(){ IsCredit = true, IsInstantSettlementTicket = false, BetTypeId = 1, IsCashOut = false }
+            new(){ IsInstantSettlementTicket = true, BetTypeId = 1, IsCashOut = false },
+            new(){ IsInstantSettlementTicket = false, BetTypeId = 1, IsCashOut = false }
         };
         var letstalkService = Substitute.For<LetstalkClientService>();
         var sendLetstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
