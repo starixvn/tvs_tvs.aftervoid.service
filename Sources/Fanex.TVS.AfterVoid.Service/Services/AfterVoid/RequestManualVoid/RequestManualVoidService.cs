@@ -122,6 +122,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
         if (!isSentEmail)
         {
             await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
+            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
             return;
         }
 

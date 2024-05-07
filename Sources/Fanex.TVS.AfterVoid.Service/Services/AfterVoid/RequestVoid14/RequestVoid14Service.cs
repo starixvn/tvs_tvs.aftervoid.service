@@ -80,6 +80,7 @@ public class RequestVoid14ServiceImp : RequestVoid14Service
         if (!isUpdatedVoidingHistory)
         {
             await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
+            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
             return;
         }
 

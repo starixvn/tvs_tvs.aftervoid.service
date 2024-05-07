@@ -114,6 +114,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
 
         if (!isSentEmail)
         {
+            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
             return;
         }
 

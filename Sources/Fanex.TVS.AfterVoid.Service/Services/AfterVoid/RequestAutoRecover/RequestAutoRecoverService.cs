@@ -61,6 +61,7 @@ public class RequestAutoRecoverServiceImp : RequestAutoRecoverService
 
         if (!isSentEmail)
         {
+            await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
             return;
         }
 
