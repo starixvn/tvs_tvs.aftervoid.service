@@ -58,7 +58,7 @@ public class TicketEmailModel : EmailSupport, SendMessageDbModel
     public string Site { get; set; }
     public bool IsCashOut { get; set; }
     public bool IsCancelCashOut { get; set; }
-    public bool IsCredit { get; set; }
+    public bool IsDeposit { get; set; }
     public bool IsItSupport { get; set; }
     public bool IsITSupportCreatedRequest { get; set; }
     public int Currency { get; set; }

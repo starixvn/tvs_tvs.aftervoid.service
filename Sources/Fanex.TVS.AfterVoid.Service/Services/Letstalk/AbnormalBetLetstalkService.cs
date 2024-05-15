@@ -34,7 +34,7 @@ public class AbnormalBetLetstalkServiceImp : AbnormalBetLetstalkService
 
     public async Task<bool> Send(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets)
     {
-        var creditTickets = tickets.Where(x => x.IsCredit);
+        var creditTickets = tickets.Where(x => !x.IsDeposit);
         if (!creditTickets.Any())
         {
             return true;
