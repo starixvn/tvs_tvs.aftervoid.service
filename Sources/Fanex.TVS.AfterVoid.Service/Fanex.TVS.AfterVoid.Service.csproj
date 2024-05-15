@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="DeepCloner" Version="0.10.4" />
+    <PackageReference Include="Fanex.Data.ProxyClient" Version="0.0.3-alpha02" />
     <PackageReference Include="Fanex.LetstalkService.Client" Version="1.0.0.19" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>

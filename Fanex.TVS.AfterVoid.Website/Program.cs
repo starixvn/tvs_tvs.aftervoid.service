@@ -1,4 +1,4 @@
-using Fanex.Data.SqlServer;
+using Fanex.Data;
 using Fanex.TVS.AfterVoid.Website.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient<TVSWebSiteHttpClientService, TVSWebSiteHttpClientServiceImp>();
 builder.Services.AddHttpClient<CashOutHttpClientService, CashOutHttpClientServiceImp>();
-builder.Services.AddFanexSql(builder.Configuration);
+builder.Services.AddFanexData(builder.Configuration);
 builder.Services.RegisterFanexExceptionHandler();
 builder.Services.RegisterSentry();
 builder.Services.RegisterONEbookUM(builder.Configuration);
