@@ -1,5 +1,5 @@
 ﻿using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using TicketVoidingSystem.Utilities;
 
 namespace TicketVoidingSystem.Models;
@@ -58,7 +58,7 @@ public class Match
 
     public string ShowTime { get; set; }
 
-    [JsonConverter(typeof(ClientDateGMT8JsonConverter))]
+    [JsonConverter(typeof(GMT8DateTimeJsonConverter))]
     public DateTime KickOffTime { get; set; }
 
     public int SportType { get; set; }

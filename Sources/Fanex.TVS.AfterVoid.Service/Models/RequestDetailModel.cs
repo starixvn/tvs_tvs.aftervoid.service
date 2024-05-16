@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 using Fanex.TVS.AfterVoid.Service.Extensions;
-using Newtonsoft.Json;
 using TicketVoidingSystem.Utilities;
 
 namespace Fanex.TVS.AfterVoid.Service.Models;
@@ -73,7 +73,7 @@ public class RequestEventModel
     public int AwayId { get; set; }
     public string TransIds { get; set; }
 
-    [JsonConverter(typeof(ClientDateGMT8JsonConverter))]
+    [JsonConverter(typeof(GMT8DateTimeJsonConverter))]
     public DateTime? KickOffTime { get; set; }
 
     public int? HTHomeScore { get; set; }

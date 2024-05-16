@@ -52,7 +52,5 @@ public class VoidDataXmlModel
 
     public int TotalTicket { get; set; }
 
-    public int IsRunAutoAfterVoid { get; set; }
-
     public string SingleTransIds { get; set; }
 }
