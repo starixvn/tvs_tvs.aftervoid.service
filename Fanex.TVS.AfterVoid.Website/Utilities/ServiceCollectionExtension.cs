@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Fanex.Caching.Redis;
+using Fanex.Data;
 using Fanex.Data.Repository;
 using Fanex.LetstalkService.Client;
 using Fanex.Logging;
@@ -107,6 +108,11 @@ public static class ServiceCollectionExtensions
     public static void RegisterAutoMapper(this IServiceCollection services)
     {
         services.AddAutoMapper(typeof(OrganizationProfile));
+    }
+
+    public static void RegisterFanexData(this IServiceCollection services, IConfiguration configuration)
+    {
+        DbSettingProviderManager.StartNewSession().Register(configuration, true).Run();
     }
 
     public static void RegisterBusinessService(this IServiceCollection services)

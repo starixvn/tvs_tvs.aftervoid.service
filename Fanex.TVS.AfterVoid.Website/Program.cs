@@ -1,4 +1,3 @@
-using Fanex.Data;
 using Fanex.TVS.AfterVoid.Website.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,24 +5,26 @@ using TicketVoidingSystem.Services;
 using TicketVoidingSystem.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
+var configuration = builder.Configuration;
 
 // Add services to the container.
-builder.Services.LoadConfig(builder.Configuration);
-builder.Services.AddControllers();
-builder.Services.AddMemoryCache();
-builder.Services.AddHttpClient<TVSWebSiteHttpClientService, TVSWebSiteHttpClientServiceImp>();
-builder.Services.AddHttpClient<CashOutHttpClientService, CashOutHttpClientServiceImp>();
-builder.Services.AddFanexData(builder.Configuration);
-builder.Services.RegisterFanexExceptionHandler();
-builder.Services.RegisterSentry();
-builder.Services.RegisterONEbookUM(builder.Configuration);
-builder.Services.RegisterFanexCaching(builder.Configuration);
-builder.Services.RegisterRemotingRef();
-builder.Services.RegisterLetstalk();
-builder.Services.RegisterAutoMapper();
-builder.Services.RegisterSignalR();
-builder.Services.RegisterBusinessService();
-builder.Services.RegisterQuartzScheduler();
+services.LoadConfig(builder.Configuration);
+services.AddControllers();
+services.AddMemoryCache();
+services.AddHttpClient<TVSWebSiteHttpClientService, TVSWebSiteHttpClientServiceImp>();
+services.AddHttpClient<CashOutHttpClientService, CashOutHttpClientServiceImp>();
+services.RegisterFanexData(builder.Configuration);
+services.RegisterFanexExceptionHandler();
+services.RegisterSentry();
+services.RegisterONEbookUM(builder.Configuration);
+services.RegisterFanexCaching(builder.Configuration);
+services.RegisterRemotingRef();
+services.RegisterLetstalk();
+services.RegisterAutoMapper();
+services.RegisterSignalR();
+services.RegisterBusinessService();
+services.RegisterQuartzScheduler();
 
 // Build app
 var app = builder.Build();
