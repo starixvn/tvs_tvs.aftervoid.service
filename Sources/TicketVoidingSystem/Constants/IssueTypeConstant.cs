@@ -18,4 +18,6 @@ public static class IssueTypeConstant
     public const int DuplicateTickets = 20;
     public const int NotParticipate = 21;
     public const int Abandoned = 23;
+    public const int WrongMarketOffered = 12;
+    public const int TechnicalError = 24;
 }

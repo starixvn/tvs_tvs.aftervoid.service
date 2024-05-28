@@ -10,4 +10,5 @@ public class RequestDetailViewModel
     public RequestEventModel EventByMatch { get; set; }
     public TemplateContent PlayerNamesSelected { get; set; }
     public bool IsAllLiveTickets { get; set; }
+    public int SpecialBetTypeId { get; set; }
 }

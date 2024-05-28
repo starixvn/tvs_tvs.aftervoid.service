@@ -55,6 +55,7 @@ public class CreateMessageStageImp : CreateMessageStage
     public async Task<(int, int, Message)> TryExecute(CreateMessageStageParameter parameter)
     {
         parameter.AutomationInfo.RequestInfo.IsAllLiveTickets = parameter.NormalTickets.All(x => x.IsLive) && parameter.SpecialTickets.All(x => x.IsLive);
+        parameter.AutomationInfo.RequestInfo.SpecialBetTypeId = GetSpecialBetTypeId(parameter.NormalTickets, parameter.SpecialTickets);
         var normalMessageContent = await InitializeMessageContent(parameter.AutomationInfo, parameter.MatchInfo, parameter.AllVoidDataInCurrentVoid);
         var normalMessageId = await CreateMessageForNormalPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.NormalTickets, normalMessageContent);
         var specialMessageId = await CreateMessageForSpecialPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.SpecialTickets, normalMessageContent);
@@ -117,5 +118,14 @@ public class CreateMessageStageImp : CreateMessageStage
         }
 
         return sendMessageService.InitializeMessageContentForManualVoid(allVoidDataInCurrentVoid.First());
+    }
+
+    private static int GetSpecialBetTypeId(IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets)
+    {
+        var betTypeNormal = normalTickets.Select(x => x.IsMixParlay ? x.SubBetType : x.BetTypeId);
+        var betTypeSpecial = specialTickets.Select(x => x.IsMixParlay ? x.SubBetType : x.BetTypeId);
+        var distinctBetType = betTypeNormal.Union(betTypeSpecial).Distinct().ToList();
+
+        return distinctBetType.Count == 1 ? distinctBetType[0] : 0;
     }
 }

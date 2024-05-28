@@ -68,7 +68,7 @@ public class SendMessageServiceTests
 
     private readonly MessageItemService messageItemService = Substitute.For<MessageItemService>();
     private readonly IDynamicRepository repository = Substitute.For<IDynamicRepository>();
-    private readonly TVSWebSiteHttpClientService ticketVoidingSystemHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
+    private readonly RemotingRefWrapperService remotingRefWrapperService = Substitute.For<RemotingRefWrapperService>();
 
     [Theory]
     [InlineData(IssueTypeConstant.AbnormalBet, 1)]
@@ -236,8 +236,8 @@ public class SendMessageServiceTests
             MainTransIds = "12345679",
             SubTransIds = "98754321"
         };
-        var ticketVoidingApi = Substitute.For<TVSWebSiteHttpClientService>();
-        var service = new SendMessageServiceImp(repository, messageItemService, ticketVoidingApi);
+        var remotingRefWrapperService = Substitute.For<RemotingRefWrapperService>();
+        var service = new SendMessageServiceImp(repository, messageItemService, remotingRefWrapperService);
 
         // Act
         await service.InsertVoidedTransaction(fakeTicketEmailModels, fakeData.MessageId, fakeData.ReasonId,
@@ -303,8 +303,8 @@ public class SendMessageServiceTests
         const int fakeSportType = 22;
         var fakeReason = Builder<VoidedReason>.CreateNew().Build();
         repository.GetAsync<VoidedReason>(Arg.Any<GetReasonNameCriteria>()).Returns(fakeReason);
-        ticketVoidingSystemHttpClientService.GetSportTypeNameFromBetList(fakeSportType, Arg.Any<string>()).Returns("a");
-        var service = new SendMessageServiceImp(repository, null, ticketVoidingSystemHttpClientService);
+        remotingRefWrapperService.GetSportName(fakeSportType.ToString(), Arg.Any<string>()).Returns("a");
+        var service = new SendMessageServiceImp(repository, null, remotingRefWrapperService);
 
         var actual = await service.InitializeVoidReason(true, fakeSubIssueType, fakeSportType, null);
 
@@ -312,8 +312,8 @@ public class SendMessageServiceTests
         Assert.NotNull(actual.ReasonChineseSimplified);
         await repository.Received(1).GetAsync<VoidedReason>(Arg.Is<GetReasonNameCriteria>(x =>
             x.SubIssueTypeId == fakeSubIssueType && x.SportType == fakeSportType));
-        await ticketVoidingSystemHttpClientService.Received(2)
-            .GetSportTypeNameFromBetList(Arg.Is<int>(x => x == fakeSportType), Arg.Any<string>());
+        remotingRefWrapperService.Received(2)
+           .GetSportName(Arg.Is<string>(x => x == fakeSportType.ToString()), Arg.Any<string>());
     }
 
     [Fact]

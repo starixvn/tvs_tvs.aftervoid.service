@@ -13,8 +13,6 @@ namespace TicketVoidingSystem.Services;
 
 public interface TVSWebSiteHttpClientService
 {
-    Task<string> GetSportTypeNameFromBetList(int sportType, string languageCode);
-
     Task<(bool, byte[])> GetExcelVoidedTicketForSendLetstalk(int requestId, int matchId, int issueTypeId,
         string voidingHistoryIds);
 
@@ -36,20 +34,6 @@ public class TVSWebSiteHttpClientServiceImp : TVSWebSiteHttpClientService
         httpClient.DefaultRequestHeaders.Clear();
         httpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Json);
         this.loggingService = loggingService;
-    }
-
-    public async Task<string> GetSportTypeNameFromBetList(int sportType, string languageCode)
-    {
-        const string actionName = "api/SharedApi/GetSportTypeName";
-        using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(new { sportType, languageCode }));
-        if (response.IsSuccessStatusCode)
-        {
-            return await Helper.DeserializeResponseStream<string>(response);
-        }
-
-        await LogService.ErrorAsync($"{AppSettingService.AppSetting.TVSWebSiteUrl}{actionName}" +
-                                    $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
-        return string.Empty;
     }
 
     public async Task<(bool, byte[])> GetExcelVoidedTicketForSendLetstalk(int requestId, int matchId, int issueTypeId, string voidingHistoryIds)

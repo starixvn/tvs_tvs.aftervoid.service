@@ -41,13 +41,13 @@ public class SendMessageServiceImp : SendMessageService
 {
     private readonly IDynamicRepository repository;
     private readonly MessageItemService messageItemService;
-    private readonly TVSWebSiteHttpClientService tvsWebSiteHttpClientService;
+    private readonly RemotingRefWrapperService remotingRefWrapperService;
 
-    public SendMessageServiceImp(IDynamicRepository repository, MessageItemService messageItemService, TVSWebSiteHttpClientService tvsWebSiteHttpClientService)
+    public SendMessageServiceImp(IDynamicRepository repository, MessageItemService messageItemService, RemotingRefWrapperService remotingRefWrapperService)
     {
         this.repository = repository;
         this.messageItemService = messageItemService;
-        this.tvsWebSiteHttpClientService = tvsWebSiteHttpClientService;
+        this.remotingRefWrapperService = remotingRefWrapperService;
     }
 
     public async Task SendMessage(IEnumerable<TicketEmailModel> tickets, int messageId, int issueTypeId, int creatorId)
@@ -80,7 +80,7 @@ public class SendMessageServiceImp : SendMessageService
         var templateModels = await repository.FetchAsync<TemplateModel>(new GetTemplatesCriteria()).ConfigureAwait(false);
         var templateId = await GetTemplateIdForAutoVoid(requestInfo);
         var template = templateModels.First(t => t.TemplateId == templateId);
-        ReplaceMessageTemplate(template, match, allVoidDataInCurrentVoidTimes, requestInfo);
+        await ReplaceMessageTemplate(template, match, allVoidDataInCurrentVoidTimes, requestInfo);
 
         return new Message
         {
@@ -149,27 +149,7 @@ public class SendMessageServiceImp : SendMessageService
     {
         if (isAutoVoid)
         {
-            var criteria = new GetReasonNameCriteria
-            {
-                SportType = sportType,
-                SubIssueTypeId = subIssueTypeId
-            };
-            var reason = await repository.GetAsync<VoidedReason>(criteria);
-            if (reason == null)
-            {
-                return new VoidedReason();
-            }
-            var sportEn = "";
-            var sportCS = "";
-            if (sportType > 0)
-            {
-                sportEn = $"{await tvsWebSiteHttpClientService.GetSportTypeNameFromBetList(sportType, LanguageCode.English)} - ";
-                sportCS = $"{await tvsWebSiteHttpClientService.GetSportTypeNameFromBetList(sportType, LanguageCode.ChineseSimplified)} - ";
-            }
-            reason.ReasonEnglish = $"{sportEn}{reason.ReasonEnglish}";
-            reason.ReasonChineseSimplified = $"{sportCS}{reason.ReasonChineseSimplified}";
-
-            return reason;
+            return await InitializeVoidReasonForAuto(subIssueTypeId, sportType);
         }
 
         return new VoidedReason
@@ -177,6 +157,28 @@ public class SendMessageServiceImp : SendMessageService
             ReasonEnglish = voidData.Reason,
             ReasonChineseSimplified = voidData.ReasonSC
         };
+    }
+
+    private async Task<VoidedReason> InitializeVoidReasonForAuto(int subIssueTypeId, int sportType)
+    {
+        var criteria = new GetReasonNameCriteria
+        {
+            SportType = sportType,
+            SubIssueTypeId = subIssueTypeId
+        };
+
+        var reason = await repository.GetAsync<VoidedReason>(criteria);
+        if (reason == null)
+        {
+            return new VoidedReason();
+        }
+
+        var sportEn = sportType > 0 ? $"{remotingRefWrapperService.GetSportName(sportType.ToString(), LanguageCode.English)} - " : string.Empty;
+        var sportCS = sportType > 0 ? $"{remotingRefWrapperService.GetSportName(sportType.ToString(), LanguageCode.ChineseSimplified)} - " : string.Empty;
+        reason.ReasonEnglish = $"{sportEn}{reason.ReasonEnglish}";
+        reason.ReasonChineseSimplified = $"{sportCS}{reason.ReasonChineseSimplified}";
+
+        return reason;
     }
 
     public async Task<int> InsertReason(string reasonEnglish, string reasonChineseSimplified)
@@ -247,7 +249,7 @@ public class SendMessageServiceImp : SendMessageService
         });
     }
 
-    private static void ReplaceMessageTemplate(TemplateModel model, Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo)
+    private async Task ReplaceMessageTemplate(TemplateModel model, Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo)
     {
         ReplaceSportType(model, match);
         ReplaceHomeTeam(model, match);
@@ -260,6 +262,7 @@ public class SendMessageServiceImp : SendMessageService
         ReplaceEventType(model, requestInfo.Request.IssueTypeId, requestInfo.IsAllLiveTickets);
         ReplacePlacedFromTimeRange(model, allVoidDataInCurrentVoidTimes);
         ReplacePlayerName(model, requestInfo.PlayerNamesSelected);
+        await ReplaceSpecialBetType(model, requestInfo.Request.IssueTypeId, requestInfo.SpecialBetTypeId);
     }
 
     private static void ReplacePlayerName(TemplateModel model, TemplateContent playerName)
@@ -430,5 +433,27 @@ public class SendMessageServiceImp : SendMessageService
         var defaultTemplateWhenSportNull = settingsBySubType.FirstOrDefault(x => x.SportType == null);
 
         return settingBySportType?.TemplateId ?? defaultTemplateWhenSportNull?.TemplateId ?? MessageTemplateIdConstant.ThirtySeven;
+    }
+
+    private async Task ReplaceSpecialBetType(TemplateModel model, int issueTypeId, int specialBetTypeId)
+    {
+        var betTypeEnglish = string.Empty;
+        var betTypeChineseTraditional = string.Empty;
+        var betTypeChineseSimplified = string.Empty;
+        var betTypeNewChineseSimplified = string.Empty;
+
+        if (specialBetTypeId > 0 && issueTypeId is IssueTypeConstant.WrongMarketOffered or IssueTypeConstant.TechnicalError)
+        {
+            betTypeEnglish = remotingRefWrapperService.GetBetType(specialBetTypeId, LanguageCode.English);
+            betTypeChineseTraditional = remotingRefWrapperService.GetBetType(specialBetTypeId, LanguageCode.ChineseTraditional);
+            betTypeChineseSimplified = remotingRefWrapperService.GetBetType(specialBetTypeId, LanguageCode.ChineseSimplified);
+            betTypeNewChineseSimplified = remotingRefWrapperService.GetBetType(specialBetTypeId, LanguageCode.NewChineseSimplified);
+        }
+
+        const string specialBetTypePlaceholder = "{{SpecialBetType}}";
+        model.MsgEnglish = model.MsgEnglish.Replace(specialBetTypePlaceholder, betTypeEnglish);
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(specialBetTypePlaceholder, betTypeChineseTraditional);
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(specialBetTypePlaceholder, betTypeChineseSimplified);
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(specialBetTypePlaceholder, betTypeNewChineseSimplified);
     }
 }
