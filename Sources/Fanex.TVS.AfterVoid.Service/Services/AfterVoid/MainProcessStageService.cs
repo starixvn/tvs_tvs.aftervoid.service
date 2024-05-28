@@ -98,7 +98,7 @@ public class MainProcessStageServiceImp : MainProcessStageService
             return false;
         }
 
-        if (!Helper.IsLikelyAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
+        if (!Helper.IsAbnormalBet(automationInfo.RequestInfo.Request.IssueTypeId))
         {
             return await sendMessageToAdminSiteStage.Execute(automationInfo, normalMessageContent);
         }

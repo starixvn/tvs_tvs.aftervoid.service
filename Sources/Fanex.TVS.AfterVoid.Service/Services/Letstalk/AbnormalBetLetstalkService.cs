@@ -82,7 +82,6 @@ public class AbnormalBetLetstalkServiceImp : AbnormalBetLetstalkService
     {
         return model.IssueTypeId switch
         {
-            IssueTypeConstant.AbnormalBetRealMember => "Void AB (Real Member) Notification",
             IssueTypeConstant.AbnormalBet when model.FilterBy == null => "Void Abnormal Bet Notification",
             IssueTypeConstant.AbnormalBet when model.FilterBy == FilterByConstant.MixParlay => "Void Abnormal Bet Notification - Mix Parlay",
             IssueTypeConstant.AbnormalBet when model.FilterBy == FilterByConstant.SystemParlay => "Void Abnormal Bet Notification - System Parlay",
@@ -95,7 +94,6 @@ public class AbnormalBetLetstalkServiceImp : AbnormalBetLetstalkService
         switch (model.IssueTypeId)
         {
             case IssueTypeConstant.AbnormalBet when model.FilterBy == null:
-            case IssueTypeConstant.AbnormalBetRealMember:
                 return CreateMessageContentAbnormalBetWithMatch(model);
 
             case IssueTypeConstant.AbnormalBet when model.FilterBy == FilterByConstant.MixParlay:

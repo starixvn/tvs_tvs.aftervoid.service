@@ -52,7 +52,7 @@ public class SendMessageServiceImp : SendMessageService
 
     public async Task SendMessage(IEnumerable<TicketEmailModel> tickets, int messageId, int issueTypeId, int creatorId)
     {
-        var excludedCN88Tickets = ExcludeCN88Tickets(tickets, Helper.IsLikelyAbnormalBet(issueTypeId));
+        var excludedCN88Tickets = ExcludeCN88Tickets(tickets, Helper.IsAbnormalBet(issueTypeId));
         var receivedUsers = GetListSendMessageDb(excludedCN88Tickets);
         var messageXml = messageItemService.CreateMessageItems(receivedUsers, messageId);
         if (!string.IsNullOrWhiteSpace(messageXml))

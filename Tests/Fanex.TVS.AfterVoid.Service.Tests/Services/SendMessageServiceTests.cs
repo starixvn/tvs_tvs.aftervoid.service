@@ -73,7 +73,6 @@ public class SendMessageServiceTests
     [Theory]
     [InlineData(IssueTypeConstant.AbnormalBet, 1)]
     [InlineData(IssueTypeConstant.AbnormalBet, null)]
-    [InlineData(IssueTypeConstant.AbnormalBetRealMember, 1)]
     [InlineData(IssueTypeConstant.DangerAccepted, 1)]
     [InlineData(IssueTypeConstant.DuplicateTickets, null)]
     [InlineData(IssueTypeConstant.DuplicateTickets, 1)]
@@ -250,7 +249,6 @@ public class SendMessageServiceTests
 
     [Theory]
     [InlineData(IssueTypeConstant.AbnormalBet)]
-    [InlineData(IssueTypeConstant.AbnormalBetRealMember)]
     [InlineData(IssueTypeConstant.DangerAccepted)]
     public async Task SendMessage_ShouldCallInsertBatchMessage(int issueTypeId)
     {

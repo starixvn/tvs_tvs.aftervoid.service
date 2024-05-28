@@ -30,7 +30,7 @@ public class AfterVoidEmailServiceImp : AfterVoidEmailService
 
     public async Task<IEnumerable<Result>> Execute(SendEmailStageParameter parameter)
     {
-        if (Helper.IsLikelyAbnormalBet(parameter.AutomationInfo.RequestInfo.Request.IssueTypeId))
+        if (Helper.IsAbnormalBet(parameter.AutomationInfo.RequestInfo.Request.IssueTypeId))
         {
             var subIssueType = await GetSubIssueTypeById(parameter.AutomationInfo.RequestInfo.EventByMatch.SubIssueTypeId);
             parameter.VoidReason.ReasonEnglish = $"{parameter.VoidReason.ReasonEnglish}({subIssueType.SubIssueTypeName})";
