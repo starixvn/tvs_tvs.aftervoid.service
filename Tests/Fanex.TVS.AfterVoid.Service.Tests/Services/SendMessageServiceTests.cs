@@ -236,7 +236,6 @@ public class SendMessageServiceTests
             MainTransIds = "12345679",
             SubTransIds = "98754321"
         };
-        var remotingRefWrapperService = Substitute.For<RemotingRefWrapperService>();
         var service = new SendMessageServiceImp(repository, messageItemService, remotingRefWrapperService);
 
         // Act
@@ -296,24 +295,33 @@ public class SendMessageServiceTests
             x.SubIssueTypeId == fakeSubIssueType && x.SportType == fakeSportType));
     }
 
-    [Fact]
-    public async Task InitializeVoidReason_WhenIsAutoVoid_ReturnExpectedVoidReason()
+    [Theory]
+    [InlineData(22, "English - SportNameEnglish", "ChineseSimplified - SportNameReasonChineseSimplified")]
+    [InlineData(0, "SportNameEnglish", "SportNameReasonChineseSimplified")]
+    public async Task InitializeVoidReason_WhenIsAutoVoidAnd_ReturnExpectedVoidReason(int sportType, string reasonEnglish, string reasonChineseSimplified)
     {
         const int fakeSubIssueType = 11;
-        const int fakeSportType = 22;
-        var fakeReason = Builder<VoidedReason>.CreateNew().Build();
-        repository.GetAsync<VoidedReason>(Arg.Any<GetReasonNameCriteria>()).Returns(fakeReason);
-        remotingRefWrapperService.GetSportName(fakeSportType.ToString(), Arg.Any<string>()).Returns("a");
+        var reason = new VoidedReason
+        {
+            ReasonEnglish = "SportNameEnglish",
+            ReasonChineseSimplified = "SportNameReasonChineseSimplified"
+        };
+        repository.GetAsync<VoidedReason>(Arg.Any<GetReasonNameCriteria>()).ReturnsForAnyArgs(reason);
+        remotingRefWrapperService.GetSportName(sportType.ToString(), LanguageCode.English).Returns("English");
+        remotingRefWrapperService.GetSportName(sportType.ToString(), LanguageCode.ChineseSimplified)
+            .Returns("ChineseSimplified");
+        var expected = new VoidedReason
+        {
+            ReasonEnglish = reasonEnglish,
+            ReasonChineseSimplified = reasonChineseSimplified
+        };
         var service = new SendMessageServiceImp(repository, null, remotingRefWrapperService);
 
-        var actual = await service.InitializeVoidReason(true, fakeSubIssueType, fakeSportType, null);
+        // Act
+        var actual = await service.InitializeVoidReason(true, fakeSubIssueType, sportType, null);
 
-        Assert.NotNull(actual.ReasonEnglish);
-        Assert.NotNull(actual.ReasonChineseSimplified);
-        await repository.Received(1).GetAsync<VoidedReason>(Arg.Is<GetReasonNameCriteria>(x =>
-            x.SubIssueTypeId == fakeSubIssueType && x.SportType == fakeSportType));
-        remotingRefWrapperService.Received(2)
-           .GetSportName(Arg.Is<string>(x => x == fakeSportType.ToString()), Arg.Any<string>());
+        // Assert
+        AssertExtension.Equal(expected, actual);
     }
 
     [Fact]

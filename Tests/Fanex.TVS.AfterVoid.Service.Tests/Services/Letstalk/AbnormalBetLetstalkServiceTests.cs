@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Fanex.LetstalkService.Client;
+using Fanex.LetstalkService.Core.Models;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
@@ -28,18 +29,20 @@ public class AbnormalBetLetstalkServiceTests
 
     [Theory]
     [InlineData(11, null, true)]
-    [InlineData(15, null, true)]
     [InlineData(11, 1, false)]
-    public async Task SendToAbnormalBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceFail(int issueId,
-        int? filterBy, bool isProdEnvironment)
+    [InlineData(11, 1, true)]
+    public async Task SendToAbnormalBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceFail(int issueId, int? filterBy, bool isProdEnvironment)
     {
+        // Arrange
         AppSettingService.AppSetting = new AppSettingModel
         { LetstalkConfig = new LetstalkConfig { IsProdEnv = isProdEnvironment } };
         var fakeNotificationLetstalkModel =
             Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         fakeNotificationLetstalkModel.IssueTypeId = issueId;
         fakeNotificationLetstalkModel.FilterBy = filterBy;
-        fakeNotificationLetstalkModel.Match = new Match();
+        fakeNotificationLetstalkModel.Match = new Match { MatchId = 245 };
+        fakeNotificationLetstalkModel.RequestId = 74563;
+        fakeNotificationLetstalkModel.VoidingHistoryIds = "5357";
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(10)
             .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false)
             .And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
@@ -52,11 +55,14 @@ public class AbnormalBetLetstalkServiceTests
         var letstalkService = Substitute.For<LetstalkClientService>();
         letstalkService.SendMessage(default).ReturnsForAnyArgs(false);
         var sendLetstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
+        sendLetstalkServiceStage.GetContentExcelVoidedTicket(74563, 245, issueId, "5357").Returns(null as byte[]);
         var service = new AbnormalBetLetstalkServiceImp(sendLetstalkServiceStage, letstalkService);
 
+        // Act
         var actual = await service.Send(fakeNotificationLetstalkModel, fakeTicketEmail);
 
-        letstalkService.ReceivedWithAnyArgs(1).SendMessage(default);
+        // Assert
+        letstalkService.Received(1).SendMessage(Arg.Any<LetstalkModel>());
         Assert.False(actual);
     }
 
