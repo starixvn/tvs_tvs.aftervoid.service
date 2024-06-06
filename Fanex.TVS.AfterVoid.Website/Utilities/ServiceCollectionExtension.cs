@@ -127,6 +127,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<RequestVoid14Service, RequestVoid14ServiceImp>();
         services.AddSingleton<MessageItemService, MessageItemServiceImp>();
         services.AddSingleton<NotificationSignalRService, NotificationSignalRServiceImp>();
+        services.AddSingleton<MessageContentParameterService, MessageContentParameterServiceImp>();
         services.AddSingleton<SendMessageService, SendMessageServiceImp>();
         services.AddSingleton<LetstalkClientService, LetstalkClientServiceImp>();
         services.AddSingleton<AfterVoidEmailService, AfterVoidEmailServiceImp>();

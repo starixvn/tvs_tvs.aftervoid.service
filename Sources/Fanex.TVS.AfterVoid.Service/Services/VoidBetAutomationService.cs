@@ -43,11 +43,13 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
 {
     private readonly IDynamicRepository repository;
     private readonly MatchService matchService;
+    private readonly MessageContentParameterService messageContentParameterService;
 
-    public VoidBetAutomationServiceImp(IDynamicRepository repository, MatchService matchService)
+    public VoidBetAutomationServiceImp(IDynamicRepository repository, MatchService matchService, MessageContentParameterService messageContentParameterService)
     {
         this.repository = repository;
         this.matchService = matchService;
+        this.messageContentParameterService = messageContentParameterService;
     }
 
     public async Task<(VoidBetAutomationInfo, bool, string, IEnumerable<EmailResultModel>)> GetVoidBetAutomationRunAfterVoid()
@@ -86,23 +88,10 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
             Request = firstRequest,
             EventByMatch = IsIssueTypeHasMatchId(firstRequest.IssueTypeId) ? requestEvents.FirstOrDefault(x => x.MatchId == matchId)
                 : requestEvents.FirstOrDefault(),
-            PlayerNamesSelected = firstRequest.IssueTypeId == IssueTypeConstant.NotParticipate ? GetPlayerNamesSelected(playerNames.First()) : null
+            PlayerNamesSelected = messageContentParameterService.GetPlayerNamesSelected(firstRequest.IssueTypeId, playerNames.First())
         };
 
         return viewModel;
-    }
-
-    private static TemplateContent GetPlayerNamesSelected(PlayerName playerName)
-    {
-        var playerNamesSelected = new TemplateContent
-        {
-            MsgEnglish = playerName.PlayerNamesEnglish,
-            MsgChineseSimplified = playerName.PlayerNamesChineseSimplified,
-            MsgChineseNewSimplified = playerName.PlayerNamesChineseSimplified,
-            MsgChineseTraditional = playerName.PlayerNamesChineseTraditional
-        };
-
-        return playerNamesSelected;
     }
 
     private static bool IsIssueTypeHasMatchId(int issueTypeId)

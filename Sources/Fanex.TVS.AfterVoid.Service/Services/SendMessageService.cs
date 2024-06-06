@@ -80,7 +80,7 @@ public class SendMessageServiceImp : SendMessageService
         var templateModels = await repository.FetchAsync<TemplateModel>(new GetTemplatesCriteria()).ConfigureAwait(false);
         var templateId = await GetTemplateIdForAutoVoid(requestInfo);
         var template = templateModels.First(t => t.TemplateId == templateId);
-        await ReplaceMessageTemplate(template, match, allVoidDataInCurrentVoidTimes, requestInfo);
+        ReplaceMessageTemplate(template, match, allVoidDataInCurrentVoidTimes, requestInfo);
 
         return new Message
         {
@@ -249,7 +249,7 @@ public class SendMessageServiceImp : SendMessageService
         });
     }
 
-    private async Task ReplaceMessageTemplate(TemplateModel model, Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo)
+    private static void ReplaceMessageTemplate(TemplateModel model, Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo)
     {
         ReplaceSportType(model, match);
         ReplaceHomeTeam(model, match);
@@ -262,7 +262,7 @@ public class SendMessageServiceImp : SendMessageService
         ReplaceEventType(model, requestInfo.Request.IssueTypeId, requestInfo.IsAllLiveTickets);
         ReplacePlacedFromTimeRange(model, allVoidDataInCurrentVoidTimes);
         ReplacePlayerName(model, requestInfo.PlayerNamesSelected);
-        await ReplaceSpecialBetType(model, requestInfo.Request.IssueTypeId, requestInfo.SpecialBetTypeId);
+        ReplaceSpecialBetType(model, requestInfo.SpecialBetTypeContent);
     }
 
     private static void ReplacePlayerName(TemplateModel model, TemplateContent playerName)
@@ -435,20 +435,12 @@ public class SendMessageServiceImp : SendMessageService
         return settingBySportType?.TemplateId ?? defaultTemplateWhenSportNull?.TemplateId ?? MessageTemplateIdConstant.ThirtySeven;
     }
 
-    private async Task ReplaceSpecialBetType(TemplateModel model, int issueTypeId, int specialBetTypeId)
+    private static void ReplaceSpecialBetType(TemplateModel model, TemplateContent specialBetTypeContent)
     {
-        var betTypeEnglish = string.Empty;
-        var betTypeChineseTraditional = string.Empty;
-        var betTypeChineseSimplified = string.Empty;
-        var betTypeNewChineseSimplified = string.Empty;
-
-        if (specialBetTypeId > 0 && issueTypeId is IssueTypeConstant.WrongMarketOffered or IssueTypeConstant.TechnicalError)
-        {
-            betTypeEnglish = remotingRefWrapperService.GetBetType(specialBetTypeId, LanguageCode.English);
-            betTypeChineseTraditional = remotingRefWrapperService.GetBetType(specialBetTypeId, LanguageCode.ChineseTraditional);
-            betTypeChineseSimplified = remotingRefWrapperService.GetBetType(specialBetTypeId, LanguageCode.ChineseSimplified);
-            betTypeNewChineseSimplified = remotingRefWrapperService.GetBetType(specialBetTypeId, LanguageCode.NewChineseSimplified);
-        }
+        var betTypeEnglish = string.IsNullOrWhiteSpace(specialBetTypeContent.MsgEnglish) ? string.Empty : specialBetTypeContent.MsgEnglish;
+        var betTypeChineseTraditional = string.IsNullOrWhiteSpace(specialBetTypeContent.MsgChineseTraditional) ? string.Empty : specialBetTypeContent.MsgEnglish;
+        var betTypeChineseSimplified = string.IsNullOrWhiteSpace(specialBetTypeContent.MsgChineseSimplified) ? string.Empty : specialBetTypeContent.MsgEnglish;
+        var betTypeNewChineseSimplified = string.IsNullOrWhiteSpace(specialBetTypeContent.MsgChineseNewSimplified) ? string.Empty : specialBetTypeContent.MsgEnglish;
 
         const string specialBetTypePlaceholder = "{{SpecialBetType}}";
         model.MsgEnglish = model.MsgEnglish.Replace(specialBetTypePlaceholder, betTypeEnglish);
