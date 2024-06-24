@@ -1,28 +1,22 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TicketVoidingSystem.Utilities;
 
-[ExcludeFromCodeCoverage(Justification = "non-logic")]
-public class ClientDateGMT8JsonConverter : JsonConverter
+public class GMT8DateTimeJsonConverter : JsonConverter<DateTime>
 {
-    private const int OffsetHours = 12;
+    private const int OffSetHours = 12;
 
-    public override bool CanConvert(Type objectType)
+    public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        return objectType == typeof(DateTime);
+        return DateTime.Parse(reader.GetString() ?? string.Empty);
     }
 
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
     {
-        throw new NotImplementedException();
-    }
-
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-    {
-        var dateTime = (DateTime)value;
-        dateTime = dateTime.AddHours(OffsetHours);
-        writer.WriteValue(dateTime);
+        var customDateTime = value;
+        customDateTime = customDateTime.AddHours(OffSetHours);
+        writer.WriteStringValue(customDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff"));
     }
 }
