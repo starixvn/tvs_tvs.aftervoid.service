@@ -58,7 +58,7 @@ public class Match
 
     public string ShowTime { get; set; }
 
-    [JsonConverter(typeof(GMT8DateTimeJsonConverter))]
+    [JsonConverter(typeof(Gmt8DateTimeJsonConverter))]
     public DateTime KickOffTime { get; set; }
 
     public int SportType { get; set; }

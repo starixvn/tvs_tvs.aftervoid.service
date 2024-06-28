@@ -102,11 +102,19 @@ public class SendMessageServiceTests
             .Random(1).With(x => x.TemplateId = 63)
             .Build();
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
+        var templateContent = new TemplateContent
+        {
+            MsgEnglish = "a",
+            MsgChineseNewSimplified = "a",
+            MsgChineseSimplified = "a",
+            MsgChineseTraditional = "a"
+        };
         var requestInfo = new RequestDetailViewModel
         {
             Request = new RequestModel { IssueTypeId = issueTypeId },
             EventByMatch = new RequestEventModel { SubIssueTypeId = 1, FilterBy = filterBy, KickOffTime = DateTimeOffset.Now.DateTime },
-            PlayerNamesSelected = new TemplateContent()
+            PlayerNamesSelected = new TemplateContent(),
+            SpecialBetTypeContent = templateContent
         };
         var service = new SendMessageServiceImp(repository, null, null);
 
@@ -135,6 +143,13 @@ public class SendMessageServiceTests
             .Build();
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
         repository.FetchAsync<TemplateSetting>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplateSetting);
+        var templateContent = new TemplateContent
+        {
+            MsgEnglish = "a",
+            MsgChineseNewSimplified = "a",
+            MsgChineseSimplified = "a",
+            MsgChineseTraditional = "a"
+        };
         var requestInfo = new RequestDetailViewModel
         {
             Request = new RequestModel { IssueTypeId = 1, SportType = sportType },
@@ -143,13 +158,8 @@ public class SendMessageServiceTests
                 SubIssueTypeId = subIssueTypeId,
                 KickOffTime = DateTimeOffset.Now.DateTime
             },
-            PlayerNamesSelected = new TemplateContent
-            {
-                MsgEnglish = "a",
-                MsgChineseNewSimplified = "a",
-                MsgChineseSimplified = "a",
-                MsgChineseTraditional = "a"
-            }
+            PlayerNamesSelected = templateContent,
+            SpecialBetTypeContent = templateContent
         };
         var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>
         {
