@@ -12,6 +12,14 @@ public static class TemplateContentConstant
         ContentNewChineseSimplified = "投注从"
     };
 
+    public static readonly ContentByLanguageModel PlacedAt = new()
+    {
+        ContentEnglish = "placed at ",
+        ContentChineseTraditional = "投注於 ",
+        ContentChineseSimplified = "投注于 ",
+        ContentNewChineseSimplified = "投注于 "
+    };
+
     public static readonly ContentByLanguageModel Gmt8 = new()
     {
         ContentEnglish = "(GMT+8)",

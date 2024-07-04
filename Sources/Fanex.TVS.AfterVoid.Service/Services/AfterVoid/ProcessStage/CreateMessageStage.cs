@@ -61,7 +61,7 @@ public class CreateMessageStageImp : CreateMessageStage
         parameter.AutomationInfo.RequestInfo.SpecialBetTypeContent = await messageContentParameterService.GetSpecialBetTypeContent(parameter.AutomationInfo.RequestInfo.Request.IssueTypeId,
             parameter.NormalTickets, parameter.SpecialTickets);
 
-        var normalMessageContent = await InitializeMessageContent(parameter.AutomationInfo, parameter.MatchInfo, parameter.AllVoidDataInCurrentVoid);
+        var normalMessageContent = await InitializeMessageContent(parameter.AutomationInfo, parameter.MatchInfo, parameter.VoidDataXml);
         var normalMessageId = await CreateMessageForNormalPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.NormalTickets, normalMessageContent);
         var specialMessageId = await CreateMessageForSpecialPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.SpecialTickets, normalMessageContent);
 
@@ -115,13 +115,13 @@ public class CreateMessageStageImp : CreateMessageStage
         return messageSpecial.MessageId;
     }
 
-    private async Task<Message> InitializeMessageContent(VoidBetAutomationInfo automationInfo, Match matchInfo, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoid)
+    private async Task<Message> InitializeMessageContent(VoidBetAutomationInfo automationInfo, Match matchInfo, VoidDataXmlModel voidDataXml)
     {
         if (automationInfo.IsAutoVoid)
         {
-            return await sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, allVoidDataInCurrentVoid, automationInfo.RequestInfo);
+            return await sendMessageService.InitializeMessageContentForAutoVoid(matchInfo, voidDataXml, automationInfo.RequestInfo);
         }
 
-        return sendMessageService.InitializeMessageContentForManualVoid(allVoidDataInCurrentVoid.First());
+        return sendMessageService.InitializeMessageContentForManualVoid(voidDataXml);
     }
 }

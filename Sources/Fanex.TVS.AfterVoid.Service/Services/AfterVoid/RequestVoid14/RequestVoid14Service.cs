@@ -45,15 +45,14 @@ public class RequestVoid14ServiceImp : RequestVoid14Service
 
     private async Task ExecuteStepByStep(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
     {
-        var allVoidDataInCurrentVoid = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
+        var voidDataXml = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
         var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true);
-        var firstVoidData = allVoidDataInCurrentVoid.First();
 
         var voidReason = await mainProcessStageService.CreateVoidReason(true, new CreateVoidReasonStageParameter
         {
             AutomationInfo = automationInfo,
             SportTypeId = 0,
-            VoidData = firstVoidData
+            VoidData = voidDataXml
         });
 
         var isInsertedVoidedTransaction = await mainProcessStageService.InsertVoidedTransaction(mainProcessStageService.IsHaveVoidReason(voidReason),
@@ -79,7 +78,7 @@ public class RequestVoid14ServiceImp : RequestVoid14Service
 
         if (!isUpdatedVoidingHistory)
         {
-            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
             return;
         }
@@ -91,7 +90,7 @@ public class RequestVoid14ServiceImp : RequestVoid14Service
             AutomationInfo = automationInfo,
             IsLastedInRequest = isLastedInRequest,
             CurrentRequestStatus = currentRequestStatus,
-            CreatorName = firstVoidData.CreatorName,
+            CreatorName = voidDataXml.CreatorName,
             CurrentEmailResults = new List<Result>(),
             EmailResultsHistory = new List<EmailResultModel>()
         });

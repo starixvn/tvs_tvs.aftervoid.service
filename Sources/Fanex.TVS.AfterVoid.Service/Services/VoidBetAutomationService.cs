@@ -30,7 +30,9 @@ public interface VoidBetAutomationService
     Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsByVoidingHistory(int voidingHistoryId, int siteDbGroupId,
         bool isInsertRoutineTask);
 
-    Task<IEnumerable<VoidDataXmlModel>> GetVoidDataFromVoidingHistory(int voidingHistoryId);
+    Task<VoidDataXmlModel> GetVoidDataFromVoidingHistory(int voidingHistoryId);
+
+    Task<IEnumerable<VoidDataXmlModel>> GetAllVoidDataFromMultiVoidingHistory(IEnumerable<int> voidingHistoryIds);
 
     Task<Match> GetMatchInfo(int matchId);
 
@@ -192,11 +194,22 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         return result;
     }
 
-    public async Task<IEnumerable<VoidDataXmlModel>> GetVoidDataFromVoidingHistory(int voidingHistoryId)
+    public async Task<VoidDataXmlModel> GetVoidDataFromVoidingHistory(int voidingHistoryId)
     {
         var criteria = new GetVoidingHistoryCriteria
         {
             VoidingHistoryIds = $"{voidingHistoryId}"
+        };
+
+        var results = await repository.FetchAsync<VoidDataXmlModel>(criteria);
+        return results.First();
+    }
+
+    public async Task<IEnumerable<VoidDataXmlModel>> GetAllVoidDataFromMultiVoidingHistory(IEnumerable<int> voidingHistoryIds)
+    {
+        var criteria = new GetVoidingHistoryCriteria
+        {
+            VoidingHistoryIds = string.Join(",", voidingHistoryIds)
         };
 
         return await repository.FetchAsync<VoidDataXmlModel>(criteria);

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
@@ -52,17 +51,16 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
     private async Task ExecuteStepByStep(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory)
     {
         var matchInfo = await mainProcessStageService.GetMatchInfo(automationInfo.MatchId);
-        var allVoidDataInCurrentVoid = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
+        var voidDataXml = await voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId);
         var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true);
         var (normalTickets, specialTickets) = specialPlatformService.GroupTicketSaba(voidedTickets);
-        var firstVoidData = allVoidDataInCurrentVoid.First();
 
         var (normalMessageId, specialMessageId, normalMessageContent) = await mainProcessStageService.CreateMessage(
             new CreateMessageStageParameter
             {
                 AutomationInfo = automationInfo,
                 MatchInfo = matchInfo,
-                AllVoidDataInCurrentVoid = allVoidDataInCurrentVoid,
+                VoidDataXml = voidDataXml,
                 NormalTickets = normalTickets,
                 SpecialTickets = specialTickets
             });
@@ -72,7 +70,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
             {
                 AutomationInfo = automationInfo,
                 SportTypeId = 0,
-                VoidData = firstVoidData
+                VoidData = voidDataXml
             });
 
         var isSendBatchMessage = await mainProcessStageService.SendBatchMessage(mainProcessStageService.IsHaveVoidReason(voidReason),
@@ -83,7 +81,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
                 SpecialTickets = specialTickets,
                 NormalMessageId = normalMessageId,
                 SpecialMessageId = specialMessageId,
-                VoidData = firstVoidData
+                VoidData = voidDataXml
             });
 
         var isSentMessageToAdminSite = await mainProcessStageService.SendMessageToAdminSite(isSendBatchMessage, automationInfo, normalMessageContent);
@@ -121,7 +119,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
 
         if (!isSentEmail)
         {
-            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(firstVoidData.CreatorName);
+            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
             return;
         }
@@ -134,7 +132,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
             AutomationInfo = automationInfo,
             IsLastedInRequest = isLastedInRequest,
             CurrentRequestStatus = currentRequestStatus,
-            CreatorName = firstVoidData.CreatorName,
+            CreatorName = voidDataXml.CreatorName,
             CurrentEmailResults = currentEmailResults,
             EmailResultsHistory = emailResultsHistory
         });

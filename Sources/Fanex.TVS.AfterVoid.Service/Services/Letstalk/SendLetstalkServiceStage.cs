@@ -81,18 +81,8 @@ public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
 
     public async Task<IEnumerable<VoidDataXmlModel>> GetVoidDataXml(IEnumerable<int> voidingHistoryIds)
     {
-        var allVoidDataInCurrentVoidTimes = await GetAllVoidDataInCurrentVoidTimes(voidingHistoryIds);
+        var allVoidDataInCurrentVoidTimes = await voidBetAutomationService.GetAllVoidDataFromMultiVoidingHistory(voidingHistoryIds);
         return allVoidDataInCurrentVoidTimes.Where(x => voidingHistoryIds.Contains(x.VoidingHistoryId));
-    }
-
-    private async Task<IEnumerable<VoidDataXmlModel>> GetAllVoidDataInCurrentVoidTimes(IEnumerable<int> voidingHistoryIds)
-    {
-        var criteria = new GetVoidingHistoryCriteria
-        {
-            VoidingHistoryIds = string.Join(",", voidingHistoryIds)
-        };
-
-        return await repository.FetchAsync<VoidDataXmlModel>(criteria);
     }
 
     public async Task WriteLogLetstalk(IEnumerable<Result> results, GroupVoidBetAutomationInfo group, Stopwatch startTime)
