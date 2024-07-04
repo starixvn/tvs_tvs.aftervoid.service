@@ -13,7 +13,7 @@ namespace TicketVoidingSystem.Services;
 
 public interface TVSWebSiteHttpClientService
 {
-    Task<TemplateContent> GetSpecialBetTypeContent(IEnumerable<TicketEmailModel> tickets);
+    Task<ContentByLanguageModel> GetSpecialBetTypeContent(IEnumerable<TicketEmailModel> tickets);
 
     Task<(bool, byte[])> GetExcelVoidedTicketForSendLetstalk(int requestId, int matchId, int issueTypeId,
         string voidingHistoryIds);
@@ -38,14 +38,14 @@ public class TVSWebSiteHttpClientServiceImp : TVSWebSiteHttpClientService
         this.loggingService = loggingService;
     }
 
-    public async Task<TemplateContent> GetSpecialBetTypeContent(IEnumerable<TicketEmailModel> tickets)
+    public async Task<ContentByLanguageModel> GetSpecialBetTypeContent(IEnumerable<TicketEmailModel> tickets)
     {
         const string actionName = "api/MessageTemplate/GetSpecialBetTypeContent";
         using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(new { tickets }));
         if (response.IsSuccessStatusCode)
         {
             await LogResponseStream(response, actionName);
-            return await Helper.DeserializeResponseStream<TemplateContent>(response);
+            return await Helper.DeserializeResponseStream<ContentByLanguageModel>(response);
         }
 
         await LogService.ErrorAsync($"{AppSettingService.AppSetting.TVSWebSiteUrl}{actionName}" +

@@ -265,13 +265,13 @@ public class SendMessageServiceImp : SendMessageService
         ReplaceSpecialBetType(model, requestInfo.SpecialBetTypeContent);
     }
 
-    private static void ReplacePlayerName(TemplateModel model, TemplateContent playerName)
+    private static void ReplacePlayerName(TemplateModel model, ContentByLanguageModel playerName)
     {
         const string playerNamePlaceholder = "{{Player Name}}";
-        model.MsgEnglish = model.MsgEnglish.Replace(playerNamePlaceholder, playerName?.MsgEnglish);
-        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(playerNamePlaceholder, playerName?.MsgChineseTraditional);
-        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(playerNamePlaceholder, playerName?.MsgChineseNewSimplified);
-        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(playerNamePlaceholder, playerName?.MsgChineseNewSimplified);
+        model.MsgEnglish = model.MsgEnglish.Replace(playerNamePlaceholder, playerName?.ContentEnglish);
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(playerNamePlaceholder, playerName?.ContentChineseTraditional);
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(playerNamePlaceholder, playerName?.ContentChineseSimplified);
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(playerNamePlaceholder, playerName?.ContentNewChineseSimplified);
     }
 
     private static void ReplaceSportType(TemplateModel model, Match match)
@@ -381,12 +381,12 @@ public class SendMessageServiceImp : SendMessageService
         else
         {
             var timeRange = GetTimeRange(allVoidDataInCurrentVoidTimes);
-            var newContent = new TemplateContent
+            var newContent = new ContentByLanguageModel
             {
-                MsgEnglish = $"{TemplateContentConstant.PlacedFrom.MsgEnglish} {timeRange}{TemplateContentConstant.Gmt8.MsgEnglish}",
-                MsgChineseTraditional = $"{TemplateContentConstant.PlacedFrom.MsgChineseTraditional} {timeRange}{TemplateContentConstant.Gmt8.MsgChineseTraditional}",
-                MsgChineseSimplified = $"{TemplateContentConstant.PlacedFrom.MsgChineseSimplified} {timeRange}{TemplateContentConstant.Gmt8.MsgChineseSimplified}",
-                MsgChineseNewSimplified = $"{TemplateContentConstant.PlacedFrom.MsgChineseNewSimplified} {timeRange}{TemplateContentConstant.Gmt8.MsgChineseNewSimplified}"
+                ContentEnglish = $"{TemplateContentConstant.PlacedFrom.ContentEnglish} {timeRange}{TemplateContentConstant.Gmt8.ContentEnglish}",
+                ContentChineseTraditional = $"{TemplateContentConstant.PlacedFrom.ContentChineseTraditional} {timeRange}{TemplateContentConstant.Gmt8.ContentChineseTraditional}",
+                ContentChineseSimplified = $"{TemplateContentConstant.PlacedFrom.ContentChineseSimplified} {timeRange}{TemplateContentConstant.Gmt8.ContentChineseSimplified}",
+                ContentNewChineseSimplified = $"{TemplateContentConstant.PlacedFrom.ContentNewChineseSimplified} {timeRange}{TemplateContentConstant.Gmt8.ContentNewChineseSimplified}"
             };
             ReplaceForEachLanguage(model, TemplatePlaceholderConstant.PlacedFromTimeRange, newContent);
         }
@@ -402,12 +402,12 @@ public class SendMessageServiceImp : SendMessageService
         return $"{voidFromTime} - {voidToTime}";
     }
 
-    private static void ReplaceForEachLanguage(TemplateModel model, string placeholder, TemplateContent newContent)
+    private static void ReplaceForEachLanguage(TemplateModel model, string placeholder, ContentByLanguageModel newContent)
     {
-        model.MsgEnglish = model.MsgEnglish.Replace(placeholder, newContent.MsgEnglish);
-        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(placeholder, newContent.MsgChineseTraditional);
-        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(placeholder, newContent.MsgChineseSimplified);
-        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(placeholder, newContent.MsgChineseNewSimplified);
+        model.MsgEnglish = model.MsgEnglish.Replace(placeholder, newContent.ContentEnglish);
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(placeholder, newContent.ContentChineseTraditional);
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(placeholder, newContent.ContentChineseSimplified);
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(placeholder, newContent.ContentNewChineseSimplified);
     }
 
     private async Task<int> GetTemplateIdForAutoVoid(RequestDetailViewModel requestInfo)
@@ -435,12 +435,12 @@ public class SendMessageServiceImp : SendMessageService
         return settingBySportType?.TemplateId ?? defaultTemplateWhenSportNull?.TemplateId ?? MessageTemplateIdConstant.ThirtySeven;
     }
 
-    private static void ReplaceSpecialBetType(TemplateModel model, TemplateContent specialBetTypeContent)
+    private static void ReplaceSpecialBetType(TemplateModel model, ContentByLanguageModel specialBetTypeContent)
     {
-        var betTypeEnglish = string.IsNullOrWhiteSpace(specialBetTypeContent.MsgEnglish) ? string.Empty : specialBetTypeContent.MsgEnglish;
-        var betTypeChineseTraditional = string.IsNullOrWhiteSpace(specialBetTypeContent.MsgChineseTraditional) ? string.Empty : specialBetTypeContent.MsgEnglish;
-        var betTypeChineseSimplified = string.IsNullOrWhiteSpace(specialBetTypeContent.MsgChineseSimplified) ? string.Empty : specialBetTypeContent.MsgEnglish;
-        var betTypeNewChineseSimplified = string.IsNullOrWhiteSpace(specialBetTypeContent.MsgChineseNewSimplified) ? string.Empty : specialBetTypeContent.MsgEnglish;
+        var betTypeEnglish = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentEnglish) ? string.Empty : specialBetTypeContent.ContentEnglish;
+        var betTypeChineseTraditional = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentChineseTraditional) ? string.Empty : specialBetTypeContent.ContentChineseTraditional;
+        var betTypeChineseSimplified = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentChineseSimplified) ? string.Empty : specialBetTypeContent.ContentChineseSimplified;
+        var betTypeNewChineseSimplified = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentNewChineseSimplified) ? string.Empty : specialBetTypeContent.ContentNewChineseSimplified;
 
         const string specialBetTypePlaceholder = "{{SpecialBetType}}";
         model.MsgEnglish = model.MsgEnglish.Replace(specialBetTypePlaceholder, betTypeEnglish);

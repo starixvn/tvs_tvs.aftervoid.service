@@ -102,18 +102,18 @@ public class SendMessageServiceTests
             .Random(1).With(x => x.TemplateId = 63)
             .Build();
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
-        var templateContent = new TemplateContent
+        var templateContent = new ContentByLanguageModel
         {
-            MsgEnglish = "a",
-            MsgChineseNewSimplified = "a",
-            MsgChineseSimplified = "a",
-            MsgChineseTraditional = "a"
+            ContentEnglish = "a",
+            ContentNewChineseSimplified = "a",
+            ContentChineseSimplified = "a",
+            ContentChineseTraditional = "a"
         };
         var requestInfo = new RequestDetailViewModel
         {
             Request = new RequestModel { IssueTypeId = issueTypeId },
             EventByMatch = new RequestEventModel { SubIssueTypeId = 1, FilterBy = filterBy, KickOffTime = DateTimeOffset.Now.DateTime },
-            PlayerNamesSelected = new TemplateContent(),
+            PlayerNamesSelected = new ContentByLanguageModel(),
             SpecialBetTypeContent = templateContent
         };
         var service = new SendMessageServiceImp(repository, null, null);
@@ -143,12 +143,12 @@ public class SendMessageServiceTests
             .Build();
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
         repository.FetchAsync<TemplateSetting>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplateSetting);
-        var templateContent = new TemplateContent
+        var templateContent = new ContentByLanguageModel
         {
-            MsgEnglish = "a",
-            MsgChineseNewSimplified = "a",
-            MsgChineseSimplified = "a",
-            MsgChineseTraditional = "a"
+            ContentEnglish = "a",
+            ContentNewChineseSimplified = "a",
+            ContentChineseSimplified = "a",
+            ContentChineseTraditional = "a"
         };
         var requestInfo = new RequestDetailViewModel
         {

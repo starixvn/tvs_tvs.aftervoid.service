@@ -12,9 +12,9 @@ public class RequestDetailViewModel
     /// <summary>
     /// For init auto void template Message
     /// </summary>
-    public TemplateContent PlayerNamesSelected { get; set; }
+    public ContentByLanguageModel PlayerNamesSelected { get; set; }
 
     public bool IsAllLiveTickets { get; set; }
 
-    public TemplateContent SpecialBetTypeContent { get; set; }
+    public ContentByLanguageModel SpecialBetTypeContent { get; set; }
 }

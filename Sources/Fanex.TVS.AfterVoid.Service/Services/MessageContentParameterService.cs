@@ -9,11 +9,11 @@ namespace Fanex.TVS.AfterVoid.Service.Services;
 
 public interface MessageContentParameterService
 {
-    TemplateContent GetPlayerNamesSelected(int issueTypeId, PlayerName playerName);
+    ContentByLanguageModel GetPlayerNamesSelected(int issueTypeId, PlayerName playerName);
 
     bool IsAllLiveTickets(IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets);
 
-    Task<TemplateContent> GetSpecialBetTypeContent(int issueTypeId, IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets);
+    Task<ContentByLanguageModel> GetSpecialBetTypeContent(int issueTypeId, IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets);
 }
 
 public class MessageContentParameterServiceImp : MessageContentParameterService
@@ -25,16 +25,16 @@ public class MessageContentParameterServiceImp : MessageContentParameterService
         this.tvsWebSiteHttpClientService = tvsWebSiteHttpClientService;
     }
 
-    public TemplateContent GetPlayerNamesSelected(int issueTypeId, PlayerName playerName)
+    public ContentByLanguageModel GetPlayerNamesSelected(int issueTypeId, PlayerName playerName)
     {
         if (issueTypeId == IssueTypeConstant.NotParticipate)
         {
-            var playerNamesSelected = new TemplateContent
+            var playerNamesSelected = new ContentByLanguageModel
             {
-                MsgEnglish = playerName.PlayerNamesEnglish,
-                MsgChineseSimplified = playerName.PlayerNamesChineseSimplified,
-                MsgChineseNewSimplified = playerName.PlayerNamesChineseSimplified,
-                MsgChineseTraditional = playerName.PlayerNamesChineseTraditional
+                ContentEnglish = playerName.PlayerNamesEnglish,
+                ContentChineseSimplified = playerName.PlayerNamesChineseSimplified,
+                ContentNewChineseSimplified = playerName.PlayerNamesChineseSimplified,
+                ContentChineseTraditional = playerName.PlayerNamesChineseTraditional
             };
 
             return playerNamesSelected;
@@ -48,17 +48,17 @@ public class MessageContentParameterServiceImp : MessageContentParameterService
         return normalTickets.All(x => x.IsLive) && specialTickets.All(x => x.IsLive);
     }
 
-    public async Task<TemplateContent> GetSpecialBetTypeContent(int issueTypeId, IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets)
+    public async Task<ContentByLanguageModel> GetSpecialBetTypeContent(int issueTypeId, IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets)
     {
         if (issueTypeId is IssueTypeConstant.WrongMarketOffered or IssueTypeConstant.TechnicalError)
         {
             return await GetSpecialBetTypeContent(normalTickets, specialTickets);
         }
 
-        return new TemplateContent();
+        return new ContentByLanguageModel();
     }
 
-    private async Task<TemplateContent> GetSpecialBetTypeContent(IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets)
+    private async Task<ContentByLanguageModel> GetSpecialBetTypeContent(IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets)
     {
         var betTypeNormal = normalTickets.Select(x => x.IsMixParlay ? x.SubBetType : x.BetTypeId);
         var betTypeSpecial = specialTickets.Select(x => x.IsMixParlay ? x.SubBetType : x.BetTypeId);
@@ -78,6 +78,6 @@ public class MessageContentParameterServiceImp : MessageContentParameterService
             return await tvsWebSiteHttpClientService.GetSpecialBetTypeContent(emailTickets);
         }
 
-        return new TemplateContent();
+        return new ContentByLanguageModel();
     }
 }
