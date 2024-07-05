@@ -361,11 +361,20 @@ public class SendMessageServiceImp : SendMessageService
 
     private static void ReplaceEventType(TemplateModel model, int issueTypeId, bool isAllLiveTickets)
     {
-        var eventType = TemplateContentConstant.Empty;
-        if (issueTypeId is IssueTypeConstant.NotParticipate or IssueTypeConstant.ReducedOver or IssueTypeConstant.Abandoned)
+        var issueTypesNeedCheckAllLiveTickets = new List<int>
         {
-            eventType = isAllLiveTickets ? TemplateContentConstant.Live : TemplateContentConstant.Empty;
-        }
+            IssueTypeConstant.WrongHDP, IssueTypeConstant.Wrong1stHDP,
+            IssueTypeConstant.WrongOU, IssueTypeConstant.Wrong1stOU,
+            IssueTypeConstant.WrongOdds, IssueTypeConstant.ReducedOver, IssueTypeConstant.Abandoned,
+            IssueTypeConstant.NotParticipate, IssueTypeConstant.WrongMarketOffered, IssueTypeConstant.TechnicalError
+        };
+
+        var eventType = issueTypeId switch
+        {
+            IssueTypeConstant.DangerAccepted or IssueTypeConstant.RedCard or IssueTypeConstant.WrongScore => TemplateContentConstant.Live,
+            _ when issueTypesNeedCheckAllLiveTickets.Contains(issueTypeId) => isAllLiveTickets ? TemplateContentConstant.Live : TemplateContentConstant.Empty,
+            _ => TemplateContentConstant.Empty
+        };
 
         ReplaceForEachLanguage(model, TemplatePlaceholderConstant.EventType, eventType);
     }
@@ -387,14 +396,10 @@ public class SendMessageServiceImp : SendMessageService
         }
         else
         {
-            if (voidDataXml.TotalTicket <= fiveTickets && isAllLiveTickets)
-            {
-                ReplaceForEachLanguage(model, TemplatePlaceholderConstant.PlacedFromTimeRange, TemplateContentConstant.PlacedAt);
-            }
-            else
-            {
-                ReplaceForEachLanguage(model, TemplatePlaceholderConstant.PlacedFromTimeRange, TemplateContentConstant.Empty);
-            }
+            var newContent = voidDataXml.TotalTicket <= fiveTickets && isAllLiveTickets
+                ? TemplateContentConstant.PlacedAt
+                : TemplateContentConstant.Empty;
+            ReplaceForEachLanguage(model, TemplatePlaceholderConstant.PlacedFromTimeRange, newContent);
         }
     }
 
@@ -444,10 +449,10 @@ public class SendMessageServiceImp : SendMessageService
 
     private static void ReplaceSpecialBetType(TemplateModel model, ContentByLanguageModel specialBetTypeContent)
     {
-        var betTypeEnglish = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentEnglish) ? string.Empty : specialBetTypeContent.ContentEnglish;
-        var betTypeChineseTraditional = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentChineseTraditional) ? string.Empty : specialBetTypeContent.ContentChineseTraditional;
-        var betTypeChineseSimplified = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentChineseSimplified) ? string.Empty : specialBetTypeContent.ContentChineseSimplified;
-        var betTypeNewChineseSimplified = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentNewChineseSimplified) ? string.Empty : specialBetTypeContent.ContentNewChineseSimplified;
+        var betTypeEnglish = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentEnglish) ? string.Empty : $"\"{specialBetTypeContent.ContentEnglish}\" ";
+        var betTypeChineseTraditional = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentChineseTraditional) ? string.Empty : $"\"{specialBetTypeContent.ContentChineseTraditional}\" ";
+        var betTypeChineseSimplified = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentChineseSimplified) ? string.Empty : $"\"{specialBetTypeContent.ContentChineseSimplified}\" ";
+        var betTypeNewChineseSimplified = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentNewChineseSimplified) ? string.Empty : $"\"{specialBetTypeContent.ContentNewChineseSimplified}\" ";
 
         const string specialBetTypePlaceholder = "{{SpecialBetType}}";
         model.MsgEnglish = model.MsgEnglish.Replace(specialBetTypePlaceholder, betTypeEnglish);
