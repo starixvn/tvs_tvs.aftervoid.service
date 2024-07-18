@@ -1,4 +1,5 @@
-﻿using Fanex.TVS.AfterVoid.Service.Constants;
+﻿using System.Collections.Generic;
+using Fanex.TVS.AfterVoid.Service.Constants;
 
 namespace Fanex.TVS.AfterVoid.Service.Extensions;
 
@@ -6,7 +7,8 @@ public static class BetTypeExtension
 {
     public static bool IsParlay(this int id)
     {
-        return id is BetTypeConstant.MixParlay or BetTypeConstant.VirtualSportParlay or BetTypeConstant.VirtualSport4Parlay;
+        List<int> betTypesParlay = new() { BetTypeConstant.MixParlay, BetTypeConstant.VirtualSportParlay, BetTypeConstant.VirtualSport4Parlay, BetTypeConstant.VirtualSport5MixParlay };
+        return betTypesParlay.Contains(id);
     }
 
     public static bool IsParlayAndBetBuilder(this int id)
@@ -39,12 +41,18 @@ public static class BetTypeExtension
     {
         return id is >= BetTypeConstant.FirstVirtualSport and <= BetTypeConstant.SecondVirtualSport
             or >= BetTypeConstant.ThirdVirtualSport and <= BetTypeConstant.FourthVirtualSport
-               || id.IsVirtualSport4BetType();
+               || id.IsVirtualSport4BetType() || IsVirtualSport5BetType(id);
     }
 
     private static bool IsVirtualSport4BetType(this int id)
     {
         return id is BetTypeConstant.VirtualSport4Parlay or BetTypeConstant.VirtualSport4MatchWinner;
+    }
+
+    private static bool IsVirtualSport5BetType(this int id)
+    {
+        List<int> betTypesVirtualSport5 = new() { 11050, 11051, 11052, 11053, 11054, 11055, 11099 };
+        return betTypesVirtualSport5.Contains(id);
     }
 
     public static bool IsHideHandicap(this int id)
