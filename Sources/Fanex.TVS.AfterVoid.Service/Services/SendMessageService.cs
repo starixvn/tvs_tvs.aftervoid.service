@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
@@ -16,7 +17,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services;
 
 public interface SendMessageService
 {
-    Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo);
+    Task<Message> InitializeMessageContentForAutoVoid(Match match, VoidDataXmlModel voidDataXml, RequestDetailViewModel requestInfo);
 
     Message InitializeMessageContentForManualVoid(VoidDataXmlModel voidData);
 
@@ -41,13 +42,13 @@ public class SendMessageServiceImp : SendMessageService
 {
     private readonly IDynamicRepository repository;
     private readonly MessageItemService messageItemService;
-    private readonly TVSWebSiteHttpClientService tvsWebSiteHttpClientService;
+    private readonly RemotingRefWrapperService remotingRefWrapperService;
 
-    public SendMessageServiceImp(IDynamicRepository repository, MessageItemService messageItemService, TVSWebSiteHttpClientService tvsWebSiteHttpClientService)
+    public SendMessageServiceImp(IDynamicRepository repository, MessageItemService messageItemService, RemotingRefWrapperService remotingRefWrapperService)
     {
         this.repository = repository;
         this.messageItemService = messageItemService;
-        this.tvsWebSiteHttpClientService = tvsWebSiteHttpClientService;
+        this.remotingRefWrapperService = remotingRefWrapperService;
     }
 
     public async Task SendMessage(IEnumerable<TicketEmailModel> tickets, int messageId, int issueTypeId, int creatorId)
@@ -75,12 +76,12 @@ public class SendMessageServiceImp : SendMessageService
         await repository.ExecuteAsync(criteria);
     }
 
-    public async Task<Message> InitializeMessageContentForAutoVoid(Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo)
+    public async Task<Message> InitializeMessageContentForAutoVoid(Match match, VoidDataXmlModel voidDataXml, RequestDetailViewModel requestInfo)
     {
         var templateModels = await repository.FetchAsync<TemplateModel>(new GetTemplatesCriteria()).ConfigureAwait(false);
         var templateId = await GetTemplateIdForAutoVoid(requestInfo);
         var template = templateModels.First(t => t.TemplateId == templateId);
-        ReplaceMessageTemplate(template, match, allVoidDataInCurrentVoidTimes, requestInfo);
+        ReplaceMessageTemplate(template, match, voidDataXml, requestInfo);
 
         return new Message
         {
@@ -149,27 +150,7 @@ public class SendMessageServiceImp : SendMessageService
     {
         if (isAutoVoid)
         {
-            var criteria = new GetReasonNameCriteria
-            {
-                SportType = sportType,
-                SubIssueTypeId = subIssueTypeId
-            };
-            var reason = await repository.GetAsync<VoidedReason>(criteria);
-            if (reason == null)
-            {
-                return new VoidedReason();
-            }
-            var sportEn = "";
-            var sportCS = "";
-            if (sportType > 0)
-            {
-                sportEn = $"{await tvsWebSiteHttpClientService.GetSportTypeNameFromBetList(sportType, LanguageCode.English)} - ";
-                sportCS = $"{await tvsWebSiteHttpClientService.GetSportTypeNameFromBetList(sportType, LanguageCode.ChineseSimplified)} - ";
-            }
-            reason.ReasonEnglish = $"{sportEn}{reason.ReasonEnglish}";
-            reason.ReasonChineseSimplified = $"{sportCS}{reason.ReasonChineseSimplified}";
-
-            return reason;
+            return await InitializeVoidReasonForAuto(subIssueTypeId, sportType);
         }
 
         return new VoidedReason
@@ -177,6 +158,28 @@ public class SendMessageServiceImp : SendMessageService
             ReasonEnglish = voidData.Reason,
             ReasonChineseSimplified = voidData.ReasonSC
         };
+    }
+
+    private async Task<VoidedReason> InitializeVoidReasonForAuto(int subIssueTypeId, int sportType)
+    {
+        var criteria = new GetReasonNameCriteria
+        {
+            SportType = sportType,
+            SubIssueTypeId = subIssueTypeId
+        };
+
+        var reason = await repository.GetAsync<VoidedReason>(criteria);
+        if (reason == null)
+        {
+            return new VoidedReason();
+        }
+
+        var sportEn = sportType > 0 ? $"{remotingRefWrapperService.GetSportName(sportType.ToString(), LanguageCode.English)} - " : string.Empty;
+        var sportCS = sportType > 0 ? $"{remotingRefWrapperService.GetSportName(sportType.ToString(), LanguageCode.ChineseSimplified)} - " : string.Empty;
+        reason.ReasonEnglish = $"{sportEn}{reason.ReasonEnglish}";
+        reason.ReasonChineseSimplified = $"{sportCS}{reason.ReasonChineseSimplified}";
+
+        return reason;
     }
 
     public async Task<int> InsertReason(string reasonEnglish, string reasonChineseSimplified)
@@ -247,7 +250,7 @@ public class SendMessageServiceImp : SendMessageService
         });
     }
 
-    private static void ReplaceMessageTemplate(TemplateModel model, Match match, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes, RequestDetailViewModel requestInfo)
+    private static void ReplaceMessageTemplate(TemplateModel model, Match match, VoidDataXmlModel voidDataXml, RequestDetailViewModel requestInfo)
     {
         ReplaceSportType(model, match);
         ReplaceHomeTeam(model, match);
@@ -255,20 +258,21 @@ public class SendMessageServiceImp : SendMessageService
         ReplaceLeagueName(model, match);
         ReplaceEventDate(model, match);
         ReplaceKoTime(model, requestInfo.EventByMatch);
-        ReplaceCheckStatement(model, allVoidDataInCurrentVoidTimes);
+        ReplaceCheckStatement(model, voidDataXml);
         ReplaceParlay(model, requestInfo.Request.IssueTypeId, requestInfo.EventByMatch.FilterBy);
         ReplaceEventType(model, requestInfo.Request.IssueTypeId, requestInfo.IsAllLiveTickets);
-        ReplacePlacedFromTimeRange(model, allVoidDataInCurrentVoidTimes);
+        ReplacePlacedFromTimeRange(model, voidDataXml, requestInfo.IsAllLiveTickets);
         ReplacePlayerName(model, requestInfo.PlayerNamesSelected);
+        ReplaceSpecialBetType(model, requestInfo.SpecialBetTypeContent);
     }
 
-    private static void ReplacePlayerName(TemplateModel model, TemplateContent playerName)
+    private static void ReplacePlayerName(TemplateModel model, ContentByLanguageModel playerName)
     {
         const string playerNamePlaceholder = "{{Player Name}}";
-        model.MsgEnglish = model.MsgEnglish.Replace(playerNamePlaceholder, playerName?.MsgEnglish);
-        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(playerNamePlaceholder, playerName?.MsgChineseTraditional);
-        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(playerNamePlaceholder, playerName?.MsgChineseNewSimplified);
-        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(playerNamePlaceholder, playerName?.MsgChineseNewSimplified);
+        model.MsgEnglish = model.MsgEnglish.Replace(playerNamePlaceholder, playerName?.ContentEnglish);
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(playerNamePlaceholder, playerName?.ContentChineseTraditional);
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(playerNamePlaceholder, playerName?.ContentChineseSimplified);
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(playerNamePlaceholder, playerName?.ContentNewChineseSimplified);
     }
 
     private static void ReplaceSportType(TemplateModel model, Match match)
@@ -328,9 +332,9 @@ public class SendMessageServiceImp : SendMessageService
         model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(eventDateFormat));
     }
 
-    private static void ReplaceCheckStatement(TemplateModel model, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes)
+    private static void ReplaceCheckStatement(TemplateModel model, VoidDataXmlModel voidDataXml)
     {
-        var isHasSettledTicket = allVoidDataInCurrentVoidTimes.Any(x => x.IsHasSettledTicket);
+        var isHasSettledTicket = voidDataXml.IsHasSettledTicket;
         const string checkStatementPlaceholder = "{{CheckStatement}}";
         var checkStatementEnglish = isHasSettledTicket ? "Kindly double check your statement again. " : "";
         var checkStatementChineseTraditional = isHasSettledTicket ? "請重新檢查您的帳目. " : "";
@@ -357,54 +361,65 @@ public class SendMessageServiceImp : SendMessageService
 
     private static void ReplaceEventType(TemplateModel model, int issueTypeId, bool isAllLiveTickets)
     {
-        var eventType = TemplateContentConstant.Empty;
-        if (issueTypeId is IssueTypeConstant.NotParticipate or IssueTypeConstant.ReducedOver or IssueTypeConstant.Abandoned)
+        var issueTypesNeedCheckAllLiveTickets = new List<int>
         {
-            eventType = isAllLiveTickets ? TemplateContentConstant.Live : TemplateContentConstant.Empty;
-        }
+            IssueTypeConstant.WrongHDP, IssueTypeConstant.Wrong1stHDP,
+            IssueTypeConstant.WrongOU, IssueTypeConstant.Wrong1stOU,
+            IssueTypeConstant.WrongOdds, IssueTypeConstant.ReducedOver, IssueTypeConstant.Abandoned,
+            IssueTypeConstant.NotParticipate, IssueTypeConstant.WrongMarketOffered, IssueTypeConstant.TechnicalError
+        };
+
+        var eventType = issueTypeId switch
+        {
+            IssueTypeConstant.DangerAccepted or IssueTypeConstant.RedCard or IssueTypeConstant.WrongScore => TemplateContentConstant.Live,
+            _ when issueTypesNeedCheckAllLiveTickets.Contains(issueTypeId) => isAllLiveTickets ? TemplateContentConstant.Live : TemplateContentConstant.Empty,
+            _ => TemplateContentConstant.Empty
+        };
 
         ReplaceForEachLanguage(model, TemplatePlaceholderConstant.EventType, eventType);
     }
 
-    private static void ReplacePlacedFromTimeRange(TemplateModel model, IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes)
+    private static void ReplacePlacedFromTimeRange(TemplateModel model, VoidDataXmlModel voidDataXml, bool isAllLiveTickets)
     {
-        const int numberFive = 5;
-        var totalTicket = allVoidDataInCurrentVoidTimes.Sum(x => x.TotalTicket);
-
-        if (totalTicket <= numberFive)
+        const int fiveTickets = 5;
+        if (voidDataXml.TotalTicket > fiveTickets)
         {
-            ReplaceForEachLanguage(model, TemplatePlaceholderConstant.PlacedFromTimeRange, TemplateContentConstant.Empty);
+            var timeRange = GetTimeRange(voidDataXml);
+            var newContent = new ContentByLanguageModel
+            {
+                ContentEnglish = $"{TemplateContentConstant.PlacedFrom.ContentEnglish} {timeRange} {TemplateContentConstant.Gmt8.ContentEnglish} ",
+                ContentChineseTraditional = $"{TemplateContentConstant.PlacedFrom.ContentChineseTraditional} {timeRange} {TemplateContentConstant.Gmt8.ContentChineseTraditional} ",
+                ContentChineseSimplified = $"{TemplateContentConstant.PlacedFrom.ContentChineseSimplified} {timeRange} {TemplateContentConstant.Gmt8.ContentChineseSimplified} ",
+                ContentNewChineseSimplified = $"{TemplateContentConstant.PlacedFrom.ContentNewChineseSimplified} {timeRange} {TemplateContentConstant.Gmt8.ContentNewChineseSimplified} "
+            };
+            ReplaceForEachLanguage(model, TemplatePlaceholderConstant.PlacedFromTimeRange, newContent);
         }
         else
         {
-            var timeRange = GetTimeRange(allVoidDataInCurrentVoidTimes);
-            var newContent = new TemplateContent
-            {
-                MsgEnglish = $"{TemplateContentConstant.PlacedFrom.MsgEnglish} {timeRange}{TemplateContentConstant.Gmt8.MsgEnglish}",
-                MsgChineseTraditional = $"{TemplateContentConstant.PlacedFrom.MsgChineseTraditional} {timeRange}{TemplateContentConstant.Gmt8.MsgChineseTraditional}",
-                MsgChineseSimplified = $"{TemplateContentConstant.PlacedFrom.MsgChineseSimplified} {timeRange}{TemplateContentConstant.Gmt8.MsgChineseSimplified}",
-                MsgChineseNewSimplified = $"{TemplateContentConstant.PlacedFrom.MsgChineseNewSimplified} {timeRange}{TemplateContentConstant.Gmt8.MsgChineseNewSimplified}"
-            };
+            var newContent = voidDataXml.TotalTicket <= fiveTickets && isAllLiveTickets
+                ? TemplateContentConstant.PlacedAt
+                : TemplateContentConstant.Empty;
             ReplaceForEachLanguage(model, TemplatePlaceholderConstant.PlacedFromTimeRange, newContent);
         }
     }
 
-    private static string GetTimeRange(IEnumerable<VoidDataXmlModel> allVoidDataInCurrentVoidTimes)
+    private static string GetTimeRange(VoidDataXmlModel voidDataXml)
     {
-        var voidFromTime = allVoidDataInCurrentVoidTimes.Select(x => x.VoidFromTime).Select(DateTime.Parse).Min(x => x)
-            .ToString(FormatKey.LongTimeFormat);
-        var voidToTime = allVoidDataInCurrentVoidTimes.Select(x => x.VoidToTime).Select(DateTime.Parse).Max(x => x)
-            .ToString(FormatKey.LongTimeFormat);
+        var voidFromDateTime = DateTime.Parse(voidDataXml.VoidFromTime, CultureInfo.InvariantCulture);
+        var voidToDateTime = DateTime.Parse(voidDataXml.VoidToTime, CultureInfo.InvariantCulture);
+        var isTheSameDay = voidFromDateTime.Date == voidToDateTime.Date;
+        var displayFromTime = voidFromDateTime.ToString(FormatKey.TemplateMessageDateTimeFormat);
+        var displayToTime = isTheSameDay ? voidToDateTime.ToString(FormatKey.TimeWithAmPm) : voidToDateTime.ToString(FormatKey.TemplateMessageDateTimeFormat);
 
-        return $"{voidFromTime} - {voidToTime}";
+        return $"{displayFromTime} - {displayToTime}";
     }
 
-    private static void ReplaceForEachLanguage(TemplateModel model, string placeholder, TemplateContent newContent)
+    private static void ReplaceForEachLanguage(TemplateModel model, string placeholder, ContentByLanguageModel newContent)
     {
-        model.MsgEnglish = model.MsgEnglish.Replace(placeholder, newContent.MsgEnglish);
-        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(placeholder, newContent.MsgChineseTraditional);
-        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(placeholder, newContent.MsgChineseSimplified);
-        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(placeholder, newContent.MsgChineseNewSimplified);
+        model.MsgEnglish = model.MsgEnglish.Replace(placeholder, newContent.ContentEnglish);
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(placeholder, newContent.ContentChineseTraditional);
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(placeholder, newContent.ContentChineseSimplified);
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(placeholder, newContent.ContentNewChineseSimplified);
     }
 
     private async Task<int> GetTemplateIdForAutoVoid(RequestDetailViewModel requestInfo)
@@ -430,5 +445,19 @@ public class SendMessageServiceImp : SendMessageService
         var defaultTemplateWhenSportNull = settingsBySubType.FirstOrDefault(x => x.SportType == null);
 
         return settingBySportType?.TemplateId ?? defaultTemplateWhenSportNull?.TemplateId ?? MessageTemplateIdConstant.ThirtySeven;
+    }
+
+    private static void ReplaceSpecialBetType(TemplateModel model, ContentByLanguageModel specialBetTypeContent)
+    {
+        var betTypeEnglish = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentEnglish) ? string.Empty : $"\"{specialBetTypeContent.ContentEnglish}\" ";
+        var betTypeChineseTraditional = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentChineseTraditional) ? string.Empty : $"\"{specialBetTypeContent.ContentChineseTraditional}\" ";
+        var betTypeChineseSimplified = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentChineseSimplified) ? string.Empty : $"\"{specialBetTypeContent.ContentChineseSimplified}\" ";
+        var betTypeNewChineseSimplified = string.IsNullOrWhiteSpace(specialBetTypeContent.ContentNewChineseSimplified) ? string.Empty : $"\"{specialBetTypeContent.ContentNewChineseSimplified}\" ";
+
+        const string specialBetTypePlaceholder = "{{SpecialBetType}}";
+        model.MsgEnglish = model.MsgEnglish.Replace(specialBetTypePlaceholder, betTypeEnglish);
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(specialBetTypePlaceholder, betTypeChineseTraditional);
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(specialBetTypePlaceholder, betTypeChineseSimplified);
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(specialBetTypePlaceholder, betTypeNewChineseSimplified);
     }
 }

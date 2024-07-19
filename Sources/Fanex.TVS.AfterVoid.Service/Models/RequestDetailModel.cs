@@ -73,7 +73,7 @@ public class RequestEventModel
     public int AwayId { get; set; }
     public string TransIds { get; set; }
 
-    [JsonConverter(typeof(GMT8DateTimeJsonConverter))]
+    [JsonConverter(typeof(Gmt8DateTimeJsonConverter))]
     public DateTime? KickOffTime { get; set; }
 
     public int? HTHomeScore { get; set; }

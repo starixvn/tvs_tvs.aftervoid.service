@@ -1,38 +1,46 @@
-﻿using Fanex.TVS.AfterVoid.Service.Models;
+﻿using TicketVoidingSystem.Models;
 
 namespace Fanex.TVS.AfterVoid.Service.Constants;
 
 public static class TemplateContentConstant
 {
-    public static readonly TemplateContent PlacedFrom = new()
+    public static readonly ContentByLanguageModel PlacedFrom = new()
     {
-        MsgEnglish = "placed from",
-        MsgChineseTraditional = "投注從",
-        MsgChineseSimplified = "投注从",
-        MsgChineseNewSimplified = "投注从"
+        ContentEnglish = "placed from",
+        ContentChineseTraditional = "投注從",
+        ContentChineseSimplified = "投注从",
+        ContentNewChineseSimplified = "投注从"
     };
 
-    public static readonly TemplateContent Gmt8 = new()
+    public static readonly ContentByLanguageModel PlacedAt = new()
     {
-        MsgEnglish = "(GMT+8)",
-        MsgChineseTraditional = "(北京時間)",
-        MsgChineseSimplified = "(北京时间)",
-        MsgChineseNewSimplified = "(北京时间)"
+        ContentEnglish = "placed at ",
+        ContentChineseTraditional = "投注於 ",
+        ContentChineseSimplified = "投注于 ",
+        ContentNewChineseSimplified = "投注于 "
     };
 
-    public static readonly TemplateContent Empty = new()
+    public static readonly ContentByLanguageModel Gmt8 = new()
     {
-        MsgEnglish = "",
-        MsgChineseTraditional = "",
-        MsgChineseSimplified = "",
-        MsgChineseNewSimplified = ""
+        ContentEnglish = "(GMT+8)",
+        ContentChineseTraditional = "(北京時間)",
+        ContentChineseSimplified = "(北京时间)",
+        ContentNewChineseSimplified = "(北京时间)"
     };
 
-    public static readonly TemplateContent Live = new()
+    public static readonly ContentByLanguageModel Empty = new()
     {
-        MsgEnglish = "*Live*",
-        MsgChineseTraditional = "*走地*",
-        MsgChineseSimplified = "*走地*",
-        MsgChineseNewSimplified = "*走地*"
+        ContentEnglish = "",
+        ContentChineseTraditional = "",
+        ContentChineseSimplified = "",
+        ContentNewChineseSimplified = ""
+    };
+
+    public static readonly ContentByLanguageModel Live = new()
+    {
+        ContentEnglish = "*Live*",
+        ContentChineseTraditional = "*走地*",
+        ContentChineseSimplified = "*走地*",
+        ContentNewChineseSimplified = "*走地*"
     };
 }

@@ -13,7 +13,7 @@ namespace TicketVoidingSystem.Services;
 
 public interface TVSWebSiteHttpClientService
 {
-    Task<string> GetSportTypeNameFromBetList(int sportType, string languageCode);
+    Task<ContentByLanguageModel> GetSpecialBetTypeContent(IEnumerable<TicketEmailModel> tickets);
 
     Task<(bool, byte[])> GetExcelVoidedTicketForSendLetstalk(int requestId, int matchId, int issueTypeId,
         string voidingHistoryIds);
@@ -38,18 +38,19 @@ public class TVSWebSiteHttpClientServiceImp : TVSWebSiteHttpClientService
         this.loggingService = loggingService;
     }
 
-    public async Task<string> GetSportTypeNameFromBetList(int sportType, string languageCode)
+    public async Task<ContentByLanguageModel> GetSpecialBetTypeContent(IEnumerable<TicketEmailModel> tickets)
     {
-        const string actionName = "api/SharedApi/GetSportTypeName";
-        using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(new { sportType, languageCode }));
+        const string actionName = "api/MessageTemplate/GetSpecialBetTypeContent";
+        using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(new { tickets }));
         if (response.IsSuccessStatusCode)
         {
-            return await Helper.DeserializeResponseStream<string>(response);
+            await LogResponseStream(response, actionName);
+            return await Helper.DeserializeResponseStream<ContentByLanguageModel>(response);
         }
 
         await LogService.ErrorAsync($"{AppSettingService.AppSetting.TVSWebSiteUrl}{actionName}" +
                                     $"{Environment.NewLine}Response:{Environment.NewLine}{response}");
-        return string.Empty;
+        return null;
     }
 
     public async Task<(bool, byte[])> GetExcelVoidedTicketForSendLetstalk(int requestId, int matchId, int issueTypeId, string voidingHistoryIds)
@@ -75,7 +76,7 @@ public class TVSWebSiteHttpClientServiceImp : TVSWebSiteHttpClientService
         using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(model));
         if (response.IsSuccessStatusCode)
         {
-            await LogResponseStream(response);
+            await LogResponseStream(response, actionName);
             var responseData = await Helper.DeserializeResponseStream<IEnumerable<Result>>(response);
             return responseData != null ? (true, responseData) : (false, null);
         }
@@ -91,7 +92,7 @@ public class TVSWebSiteHttpClientServiceImp : TVSWebSiteHttpClientService
         using var response = await httpClient.PostAsync(actionName, Helper.CreateRequestStringContent(model));
         if (response.IsSuccessStatusCode)
         {
-            await LogResponseStream(response);
+            await LogResponseStream(response, actionName);
             var responseData = await Helper.DeserializeResponseStream<IEnumerable<Result>>(response);
             return responseData != null ? (true, responseData) : (false, null);
         }
@@ -101,12 +102,12 @@ public class TVSWebSiteHttpClientServiceImp : TVSWebSiteHttpClientService
         return (false, null);
     }
 
-    private static async Task LogResponseStream(HttpResponseMessage response)
+    private static async Task LogResponseStream(HttpResponseMessage response, string url)
     {
         try
         {
             var responseString = await response.Content.ReadAsStringAsync();
-            await LogService.InfoAsync("LogResponseStream" +
+            await LogService.InfoAsync($"LogResponseStream: {url}" +
                                        $"{Environment.NewLine}Response:{Environment.NewLine}{responseString}");
         }
         catch (Exception e)

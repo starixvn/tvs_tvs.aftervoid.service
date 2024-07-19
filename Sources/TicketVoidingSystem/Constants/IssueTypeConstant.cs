@@ -14,8 +14,12 @@ public static class IssueTypeConstant
     public const int Wrong1stHDP = 5;
     public const int WrongOU = 6;
     public const int Wrong1stOU = 7;
+    public const int WrongOdds = 2;
     public const int ReducedOver = 19;
     public const int DuplicateTickets = 20;
     public const int NotParticipate = 21;
+    public const int RecoverTicket = 22;
     public const int Abandoned = 23;
+    public const int WrongMarketOffered = 12;
+    public const int TechnicalError = 24;
 }

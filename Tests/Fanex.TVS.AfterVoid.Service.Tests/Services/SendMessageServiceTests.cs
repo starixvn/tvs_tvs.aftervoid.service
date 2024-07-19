@@ -68,7 +68,7 @@ public class SendMessageServiceTests
 
     private readonly MessageItemService messageItemService = Substitute.For<MessageItemService>();
     private readonly IDynamicRepository repository = Substitute.For<IDynamicRepository>();
-    private readonly TVSWebSiteHttpClientService ticketVoidingSystemHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
+    private readonly RemotingRefWrapperService remotingRefWrapperService = Substitute.For<RemotingRefWrapperService>();
 
     [Theory]
     [InlineData(IssueTypeConstant.AbnormalBet, 1)]
@@ -102,11 +102,19 @@ public class SendMessageServiceTests
             .Random(1).With(x => x.TemplateId = 63)
             .Build();
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
+        var templateContent = new ContentByLanguageModel
+        {
+            ContentEnglish = "a",
+            ContentNewChineseSimplified = "a",
+            ContentChineseSimplified = "a",
+            ContentChineseTraditional = "a"
+        };
         var requestInfo = new RequestDetailViewModel
         {
             Request = new RequestModel { IssueTypeId = issueTypeId },
             EventByMatch = new RequestEventModel { SubIssueTypeId = 1, FilterBy = filterBy, KickOffTime = DateTimeOffset.Now.DateTime },
-            PlayerNamesSelected = new TemplateContent()
+            PlayerNamesSelected = new ContentByLanguageModel(),
+            SpecialBetTypeContent = templateContent
         };
         var service = new SendMessageServiceImp(repository, null, null);
 
@@ -135,6 +143,13 @@ public class SendMessageServiceTests
             .Build();
         repository.FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplate);
         repository.FetchAsync<TemplateSetting>(Arg.Any<GetTemplatesCriteria>()).Returns(fakeTemplateSetting);
+        var templateContent = new ContentByLanguageModel
+        {
+            ContentEnglish = "a",
+            ContentNewChineseSimplified = "a",
+            ContentChineseSimplified = "a",
+            ContentChineseTraditional = "a"
+        };
         var requestInfo = new RequestDetailViewModel
         {
             Request = new RequestModel { IssueTypeId = 1, SportType = sportType },
@@ -143,13 +158,8 @@ public class SendMessageServiceTests
                 SubIssueTypeId = subIssueTypeId,
                 KickOffTime = DateTimeOffset.Now.DateTime
             },
-            PlayerNamesSelected = new TemplateContent
-            {
-                MsgEnglish = "a",
-                MsgChineseNewSimplified = "a",
-                MsgChineseSimplified = "a",
-                MsgChineseTraditional = "a"
-            }
+            PlayerNamesSelected = templateContent,
+            SpecialBetTypeContent = templateContent
         };
         var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>
         {
@@ -236,8 +246,7 @@ public class SendMessageServiceTests
             MainTransIds = "12345679",
             SubTransIds = "98754321"
         };
-        var ticketVoidingApi = Substitute.For<TVSWebSiteHttpClientService>();
-        var service = new SendMessageServiceImp(repository, messageItemService, ticketVoidingApi);
+        var service = new SendMessageServiceImp(repository, messageItemService, remotingRefWrapperService);
 
         // Act
         await service.InsertVoidedTransaction(fakeTicketEmailModels, fakeData.MessageId, fakeData.ReasonId,
@@ -296,24 +305,33 @@ public class SendMessageServiceTests
             x.SubIssueTypeId == fakeSubIssueType && x.SportType == fakeSportType));
     }
 
-    [Fact]
-    public async Task InitializeVoidReason_WhenIsAutoVoid_ReturnExpectedVoidReason()
+    [Theory]
+    [InlineData(22, "English - SportNameEnglish", "ChineseSimplified - SportNameReasonChineseSimplified")]
+    [InlineData(0, "SportNameEnglish", "SportNameReasonChineseSimplified")]
+    public async Task InitializeVoidReason_WhenIsAutoVoidAnd_ReturnExpectedVoidReason(int sportType, string reasonEnglish, string reasonChineseSimplified)
     {
         const int fakeSubIssueType = 11;
-        const int fakeSportType = 22;
-        var fakeReason = Builder<VoidedReason>.CreateNew().Build();
-        repository.GetAsync<VoidedReason>(Arg.Any<GetReasonNameCriteria>()).Returns(fakeReason);
-        ticketVoidingSystemHttpClientService.GetSportTypeNameFromBetList(fakeSportType, Arg.Any<string>()).Returns("a");
-        var service = new SendMessageServiceImp(repository, null, ticketVoidingSystemHttpClientService);
+        var reason = new VoidedReason
+        {
+            ReasonEnglish = "SportNameEnglish",
+            ReasonChineseSimplified = "SportNameReasonChineseSimplified"
+        };
+        repository.GetAsync<VoidedReason>(Arg.Any<GetReasonNameCriteria>()).ReturnsForAnyArgs(reason);
+        remotingRefWrapperService.GetSportName(sportType.ToString(), LanguageCode.English).Returns("English");
+        remotingRefWrapperService.GetSportName(sportType.ToString(), LanguageCode.ChineseSimplified)
+            .Returns("ChineseSimplified");
+        var expected = new VoidedReason
+        {
+            ReasonEnglish = reasonEnglish,
+            ReasonChineseSimplified = reasonChineseSimplified
+        };
+        var service = new SendMessageServiceImp(repository, null, remotingRefWrapperService);
 
-        var actual = await service.InitializeVoidReason(true, fakeSubIssueType, fakeSportType, null);
+        // Act
+        var actual = await service.InitializeVoidReason(true, fakeSubIssueType, sportType, null);
 
-        Assert.NotNull(actual.ReasonEnglish);
-        Assert.NotNull(actual.ReasonChineseSimplified);
-        await repository.Received(1).GetAsync<VoidedReason>(Arg.Is<GetReasonNameCriteria>(x =>
-            x.SubIssueTypeId == fakeSubIssueType && x.SportType == fakeSportType));
-        await ticketVoidingSystemHttpClientService.Received(2)
-            .GetSportTypeNameFromBetList(Arg.Is<int>(x => x == fakeSportType), Arg.Any<string>());
+        // Assert
+        AssertExtension.Equal(expected, actual);
     }
 
     [Fact]

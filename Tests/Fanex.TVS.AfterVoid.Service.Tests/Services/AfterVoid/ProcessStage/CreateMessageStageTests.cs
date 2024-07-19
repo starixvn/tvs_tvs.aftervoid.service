@@ -24,6 +24,7 @@ public class CreateMessageStageTests
     private SpecialPlatformService specialPlatformService;
     private VoidBetAutomationService voidBetAutomationService;
     public CreateMessageStage Service;
+    public MessageContentParameterService messageContentParameterService;
 
     internal void InItService()
     {
@@ -33,6 +34,7 @@ public class CreateMessageStageTests
         voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         sendMessageService = Substitute.For<SendMessageService>();
         specialPlatformService = Substitute.For<SpecialPlatformService>();
+        messageContentParameterService = Substitute.For<MessageContentParameterService>();
     }
 
     [Fact]
@@ -66,7 +68,7 @@ public class CreateMessageStageTests
             .ReturnsForAnyArgs(new Message());
         sendMessageService.InsertMessage(Arg.Any<Message>(), 1, 1, 1).ReturnsForAnyArgs(1);
         Service = new CreateMessageStageImp(voidBetAutomationService, sendMessageService, notificationSignalRService, loggingService,
-            sendLetstalkServiceStage, specialPlatformService);
+            sendLetstalkServiceStage, specialPlatformService, messageContentParameterService);
 
         // Act
         await Service.Execute(parameter);
@@ -106,7 +108,7 @@ public class CreateMessageStageTests
             .ReturnsForAnyArgs(new Message());
         sendMessageService.InsertMessage(Arg.Any<Message>(), 1, 1, 1).ReturnsForAnyArgs(1);
         Service = new CreateMessageStageImp(voidBetAutomationService, sendMessageService, notificationSignalRService, loggingService,
-            sendLetstalkServiceStage, specialPlatformService);
+            sendLetstalkServiceStage, specialPlatformService, messageContentParameterService);
 
         // Act
         var (normalMessageId, specialMessageId, _) = await Service.Execute(parameter);
@@ -149,7 +151,7 @@ public class CreateMessageStageTests
             .ReturnsForAnyArgs(new Message());
         sendMessageService.InsertMessage(Arg.Any<Message>(), 0, null, 1).ReturnsForAnyArgs(1);
         Service = new CreateMessageStageImp(voidBetAutomationService, sendMessageService, notificationSignalRService, loggingService,
-            sendLetstalkServiceStage, specialPlatformService);
+            sendLetstalkServiceStage, specialPlatformService, messageContentParameterService);
 
         // Act
         var (normalMessageId, specialMessageId, _) = await Service.Execute(parameter);
@@ -191,7 +193,7 @@ public class CreateMessageStageTests
         sendMessageService.InitializeMessageContentForAutoVoid(Arg.Any<Match>(), Arg.Any<IEnumerable<VoidDataXmlModel>>(), Arg.Any<RequestDetailViewModel>())
             .ReturnsForAnyArgs(new Message());
         Service = new CreateMessageStageImp(voidBetAutomationService, sendMessageService, notificationSignalRService, loggingService,
-            sendLetstalkServiceStage, specialPlatformService);
+            sendLetstalkServiceStage, specialPlatformService, messageContentParameterService);
 
         // Act
         var (normalMessageId, specialMessageId, _) = await Service.Execute(parameter);
@@ -235,7 +237,7 @@ public class CreateMessageStageTests
         sendMessageService.InitializeMessageContentForAutoVoid(Arg.Any<Match>(), Arg.Any<IEnumerable<VoidDataXmlModel>>(), Arg.Any<RequestDetailViewModel>())
             .ReturnsForAnyArgs(new Message());
         Service = new CreateMessageStageImp(voidBetAutomationService, null, notificationSignalRService, loggingService,
-            sendLetstalkServiceStage, null);
+            sendLetstalkServiceStage, null, messageContentParameterService);
         const string error = "ERROR: CreateMessageStage.Execute - BroadcastSessionId: 1";
 
         // Act

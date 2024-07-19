@@ -144,11 +144,11 @@ public class SendLetstalkServiceImp : SendLetstalkService
     {
         letstalkModel.VoidFromTime = voidDataXmlList.Any()
             ? voidDataXmlList.Select(x => x.VoidFromTime).Select(DateTime.Parse).Min(x => x)
-                .ToString(FormatKey.LongTimeFormat)
+                .ToString(FormatKey.TimeWithAmPm)
             : null;
         letstalkModel.VoidToTime = voidDataXmlList.Any()
             ? voidDataXmlList.Select(x => x.VoidToTime).Select(DateTime.Parse).Max(x => x)
-                .ToString(FormatKey.LongTimeFormat)
+                .ToString(FormatKey.TimeWithAmPm)
             : null;
         letstalkModel.VoidFromDate = voidDataXmlList.Any()
             ? voidDataXmlList.Select(x => x.VoidFromDate).Select(DateTime.Parse).Min(x => x)
