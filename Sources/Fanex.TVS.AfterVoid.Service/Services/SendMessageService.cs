@@ -314,22 +314,22 @@ public class SendMessageServiceImp : SendMessageService
     private static void ReplaceEventDate(TemplateModel model, Match match)
     {
         const string eventDatePlaceholder = "{{Event Date}}";
-        const string eventDateFormat = "dd/MM";
-        model.MsgEnglish = model.MsgEnglish.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(eventDateFormat));
-        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(eventDateFormat));
-        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(eventDateFormat));
-        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(eventDateFormat));
+
+        model.MsgEnglish = model.MsgEnglish.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(FormatKey.TemplateMessageDateFormat));
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(FormatKey.TemplateMessageDateFormat));
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(FormatKey.TemplateMessageDateFormat));
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(eventDatePlaceholder, match?.KickOffTime.ToString(FormatKey.TemplateMessageDateFormat));
     }
 
     private static void ReplaceKoTime(TemplateModel model, RequestEventModel eventByMatch)
     {
         var kickOffTimeDateGmt8 = eventByMatch.KickOffTime?.AddHours(12).AddSeconds(-1);
         const string eventDatePlaceholder = "{{KO time}}";
-        const string eventDateFormat = "dd/MM hh:mm:ss tt";
-        model.MsgEnglish = model.MsgEnglish.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(eventDateFormat));
-        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(eventDateFormat));
-        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(eventDateFormat));
-        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(eventDateFormat));
+
+        model.MsgEnglish = model.MsgEnglish.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(FormatKey.TemplateMessageDateTimeFormat));
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(FormatKey.TemplateMessageDateTimeFormat));
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(FormatKey.TemplateMessageDateTimeFormat));
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(eventDatePlaceholder, kickOffTimeDateGmt8?.ToString(FormatKey.TemplateMessageDateTimeFormat));
     }
 
     private static void ReplaceCheckStatement(TemplateModel model, VoidDataXmlModel voidDataXml)
@@ -409,7 +409,7 @@ public class SendMessageServiceImp : SendMessageService
         var voidToDateTime = DateTime.Parse(voidDataXml.VoidToTime, CultureInfo.InvariantCulture);
         var isTheSameDay = voidFromDateTime.Date == voidToDateTime.Date;
         var displayFromTime = voidFromDateTime.ToString(FormatKey.TemplateMessageDateTimeFormat);
-        var displayToTime = isTheSameDay ? voidToDateTime.ToString(FormatKey.TimeWithAmPm) : voidToDateTime.ToString(FormatKey.TemplateMessageDateTimeFormat);
+        var displayToTime = isTheSameDay ? voidToDateTime.ToString(FormatKey.TemplateMessageTimeWithAmPmFormat) : voidToDateTime.ToString(FormatKey.TemplateMessageDateTimeFormat);
 
         return $"{displayFromTime} - {displayToTime}";
     }

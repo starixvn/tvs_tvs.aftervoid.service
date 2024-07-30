@@ -9,7 +9,10 @@ public static class FormatKey
     public const string DateTimeWithMillisecondAndSlash = "MM/dd/yyyy hh:mm:ss.fff tt";
     public const string DateTimeWithMillisecond = "yyyy-MM-dd HH:mm:ss.fff";
     public const string SqlDateTimeFormat = "MM/dd/yyyy HH:mm:ss.fff";
-    public const string TemplateMessageDateTimeFormat = "dd/MM hh:mm:ss tt";
+
+    public const string TemplateMessageDateTimeFormat = "d/M h:mm:ss tt";
+    public const string TemplateMessageDateFormat = "d/M";
+    public const string TemplateMessageTimeWithAmPmFormat = "h:mm:ss tt";
 
     public const string OnlyTimeFormat = "HH:mm:ss";
     public const string OnlyTimeWithPeriodFormat = "hh:mm tt";
