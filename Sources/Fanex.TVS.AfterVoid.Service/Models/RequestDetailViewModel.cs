@@ -17,4 +17,6 @@ public class RequestDetailViewModel
     public bool IsAllLiveTickets { get; set; }
 
     public ContentByLanguageModel SpecialBetTypeContent { get; set; }
+
+    public int? SportType { get; set; }
 }

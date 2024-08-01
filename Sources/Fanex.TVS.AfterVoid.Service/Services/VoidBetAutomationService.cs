@@ -90,7 +90,9 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
             Request = firstRequest,
             EventByMatch = IsIssueTypeHasMatchId(firstRequest.IssueTypeId) ? requestEvents.FirstOrDefault(x => x.MatchId == matchId)
                 : requestEvents.FirstOrDefault(),
-            PlayerNamesSelected = messageContentParameterService.GetPlayerNamesSelected(firstRequest.IssueTypeId, playerNames.First())
+            PlayerNamesSelected = messageContentParameterService.GetPlayerNamesSelected(firstRequest.IssueTypeId, playerNames.First()),
+            SportType = requestEvents.Select(x => x.SportType).Distinct().Count() == 1
+                ? requestEvents.First().SportType : null
         };
 
         return viewModel;

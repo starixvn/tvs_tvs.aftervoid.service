@@ -10,7 +10,6 @@ namespace Fanex.TVS.AfterVoid.Service.Models;
 
 public class RequestModel
 {
-    public int SportType { get; set; }
     public int IssueTypeId { get; set; }
     public int ActionId { get; set; }
     public string MistakenBy { get; set; }
@@ -82,4 +81,5 @@ public class RequestEventModel
     public int? FinalAwayScore { get; set; }
     public DateTime GlobalShowTime { get; set; }
     public int? FilterBy { get; set; }
+    public int SportType { get; set; }
 }

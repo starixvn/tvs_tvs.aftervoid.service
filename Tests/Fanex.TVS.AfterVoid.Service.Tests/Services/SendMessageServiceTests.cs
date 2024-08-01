@@ -152,7 +152,7 @@ public class SendMessageServiceTests
         };
         var requestInfo = new RequestDetailViewModel
         {
-            Request = new RequestModel { IssueTypeId = 1, SportType = sportType },
+            Request = new RequestModel { IssueTypeId = 1 },
             EventByMatch = new RequestEventModel
             {
                 SubIssueTypeId = subIssueTypeId,

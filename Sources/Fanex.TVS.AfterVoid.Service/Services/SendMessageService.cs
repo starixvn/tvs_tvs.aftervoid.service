@@ -425,7 +425,7 @@ public class SendMessageServiceImp : SendMessageService
     private async Task<int> GetTemplateIdForAutoVoid(RequestDetailViewModel requestInfo)
     {
         var issueTypeId = requestInfo.Request.IssueTypeId;
-        var sportType = requestInfo.Request.SportType;
+        var sportType = requestInfo.SportType;
         var filterBy = requestInfo.EventByMatch.FilterBy;
         var subIssueTypeId = requestInfo.EventByMatch.SubIssueTypeId;
         var templateSettings = await repository.FetchAsync<TemplateSetting>(new GetTemplateSettingCriteria()).ConfigureAwait(false);
@@ -438,7 +438,7 @@ public class SendMessageServiceImp : SendMessageService
         };
     }
 
-    private static int GetTemplateIdByFilter(int subIssueType, int sportType, IEnumerable<TemplateSetting> templateSetting)
+    private static int GetTemplateIdByFilter(int subIssueType, int? sportType, IEnumerable<TemplateSetting> templateSetting)
     {
         var settingsBySubType = templateSetting.Where(x => x.SubIssueTypeId == subIssueType);
         var settingBySportType = settingsBySubType.FirstOrDefault(x => x.SportType == sportType);

@@ -18,7 +18,7 @@ public class SendEmailApiModel
 
     public int? FilterBy { get; set; }
 
-    public int SportType { get; set; }
+    public int? SportType { get; set; }
 
     public int VoidingHistoryId { get; set; }
 

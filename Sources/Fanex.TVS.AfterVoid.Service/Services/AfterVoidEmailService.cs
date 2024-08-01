@@ -60,7 +60,7 @@ public class AfterVoidEmailServiceImp : AfterVoidEmailService
         {
             RequestId = parameter.AutomationInfo.RequestId,
             FilterBy = parameter.AutomationInfo.RequestInfo.EventByMatch.FilterBy,
-            SportType = parameter.AutomationInfo.RequestInfo.Request.SportType,
+            SportType = parameter.AutomationInfo.RequestInfo.SportType,
             IssueTypeId = parameter.AutomationInfo.RequestInfo.Request.IssueTypeId,
             VoidingHistoryId = parameter.AutomationInfo.VoidingHistoryId,
             NegativeBalanceUsers = parameter.AutomationInfo.NegativeBalanceUsers,
