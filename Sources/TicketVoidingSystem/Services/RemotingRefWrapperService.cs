@@ -1,5 +1,6 @@
 ﻿using System;
 using Fanex.RemotingRef;
+using Fanex.TVS.AfterVoid.Service.Constants;
 using TicketVoidingSystem.Constants;
 
 namespace TicketVoidingSystem.Services;
@@ -14,7 +15,9 @@ public interface RemotingRefWrapperService
 
     string GetParentIdByBetTypeId(object betTypeId);
 
-    string GetLeagueName(object leagueId, string language);
+    string GetLeagueName(int sportTypeId, object leagueId, string language);
+
+    string GetTeamName(int sportTypeId, object teamId, string language);
 
     string GetBFName(int id);
 
@@ -23,8 +26,6 @@ public interface RemotingRefWrapperService
     string GetTeamName(object teamId, string language);
 
     string[] GetComboParlayName(string betTeam, string betCheck, decimal handicap1, decimal handicap2);
-
-    string GetMatchCodeBetRadar(string matchCode);
 
     string GetSportName(string sportTypeId, string languageCode);
 }
@@ -58,9 +59,14 @@ public class RemotingRefWrapperServiceImp : RemotingRefWrapperService
         return remotingRefService.GetParentIdByBetTypeId(betTypeId.ToString(), betTypeId.ToString());
     }
 
-    public string GetLeagueName(object leagueId, string language)
+    public string GetLeagueName(int sportTypeId, object leagueId, string language)
     {
-        return remotingRefService.GetLeagueName(ToString(leagueId), language, string.Empty);
+        return IsSportTypeOfVirtualSports5(sportTypeId) ? remotingRefService.GetLeagueName3rd(ToString(leagueId), language, string.Empty) : remotingRefService.GetLeagueName(ToString(leagueId), language, string.Empty);
+    }
+
+    public string GetTeamName(int sportTypeId, object teamId, string language)
+    {
+        return IsSportTypeOfVirtualSports5(sportTypeId) ? remotingRefService.GetTeamName3rd(ToString(teamId), language, string.Empty) : remotingRefService.GetTeamName(ToString(teamId), language, string.Empty);
     }
 
     public string GetBFName(int id)
@@ -83,11 +89,6 @@ public class RemotingRefWrapperServiceImp : RemotingRefWrapperService
         return remotingRefService.GetCombinationTypeCombo(betTeam, betCheck, Convert.ToInt32(handicap1), Convert.ToInt32(handicap2), LanguageCode.English);
     }
 
-    public string GetMatchCodeBetRadar(string matchCode)
-    {
-        return remotingRefService.GetBetRadarMatchCodeFormat(matchCode, LanguageCode.English);
-    }
-
     public string GetSportName(string sportTypeId, string languageCode)
     {
         return remotingRefService.GetSportName(sportTypeId, languageCode);
@@ -96,5 +97,10 @@ public class RemotingRefWrapperServiceImp : RemotingRefWrapperService
     private static string ToString(object item)
     {
         return item is not null && item != DBNull.Value ? item.ToString() : string.Empty;
+    }
+
+    private static bool IsSportTypeOfVirtualSports5(int sportType)
+    {
+        return sportType is SportTypeConstant.VirtuallySoccer;
     }
 }
