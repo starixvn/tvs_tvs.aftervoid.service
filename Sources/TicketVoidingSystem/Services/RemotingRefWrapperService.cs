@@ -23,8 +23,6 @@ public interface RemotingRefWrapperService
 
     string GetOddsTypeName(object oddsType);
 
-    string GetTeamName(object teamId, string language);
-
     string[] GetComboParlayName(string betTeam, string betCheck, decimal handicap1, decimal handicap2);
 
     string GetSportName(string sportTypeId, string languageCode);
@@ -77,11 +75,6 @@ public class RemotingRefWrapperServiceImp : RemotingRefWrapperService
     public string GetOddsTypeName(object oddsType)
     {
         return remotingRefService.GetOddsTypeName(ToString(oddsType), LanguageCode.English);
-    }
-
-    public string GetTeamName(object teamId, string language)
-    {
-        return remotingRefService.GetTeamName(ToString(teamId), language, string.Empty);
     }
 
     public string[] GetComboParlayName(string betTeam, string betCheck, decimal handicap1, decimal handicap2)

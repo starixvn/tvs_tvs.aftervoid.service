@@ -67,7 +67,7 @@ public class RequestManualVoidServiceTests
             SiteDbGroupId = 0
         };
         var matchInfo = new Match { MatchId = 1, SportType = 1 };
-        var allVoidDataInCurrentVoid = new List<VoidDataXmlModel> { new() };
+        var voidDataXml = new VoidDataXmlModel();
         var voidedTickets = new List<TicketEmailModel>
         {
             new(),
@@ -92,7 +92,7 @@ public class RequestManualVoidServiceTests
         const bool isSentEmail = true;
         InItService();
         mainProcessStageService.GetMatchInfo(automationInfo.MatchId).ReturnsForAnyArgs(matchInfo);
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(allVoidDataInCurrentVoid);
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(voidDataXml);
         voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true).ReturnsForAnyArgs(voidedTickets);
         specialPlatformService.GroupTicketSaba(Arg.Any<IEnumerable<TicketEmailModel>>()).ReturnsForAnyArgs((normalTickets, specialTickets));
         mainProcessStageService.CreateMessage(Arg.Any<CreateMessageStageParameter>()).ReturnsForAnyArgs((normalMessageId, specialMessageId, normalMessageContent));
@@ -140,7 +140,7 @@ public class RequestManualVoidServiceTests
             VoidingHistoryId = 1,
             SiteDbGroupId = 0
         };
-        var allVoidDataInCurrentVoid = new List<VoidDataXmlModel> { new() { CreatorName = "a" } };
+        var voidDataXml = new VoidDataXmlModel { CreatorName = "a" };
         var voidedTickets = new List<TicketEmailModel>
         {
             new(),
@@ -164,7 +164,7 @@ public class RequestManualVoidServiceTests
         const bool isSentEmail = false;
         InItService();
         mainProcessStageService.GetMatchInfo(automationInfo.MatchId).ReturnsForAnyArgs((Match)null);
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(allVoidDataInCurrentVoid);
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(voidDataXml);
         voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true).ReturnsForAnyArgs(voidedTickets);
         specialPlatformService.GroupTicketSaba(Arg.Any<IEnumerable<TicketEmailModel>>()).ReturnsForAnyArgs((normalTickets, specialTickets));
         mainProcessStageService.CreateMessage(Arg.Any<CreateMessageStageParameter>()).ReturnsForAnyArgs((normalMessageId, specialMessageId, normalMessageContent));

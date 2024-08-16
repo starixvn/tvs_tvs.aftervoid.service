@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
@@ -42,7 +41,7 @@ public class CreateMessageStageTests
     {
         // Arrange
         var matchInfo = new Match { MatchId = 1, LeagueGroupId = 1 };
-        var allVoidDataInCurrentVoid = new List<VoidDataXmlModel> { new() };
+        var voidDataXml = new VoidDataXmlModel();
         var specialTickets = new List<TicketEmailModel> { new() };
         var normalTickets = new List<TicketEmailModel> { new() };
         var automationInfo = new VoidBetAutomationInfo
@@ -58,7 +57,7 @@ public class CreateMessageStageTests
         var parameter = new CreateMessageStageParameter
         {
             AutomationInfo = automationInfo,
-            AllVoidDataInCurrentVoid = allVoidDataInCurrentVoid,
+            VoidDataXml = voidDataXml,
             NormalTickets = normalTickets,
             SpecialTickets = specialTickets,
             MatchInfo = matchInfo,
@@ -74,7 +73,7 @@ public class CreateMessageStageTests
         await Service.Execute(parameter);
 
         // Assert
-        await sendMessageService.Received(1).InitializeMessageContentForAutoVoid(Arg.Any<Match>(), Arg.Any<IEnumerable<VoidDataXmlModel>>(), Arg.Any<RequestDetailViewModel>());
+        await sendMessageService.Received(1).InitializeMessageContentForAutoVoid(Arg.Any<Match>(), Arg.Any<VoidDataXmlModel>(), Arg.Any<RequestDetailViewModel>());
         await sendMessageService.Received(2).InsertMessage(Arg.Any<Message>(), 1, 1, 1);
     }
 
@@ -82,7 +81,7 @@ public class CreateMessageStageTests
     public async Task Execute_HasOnlyTicketsNormalSite_CalledExpected()
     {
         // Arrange
-        var allVoidDataInCurrentVoid = new List<VoidDataXmlModel> { new() };
+        var voidDataXml = new VoidDataXmlModel();
         var specialTickets = new List<TicketEmailModel>();
         var normalTickets = new List<TicketEmailModel> { new() };
         var automationInfo = new VoidBetAutomationInfo
@@ -98,13 +97,13 @@ public class CreateMessageStageTests
         var parameter = new CreateMessageStageParameter
         {
             AutomationInfo = automationInfo,
-            AllVoidDataInCurrentVoid = allVoidDataInCurrentVoid,
+            VoidDataXml = voidDataXml,
             NormalTickets = normalTickets,
             SpecialTickets = specialTickets,
             MatchInfo = null,
         };
         InItService();
-        sendMessageService.InitializeMessageContentForManualVoid(allVoidDataInCurrentVoid.First())
+        sendMessageService.InitializeMessageContentForManualVoid(voidDataXml)
             .ReturnsForAnyArgs(new Message());
         sendMessageService.InsertMessage(Arg.Any<Message>(), 1, 1, 1).ReturnsForAnyArgs(1);
         Service = new CreateMessageStageImp(voidBetAutomationService, sendMessageService, notificationSignalRService, loggingService,
@@ -124,7 +123,7 @@ public class CreateMessageStageTests
     public async Task Execute_HasOnlyTicketsSpecialSite_CalledExpected()
     {
         // Arrange
-        var allVoidDataInCurrentVoid = new List<VoidDataXmlModel> { new() };
+        var voidDataXml = new VoidDataXmlModel();
         var specialTickets = new List<TicketEmailModel> { new() };
         var normalTickets = new List<TicketEmailModel>();
         var automationInfo = new VoidBetAutomationInfo
@@ -140,14 +139,14 @@ public class CreateMessageStageTests
         var parameter = new CreateMessageStageParameter
         {
             AutomationInfo = automationInfo,
-            AllVoidDataInCurrentVoid = allVoidDataInCurrentVoid,
+            VoidDataXml = voidDataXml,
             NormalTickets = normalTickets,
             SpecialTickets = specialTickets,
             MatchInfo = null,
         };
         InItService();
         specialPlatformService.RemoveSabaInMessageContent(null, Arg.Any<Message>()).ReturnsForAnyArgs(new Message());
-        sendMessageService.InitializeMessageContentForManualVoid(allVoidDataInCurrentVoid.First())
+        sendMessageService.InitializeMessageContentForManualVoid(voidDataXml)
             .ReturnsForAnyArgs(new Message());
         sendMessageService.InsertMessage(Arg.Any<Message>(), 0, null, 1).ReturnsForAnyArgs(1);
         Service = new CreateMessageStageImp(voidBetAutomationService, sendMessageService, notificationSignalRService, loggingService,
@@ -168,7 +167,7 @@ public class CreateMessageStageTests
     {
         // Arrange
         var matchInfo = new Match { MatchId = 1, LeagueGroupId = 1 };
-        var allVoidDataInCurrentVoid = new List<VoidDataXmlModel> { new() };
+        var voidDataXml = new VoidDataXmlModel();
         var specialTickets = new List<TicketEmailModel> { new() };
         var normalTickets = new List<TicketEmailModel> { new() };
         var automationInfo = new VoidBetAutomationInfo
@@ -184,13 +183,13 @@ public class CreateMessageStageTests
         var parameter = new CreateMessageStageParameter
         {
             AutomationInfo = automationInfo,
-            AllVoidDataInCurrentVoid = allVoidDataInCurrentVoid,
+            VoidDataXml = voidDataXml,
             NormalTickets = normalTickets,
             SpecialTickets = specialTickets,
             MatchInfo = matchInfo,
         };
         InItService();
-        sendMessageService.InitializeMessageContentForAutoVoid(Arg.Any<Match>(), Arg.Any<IEnumerable<VoidDataXmlModel>>(), Arg.Any<RequestDetailViewModel>())
+        sendMessageService.InitializeMessageContentForAutoVoid(Arg.Any<Match>(), Arg.Any<VoidDataXmlModel>(), Arg.Any<RequestDetailViewModel>())
             .ReturnsForAnyArgs(new Message());
         Service = new CreateMessageStageImp(voidBetAutomationService, sendMessageService, notificationSignalRService, loggingService,
             sendLetstalkServiceStage, specialPlatformService, messageContentParameterService);
@@ -200,7 +199,7 @@ public class CreateMessageStageTests
 
         // Assert
         await sendMessageService.Received(1).InitializeMessageContentForAutoVoid(Arg.Any<Match>(),
-            Arg.Any<IEnumerable<VoidDataXmlModel>>(), Arg.Any<RequestDetailViewModel>());
+            Arg.Any<VoidDataXmlModel>(), Arg.Any<RequestDetailViewModel>());
         await sendMessageService.Received(0).InsertMessage(Arg.Any<Message>(), 1, 1, 1);
         Assert.Equal(1, normalMessageId);
         Assert.Equal(2, specialMessageId);
@@ -211,7 +210,7 @@ public class CreateMessageStageTests
     {
         // Arrange
         var matchInfo = new Match { MatchId = 1, LeagueGroupId = 1 };
-        var allVoidDataInCurrentVoid = new List<VoidDataXmlModel> { new() };
+        var voidDataXml = new VoidDataXmlModel();
         var specialTickets = new List<TicketEmailModel> { new() };
         var normalTickets = new List<TicketEmailModel> { new() };
         var automationInfo = new VoidBetAutomationInfo
@@ -228,13 +227,13 @@ public class CreateMessageStageTests
         var parameter = new CreateMessageStageParameter
         {
             AutomationInfo = automationInfo,
-            AllVoidDataInCurrentVoid = allVoidDataInCurrentVoid,
+            VoidDataXml = voidDataXml,
             NormalTickets = normalTickets,
             SpecialTickets = specialTickets,
             MatchInfo = matchInfo,
         };
         InItService();
-        sendMessageService.InitializeMessageContentForAutoVoid(Arg.Any<Match>(), Arg.Any<IEnumerable<VoidDataXmlModel>>(), Arg.Any<RequestDetailViewModel>())
+        sendMessageService.InitializeMessageContentForAutoVoid(Arg.Any<Match>(), Arg.Any<VoidDataXmlModel>(), Arg.Any<RequestDetailViewModel>())
             .ReturnsForAnyArgs(new Message());
         Service = new CreateMessageStageImp(voidBetAutomationService, null, notificationSignalRService, loggingService,
             sendLetstalkServiceStage, null, messageContentParameterService);

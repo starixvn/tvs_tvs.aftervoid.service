@@ -1,5 +1,4 @@
-﻿using System;
-using Fanex.RemotingRef;
+﻿using Fanex.RemotingRef;
 using NSubstitute;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Services;
@@ -72,7 +71,7 @@ public class RemotingRefWrapperServiceTests
         // Arrange
 
         // Act
-        _ = service.GetLeagueName(1, "1");
+        _ = service.GetLeagueName(1, 1, "1");
 
         // Assert
         remotingRefService.Received(1).GetLeagueName("1", "1", string.Empty);
@@ -108,10 +107,10 @@ public class RemotingRefWrapperServiceTests
         // Arrange
 
         // Act
-        _ = service.GetTeamName(DBNull.Value, "1");
+        _ = service.GetTeamName(1, 1, "1");
 
         // Assert
-        remotingRefService.Received(1).GetTeamName(string.Empty, "1", string.Empty);
+        remotingRefService.Received(1).GetTeamName("1", "1", string.Empty);
     }
 
     [Fact]
@@ -124,18 +123,6 @@ public class RemotingRefWrapperServiceTests
 
         // Assert
         remotingRefService.Received(1).GetCombinationTypeCombo("1", "1", 1, 1, LanguageCode.English);
-    }
-
-    [Fact]
-    public void GetMatchCodeBetRadar_RemotingRefServiceCalledGetBetRadarMatchCodeFormat()
-    {
-        // Arrange
-
-        // Act
-        _ = service.GetMatchCodeBetRadar("1");
-
-        // Assert
-        remotingRefService.Received(1).GetBetRadarMatchCodeFormat("1", LanguageCode.English);
     }
 
     [Fact]
