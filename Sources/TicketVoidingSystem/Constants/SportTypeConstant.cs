@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Fanex.TVS.AfterVoid.Service.Constants;
 
@@ -14,12 +15,12 @@ public static class SportTypeConstant
 
     public const int VirtuallySoccer = 147;     // Virtual Sports 5
 
-    public static Dictionary<int, string> RefIdVirtualSports = new()
+    public static readonly ImmutableDictionary<int, string> RefIdVirtualSports = new Dictionary<int, string>
     {
         { VirtualFootballCup, "LVS_MatchCode" },
         { VirtualFootballLeague, "LVS_MatchCode" },
         { VirtualCockFighting, "EGVS_MatchCode" },
         { VirtualSportsVs4, "EGVS_MatchCode" },
         { VirtuallySoccer, "VYVS_MatchCode" }
-    };
+    }.ToImmutableDictionary();
 }
