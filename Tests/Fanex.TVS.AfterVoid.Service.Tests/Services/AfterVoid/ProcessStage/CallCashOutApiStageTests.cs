@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
@@ -33,9 +32,9 @@ public class CallCashOutApiStageTests
         // Arrange
         var emailTickets = new List<TicketEmailModel>
         {
-            new() { IsCashOut = true, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
+            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1},
             new() { IsCashOut = true, SportType = 1},
-            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball}
+            new() { IsCashOut = false, SportType = 2}
         };
         var automationInfo = new VoidBetAutomationInfo
         {
@@ -60,9 +59,9 @@ public class CallCashOutApiStageTests
         // Arrange
         var emailTickets = new List<TicketEmailModel>
         {
-            new() { IsCashOut = true, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
+            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1},
             new() { IsCashOut = true, SportType = 1},
-            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball}
+            new() { IsCashOut = false, SportType = 2}
         };
         var automationInfo = new VoidBetAutomationInfo
         {
@@ -88,9 +87,9 @@ public class CallCashOutApiStageTests
         // Arrange
         var emailTickets = new List<TicketEmailModel>
         {
-            new() { IsCashOut = true, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
+            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1},
             new() { IsCashOut = true, SportType = 1},
-            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball}
+            new() { IsCashOut = false, SportType = 2}
         };
         var automationInfo = new VoidBetAutomationInfo
         {
@@ -115,9 +114,9 @@ public class CallCashOutApiStageTests
         // Arrange
         var emailTickets = new List<TicketEmailModel>
         {
-            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
+            new() { IsCashOut = false, SportType = 2, TransId = 1, CustId = 1},
             new() { IsCashOut = true, SportType = 1},
-            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball}
+            new() { IsCashOut = false, SportType = 2}
         };
         var automationInfo = new VoidBetAutomationInfo
         {
@@ -142,9 +141,9 @@ public class CallCashOutApiStageTests
         // Arrange
         var emailTickets = new List<TicketRecoverEmailModel>
         {
-            new() { IsCashOut = true, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
+            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1},
             new() { IsCashOut = true, SportType = 1},
-            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball}
+            new() { IsCashOut = false, SportType = 2}
         };
         var automationInfo = new VoidBetAutomationInfo
         {
@@ -169,9 +168,9 @@ public class CallCashOutApiStageTests
         // Arrange
         var emailTickets = new List<TicketRecoverEmailModel>
         {
-            new() { IsCashOut = true, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
+            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1},
             new() { IsCashOut = true, SportType = 1},
-            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball}
+            new() { IsCashOut = false, SportType = 2}
         };
         var automationInfo = new VoidBetAutomationInfo
         {
@@ -197,9 +196,9 @@ public class CallCashOutApiStageTests
         // Arrange
         var emailTickets = new List<TicketRecoverEmailModel>
         {
-            new() { IsCashOut = true, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
+            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1},
             new() { IsCashOut = true, SportType = 1},
-            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball}
+            new() { IsCashOut = false, SportType = 2}
         };
         var automationInfo = new VoidBetAutomationInfo
         {
@@ -224,9 +223,9 @@ public class CallCashOutApiStageTests
         // Arrange
         var emailTickets = new List<TicketRecoverEmailModel>
         {
-            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball, TransId = 1, CustId = 1},
+            new() { IsCashOut = false, SportType = 2, TransId = 1, CustId = 1},
             new() { IsCashOut = true, SportType = 1},
-            new() { IsCashOut = false, SportType = SportTypeConstant.Basketball}
+            new() { IsCashOut = false, SportType = 2}
         };
         var automationInfo = new VoidBetAutomationInfo
         {

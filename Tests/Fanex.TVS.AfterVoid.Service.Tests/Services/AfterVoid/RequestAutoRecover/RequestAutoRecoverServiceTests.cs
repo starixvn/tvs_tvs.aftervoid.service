@@ -71,7 +71,7 @@ public class RequestAutoRecoverServiceTests
             VoidingHistoryId = 1,
             SiteDbGroupId = 0
         };
-        var allVoidDataInCurrentVoid = new List<VoidDataXmlModel> { new() { SingleTransIds = "1, 2" } };
+        var allVoidDataInCurrentVoid = new VoidDataXmlModel { SingleTransIds = "1, 2" };
         var recoveredTickets = new List<TicketRecoverEmailModel>
         {
             new(),
@@ -126,7 +126,7 @@ public class RequestAutoRecoverServiceTests
             VoidingHistoryId = 1,
             SiteDbGroupId = 0
         };
-        var allVoidDataInCurrentVoid = new List<VoidDataXmlModel> { new() { SingleTransIds = "1, 2" } };
+        var allVoidDataInCurrentVoid = new VoidDataXmlModel { SingleTransIds = "1, 2" };
         var recoveredTickets = new List<TicketRecoverEmailModel>
         {
             new(),

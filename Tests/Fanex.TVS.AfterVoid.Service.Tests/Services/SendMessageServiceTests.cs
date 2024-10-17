@@ -81,14 +81,12 @@ public class SendMessageServiceTests
     [InlineData(IssueTypeConstant.NotParticipate, 1)]
     public async Task InitializeMessageContentForAutoVoid_ShouldReturnExpectedData(int issueTypeId, int? filterBy)
     {
-        var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>
+        var voidDataXml = new VoidDataXmlModel
         {
-            new()
-            {
-                IsHasSettledTicket = true, TotalTicket = 7,
-                VoidFromTime = "2022/02/02 02:02:02",
-                VoidToTime = "2022/02/02 02:04:04"
-            }
+            IsHasSettledTicket = true,
+            TotalTicket = 7,
+            VoidFromTime = "2022/02/02 02:02:02",
+            VoidToTime = "2022/02/02 02:04:04"
         };
         var fakeMatch = new Match { MatchCode = "ppp00" };
         var fakeTemplate = Builder<TemplateModel>.CreateListOfSize(8)
@@ -119,7 +117,7 @@ public class SendMessageServiceTests
         var service = new SendMessageServiceImp(repository, null, null);
 
         var actual =
-            await service.InitializeMessageContentForAutoVoid(fakeMatch, allVoidDataInCurrentVoidTimes, requestInfo);
+            await service.InitializeMessageContentForAutoVoid(fakeMatch, voidDataXml, requestInfo);
 
         await repository.Received(1).FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>());
         Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);
@@ -161,22 +159,15 @@ public class SendMessageServiceTests
             PlayerNamesSelected = templateContent,
             SpecialBetTypeContent = templateContent
         };
-        var allVoidDataInCurrentVoidTimes = new List<VoidDataXmlModel>
+        var voidDataXml = new VoidDataXmlModel
         {
-            new()
-            {
-                VoidFromTime = "2022/2/2",
-                VoidToTime = "2022/2/2"
-            },
-            new()
-            {
-                VoidFromTime = "2022/3/2",
-                VoidToTime = "2022/3/2"
-            }
+            VoidFromTime = "2022/2/2",
+            VoidToTime = "2022/2/2"
         };
+
         var service = new SendMessageServiceImp(repository, null, null);
 
-        var actual = await service.InitializeMessageContentForAutoVoid(null, allVoidDataInCurrentVoidTimes, requestInfo);
+        var actual = await service.InitializeMessageContentForAutoVoid(null, voidDataXml, requestInfo);
         await repository.Received(1).FetchAsync<TemplateSetting>(Arg.Any<GetTemplateSettingCriteria>());
         await repository.Received(1).FetchAsync<TemplateModel>(Arg.Any<GetTemplatesCriteria>());
         Assert.Equal(AutoVoidConstant.ActorId, actual.CreatorId);

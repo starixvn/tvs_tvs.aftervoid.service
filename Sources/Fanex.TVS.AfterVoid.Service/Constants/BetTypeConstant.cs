@@ -10,6 +10,8 @@ public static class BetTypeConstant
 
     public const int VirtualSport4MatchWinner = 10400;
 
+    public const int VirtualSport5MixParlay = 11099;
+
     public const int FirstNumberGame = 81;
 
     public const int SecondNumberGame = 120;

@@ -293,7 +293,7 @@ public class VoidBetAutomationServiceTests
         var actual = await service.GetVoidDataFromVoidingHistory(fakeVoidingHistoryId);
 
         // Assert
-        AssertExtension.Equal(fakeVoidDataXml, actual);
+        AssertExtension.Equal(fakeVoidDataXml.First(), actual);
     }
 
     [Fact]

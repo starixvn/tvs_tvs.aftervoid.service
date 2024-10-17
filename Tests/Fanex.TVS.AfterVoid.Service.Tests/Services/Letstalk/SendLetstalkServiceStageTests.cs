@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
@@ -106,15 +107,17 @@ public class SendLetstalkServiceStageTests
     {
         // Arrange
         InitFakeServiceTests();
-        repository.FetchAsync<VoidDataXmlModel>(default, default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
-        var service = new SendLetstalkServiceStageImp(repository, default, default, default);
+        var voidingHistoryIds = new List<int> { 1, 2 };
+        var voidDataXml = new List<VoidDataXmlModel> { new() { VoidingHistoryId = 1 }, new() { VoidingHistoryId = 2 }, new() { VoidingHistoryId = 3 } };
+        voidBetAutomationService.GetAllVoidDataFromMultiVoidingHistory(voidingHistoryIds).ReturnsForAnyArgs(voidDataXml);
+        var service = new SendLetstalkServiceStageImp(default, default, voidBetAutomationService, default);
 
         // Act
-        var actual = await service.GetVoidDataXml(new List<int>());
+        var actual = await service.GetVoidDataXml(voidingHistoryIds);
 
         // Assert
-        await repository.Received(1).FetchAsync<VoidDataXmlModel>(Arg.Any<GetVoidingHistoryCriteria>());
-        Assert.Equal(new List<VoidDataXmlModel>(), actual);
+        await voidBetAutomationService.Received(1).GetAllVoidDataFromMultiVoidingHistory(voidingHistoryIds);
+        Assert.Equal(2, actual.Count());
     }
 
     [Fact]

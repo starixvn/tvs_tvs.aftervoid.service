@@ -61,7 +61,7 @@ public class RequestVoid14ServiceTests
             VoidingHistoryId = 1,
             SiteDbGroupId = 0
         };
-        var allVoidDataInCurrentVoid = new List<VoidDataXmlModel> { new() };
+        var voidDataXml = new VoidDataXmlModel();
         var voidedTickets = new List<TicketEmailModel>
         {
             new(),
@@ -73,7 +73,7 @@ public class RequestVoid14ServiceTests
         const bool isInsertedVoidedTransaction = true;
         const bool isUpdatedVoidingHistory = true;
         InItService();
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(allVoidDataInCurrentVoid);
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(voidDataXml);
         voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true).ReturnsForAnyArgs(voidedTickets);
         mainProcessStageService.CreateVoidReason(true, Arg.Any<CreateVoidReasonStageParameter>()).ReturnsForAnyArgs(voidReason);
         mainProcessStageService.IsHaveVoidReason(Arg.Any<VoidedReason>()).ReturnsForAnyArgs(true);
@@ -106,7 +106,7 @@ public class RequestVoid14ServiceTests
             VoidingHistoryId = 1,
             SiteDbGroupId = 0
         };
-        var allVoidDataInCurrentVoid = new List<VoidDataXmlModel> { new() { CreatorName = "a" } };
+        var voidDataXml = new VoidDataXmlModel { CreatorName = "a" };
         var voidedTickets = new List<TicketEmailModel>
         {
             new(),
@@ -117,7 +117,7 @@ public class RequestVoid14ServiceTests
         const bool isInsertedVoidedTransaction = true;
         const bool isUpdatedVoidingHistory = false;
         InItService();
-        voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(allVoidDataInCurrentVoid);
+        voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(voidDataXml);
         voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true).ReturnsForAnyArgs(voidedTickets);
         mainProcessStageService.CreateVoidReason(true, Arg.Any<CreateVoidReasonStageParameter>()).ReturnsForAnyArgs((VoidedReason)null);
         mainProcessStageService.IsHaveVoidReason(Arg.Any<VoidedReason>()).ReturnsForAnyArgs(true);
