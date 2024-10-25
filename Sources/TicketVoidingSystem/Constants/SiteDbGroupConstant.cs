@@ -24,17 +24,17 @@ public static class SiteDbGroupConstant
             new()
             {
                 Id = SiteDb1,
-                ServerName = "DBSIG"
+                ServerName = "DBSITE01"
             },
             new()
             {
                 Id = SiteDb2,
-                ServerName = "DBSIG2"
+                ServerName = "DBSITE02"
             },
             new()
             {
                 Id = SiteDb3,
-                ServerName = "DBSIG3"
+                ServerName = "DBSITE03"
             }
         };
 
