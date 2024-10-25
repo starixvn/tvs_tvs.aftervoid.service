@@ -1,3 +1,4 @@
+using Fanex.Data;
 using Fanex.TVS.AfterVoid.Website.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,6 @@ services.AddAutoMapper();
 services.AddTvsSignalR();
 services.AddBusinessService();
 services.AddQuartzScheduler();
-
 // Build app
 var app = builder.Build();
 app.UseHttpsRedirection();
