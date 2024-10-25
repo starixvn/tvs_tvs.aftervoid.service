@@ -6,15 +6,8 @@ using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Controllers;
 
-public class HomeController : Controller
+public class HomeController(ILogger<HomeController> logger) : Controller
 {
-    private readonly ILogger<HomeController> logger;
-
-    public HomeController(ILogger<HomeController> logger)
-    {
-        this.logger = logger;
-    }
-
     [HttpGet]
     public IActionResult Index()
     {

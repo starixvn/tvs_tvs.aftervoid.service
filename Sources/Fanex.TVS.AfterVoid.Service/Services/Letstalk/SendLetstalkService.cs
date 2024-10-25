@@ -18,30 +18,15 @@ public interface SendLetstalkService
     Task Execute();
 }
 
-public class SendLetstalkServiceImp : SendLetstalkService
+public class SendLetstalkServiceImp(
+    VoidBetAutomationService voidBetAutomationService,
+    AbnormalBetLetstalkService abnormalBetLetstalkServiceImp,
+    SettledBetLetstalkService settledBetLetstalkService,
+    NotificationSignalRService notificationSignalRService,
+    SendLetstalkServiceStage letstalkServiceStage,
+    LoggingService loggingService)
+    : SendLetstalkService
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly AbnormalBetLetstalkService abnormalBetLetstalkServiceImp;
-    private readonly SettledBetLetstalkService settledBetLetstalkService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly SendLetstalkServiceStage letstalkServiceStage;
-    private readonly LoggingService loggingService;
-
-    public SendLetstalkServiceImp(VoidBetAutomationService voidBetAutomationService,
-        AbnormalBetLetstalkService abnormalBetLetstalkServiceImp,
-        SettledBetLetstalkService settledBetLetstalkService,
-        NotificationSignalRService notificationSignalRService,
-        SendLetstalkServiceStage letstalkServiceStage,
-        LoggingService loggingService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.abnormalBetLetstalkServiceImp = abnormalBetLetstalkServiceImp;
-        this.settledBetLetstalkService = settledBetLetstalkService;
-        this.notificationSignalRService = notificationSignalRService;
-        this.letstalkServiceStage = letstalkServiceStage;
-        this.loggingService = loggingService;
-    }
-
     public async Task Execute()
     {
         var automationInfoList = await letstalkServiceStage.GetVoidBetAutomationRunLetstalk();

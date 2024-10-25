@@ -18,19 +18,12 @@ public interface AbnormalBetLetstalkService
     Task<bool> Send(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets);
 }
 
-public class AbnormalBetLetstalkServiceImp : AbnormalBetLetstalkService
+public class AbnormalBetLetstalkServiceImp(
+    SendLetstalkServiceStage letstalkServiceStage,
+    LetstalkClientService letstalkClientService)
+    : AbnormalBetLetstalkService
 {
-    private readonly SendLetstalkServiceStage letstalkServiceStage;
-    private readonly LetstalkClientService letstalkClientService;
-
     private const int currency20 = 20;
-
-    public AbnormalBetLetstalkServiceImp(SendLetstalkServiceStage letstalkServiceStage,
-        LetstalkClientService letstalkClientService)
-    {
-        this.letstalkServiceStage = letstalkServiceStage;
-        this.letstalkClientService = letstalkClientService;
-    }
 
     public async Task<bool> Send(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets)
     {

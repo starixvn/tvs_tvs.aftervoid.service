@@ -38,19 +38,12 @@ public interface SendMessageService
     Task InsertMessageIntoAdminSite(Message message);
 }
 
-public class SendMessageServiceImp : SendMessageService
+public class SendMessageServiceImp(
+    IDynamicRepository repository,
+    MessageItemService messageItemService,
+    RemotingRefWrapperService remotingRefWrapperService)
+    : SendMessageService
 {
-    private readonly IDynamicRepository repository;
-    private readonly MessageItemService messageItemService;
-    private readonly RemotingRefWrapperService remotingRefWrapperService;
-
-    public SendMessageServiceImp(IDynamicRepository repository, MessageItemService messageItemService, RemotingRefWrapperService remotingRefWrapperService)
-    {
-        this.repository = repository;
-        this.messageItemService = messageItemService;
-        this.remotingRefWrapperService = remotingRefWrapperService;
-    }
-
     public async Task SendMessage(IEnumerable<TicketEmailModel> tickets, int messageId, int issueTypeId, int creatorId)
     {
         var excludedCN88Tickets = ExcludeCN88Tickets(tickets, Helper.IsAbnormalBet(issueTypeId));

@@ -2,15 +2,9 @@
 
 public class Result
 {
-    public Result()
-    {
-        ErrorCode = 0;
-        ErrorMsg = string.Empty;
-    }
+    public int ErrorCode { get; set; } = 0;
 
-    public int ErrorCode { get; set; }
-
-    public string ErrorMsg { get; set; }
+    public string ErrorMsg { get; set; } = string.Empty;
 
     public bool IsSuccessful => string.IsNullOrEmpty(ErrorMsg) || ErrorCode == 0 || ErrorCode == 235 || ErrorCode == 236 || ErrorCode == 238;
 

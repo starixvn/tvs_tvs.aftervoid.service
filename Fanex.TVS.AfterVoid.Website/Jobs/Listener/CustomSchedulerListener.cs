@@ -7,15 +7,8 @@ using Quartz;
 
 namespace Fanex.TVS.AfterVoid.Website.Jobs.Listener;
 
-public class CustomSchedulerListener : ISchedulerListener
+public class CustomSchedulerListener(ILogger<CustomSchedulerListener> logger) : ISchedulerListener
 {
-    private readonly ILogger<CustomSchedulerListener> logger;
-
-    public CustomSchedulerListener(ILogger<CustomSchedulerListener> logger)
-    {
-        this.logger = logger;
-    }
-
     public Task JobScheduled(ITrigger trigger, CancellationToken cancellationToken = new())
     {
         return Task.CompletedTask;

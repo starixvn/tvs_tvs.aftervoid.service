@@ -14,27 +14,15 @@ public interface RequestVoid14Service
     Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus);
 }
 
-public class RequestVoid14ServiceImp : RequestVoid14Service
+public class RequestVoid14ServiceImp(
+    VoidBetAutomationService voidBetAutomationService,
+    MainProcessStageService mainProcessStageService,
+    NotificationSignalRService notificationSignalRService,
+    CallCashOutApiStage callCashOutApiStage,
+    WriteLogAfterVoidStage writeLogAfterVoidStage,
+    CallSignalRStage callSignalRStage)
+    : RequestVoid14Service
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly MainProcessStageService mainProcessStageService;
-    private readonly CallCashOutApiStage callCashOutApiStage;
-    private readonly WriteLogAfterVoidStage writeLogAfterVoidStage;
-    private readonly CallSignalRStage callSignalRStage;
-
-    public RequestVoid14ServiceImp(VoidBetAutomationService voidBetAutomationService, MainProcessStageService mainProcessStageService,
-        NotificationSignalRService notificationSignalRService, CallCashOutApiStage callCashOutApiStage,
-        WriteLogAfterVoidStage writeLogAfterVoidStage, CallSignalRStage callSignalRStage)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.notificationSignalRService = notificationSignalRService;
-        this.mainProcessStageService = mainProcessStageService;
-        this.callCashOutApiStage = callCashOutApiStage;
-        this.writeLogAfterVoidStage = writeLogAfterVoidStage;
-        this.callSignalRStage = callSignalRStage;
-    }
-
     public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
     {
         if (automationInfo.StatusId != ExecuteStatus.Done)

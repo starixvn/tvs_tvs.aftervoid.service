@@ -13,15 +13,8 @@ public interface UpdateEmailResultStage
     Task Execute(VoidBetAutomationInfo automationInfo, IEnumerable<Result> currentEmailResults);
 }
 
-public class UpdateEmailResultStageImp : UpdateEmailResultStage
+public class UpdateEmailResultStageImp(VoidBetAutomationService voidBetAutomationService) : UpdateEmailResultStage
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-
-    public UpdateEmailResultStageImp(VoidBetAutomationService voidBetAutomationService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-    }
-
     public async Task Execute(VoidBetAutomationInfo automationInfo, IEnumerable<Result> currentEmailResults)
     {
         var licenseeEmailResult = currentEmailResults.Where(x =>

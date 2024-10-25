@@ -15,24 +15,13 @@ public interface InsertVoidedTransactionStage
     Task<bool> Execute(InsertVoidedTransactionStageParameter parameter);
 }
 
-public class InsertVoidedTransactionStageImp : InsertVoidedTransactionStage
+public class InsertVoidedTransactionStageImp(
+    VoidBetAutomationService voidBetAutomationService,
+    SendMessageService sendMessageService,
+    NotificationSignalRService notificationSignalRService,
+    LoggingService loggingService)
+    : InsertVoidedTransactionStage
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly SendMessageService sendMessageService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly LoggingService loggingService;
-
-    public InsertVoidedTransactionStageImp(VoidBetAutomationService voidBetAutomationService,
-        SendMessageService sendMessageService,
-        NotificationSignalRService notificationSignalRService,
-        LoggingService loggingService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.sendMessageService = sendMessageService;
-        this.notificationSignalRService = notificationSignalRService;
-        this.loggingService = loggingService;
-    }
-
     public async Task<bool> Execute(InsertVoidedTransactionStageParameter parameter)
     {
         try

@@ -8,7 +8,6 @@ using Fanex.LetstalkService.Client;
 using Fanex.Logging;
 using Fanex.Logging.Extensions;
 using Fanex.Logging.Extensions.AspNetCore;
-using Fanex.Logging.Sentry;
 using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
@@ -31,11 +30,13 @@ using ONEbook.UM.Helpers;
 using ONEbook.UM.Services;
 using ONEbook.UM.Transport;
 using Quartz;
-using Sentry;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
+
+using Logging.Sentry.RavenClient;
+using SharpRaven;
 
 [ExcludeFromCodeCoverage(Justification = "non-logic")]
 public static class ServiceCollectionExtensions
@@ -45,7 +46,7 @@ public static class ServiceCollectionExtensions
         AppSettingService.InitSetting(configuration);
     }
 
-    public static void RegisterSentry(this IServiceCollection services)
+    public static void AddSentry(this IServiceCollection services)
     {
         LogManager
             .SetDefaultLogCategory(AppSettingService.AppSetting.CategorySentryLog)
@@ -56,9 +57,14 @@ public static class ServiceCollectionExtensions
                     Dsn = new Dsn(AppSettingService.AppSetting.SentryClientKey)
                 })
             });
+
+        ExceptionHandler
+            .UseConfig(new LoggingConfiguration());
+
+        services.AddSingleton<ILogger, Logger>();
     }
 
-    public static void RegisterSignalR(this IServiceCollection services)
+    public static void AddTvsSignalR(this IServiceCollection services)
     {
         services.AddSignalR().AddStackExchangeRedis(options =>
         {
@@ -69,7 +75,7 @@ public static class ServiceCollectionExtensions
         });
     }
 
-    public static void RegisterFanexExceptionHandler(this IServiceCollection services)
+    public static void AddExceptionHandler(this IServiceCollection services)
     {
         var configuration = new LoggingConfiguration()
             .GetHttpHeaderInfo()
@@ -77,7 +83,7 @@ public static class ServiceCollectionExtensions
         ExceptionHandler.UseConfig(configuration);
     }
 
-    public static void RegisterONEbookUM(this IServiceCollection services, IConfiguration configuration)
+    public static void AddOneBookUm(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton(new UMClientConfiguration().Initialize(configuration));
         services.AddSingleton<IUMCacheService, MemoryUMCacheService>();
@@ -87,12 +93,12 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IMaintenanceService, MaintenanceService>();
     }
 
-    public static void RegisterFanexCaching(this IServiceCollection services, IConfiguration configuration)
+    public static void AddFanexCaching(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddRedisCache(configuration.GetSection("FanexCachingRedis"));
     }
 
-    public static void RegisterRemotingRef(this IServiceCollection services)
+    public static void AddRemotingRef(this IServiceCollection services)
     {
         RefDataTypeContainer
             .ConnectTo(new Uri(AppSettingService.AppSetting.FanexRemotingRefServiceUrl))
@@ -100,23 +106,23 @@ public static class ServiceCollectionExtensions
             .RegisterSupportedLanguages(LanguageCode.English, LanguageCode.ChineseTraditional, LanguageCode.ChineseSimplified, LanguageCode.NewChineseSimplified);
     }
 
-    public static void RegisterLetstalk(this IServiceCollection services)
+    public static void AddLetstalk(this IServiceCollection services)
     {
         LetstalkService.Core.Services.AppConfigService.Config.LetstalkServiceApi = AppSettingService.AppSetting.LetstalkConfig.LetstalkServiceApi;
     }
 
-    public static void RegisterAutoMapper(this IServiceCollection services)
+    public static void AddAutoMapper(this IServiceCollection services)
     {
         services.AddAutoMapper(typeof(OrganizationProfile));
     }
 
-    public static void RegisterFanexData(this IServiceCollection services, IConfiguration configuration)
+    public static void AddFanexData(this IServiceCollection services, IConfiguration configuration)
     {
         DbSettingProviderManager.StartNewSession().Register(configuration, true).Run();
-        services.AddFanexData(configuration);
+        DbSettingProviderManagerExtensions.AddFanexData(services, configuration);
     }
 
-    public static void RegisterBusinessService(this IServiceCollection services)
+    public static void AddBusinessService(this IServiceCollection services)
     {
         services.AddSingleton<IRemotingRefService, RemotingRefService>();
         services.AddSingleton<IDynamicRepository, DynamicRepository>();
@@ -159,7 +165,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<MainRecoverProcessStageService, MainRecoverProcessStageServiceImp>();
     }
 
-    public static void RegisterQuartzScheduler(this IServiceCollection services)
+    public static void AddQuartzScheduler(this IServiceCollection services)
     {
         const int maxConcurrencyThread = 10;
         services.AddTransient<AfterVoidJob>();

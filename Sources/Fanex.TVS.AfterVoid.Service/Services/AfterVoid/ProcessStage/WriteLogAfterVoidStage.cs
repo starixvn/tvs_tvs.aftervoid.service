@@ -12,15 +12,8 @@ public interface WriteLogAfterVoidStage
     Task Execute(VoidBetAutomationInfo automationInfo, IEnumerable<Result> results);
 }
 
-public class WriteLogAfterVoidStageImp : WriteLogAfterVoidStage
+public class WriteLogAfterVoidStageImp(LoggingService loggingService) : WriteLogAfterVoidStage
 {
-    private readonly LoggingService loggingService;
-
-    public WriteLogAfterVoidStageImp(LoggingService loggingService)
-    {
-        this.loggingService = loggingService;
-    }
-
     public async Task Execute(VoidBetAutomationInfo automationInfo, IEnumerable<Result> results)
     {
         var logBuilder = new StringBuilder();

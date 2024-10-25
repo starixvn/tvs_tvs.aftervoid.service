@@ -15,17 +15,10 @@ public interface SettledBetLetstalkService
     bool Send(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets);
 }
 
-public class SettledBetLetstalkServiceImp : SettledBetLetstalkService
+public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientService) : SettledBetLetstalkService
 {
-    private readonly LetstalkClientService letstalkClientService;
-
     private const int maxContent = 1024;
     private const int currency20 = 20;
-
-    public SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientService)
-    {
-        this.letstalkClientService = letstalkClientService;
-    }
 
     public bool Send(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets)
     {

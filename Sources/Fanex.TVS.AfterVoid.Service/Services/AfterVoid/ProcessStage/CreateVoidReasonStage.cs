@@ -13,24 +13,13 @@ public interface CreateVoidReasonStage
     Task<VoidedReason> Execute(CreateVoidReasonStageParameter parameter);
 }
 
-public class CreateVoidReasonStageImp : CreateVoidReasonStage
+public class CreateVoidReasonStageImp(
+    VoidBetAutomationService voidBetAutomationService,
+    SendMessageService sendMessageService,
+    NotificationSignalRService notificationSignalRService,
+    LoggingService loggingService)
+    : CreateVoidReasonStage
 {
-    private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly SendMessageService sendMessageService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
-
-    public CreateVoidReasonStageImp(VoidBetAutomationService voidBetAutomationService,
-        SendMessageService sendMessageService,
-        NotificationSignalRService notificationSignalRService,
-        LoggingService loggingService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.sendMessageService = sendMessageService;
-        this.notificationSignalRService = notificationSignalRService;
-        this.loggingService = loggingService;
-    }
-
     public async Task<VoidedReason> Execute(CreateVoidReasonStageParameter parameter)
     {
         try
