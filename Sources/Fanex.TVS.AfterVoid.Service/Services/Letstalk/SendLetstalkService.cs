@@ -65,7 +65,7 @@ public class SendLetstalkServiceImp : SendLetstalkService
     private async Task RunLetstalkForSingleRequest(GroupVoidBetAutomationInfo group)
     {
         var stopwatch = Stopwatch.StartNew();
-        group.RequestInfo = await voidBetAutomationService.GetRequestById(group.RequestId, group.MatchId);
+        group.RequestInfo = await voidBetAutomationService.GetRequestViewModelById(group.RequestId, group.MatchId);
         if (Helper.IsCanSendLetstalk(group.RequestInfo.Request.IssueTypeId))
         {
             await letstalkServiceStage.InsertLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Running);

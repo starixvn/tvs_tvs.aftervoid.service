@@ -82,4 +82,14 @@ public class RequestEventModel
     public DateTime GlobalShowTime { get; set; }
     public int? FilterBy { get; set; }
     public int SportType { get; set; }
+    public string RequestExtraInfo { get; set; }
+
+    public string CurrencyIds { get; set; }
+    public string LicenseeNames { get; set; }
+    public string WrongName { get; set; }
+    public string ActualName { get; set; }
+    public string WrongNameT { get; set; }
+    public string ActualNameT { get; set; }
+    public string WrongNameS { get; set; }
+    public string ActualNameS { get; set; }
 }

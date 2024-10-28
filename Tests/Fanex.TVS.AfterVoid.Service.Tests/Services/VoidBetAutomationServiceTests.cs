@@ -132,7 +132,7 @@ public class VoidBetAutomationServiceTests
         service = new VoidBetAutomationServiceImp(repository, matchService, messageContentParameterService);
 
         // Act
-        var actual = await service.GetRequestById(0, 100);
+        var actual = await service.GetRequestViewModelById(0, 100);
 
         // Assert
         AssertExtension.Equal(fakeRequests[0], actual.Request);
@@ -160,7 +160,7 @@ public class VoidBetAutomationServiceTests
         service = new VoidBetAutomationServiceImp(repository, matchService, messageContentParameterService);
 
         // Act
-        var actual = await service.GetRequestById(0, 113);
+        var actual = await service.GetRequestViewModelById(0, 113);
 
         // Assert
         Assert.StrictEqual(fakeRequests[0], actual.Request);

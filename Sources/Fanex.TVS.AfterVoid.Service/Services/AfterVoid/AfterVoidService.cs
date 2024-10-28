@@ -71,7 +71,7 @@ public class AfterVoidServiceImp : AfterVoidService
 
     private async Task UpdateRequestInfo(VoidBetAutomationInfo automationInfo)
     {
-        automationInfo.RequestInfo = await voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId);
+        automationInfo.RequestInfo = await voidBetAutomationService.GetRequestViewModelById(automationInfo.RequestId, automationInfo.MatchId);
     }
 
     private async Task ExecuteForAutoQueue(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
