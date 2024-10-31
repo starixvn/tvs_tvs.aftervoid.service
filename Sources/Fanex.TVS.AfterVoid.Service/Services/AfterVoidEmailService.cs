@@ -66,6 +66,7 @@ public class AfterVoidEmailServiceImp : AfterVoidEmailService
             NegativeBalanceUsers = parameter.AutomationInfo.NegativeBalanceUsers,
             Match = parameter.MatchInfo,
             Message = parameter.NormalMessage,
+            SpecialMessage = parameter.SpecialMessage,
             VoidedReason = parameter.VoidReason,
             EmailTickets = parameter.EmailTickets
         };

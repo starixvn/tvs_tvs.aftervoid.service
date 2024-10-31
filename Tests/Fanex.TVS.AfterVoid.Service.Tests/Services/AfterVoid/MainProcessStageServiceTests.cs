@@ -40,7 +40,7 @@ public class MainProcessStageServiceTests
     {
         // Arrange
         InItService();
-        createMessageStage.Execute(Arg.Any<CreateMessageStageParameter>()).ReturnsForAnyArgs((1, 2, new Message()));
+        createMessageStage.Execute(Arg.Any<CreateMessageStageParameter>()).ReturnsForAnyArgs((1, 2, new Message(), new Message()));
         Service = new MainProcessStageServiceImp(createMessageStage, null, null, null, null, null, null, null);
 
         // Act

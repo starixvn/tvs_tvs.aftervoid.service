@@ -63,7 +63,7 @@ public class CreateMessageStageTests
             MatchInfo = matchInfo,
         };
         InItService();
-        specialPlatformService.RemoveSabaInMessageContent(Arg.Any<Match>(), Arg.Any<Message>())
+        specialPlatformService.RemoveSabaInMessageContent(Arg.Any<Match>(), Arg.Any<Message>(), Arg.Any<RequestDetailViewModel>())
             .ReturnsForAnyArgs(new Message());
         sendMessageService.InsertMessage(Arg.Any<Message>(), 1, 1, 1).ReturnsForAnyArgs(1);
         Service = new CreateMessageStageImp(voidBetAutomationService, sendMessageService, notificationSignalRService, loggingService,
@@ -110,7 +110,7 @@ public class CreateMessageStageTests
             sendLetstalkServiceStage, specialPlatformService, messageContentParameterService);
 
         // Act
-        var (normalMessageId, specialMessageId, _) = await Service.Execute(parameter);
+        var (normalMessageId, specialMessageId, _, _) = await Service.Execute(parameter);
 
         // Assert
         sendMessageService.Received(1).InitializeMessageContentForManualVoid(Arg.Any<VoidDataXmlModel>());
@@ -145,7 +145,7 @@ public class CreateMessageStageTests
             MatchInfo = null,
         };
         InItService();
-        specialPlatformService.RemoveSabaInMessageContent(null, Arg.Any<Message>()).ReturnsForAnyArgs(new Message());
+        specialPlatformService.RemoveSabaInMessageContent(null, Arg.Any<Message>(), Arg.Any<RequestDetailViewModel>()).ReturnsForAnyArgs(new Message());
         sendMessageService.InitializeMessageContentForManualVoid(voidDataXml)
             .ReturnsForAnyArgs(new Message());
         sendMessageService.InsertMessage(Arg.Any<Message>(), 0, null, 1).ReturnsForAnyArgs(1);
@@ -153,7 +153,7 @@ public class CreateMessageStageTests
             sendLetstalkServiceStage, specialPlatformService, messageContentParameterService);
 
         // Act
-        var (normalMessageId, specialMessageId, _) = await Service.Execute(parameter);
+        var (normalMessageId, specialMessageId, _, _) = await Service.Execute(parameter);
 
         // Assert
         sendMessageService.Received(1).InitializeMessageContentForManualVoid(Arg.Any<VoidDataXmlModel>());
@@ -195,7 +195,7 @@ public class CreateMessageStageTests
             sendLetstalkServiceStage, specialPlatformService, messageContentParameterService);
 
         // Act
-        var (normalMessageId, specialMessageId, _) = await Service.Execute(parameter);
+        var (normalMessageId, specialMessageId, _, _) = await Service.Execute(parameter);
 
         // Assert
         await sendMessageService.Received(1).InitializeMessageContentForAutoVoid(Arg.Any<Match>(),
@@ -240,7 +240,7 @@ public class CreateMessageStageTests
         const string error = "ERROR: CreateMessageStage.Execute - BroadcastSessionId: 1";
 
         // Act
-        var (normalMessageId, specialMessageId, message) = await Service.Execute(parameter);
+        var (normalMessageId, specialMessageId, message, specialMessage) = await Service.Execute(parameter);
 
         // Assert
         await loggingService.Received(1).ErrorAsync(error, Arg.Any<Exception>());
@@ -251,5 +251,6 @@ public class CreateMessageStageTests
         Assert.Equal(0, normalMessageId);
         Assert.Equal(0, specialMessageId);
         Assert.Null(message);
+        Assert.Null(specialMessage);
     }
 }

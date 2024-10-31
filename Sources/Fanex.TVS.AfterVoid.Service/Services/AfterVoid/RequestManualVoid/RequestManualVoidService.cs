@@ -4,7 +4,6 @@ using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using TicketVoidingSystem.Constants;
-using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
 
@@ -55,7 +54,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
         var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true);
         var (normalTickets, specialTickets) = specialPlatformService.GroupTicketSaba(voidedTickets);
 
-        var (normalMessageId, specialMessageId, normalMessageContent) = await mainProcessStageService.CreateMessage(
+        var (normalMessageId, specialMessageId, normalMessageContent, specialMessageContent) = await mainProcessStageService.CreateMessage(
             new CreateMessageStageParameter
             {
                 AutomationInfo = automationInfo,
@@ -113,6 +112,7 @@ public class RequestManualVoidServiceImp : RequestManualVoidService
                 AutomationInfo = automationInfo,
                 MatchInfo = matchInfo,
                 NormalMessage = normalMessageContent,
+                SpecialMessage = specialMessageContent,
                 VoidReason = voidReason,
                 EmailTickets = voidedTickets
             });

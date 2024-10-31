@@ -5,7 +5,6 @@ using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
-using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestAutoVoid;
 
@@ -52,7 +51,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
         var voidedTickets = await voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true);
         var (normalTickets, specialTickets) = specialPlatformService.GroupTicketSaba(voidedTickets);
 
-        var (normalMessageId, specialMessageId, normalMessageContent) = await CreateMessage(automationInfo, matchInfo, voidDataXml, normalTickets, specialTickets);
+        var (normalMessageId, specialMessageId, normalMessageContent, specialMessageContent) = await CreateMessage(automationInfo, matchInfo, voidDataXml, normalTickets, specialTickets);
 
         var voidReason = await CreateVoidReason(automationInfo, matchInfo, normalMessageId, specialMessageId);
 
@@ -66,7 +65,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
             voidReason, voidedTickets, normalMessageId, specialMessageId);
 
         var (isSentEmail, currentEmailResults) = await SendEmail(isUpdatedVoidingHistory, automationInfo, matchInfo,
-            voidReason, voidedTickets, normalMessageContent);
+            voidReason, voidedTickets, normalMessageContent, specialMessageContent);
 
         if (!isSentEmail)
         {
@@ -86,7 +85,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
         return matchInfo?.SportType ?? 0;
     }
 
-    private async Task<(int, int, Message)> CreateMessage(VoidBetAutomationInfo automationInfo, Match matchInfo, VoidDataXmlModel voidDataXml,
+    private async Task<(int, int, Message, Message)> CreateMessage(VoidBetAutomationInfo automationInfo, Match matchInfo, VoidDataXmlModel voidDataXml,
         IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets)
     {
         return await mainProcessStageService.CreateMessage(
@@ -158,7 +157,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
     }
 
     private async Task<(bool, IEnumerable<Result>)> SendEmail(bool isUpdatedVoidingHistory, VoidBetAutomationInfo automationInfo, Match matchInfo, VoidedReason voidReason,
-        IEnumerable<TicketEmailModel> voidedTickets, Message normalMessageContent)
+        IEnumerable<TicketEmailModel> voidedTickets, Message normalMessageContent, Message specialMessageContent)
     {
         return await mainProcessStageService.SendEmail(isUpdatedVoidingHistory,
             new SendEmailStageParameter
@@ -166,6 +165,7 @@ public class RequestAutoVoidServiceImp : RequestAutoVoidService
                 AutomationInfo = automationInfo,
                 MatchInfo = matchInfo,
                 NormalMessage = normalMessageContent,
+                SpecialMessage = specialMessageContent,
                 VoidReason = voidReason,
                 EmailTickets = voidedTickets
             });

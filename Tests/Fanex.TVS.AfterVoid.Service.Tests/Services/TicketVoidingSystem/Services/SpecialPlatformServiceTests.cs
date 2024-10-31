@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using Fanex.TVS.AfterVoid.Service.Models;
+using Fanex.TVS.AfterVoid.Service.Services;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
-using TicketVoidingSystem.Services;
 using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services.TicketVoidingSystem.Services;
@@ -85,9 +86,14 @@ public class SpecialPlatformServiceTests
         // Arrange
         var message = new Message();
         var service = new SpecialPlatformServiceImp();
+        var requestInfo = new RequestDetailViewModel
+        {
+            Request = new RequestModel(),
+            EventByMatch = new RequestEventModel()
+        };
 
         // Act
-        var actual = service.RemoveSabaInMessageContent(null, message);
+        var actual = service.RemoveSabaInMessageContent(null, message, requestInfo);
 
         // Assert
         AssertExtension.Equal(message, actual);
@@ -97,6 +103,11 @@ public class SpecialPlatformServiceTests
     public void RemoveSabaInMessageContent_HasMatchNotNull_ReturnExpected()
     {
         // Arrange
+        var requestInfo = new RequestDetailViewModel
+        {
+            Request = new RequestModel(),
+            EventByMatch = new RequestEventModel()
+        };
         var match = new Match
         {
             OriginLeagueName = "saBa 123",
@@ -121,7 +132,7 @@ public class SpecialPlatformServiceTests
         var service = new SpecialPlatformServiceImp();
 
         // Act
-        var actual = service.RemoveSabaInMessageContent(match, message);
+        var actual = service.RemoveSabaInMessageContent(match, message, requestInfo);
 
         // Assert
         AssertExtension.Equal(expected, actual);

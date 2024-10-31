@@ -10,6 +10,8 @@ public class SendEmailApiModel
 
     public Message Message { get; set; }
 
+    public Message SpecialMessage { get; set; }
+
     public int IssueTypeId { get; set; }
 
     public string NegativeBalanceUsers { get; set; }
