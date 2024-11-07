@@ -9,7 +9,6 @@ using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
 using NSubstitute;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
-using TicketVoidingSystem.Services;
 using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.RequestManualVoid;
@@ -82,6 +81,7 @@ public class RequestManualVoidServiceTests
             new(){TransId = 2}
         };
         var normalMessageContent = new Message();
+        var specialMessageContent = new Message();
         const int normalMessageId = 1;
         const int specialMessageId = 2;
         var voidReason = new VoidedReason();
@@ -95,7 +95,7 @@ public class RequestManualVoidServiceTests
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(voidDataXml);
         voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true).ReturnsForAnyArgs(voidedTickets);
         specialPlatformService.GroupTicketSaba(Arg.Any<IEnumerable<TicketEmailModel>>()).ReturnsForAnyArgs((normalTickets, specialTickets));
-        mainProcessStageService.CreateMessage(Arg.Any<CreateMessageStageParameter>()).ReturnsForAnyArgs((normalMessageId, specialMessageId, normalMessageContent));
+        mainProcessStageService.CreateMessage(Arg.Any<CreateMessageStageParameter>()).ReturnsForAnyArgs((normalMessageId, specialMessageId, normalMessageContent, specialMessageContent));
         mainProcessStageService.IsHaveMessage(normalMessageId, specialMessageId).ReturnsForAnyArgs(true);
         mainProcessStageService.CreateVoidReason(true, Arg.Any<CreateVoidReasonStageParameter>()).ReturnsForAnyArgs(voidReason);
         mainProcessStageService.IsHaveVoidReason(Arg.Any<VoidedReason>()).ReturnsForAnyArgs(true);
@@ -154,6 +154,7 @@ public class RequestManualVoidServiceTests
         {
             new(){TransId = 2}
         };
+        var specialMessageContent = new Message();
         var normalMessageContent = new Message();
         const int normalMessageId = 1;
         const int specialMessageId = 2;
@@ -167,7 +168,7 @@ public class RequestManualVoidServiceTests
         voidBetAutomationService.GetVoidDataFromVoidingHistory(automationInfo.VoidingHistoryId).ReturnsForAnyArgs(voidDataXml);
         voidBetAutomationService.GetVoidedTicketsByVoidingHistory(automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId, true).ReturnsForAnyArgs(voidedTickets);
         specialPlatformService.GroupTicketSaba(Arg.Any<IEnumerable<TicketEmailModel>>()).ReturnsForAnyArgs((normalTickets, specialTickets));
-        mainProcessStageService.CreateMessage(Arg.Any<CreateMessageStageParameter>()).ReturnsForAnyArgs((normalMessageId, specialMessageId, normalMessageContent));
+        mainProcessStageService.CreateMessage(Arg.Any<CreateMessageStageParameter>()).ReturnsForAnyArgs((normalMessageId, specialMessageId, normalMessageContent, specialMessageContent));
         mainProcessStageService.IsHaveMessage(normalMessageId, specialMessageId).ReturnsForAnyArgs(true);
         mainProcessStageService.CreateVoidReason(true, Arg.Any<CreateVoidReasonStageParameter>()).ReturnsForAnyArgs((VoidedReason)null);
         mainProcessStageService.IsHaveVoidReason(Arg.Any<VoidedReason>()).ReturnsForAnyArgs(true);

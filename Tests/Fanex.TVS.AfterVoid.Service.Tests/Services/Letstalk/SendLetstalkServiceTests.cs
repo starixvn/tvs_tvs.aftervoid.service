@@ -93,11 +93,11 @@ public class SendLetstalkServiceTests
         letstalkServiceStage.GetVoidBetAutomationRunLetstalk().ReturnsForAnyArgs(voidBetAutomationInfoList);
         letstalkServiceStage.GetVoidedTickets(default).ReturnsForAnyArgs(voidedTickets);
         letstalkServiceStage.GetVoidDataXml(default).ReturnsForAnyArgs(voidDataXmlModel);
-        voidBetAutomationService.GetRequestById(requestId1, default)
+        voidBetAutomationService.GetRequestViewModelById(requestId1, default)
             .Returns(CreateRequestDetailViewModel(IssueTypeConstant.AbnormalBet));
-        voidBetAutomationService.GetRequestById(requestId2, default)
+        voidBetAutomationService.GetRequestViewModelById(requestId2, default)
             .Returns(CreateRequestDetailViewModel(IssueTypeConstant.AbnormalBet));
-        voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
+        voidBetAutomationService.GetRequestViewModelById(default, default).ReturnsForAnyArgs(requestInfo);
         voidBetAutomationService.GetMatchInfo(default).Returns(new Match { MatchId = 1 });
 
         // Act
@@ -129,13 +129,13 @@ public class SendLetstalkServiceTests
         letstalkServiceStage.GetVoidBetAutomationRunLetstalk().ReturnsForAnyArgs(voidBetAutomationInfoList);
         letstalkServiceStage.GetVoidedTickets(default).ReturnsForAnyArgs(voidedTickets);
         letstalkServiceStage.GetVoidDataXml(default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
-        voidBetAutomationService.GetRequestById(requestId1, default)
+        voidBetAutomationService.GetRequestViewModelById(requestId1, default)
             .Returns(CreateRequestDetailViewModel(IssueTypeConstant.AbnormalBet));
-        voidBetAutomationService.GetRequestById(requestId2, default)
+        voidBetAutomationService.GetRequestViewModelById(requestId2, default)
             .Returns(CreateRequestDetailViewModel(IssueTypeConstant.AbnormalBet));
         settledBetLetstalkService.Send(default, default).ReturnsForAnyArgs(true);
         voidBetAutomationService.GetMatchInfo(default).Returns((Match)null);
-        voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
+        voidBetAutomationService.GetRequestViewModelById(default, default).ReturnsForAnyArgs(requestInfo);
 
         // Act
         await service.Execute();
@@ -155,7 +155,7 @@ public class SendLetstalkServiceTests
         };
         letstalkServiceStage.GetVoidBetAutomationRunLetstalk()
             .ReturnsForAnyArgs(new List<VoidBetAutomationInfo> { new() });
-        voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
+        voidBetAutomationService.GetRequestViewModelById(default, default).ReturnsForAnyArgs(requestInfo);
         settledBetLetstalkService
             .When(x => x.Send(Arg.Any<NotificationLetstalkModel>(), Arg.Any<IEnumerable<TicketEmailModel>>()))
             .Do(x => x.Throws(new Exception()));

@@ -5,6 +5,7 @@ using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Criteria.MultiSiteDb;
+using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
@@ -17,7 +18,7 @@ public interface VoidBetAutomationService
 {
     Task<(VoidBetAutomationInfo, bool, string, IEnumerable<EmailResultModel>)> GetVoidBetAutomationRunAfterVoid();
 
-    Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId);
+    Task<RequestDetailViewModel> GetRequestViewModelById(int requestId, int matchId);
 
     Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int matchId);
 
@@ -77,13 +78,9 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         return voidingHistoryModels.All(x => x.VoidingHistoryStatusId is ExecuteStatus.Running) ? RequestStatusConstant.Running : RequestStatusConstant.Completed;
     }
 
-    public async Task<RequestDetailViewModel> GetRequestById(int requestId, int matchId)
+    public async Task<RequestDetailViewModel> GetRequestViewModelById(int requestId, int matchId)
     {
-        var criteria = new SelectRequestCriteria
-        {
-            RequestId = requestId
-        };
-        var (requests, requestEvents, playerNames) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, PlayerName>(criteria);
+        var (requests, requestEvents, playerNames) = await GetRequestById(requestId);
         var firstRequest = requests.First();
         var viewModel = new RequestDetailViewModel
         {
@@ -251,5 +248,43 @@ public class VoidBetAutomationServiceImp : VoidBetAutomationService
         };
 
         return await repository.FetchAsync<TicketRecoverEmailModel>(criteria);
+    }
+
+    public async Task<(IEnumerable<RequestModel>, IEnumerable<RequestEventModel>, IEnumerable<PlayerName>)> GetRequestById(int requestId)
+    {
+        var criteria = new SelectRequestCriteria
+        {
+            RequestId = requestId
+        };
+        var (requests, requestEvents, playerNames) = await repository.FetchMultipleAsync<RequestModel, RequestEventModel, PlayerName>(criteria);
+        UpdateRequestDetailProperties(requests.First().IssueTypeId, requestEvents);
+
+        return (requests, requestEvents, playerNames);
+    }
+
+    public void UpdateRequestDetailProperties(int issueTypeId, IEnumerable<RequestEventModel> models)
+    {
+        if (!IsIssueTypesHaveExtraInfoJsonFormat(issueTypeId))
+        {
+            foreach (var model in models)
+            {
+                var root = model.RequestExtraInfo.ParseXmlToObject<RequestExtraInfoXml>();
+
+                model.CurrencyIds = root.CurrencyIds;
+                model.LicenseeNames = root.LicenseeNames;
+                model.WrongName = root.WrongName;
+                model.ActualName = root.ActualName;
+                model.WrongNameT = root.WrongNameT;
+                model.ActualNameT = root.ActualNameT;
+                model.WrongNameS = root.WrongNameS;
+                model.ActualNameS = root.ActualNameS;
+            }
+        }
+    }
+
+    private static bool IsIssueTypesHaveExtraInfoJsonFormat(int issueTypeId)
+    {
+        var issueTypesHasJsonFormat = new[] { IssueTypeConstant.WrongMarketOffered, IssueTypeConstant.TechnicalError };
+        return issueTypesHasJsonFormat.Contains(issueTypeId);
     }
 }

@@ -264,6 +264,7 @@ public class SendMessageServiceImp : SendMessageService
         ReplacePlacedFromTimeRange(model, voidDataXml, requestInfo.IsAllLiveTickets);
         ReplacePlayerName(model, requestInfo.PlayerNamesSelected);
         ReplaceSpecialBetType(model, requestInfo.SpecialBetTypeContent);
+        ReplaceWrongName(model, requestInfo.EventByMatch);
     }
 
     private static void ReplacePlayerName(TemplateModel model, ContentByLanguageModel playerName)
@@ -459,5 +460,30 @@ public class SendMessageServiceImp : SendMessageService
         model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(specialBetTypePlaceholder, betTypeChineseTraditional);
         model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(specialBetTypePlaceholder, betTypeChineseSimplified);
         model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(specialBetTypePlaceholder, betTypeNewChineseSimplified);
+    }
+
+    private static void ReplaceWrongName(TemplateModel model, RequestEventModel eventModel)
+    {
+        const string wrongNamePlaceholder = "{{Wrong Name}}";
+        const string actualNamePlaceholder = "{{Actual Name}}";
+        const string wrongNameTPlaceholder = "{{Wrong NameT}}";
+        const string actualNameTPlaceholder = "{{Actual NameT}}";
+        const string wrongNameSPlaceholder = "{{Wrong NameS}}";
+        const string actualNameSPlaceholder = "{{Actual NameS}}";
+
+        ReplaceAllLanguage(model, wrongNamePlaceholder, eventModel.WrongName);
+        ReplaceAllLanguage(model, actualNamePlaceholder, eventModel.ActualName);
+        ReplaceAllLanguage(model, wrongNameTPlaceholder, eventModel.WrongNameT);
+        ReplaceAllLanguage(model, actualNameTPlaceholder, eventModel.ActualNameT);
+        ReplaceAllLanguage(model, wrongNameSPlaceholder, eventModel.WrongNameS);
+        ReplaceAllLanguage(model, actualNameSPlaceholder, eventModel.ActualNameS);
+    }
+
+    private static void ReplaceAllLanguage(TemplateModel model, string destination, string value)
+    {
+        model.MsgEnglish = model.MsgEnglish.Replace(destination, value);
+        model.MsgChineseTraditional = model.MsgChineseTraditional.Replace(destination, value);
+        model.MsgChineseSimplified = model.MsgChineseSimplified.Replace(destination, value);
+        model.MsgChineseNewSimplified = model.MsgChineseNewSimplified.Replace(destination, value);
     }
 }

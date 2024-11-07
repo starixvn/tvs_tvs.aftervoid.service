@@ -13,7 +13,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 
 public interface CreateMessageStage
 {
-    Task<(int, int, Message)> Execute(CreateMessageStageParameter parameter);
+    Task<(int, int, Message, Message)> Execute(CreateMessageStageParameter parameter);
 }
 
 public class CreateMessageStageImp : CreateMessageStage
@@ -43,7 +43,7 @@ public class CreateMessageStageImp : CreateMessageStage
         this.messageContentParameterService = messageContentParameterService;
     }
 
-    public async Task<(int, int, Message)> Execute(CreateMessageStageParameter parameter)
+    public async Task<(int, int, Message, Message)> Execute(CreateMessageStageParameter parameter)
     {
         try
         {
@@ -55,27 +55,28 @@ public class CreateMessageStageImp : CreateMessageStage
         }
     }
 
-    public async Task<(int, int, Message)> TryExecute(CreateMessageStageParameter parameter)
+    public async Task<(int, int, Message, Message)> TryExecute(CreateMessageStageParameter parameter)
     {
         parameter.AutomationInfo.RequestInfo.IsAllLiveTickets = messageContentParameterService.IsAllLiveTickets(parameter.NormalTickets, parameter.SpecialTickets);
         parameter.AutomationInfo.RequestInfo.SpecialBetTypeContent = await messageContentParameterService.GetSpecialBetTypeContent(parameter.AutomationInfo.RequestInfo.Request.IssueTypeId,
             parameter.NormalTickets, parameter.SpecialTickets);
 
         var normalMessageContent = await InitializeMessageContent(parameter.AutomationInfo, parameter.MatchInfo, parameter.VoidDataXml);
+        var specialMessageContent = specialPlatformService.RemoveSabaInMessageContent(parameter.MatchInfo, normalMessageContent, parameter.AutomationInfo.RequestInfo);
         var normalMessageId = await CreateMessageForNormalPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.NormalTickets, normalMessageContent);
-        var specialMessageId = await CreateMessageForSpecialPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.SpecialTickets, normalMessageContent);
+        var specialMessageId = await CreateMessageForSpecialPlatform(parameter.AutomationInfo, parameter.MatchInfo, parameter.SpecialTickets, specialMessageContent);
 
-        return (normalMessageId, specialMessageId, normalMessageContent);
+        return (normalMessageId, specialMessageId, normalMessageContent, specialMessageContent);
     }
 
-    private async Task<(int, int, Message)> CatchException(Exception exception, VoidBetAutomationInfo automationInfo)
+    private async Task<(int, int, Message, Message)> CatchException(Exception exception, VoidBetAutomationInfo automationInfo)
     {
         await loggingService.ErrorAsync(
             $"ERROR: {nameof(CreateMessageStage)}.{nameof(Execute)} - BroadcastSessionId: {automationInfo.BroadcastSessionId}", exception);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
         await sendLetstalkServiceStage.InsertLetstalk(automationInfo.RequestId, automationInfo.BroadcastSessionId, ExecuteStatus.Failed);
         await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
-        return (0, 0, null);
+        return (0, 0, null, null);
     }
 
     private async Task<int> CreateMessageForNormalPlatform(VoidBetAutomationInfo automationInfo, Match matchInfo, IEnumerable<TicketEmailModel> voidedTickets, Message initMessage)
@@ -96,7 +97,7 @@ public class CreateMessageStageImp : CreateMessageStage
         return normalMessageId;
     }
 
-    private async Task<int> CreateMessageForSpecialPlatform(VoidBetAutomationInfo automationInfo, Match matchInfo, IEnumerable<TicketEmailModel> voidedTickets, Message initMessage)
+    private async Task<int> CreateMessageForSpecialPlatform(VoidBetAutomationInfo automationInfo, Match matchInfo, IEnumerable<TicketEmailModel> voidedTickets, Message specialMessageContent)
     {
         if (!voidedTickets.Any())
         {
@@ -108,11 +109,11 @@ public class CreateMessageStageImp : CreateMessageStage
             return automationInfo.MessageIdSpecial.Value;
         }
 
-        var messageSpecial = specialPlatformService.RemoveSabaInMessageContent(matchInfo, initMessage);
-        messageSpecial.MessageId = await sendMessageService.InsertMessage(messageSpecial, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, automationInfo.RequestInfo.Request.IssueTypeId);
-        await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { MessageIdSpecial = messageSpecial.MessageId });
+        specialMessageContent.MessageId = await sendMessageService.InsertMessage(
+            specialMessageContent, matchInfo?.MatchId ?? 0, matchInfo?.LeagueGroupId, automationInfo.RequestInfo.Request.IssueTypeId);
+        await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { MessageIdSpecial = specialMessageContent.MessageId });
 
-        return messageSpecial.MessageId;
+        return specialMessageContent.MessageId;
     }
 
     private async Task<Message> InitializeMessageContent(VoidBetAutomationInfo automationInfo, Match matchInfo, VoidDataXmlModel voidDataXml)

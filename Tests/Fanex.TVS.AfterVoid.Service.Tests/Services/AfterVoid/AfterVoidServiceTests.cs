@@ -42,14 +42,14 @@ public class AfterVoidServiceTests
         InitFakeServiceTests();
         voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
             .ReturnsForAnyArgs((null, false, "", new List<EmailResultModel>()));
-        voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(new RequestDetailViewModel());
+        voidBetAutomationService.GetRequestViewModelById(default, default).ReturnsForAnyArgs(new RequestDetailViewModel());
         var service = new AfterVoidServiceImp(voidBetAutomationService, default, default, default, default, default);
 
         // Act
         await service.Execute();
 
         // Assert
-        await voidBetAutomationService.DidNotReceiveWithAnyArgs().GetRequestById(default, default);
+        await voidBetAutomationService.DidNotReceiveWithAnyArgs().GetRequestViewModelById(default, default);
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class AfterVoidServiceTests
         var automationInfo = new VoidBetAutomationInfo { RequestInfo = requestInfo, MatchId = 1, IsAutoVoid = true };
         voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
             .ReturnsForAnyArgs((automationInfo, false, "", new List<EmailResultModel>()));
-        voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId)
+        voidBetAutomationService.GetRequestViewModelById(automationInfo.RequestId, automationInfo.MatchId)
             .ReturnsForAnyArgs(requestInfo);
         var service = new AfterVoidServiceImp(voidBetAutomationService, requestAutoVoidService, default, default, default,
             loggingService);
@@ -83,7 +83,7 @@ public class AfterVoidServiceTests
         var automationInfo = new VoidBetAutomationInfo { RequestInfo = requestInfo, MatchId = 1, IsAutoVoid = true };
         voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
             .ReturnsForAnyArgs((automationInfo, false, "", new List<EmailResultModel>()));
-        voidBetAutomationService.GetRequestById(automationInfo.RequestId, automationInfo.MatchId)
+        voidBetAutomationService.GetRequestViewModelById(automationInfo.RequestId, automationInfo.MatchId)
             .ReturnsForAnyArgs(requestInfo);
         var service = new AfterVoidServiceImp(voidBetAutomationService, default, default, default, requestAutoRecoverService,
             loggingService);
@@ -107,7 +107,7 @@ public class AfterVoidServiceTests
             Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsAutoVoid = false).Build();
         voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
             .ReturnsForAnyArgs((fakeAutomationStatistic, false, "", new List<EmailResultModel>()));
-        voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
+        voidBetAutomationService.GetRequestViewModelById(default, default).ReturnsForAnyArgs(requestInfo);
         var service = new AfterVoidServiceImp(voidBetAutomationService, default, default, requestVoid14Service, default,
             loggingService);
 
@@ -136,7 +136,7 @@ public class AfterVoidServiceTests
             Builder<VoidBetAutomationInfo>.CreateNew().With(x => x.IsAutoVoid = false).Build();
         voidBetAutomationService.GetVoidBetAutomationRunAfterVoid()
             .ReturnsForAnyArgs((fakeAutomationStatistic, false, "", new List<EmailResultModel>()));
-        voidBetAutomationService.GetRequestById(default, default).ReturnsForAnyArgs(requestInfo);
+        voidBetAutomationService.GetRequestViewModelById(default, default).ReturnsForAnyArgs(requestInfo);
         var service = new AfterVoidServiceImp(voidBetAutomationService, default, requestManualVoidService, default, default,
             loggingService);
 

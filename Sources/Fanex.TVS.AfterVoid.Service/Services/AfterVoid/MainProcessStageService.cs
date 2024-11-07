@@ -10,7 +10,7 @@ namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 
 public interface MainProcessStageService
 {
-    Task<(int, int, Message)> CreateMessage(CreateMessageStageParameter parameter);
+    Task<(int, int, Message, Message)> CreateMessage(CreateMessageStageParameter parameter);
 
     bool IsHaveMessage(int normalMessageId, int specialMessageId);
 
@@ -56,7 +56,7 @@ public class MainProcessStageServiceImp : MainProcessStageService
         this.voidBetAutomationService = voidBetAutomationService;
     }
 
-    public async Task<(int, int, Message)> CreateMessage(CreateMessageStageParameter parameter)
+    public async Task<(int, int, Message, Message)> CreateMessage(CreateMessageStageParameter parameter)
     {
         return await createMessageStage.Execute(parameter);
     }
