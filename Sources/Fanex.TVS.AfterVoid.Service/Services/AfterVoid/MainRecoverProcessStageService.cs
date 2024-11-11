@@ -22,24 +22,14 @@ public interface MainRecoverProcessStageService
     Task<(bool, IEnumerable<Result>)> SendEmail(bool isContinue, VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> tickets);
 }
 
-public class MainRecoverProcessStageServiceImp : MainRecoverProcessStageService
+public class MainRecoverProcessStageServiceImp(
+    DeleteMessageStage deletedMessageStage,
+    DeleteTransactionStage deleteTransactionStage,
+    SendEmailRecoverStage sendEmailRecoverStage,
+    UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage,
+    DeleteZzzBetTransStage deleteZzzBetTransStage)
+    : MainRecoverProcessStageService
 {
-    private readonly DeleteZzzBetTransStage deleteZzzBetTransStage;
-    private readonly DeleteMessageStage deletedMessageStage;
-    private readonly DeleteTransactionStage deleteTransactionStage;
-    private readonly SendEmailRecoverStage sendEmailRecoverStage;
-    private readonly UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage;
-
-    public MainRecoverProcessStageServiceImp(DeleteMessageStage deletedMessageStage, DeleteTransactionStage deleteTransactionStage,
-        SendEmailRecoverStage sendEmailRecoverStage, UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage, DeleteZzzBetTransStage deleteZzzBetTransStage)
-    {
-        this.deleteZzzBetTransStage = deleteZzzBetTransStage;
-        this.deletedMessageStage = deletedMessageStage;
-        this.deleteTransactionStage = deleteTransactionStage;
-        this.sendEmailRecoverStage = sendEmailRecoverStage;
-        this.updateTicketVoidingHistoryStage = updateTicketVoidingHistoryStage;
-    }
-
     public async Task<bool> DeleteZzzBetTrans(VoidBetAutomationInfo automationInfo, string transIds)
     {
         return await deleteZzzBetTransStage.Execute(automationInfo, transIds);

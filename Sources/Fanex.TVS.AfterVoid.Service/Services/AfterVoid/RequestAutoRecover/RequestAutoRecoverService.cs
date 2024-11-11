@@ -13,27 +13,15 @@ public interface RequestAutoRecoverService
     Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus);
 }
 
-public class RequestAutoRecoverServiceImp : RequestAutoRecoverService
+public class RequestAutoRecoverServiceImp(
+    VoidBetAutomationService voidBetAutomationService,
+    UpdateEmailResultStage updateEmailResultStage,
+    WriteLogAfterVoidStage writeLogAfterVoidStage,
+    CallSignalRStage callSignalRStage,
+    MainRecoverProcessStageService mainRecoverProcessStageService,
+    CallCashOutApiStage callCashOutApiStage)
+    : RequestAutoRecoverService
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly UpdateEmailResultStage updateEmailResultStage;
-    private readonly WriteLogAfterVoidStage writeLogAfterVoidStage;
-    private readonly CallSignalRStage callSignalRStage;
-    private readonly MainRecoverProcessStageService mainRecoverProcessStageService;
-    private readonly CallCashOutApiStage callCashOutApiStage;
-
-    public RequestAutoRecoverServiceImp(VoidBetAutomationService voidBetAutomationService, UpdateEmailResultStage updateEmailResultStage,
-        WriteLogAfterVoidStage writeLogAfterVoidStage, CallSignalRStage callSignalRStage,
-        MainRecoverProcessStageService mainRecoverProcessStageService, CallCashOutApiStage callCashOutApiStage)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.updateEmailResultStage = updateEmailResultStage;
-        this.writeLogAfterVoidStage = writeLogAfterVoidStage;
-        this.callSignalRStage = callSignalRStage;
-        this.mainRecoverProcessStageService = mainRecoverProcessStageService;
-        this.callCashOutApiStage = callCashOutApiStage;
-    }
-
     public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
     {
         if (automationInfo.StatusId != ExecuteStatus.Done)

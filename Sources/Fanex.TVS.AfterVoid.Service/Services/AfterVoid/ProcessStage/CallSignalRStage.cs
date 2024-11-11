@@ -20,15 +20,8 @@ public interface CallSignalRStage
     Task ExecuteForManualVoid(CallSignalRManualVoidParameter parameter);
 }
 
-public class CallSignalRStageImp : CallSignalRStage
+public class CallSignalRStageImp(NotificationSignalRService notificationSignalRService) : CallSignalRStage
 {
-    private readonly NotificationSignalRService notificationSignalRService;
-
-    public CallSignalRStageImp(NotificationSignalRService notificationSignalRService)
-    {
-        this.notificationSignalRService = notificationSignalRService;
-    }
-
     public async Task ExecuteForAutoVoid(bool isLastedInRequest, string currentRequestStatus, VoidBetAutomationInfo automationInfo)
     {
         if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)

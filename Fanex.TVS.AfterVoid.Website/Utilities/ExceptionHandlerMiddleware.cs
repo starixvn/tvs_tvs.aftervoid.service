@@ -9,16 +9,9 @@ using Microsoft.Extensions.Configuration;
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
 
 [ExcludeFromCodeCoverage(Justification = "non-logic")]
-public class ExceptionHandlerMiddleware
+public class ExceptionHandlerMiddleware(RequestDelegate next, IConfiguration configuration)
 {
-    private readonly RequestDelegate next;
-    public IConfiguration Configuration { get; }
-
-    public ExceptionHandlerMiddleware(RequestDelegate next, IConfiguration configuration)
-    {
-        this.next = next;
-        Configuration = configuration;
-    }
+    public IConfiguration Configuration { get; } = configuration;
 
     public async Task InvokeAsync(HttpContext context)
     {

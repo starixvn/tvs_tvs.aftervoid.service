@@ -42,19 +42,12 @@ public interface VoidBetAutomationService
     Task<IEnumerable<TicketRecoverEmailModel>> GetRecoveredTicketsByVoidingHistory(string singleTransIds, int voidingHistoryId, int siteDbGroupId);
 }
 
-public class VoidBetAutomationServiceImp : VoidBetAutomationService
+public class VoidBetAutomationServiceImp(
+    IDynamicRepository repository,
+    MatchService matchService,
+    MessageContentParameterService messageContentParameterService)
+    : VoidBetAutomationService
 {
-    private readonly IDynamicRepository repository;
-    private readonly MatchService matchService;
-    private readonly MessageContentParameterService messageContentParameterService;
-
-    public VoidBetAutomationServiceImp(IDynamicRepository repository, MatchService matchService, MessageContentParameterService messageContentParameterService)
-    {
-        this.repository = repository;
-        this.matchService = matchService;
-        this.messageContentParameterService = messageContentParameterService;
-    }
-
     public async Task<(VoidBetAutomationInfo, bool, string, IEnumerable<EmailResultModel>)> GetVoidBetAutomationRunAfterVoid()
     {
         var criteria = new GetAutomationInfoAfterVoidCriteria();

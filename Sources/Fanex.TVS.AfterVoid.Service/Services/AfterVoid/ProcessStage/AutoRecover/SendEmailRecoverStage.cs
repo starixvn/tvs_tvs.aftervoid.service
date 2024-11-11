@@ -16,24 +16,13 @@ public interface SendEmailRecoverStage
     Task<(bool, IEnumerable<Result>)> Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> tickets);
 }
 
-public class SendEmailRecoverStageImp : SendEmailRecoverStage
+public class SendEmailRecoverStageImp(
+    VoidBetAutomationService voidBetAutomationService,
+    NotificationSignalRService notificationSignalRService,
+    LoggingService loggingService,
+    TVSWebSiteHttpClientService tvsWebSiteHttpClientService)
+    : SendEmailRecoverStage
 {
-    private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly TVSWebSiteHttpClientService tvsWebSiteHttpClientService;
-
-    public SendEmailRecoverStageImp(VoidBetAutomationService voidBetAutomationService,
-        NotificationSignalRService notificationSignalRService,
-        LoggingService loggingService,
-        TVSWebSiteHttpClientService tvsWebSiteHttpClientService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.notificationSignalRService = notificationSignalRService;
-        this.loggingService = loggingService;
-        this.tvsWebSiteHttpClientService = tvsWebSiteHttpClientService;
-    }
-
     public async Task<(bool, IEnumerable<Result>)> Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> tickets)
     {
         try

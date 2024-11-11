@@ -20,17 +20,11 @@ public interface NotificationSignalRService
     Task NotifyErrorWhenExecuteAfterVoidServiceToUser(string userName);
 }
 
-public class NotificationSignalRServiceImp : NotificationSignalRService
+public class NotificationSignalRServiceImp(
+    VoidBetAutomationService voidBetAutomationService,
+    IHubContext<NotificationHub, ClientEvent> hubContext)
+    : NotificationSignalRService
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly IHubContext<NotificationHub, ClientEvent> hubContext;
-
-    public NotificationSignalRServiceImp(VoidBetAutomationService voidBetAutomationService, IHubContext<NotificationHub, ClientEvent> hubContext)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.hubContext = hubContext;
-    }
-
     public async Task UpdateFailedStatusForRequest(int requestId)
     {
         var failedRequests = new List<RequestStatus> { new() { RequestId = requestId, Status = RequestStatusConstant.Failed } };

@@ -16,22 +16,13 @@ public interface DeleteTransactionStage
     Task<bool> Execute(VoidBetAutomationInfo automationInfo, IEnumerable<BetId> betIds);
 }
 
-public class DeleteTransactionStageImp : DeleteTransactionStage
+public class DeleteTransactionStageImp(
+    IDynamicRepository repository,
+    VoidBetAutomationService voidBetAutomationService,
+    NotificationSignalRService notificationSignalRService,
+    LoggingService loggingService)
+    : DeleteTransactionStage
 {
-    private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly IDynamicRepository repository;
-
-    public DeleteTransactionStageImp(IDynamicRepository repository, VoidBetAutomationService voidBetAutomationService,
-        NotificationSignalRService notificationSignalRService, LoggingService loggingService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.notificationSignalRService = notificationSignalRService;
-        this.loggingService = loggingService;
-        this.repository = repository;
-    }
-
     public async Task<bool> Execute(VoidBetAutomationInfo automationInfo, IEnumerable<BetId> betIds)
     {
         try

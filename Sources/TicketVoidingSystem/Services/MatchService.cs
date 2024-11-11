@@ -9,18 +9,12 @@ public interface MatchService
     Match UpdateMatchInfoFromRemotingRef(Match match);
 }
 
-public class MatchServiceImp : MatchService
+public class MatchServiceImp(RemotingRefWrapperService remotingRefWrapperService) : MatchService
 {
-    private readonly RemotingRefWrapperService remotingRefWrapperService;
     private const int SportType160 = 160;
     private const int SportType161 = 161;
     private const int SportType164 = 164;
     private const int SportType207 = 207;
-
-    public MatchServiceImp(RemotingRefWrapperService remotingRefWrapperService)
-    {
-        this.remotingRefWrapperService = remotingRefWrapperService;
-    }
 
     public Match UpdateMatchInfoFromRemotingRef(Match match)
     {

@@ -12,21 +12,12 @@ public interface UpdateTicketVoidingHistoryStage
     Task<bool> Execute(UpdateTicketVoidingHistoryStageParameter parameter);
 }
 
-public class UpdateTicketVoidingHistoryStageImp : UpdateTicketVoidingHistoryStage
+public class UpdateTicketVoidingHistoryStageImp(
+    VoidBetAutomationService voidBetAutomationService,
+    NotificationSignalRService notificationSignalRService,
+    LoggingService loggingService)
+    : UpdateTicketVoidingHistoryStage
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly LoggingService loggingService;
-
-    public UpdateTicketVoidingHistoryStageImp(VoidBetAutomationService voidBetAutomationService,
-        NotificationSignalRService notificationSignalRService,
-        LoggingService loggingService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.notificationSignalRService = notificationSignalRService;
-        this.loggingService = loggingService;
-    }
-
     public async Task<bool> Execute(UpdateTicketVoidingHistoryStageParameter parameter)
     {
         try

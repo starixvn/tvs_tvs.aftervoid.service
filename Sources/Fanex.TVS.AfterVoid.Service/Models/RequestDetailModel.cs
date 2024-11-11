@@ -52,13 +52,8 @@ public class OperatorXml
 [XmlRoot(ElementName = "root")]
 public class RootOperators
 {
-    public RootOperators()
-    {
-        OperatorXmls = new List<OperatorXml>();
-    }
-
     [XmlElement(ElementName = "r")]
-    public List<OperatorXml> OperatorXmls { get; set; }
+    public List<OperatorXml> OperatorXmls { get; set; } = new();
 }
 
 public class RequestEventModel

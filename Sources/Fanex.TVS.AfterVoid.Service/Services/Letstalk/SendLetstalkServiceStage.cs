@@ -29,25 +29,13 @@ public interface SendLetstalkServiceStage
     Task UpdateLetstalk(int requestId, string broadcastSessionId, int statusId);
 }
 
-public class SendLetstalkServiceStageImp : SendLetstalkServiceStage
+public class SendLetstalkServiceStageImp(
+    IDynamicRepository repository,
+    LoggingService loggingService,
+    VoidBetAutomationService voidBetAutomationService,
+    TVSWebSiteHttpClientService tvsWebSiteHttpClientService)
+    : SendLetstalkServiceStage
 {
-    private readonly IDynamicRepository repository;
-    private readonly LoggingService loggingService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly TVSWebSiteHttpClientService tvsWebSiteHttpClientService;
-
-    public SendLetstalkServiceStageImp(
-        IDynamicRepository repository,
-        LoggingService loggingService,
-        VoidBetAutomationService voidBetAutomationService,
-        TVSWebSiteHttpClientService tvsWebSiteHttpClientService)
-    {
-        this.repository = repository;
-        this.loggingService = loggingService;
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.tvsWebSiteHttpClientService = tvsWebSiteHttpClientService;
-    }
-
     public async Task<IEnumerable<VoidBetAutomationInfo>> GetVoidBetAutomationRunLetstalk()
     {
         var criteria = new GetAutomationInfoLetstalkCriteria();

@@ -14,24 +14,13 @@ public interface SendEmailStage
     Task<(bool, IEnumerable<Result>)> Execute(SendEmailStageParameter parameter);
 }
 
-public class SendEmailStageImp : SendEmailStage
+public class SendEmailStageImp(
+    VoidBetAutomationService voidBetAutomationService,
+    NotificationSignalRService notificationSignalRService,
+    LoggingService loggingService,
+    AfterVoidEmailService afterVoidEmailService)
+    : SendEmailStage
 {
-    private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly AfterVoidEmailService afterVoidEmailService;
-
-    public SendEmailStageImp(VoidBetAutomationService voidBetAutomationService,
-        NotificationSignalRService notificationSignalRService,
-        LoggingService loggingService,
-        AfterVoidEmailService afterVoidEmailService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.notificationSignalRService = notificationSignalRService;
-        this.loggingService = loggingService;
-        this.afterVoidEmailService = afterVoidEmailService;
-    }
-
     public async Task<(bool, IEnumerable<Result>)> Execute(SendEmailStageParameter parameter)
     {
         try

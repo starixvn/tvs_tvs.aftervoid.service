@@ -16,24 +16,13 @@ public interface SendBatchMessageStage
     Task<bool> Execute(SendBatchMessageStageParameter parameter);
 }
 
-public class SendBatchMessageStageImp : SendBatchMessageStage
+public class SendBatchMessageStageImp(
+    VoidBetAutomationService voidBetAutomationService,
+    SendMessageService sendMessageService,
+    NotificationSignalRService notificationSignalRService,
+    LoggingService loggingService)
+    : SendBatchMessageStage
 {
-    private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly SendMessageService sendMessageService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
-
-    public SendBatchMessageStageImp(VoidBetAutomationService voidBetAutomationService,
-        SendMessageService sendMessageService,
-        NotificationSignalRService notificationSignalRService,
-        LoggingService loggingService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.sendMessageService = sendMessageService;
-        this.notificationSignalRService = notificationSignalRService;
-        this.loggingService = loggingService;
-    }
-
     public async Task<bool> Execute(SendBatchMessageStageParameter parameter)
     {
         try

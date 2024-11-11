@@ -14,22 +14,13 @@ public interface DeleteMessageStage
     Task<bool> Execute(VoidBetAutomationInfo automationInfo, string transIds);
 }
 
-public class DeleteMessageStageImp : DeleteMessageStage
+public class DeleteMessageStageImp(
+    IDynamicRepository repository,
+    VoidBetAutomationService voidBetAutomationService,
+    NotificationSignalRService notificationSignalRService,
+    LoggingService loggingService)
+    : DeleteMessageStage
 {
-    private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly IDynamicRepository repository;
-
-    public DeleteMessageStageImp(IDynamicRepository repository, VoidBetAutomationService voidBetAutomationService,
-        NotificationSignalRService notificationSignalRService, LoggingService loggingService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.notificationSignalRService = notificationSignalRService;
-        this.loggingService = loggingService;
-        this.repository = repository;
-    }
-
     public async Task<bool> Execute(VoidBetAutomationInfo automationInfo, string transIds)
     {
         try

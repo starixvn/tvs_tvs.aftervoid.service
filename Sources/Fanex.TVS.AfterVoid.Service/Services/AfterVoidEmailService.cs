@@ -17,17 +17,11 @@ public interface AfterVoidEmailService
     Task<IEnumerable<Result>> Execute(SendEmailStageParameter parameter);
 }
 
-public class AfterVoidEmailServiceImp : AfterVoidEmailService
+public class AfterVoidEmailServiceImp(
+    TVSWebSiteHttpClientService tvsWebSiteHttpClientService,
+    IDynamicRepository repository)
+    : AfterVoidEmailService
 {
-    private readonly TVSWebSiteHttpClientService tvsWebSiteHttpClientService;
-    private readonly IDynamicRepository repository;
-
-    public AfterVoidEmailServiceImp(TVSWebSiteHttpClientService tvsWebSiteHttpClientService, IDynamicRepository repository)
-    {
-        this.tvsWebSiteHttpClientService = tvsWebSiteHttpClientService;
-        this.repository = repository;
-    }
-
     public async Task<IEnumerable<Result>> Execute(SendEmailStageParameter parameter)
     {
         if (Helper.IsAbnormalBet(parameter.AutomationInfo.RequestInfo.Request.IssueTypeId))

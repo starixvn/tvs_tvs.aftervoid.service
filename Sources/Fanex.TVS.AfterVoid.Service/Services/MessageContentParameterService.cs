@@ -16,15 +16,9 @@ public interface MessageContentParameterService
     Task<ContentByLanguageModel> GetSpecialBetTypeContent(int issueTypeId, IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets);
 }
 
-public class MessageContentParameterServiceImp : MessageContentParameterService
+public class MessageContentParameterServiceImp(TVSWebSiteHttpClientService tvsWebSiteHttpClientService)
+    : MessageContentParameterService
 {
-    private readonly TVSWebSiteHttpClientService tvsWebSiteHttpClientService;
-
-    public MessageContentParameterServiceImp(TVSWebSiteHttpClientService tvsWebSiteHttpClientService)
-    {
-        this.tvsWebSiteHttpClientService = tvsWebSiteHttpClientService;
-    }
-
     public ContentByLanguageModel GetPlayerNamesSelected(int issueTypeId, PlayerName playerName)
     {
         if (issueTypeId == IssueTypeConstant.NotParticipate)

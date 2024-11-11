@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <CodeAnalysisRuleSet>Fanex.TVS.AfterVoid.Service.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
@@ -12,7 +12,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="DeepCloner" Version="0.10.4" />
-    <PackageReference Include="Fanex.Data.ProxyClient" Version="0.0.4-beta4" />
+    <PackageReference Include="Fanex.Data.ProxyClient" Version="1.0.1" />
     <PackageReference Include="Fanex.LetstalkService.Client" Version="1.0.0.20" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>

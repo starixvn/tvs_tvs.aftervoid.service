@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 namespace Fanex.TVS.AfterVoid.Service.Constants;
 
-public static class SportTypeConstant
+public static class VirtualSportSportTypeConstant
 {
     public const int VirtualFootballCup = 178;     // Virtual Sports 3
 

@@ -13,29 +13,16 @@ public interface RequestAutoVoidService
     Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus);
 }
 
-public class RequestAutoVoidServiceImp : RequestAutoVoidService
+public class RequestAutoVoidServiceImp(
+    VoidBetAutomationService voidBetAutomationService,
+    MainProcessStageService mainProcessStageService,
+    UpdateEmailResultStage updateEmailResultStage,
+    CallCashOutApiStage callCashOutApiStage,
+    WriteLogAfterVoidStage writeLogAfterVoidStage,
+    CallSignalRStage callSignalRStage,
+    SpecialPlatformService specialPlatformService)
+    : RequestAutoVoidService
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly MainProcessStageService mainProcessStageService;
-    private readonly UpdateEmailResultStage updateEmailResultStage;
-    private readonly CallCashOutApiStage callCashOutApiStage;
-    private readonly WriteLogAfterVoidStage writeLogAfterVoidStage;
-    private readonly CallSignalRStage callSignalRStage;
-    private readonly SpecialPlatformService specialPlatformService;
-
-    public RequestAutoVoidServiceImp(VoidBetAutomationService voidBetAutomationService, MainProcessStageService mainProcessStageService,
-        UpdateEmailResultStage updateEmailResultStage, CallCashOutApiStage callCashOutApiStage, WriteLogAfterVoidStage writeLogAfterVoidStage,
-        CallSignalRStage callSignalRStage, SpecialPlatformService specialPlatformService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.mainProcessStageService = mainProcessStageService;
-        this.updateEmailResultStage = updateEmailResultStage;
-        this.callCashOutApiStage = callCashOutApiStage;
-        this.writeLogAfterVoidStage = writeLogAfterVoidStage;
-        this.callSignalRStage = callSignalRStage;
-        this.specialPlatformService = specialPlatformService;
-    }
-
     public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
     {
         if (automationInfo.StatusId != ExecuteStatus.Done)

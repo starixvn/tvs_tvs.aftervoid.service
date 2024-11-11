@@ -9,20 +9,12 @@ using TicketVoidingSystem.Services;
 namespace Fanex.TVS.AfterVoid.Website.Jobs;
 
 [ExcludeFromCodeCoverage(Justification = "non-logic")]
-public class LetstalkJob : IJob
+public class LetstalkJob(
+    IMaintenanceService maintenanceService,
+    LoggingService loggingService,
+    SendLetstalkService sendLetstalkService)
+    : IJob
 {
-    private readonly SendLetstalkService sendLetstalkService;
-    private readonly LoggingService loggingService;
-    private readonly IMaintenanceService maintenanceService;
-
-    public LetstalkJob(IMaintenanceService maintenanceService, LoggingService loggingService,
-        SendLetstalkService sendLetstalkService)
-    {
-        this.maintenanceService = maintenanceService;
-        this.loggingService = loggingService;
-        this.sendLetstalkService = sendLetstalkService;
-    }
-
     public async Task Execute(IJobExecutionContext context)
     {
         try

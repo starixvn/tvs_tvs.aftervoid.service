@@ -16,33 +16,16 @@ public interface CreateMessageStage
     Task<(int, int, Message, Message)> Execute(CreateMessageStageParameter parameter);
 }
 
-public class CreateMessageStageImp : CreateMessageStage
+public class CreateMessageStageImp(
+    VoidBetAutomationService voidBetAutomationService,
+    SendMessageService sendMessageService,
+    NotificationSignalRService notificationSignalRService,
+    LoggingService loggingService,
+    SendLetstalkServiceStage sendLetstalkServiceStage,
+    SpecialPlatformService specialPlatformService,
+    MessageContentParameterService messageContentParameterService)
+    : CreateMessageStage
 {
-    private readonly LoggingService loggingService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly SendLetstalkServiceStage sendLetstalkServiceStage;
-    private readonly SendMessageService sendMessageService;
-    private readonly SpecialPlatformService specialPlatformService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly MessageContentParameterService messageContentParameterService;
-
-    public CreateMessageStageImp(VoidBetAutomationService voidBetAutomationService,
-        SendMessageService sendMessageService,
-        NotificationSignalRService notificationSignalRService,
-        LoggingService loggingService,
-        SendLetstalkServiceStage sendLetstalkServiceStage,
-        SpecialPlatformService specialPlatformService,
-        MessageContentParameterService messageContentParameterService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.sendMessageService = sendMessageService;
-        this.notificationSignalRService = notificationSignalRService;
-        this.loggingService = loggingService;
-        this.sendLetstalkServiceStage = sendLetstalkServiceStage;
-        this.specialPlatformService = specialPlatformService;
-        this.messageContentParameterService = messageContentParameterService;
-    }
-
     public async Task<(int, int, Message, Message)> Execute(CreateMessageStageParameter parameter)
     {
         try

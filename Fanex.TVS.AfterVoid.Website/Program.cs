@@ -1,3 +1,4 @@
+using Fanex.Data;
 using Fanex.TVS.AfterVoid.Website.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,18 +14,17 @@ services.AddControllers();
 services.AddMemoryCache();
 services.AddHttpClient<TVSWebSiteHttpClientService, TVSWebSiteHttpClientServiceImp>();
 services.AddHttpClient<CashOutHttpClientService, CashOutHttpClientServiceImp>();
-services.RegisterFanexData(builder.Configuration);
-services.RegisterFanexExceptionHandler();
-services.RegisterSentry();
-services.RegisterONEbookUM(builder.Configuration);
-services.RegisterFanexCaching(builder.Configuration);
-services.RegisterRemotingRef();
-services.RegisterLetstalk();
-services.RegisterAutoMapper();
-services.RegisterSignalR();
-services.RegisterBusinessService();
-services.RegisterQuartzScheduler();
-
+services.AddFanexData(builder.Configuration);
+services.AddExceptionHandler();
+services.AddSentry();
+services.AddOneBookUm(builder.Configuration);
+services.AddFanexCaching(builder.Configuration);
+services.AddRemotingRef();
+services.AddLetstalk();
+services.AddAutoMapper();
+services.AddTvsSignalR();
+services.AddBusinessService();
+services.AddQuartzScheduler();
 // Build app
 var app = builder.Build();
 app.UseHttpsRedirection();
@@ -34,4 +34,4 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapHub<NotificationHub>("/SignalR/NotificationHub");
 
-app.Run();
+await app.RunAsync();

@@ -12,33 +12,17 @@ public interface RequestManualVoidService
     Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory);
 }
 
-public class RequestManualVoidServiceImp : RequestManualVoidService
+public class RequestManualVoidServiceImp(
+    VoidBetAutomationService voidBetAutomationService,
+    MainProcessStageService mainProcessStageService,
+    NotificationSignalRService notificationSignalRService,
+    SpecialPlatformService specialPlatformService,
+    UpdateEmailResultStage updateEmailResultStage,
+    CallCashOutApiStage callCashOutApiStage,
+    WriteLogAfterVoidStage writeLogAfterVoidStage,
+    CallSignalRStage callSignalRStage)
+    : RequestManualVoidService
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly MainProcessStageService mainProcessStageService;
-    private readonly NotificationSignalRService notificationSignalRService;
-    private readonly SpecialPlatformService specialPlatformService;
-    private readonly UpdateEmailResultStage updateEmailResultStage;
-    private readonly CallCashOutApiStage callCashOutApiStage;
-    private readonly WriteLogAfterVoidStage writeLogAfterVoidStage;
-    private readonly CallSignalRStage callSignalRStage;
-
-    public RequestManualVoidServiceImp(
-        VoidBetAutomationService voidBetAutomationService, MainProcessStageService mainProcessStageService,
-        NotificationSignalRService notificationSignalRService, SpecialPlatformService specialPlatformService,
-        UpdateEmailResultStage updateEmailResultStage, CallCashOutApiStage callCashOutApiStage,
-        WriteLogAfterVoidStage writeLogAfterVoidStage, CallSignalRStage callSignalRStage)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.mainProcessStageService = mainProcessStageService;
-        this.notificationSignalRService = notificationSignalRService;
-        this.specialPlatformService = specialPlatformService;
-        this.updateEmailResultStage = updateEmailResultStage;
-        this.callCashOutApiStage = callCashOutApiStage;
-        this.writeLogAfterVoidStage = writeLogAfterVoidStage;
-        this.callSignalRStage = callSignalRStage;
-    }
-
     public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory)
     {
         if (automationInfo.StatusId != ExecuteStatus.Done)

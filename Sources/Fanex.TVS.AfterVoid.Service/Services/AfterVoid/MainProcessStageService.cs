@@ -31,31 +31,17 @@ public interface MainProcessStageService
     Task<Match> GetMatchInfo(int matchId);
 }
 
-public class MainProcessStageServiceImp : MainProcessStageService
+public class MainProcessStageServiceImp(
+    CreateMessageStage createMessageStage,
+    CreateVoidReasonStage createVoidReasonStage,
+    SendBatchMessageStage sendBatchMessageStage,
+    SendMessageToAdminSiteStage sendMessageToAdminSiteStage,
+    InsertVoidedTransactionStage insertVoidedTransactionStage,
+    UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage,
+    SendEmailStage sendEmailStage,
+    VoidBetAutomationService voidBetAutomationService)
+    : MainProcessStageService
 {
-    private readonly CreateMessageStage createMessageStage;
-    private readonly CreateVoidReasonStage createVoidReasonStage;
-    private readonly SendBatchMessageStage sendBatchMessageStage;
-    private readonly SendMessageToAdminSiteStage sendMessageToAdminSiteStage;
-    private readonly InsertVoidedTransactionStage insertVoidedTransactionStage;
-    private readonly UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage;
-    private readonly SendEmailStage sendEmailStage;
-    private readonly VoidBetAutomationService voidBetAutomationService;
-
-    public MainProcessStageServiceImp(CreateMessageStage createMessageStage, CreateVoidReasonStage createVoidReasonStage, SendBatchMessageStage sendBatchMessageStage,
-        SendMessageToAdminSiteStage sendMessageToAdminSiteStage, InsertVoidedTransactionStage insertVoidedTransactionStage,
-        UpdateTicketVoidingHistoryStage updateTicketVoidingHistoryStage, SendEmailStage sendEmailStage, VoidBetAutomationService voidBetAutomationService)
-    {
-        this.createMessageStage = createMessageStage;
-        this.createVoidReasonStage = createVoidReasonStage;
-        this.sendBatchMessageStage = sendBatchMessageStage;
-        this.sendMessageToAdminSiteStage = sendMessageToAdminSiteStage;
-        this.insertVoidedTransactionStage = insertVoidedTransactionStage;
-        this.updateTicketVoidingHistoryStage = updateTicketVoidingHistoryStage;
-        this.sendEmailStage = sendEmailStage;
-        this.voidBetAutomationService = voidBetAutomationService;
-    }
-
     public async Task<(int, int, Message, Message)> CreateMessage(CreateMessageStageParameter parameter)
     {
         return await createMessageStage.Execute(parameter);

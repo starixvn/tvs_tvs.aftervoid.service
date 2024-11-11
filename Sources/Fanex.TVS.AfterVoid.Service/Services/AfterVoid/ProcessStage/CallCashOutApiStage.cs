@@ -17,21 +17,12 @@ public interface CallCashOutApiStage
     Task ExecuteForRecover(VoidBetAutomationInfo automationInfo, IEnumerable<TicketRecoverEmailModel> emailTickets);
 }
 
-public class CallCashOutApiStageImp : CallCashOutApiStage
+public class CallCashOutApiStageImp(
+    VoidBetAutomationService voidBetAutomationService,
+    CashOutHttpClientService cashOutHttpClientService,
+    LoggingService loggingService)
+    : CallCashOutApiStage
 {
-    private readonly LoggingService loggingService;
-    private readonly CashOutHttpClientService cashOutHttpClientService;
-    private readonly VoidBetAutomationService voidBetAutomationService;
-
-    public CallCashOutApiStageImp(VoidBetAutomationService voidBetAutomationService,
-        CashOutHttpClientService cashOutHttpClientService,
-        LoggingService loggingService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.cashOutHttpClientService = cashOutHttpClientService;
-        this.loggingService = loggingService;
-    }
-
     public async Task ExecuteForVoid(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> emailTickets)
     {
         try

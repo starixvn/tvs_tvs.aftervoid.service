@@ -18,29 +18,15 @@ public interface AfterVoidService
     Task Execute();
 }
 
-public class AfterVoidServiceImp : AfterVoidService
+public class AfterVoidServiceImp(
+    VoidBetAutomationService voidBetAutomationService,
+    RequestAutoVoidService requestAutoVoidService,
+    RequestManualVoidService requestManualVoidService,
+    RequestVoid14Service requestVoid14Service,
+    RequestAutoRecoverService requestAutoRecoverService,
+    LoggingService loggingService)
+    : AfterVoidService
 {
-    private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly RequestAutoVoidService requestAutoVoidService;
-    private readonly RequestManualVoidService requestManualVoidService;
-    private readonly RequestVoid14Service requestVoid14Service;
-    private readonly RequestAutoRecoverService requestAutoRecoverService;
-    private readonly LoggingService loggingService;
-
-    public AfterVoidServiceImp(VoidBetAutomationService voidBetAutomationService,
-        RequestAutoVoidService requestAutoVoidService,
-        RequestManualVoidService requestManualVoidService,
-        RequestVoid14Service requestVoid14Service, RequestAutoRecoverService requestAutoRecoverService,
-        LoggingService loggingService)
-    {
-        this.voidBetAutomationService = voidBetAutomationService;
-        this.requestAutoVoidService = requestAutoVoidService;
-        this.requestManualVoidService = requestManualVoidService;
-        this.requestVoid14Service = requestVoid14Service;
-        this.requestAutoRecoverService = requestAutoRecoverService;
-        this.loggingService = loggingService;
-    }
-
     public async Task Execute()
     {
         var stopwatch = Stopwatch.StartNew();
