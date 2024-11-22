@@ -107,7 +107,7 @@ public static class ServiceCollectionExtensions
 
     public static void AddLetstalk(this IServiceCollection services)
     {
-        LetstalkService.Core.Services.AppConfigService.Config.LetstalkServiceApi = AppSettingService.AppSetting.LetstalkConfig.LetstalkServiceApi;
+        AppConfigService.Config.LetstalkServiceApi = AppSettingService.AppSetting.LetstalkConfig.LetstalkServiceApi;
     }
 
     public static void AddAutoMapper(this IServiceCollection services)
