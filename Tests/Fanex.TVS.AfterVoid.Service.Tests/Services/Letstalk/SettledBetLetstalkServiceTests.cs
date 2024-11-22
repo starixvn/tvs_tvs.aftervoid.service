@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Fanex.LetstalkService.Client;
-using Fanex.LetstalkService.Core.Models;
+using Fanex.LetstalkService.Client.Models;
 using Fanex.RemotingRef;
 using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;

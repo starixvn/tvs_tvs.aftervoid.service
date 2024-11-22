@@ -13,7 +13,7 @@
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="DeepCloner" Version="0.10.4" />
     <PackageReference Include="Fanex.Data.ProxyClient" Version="1.0.1" />
-    <PackageReference Include="Fanex.LetstalkService.Client" Version="1.0.0.20" />
+    <PackageReference Include="Fanex.LetstalkService.Client" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
