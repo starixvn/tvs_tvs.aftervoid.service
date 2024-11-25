@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
@@ -48,7 +47,7 @@ public class RequestVoid14ServiceImp(
             {
                 AutomationInfo = automationInfo,
                 NormalTickets = voidedTickets,
-                SpecialTickets = Enumerable.Empty<TicketEmailModel>(),
+                SpecialTickets = [],
                 NormalMessageId = 0,
                 SpecialMessageId = 0,
                 VoidReasonId = voidReason?.ReasonId ?? 0

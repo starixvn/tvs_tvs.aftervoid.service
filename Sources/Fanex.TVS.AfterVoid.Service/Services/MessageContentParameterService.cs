@@ -21,20 +21,20 @@ public class MessageContentParameterServiceImp(TVSWebSiteHttpClientService tvsWe
 {
     public ContentByLanguageModel GetPlayerNamesSelected(int issueTypeId, PlayerName playerName)
     {
-        if (issueTypeId == IssueTypeConstant.NotParticipate)
+        if (issueTypeId != IssueTypeConstant.NotParticipate)
         {
-            var playerNamesSelected = new ContentByLanguageModel
-            {
-                ContentEnglish = playerName.PlayerNamesEnglish,
-                ContentChineseSimplified = playerName.PlayerNamesChineseSimplified,
-                ContentNewChineseSimplified = playerName.PlayerNamesChineseSimplified,
-                ContentChineseTraditional = playerName.PlayerNamesChineseTraditional
-            };
-
-            return playerNamesSelected;
+            return null;
         }
 
-        return null;
+        var playerNamesSelected = new ContentByLanguageModel
+        {
+            ContentEnglish = playerName.PlayerNamesEnglish,
+            ContentChineseSimplified = playerName.PlayerNamesChineseSimplified,
+            ContentNewChineseSimplified = playerName.PlayerNamesChineseSimplified,
+            ContentChineseTraditional = playerName.PlayerNamesChineseTraditional
+        };
+
+        return playerNamesSelected;
     }
 
     public bool IsAllLiveTickets(IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets)

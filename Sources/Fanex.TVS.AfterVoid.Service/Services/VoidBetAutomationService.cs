@@ -90,9 +90,12 @@ public class VoidBetAutomationServiceImp(
 
     private static bool IsIssueTypeHasMatchId(int issueTypeId)
     {
-        int[] issueTypeHasMatchId = { IssueTypeConstant.WrongHDP, IssueTypeConstant.Wrong1stHDP, IssueTypeConstant.WrongOU,
+        int[] issueTypeHasMatchId =
+        [
+            IssueTypeConstant.WrongHDP, IssueTypeConstant.Wrong1stHDP, IssueTypeConstant.WrongOU,
             IssueTypeConstant.Wrong1stOU, IssueTypeConstant.DangerAccepted, IssueTypeConstant.RedCard,
-            IssueTypeConstant.EarlyKickOffTime, IssueTypeConstant.WrongKickOffTime };
+            IssueTypeConstant.EarlyKickOffTime, IssueTypeConstant.WrongKickOffTime
+        ];
 
         return issueTypeHasMatchId.Contains(issueTypeId);
     }
@@ -161,20 +164,20 @@ public class VoidBetAutomationServiceImp(
 
     public async Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsByVoidingHistory(int voidingHistoryId, int siteDbGroupId, bool isInsertRoutineTask)
     {
-        var checkITUser = await CheckRequestOfITUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
+        var checkItUser = await CheckRequestOfItUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
         var criteria = new GetTicketsEmailCriteria
         {
             SiteDbGroupId = siteDbGroupId,
             VoidingHistoryId = voidingHistoryId,
-            IsITSupport = checkITUser.IsITSupport,
-            IsITSupportCreatedRequest = checkITUser.IsITSupportCreatedRequest,
+            IsITSupport = checkItUser.IsITSupport,
+            IsITSupportCreatedRequest = checkItUser.IsITSupportCreatedRequest,
             IsInsertRoutineTask = isInsertRoutineTask
         };
 
         return await repository.FetchAsync<TicketEmailModel>(criteria);
     }
 
-    private async Task<CheckRequestOfITUserModel> CheckRequestOfITUser(int voidingHistoryId)
+    private async Task<CheckRequestOfITUserModel> CheckRequestOfItUser(int voidingHistoryId)
     {
         var criteria = new CheckRequestOfITUserCriteria
         {
@@ -229,13 +232,13 @@ public class VoidBetAutomationServiceImp(
 
     public async Task<IEnumerable<TicketRecoverEmailModel>> GetRecoveredTicketsByVoidingHistory(string singleTransIds, int voidingHistoryId, int siteDbGroupId)
     {
-        var checkITUser = await CheckRequestOfITUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
+        var checkItUser = await CheckRequestOfItUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
         var criteria = new GetTicketsRecoverEmailCriteria
         {
             SiteDbGroupId = siteDbGroupId,
             SingleTransIds = singleTransIds,
-            IsITSupport = checkITUser.IsITSupport,
-            IsITSupportCreatedRequest = checkITUser.IsITSupportCreatedRequest,
+            IsITSupport = checkItUser.IsITSupport,
+            IsITSupportCreatedRequest = checkItUser.IsITSupportCreatedRequest,
             IsInsertRoutineTask = true
         };
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using Fanex.RemotingRef;
-using Fanex.TVS.AfterVoid.Service.Constants;
 using TicketVoidingSystem.Constants;
 
 namespace TicketVoidingSystem.Services;
