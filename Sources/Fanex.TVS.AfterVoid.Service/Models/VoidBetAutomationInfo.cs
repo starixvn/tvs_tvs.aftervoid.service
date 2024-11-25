@@ -38,8 +38,6 @@ public class VoidBetAutomationInfo
 
     public bool? IsSentEmail { get; set; }
 
-    public bool? IsSentLetsTalk { get; set; }
-
     public string VoidResults { get; set; }
 
     public RequestDetailViewModel RequestInfo { get; set; }

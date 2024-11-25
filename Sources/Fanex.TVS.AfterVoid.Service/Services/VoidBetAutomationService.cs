@@ -150,7 +150,6 @@ public class VoidBetAutomationServiceImp(
             criteria.IsInsertedVoidedTransaction = afterVoidHistory.IsInsertedVoidedTransaction;
             criteria.IsUpdatedVoidingHistory = afterVoidHistory.IsUpdatedVoidingHistory;
             criteria.IsSentEmail = afterVoidHistory.IsSentEmail;
-            criteria.IsSentLetsTalk = afterVoidHistory.IsSentLetsTalk;
             criteria.IsDeletedZzzBetTrans = afterVoidHistory.IsDeletedZzzBetTrans;
             criteria.IsDeletedMessage = afterVoidHistory.IsDeletedMessage;
             criteria.IsDeletedVoidedTransaction = afterVoidHistory.IsDeletedVoidedTransaction;

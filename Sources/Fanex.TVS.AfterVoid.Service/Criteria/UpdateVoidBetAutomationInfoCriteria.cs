@@ -30,8 +30,6 @@ public class UpdateVoidBetAutomationInfoCriteria : NonQueryCommand
 
     public bool? IsSentEmail { get; set; }
 
-    public bool? IsSentLetsTalk { get; set; }
-
     public bool? IsDeletedZzzBetTrans { get; set; }
 
     public bool? IsDeletedMessage { get; set; }
