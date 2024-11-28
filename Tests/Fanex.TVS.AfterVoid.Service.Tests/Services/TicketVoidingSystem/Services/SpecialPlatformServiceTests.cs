@@ -99,14 +99,19 @@ public class SpecialPlatformServiceTests
         AssertExtension.Equal(message, actual);
     }
 
-    [Fact]
-    public void RemoveSabaInMessageContent_HasMatchNotNull_ReturnExpected()
+    [Theory]
+    [InlineData(IssueTypeConstant.WrongOfferedName, 128)]
+    [InlineData(IssueTypeConstant.WrongOfferedName, 129)]
+    [InlineData(IssueTypeConstant.TechnicalError, 128)]
+    [InlineData(IssueTypeConstant.TechnicalError, 1)]
+    [InlineData(IssueTypeConstant.DangerAccepted, 129)]
+    public void RemoveSabaInMessageContent_HasMatchNotNull_ReturnExpected(int issueTypeId, int subIssueTypeId)
     {
         // Arrange
         var requestInfo = new RequestDetailViewModel
         {
-            Request = new RequestModel(),
-            EventByMatch = new RequestEventModel()
+            Request = new RequestModel { IssueTypeId = issueTypeId },
+            EventByMatch = new RequestEventModel { SubIssueTypeId = subIssueTypeId }
         };
         var match = new Match
         {
