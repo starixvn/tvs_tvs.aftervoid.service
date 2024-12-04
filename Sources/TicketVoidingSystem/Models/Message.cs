@@ -25,4 +25,23 @@ public class Message
     public int CreatorId { get; set; }
 
     public string CreatorName { get; set; }
+
+    public Message Clone()
+    {
+        return new Message
+        {
+            MessageId = MessageId,
+            ContentChineseSimplified = ContentChineseSimplified,
+            ContentChineseTraditional = ContentChineseTraditional,
+            ContentEnglish = ContentEnglish,
+            ContentItalian = ContentItalian,
+            ContentJapanese = ContentJapanese,
+            ContentKorean = ContentKorean,
+            ContentNewChineseSimplified = ContentNewChineseSimplified,
+            ContentSpanish = ContentSpanish,
+            ContentThai = ContentThai,
+            CreatorId = CreatorId,
+            CreatorName = CreatorName
+        };
+    }
 }

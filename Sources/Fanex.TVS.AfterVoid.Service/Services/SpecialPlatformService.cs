@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Fanex.TVS.AfterVoid.Service.Models;
-using Force.DeepCloner;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Extensions;
 using TicketVoidingSystem.Models;
@@ -37,7 +36,7 @@ public class SpecialPlatformServiceImp : SpecialPlatformService
 
     public Message RemoveSabaInMessageContent(MatchModel match, Message message, RequestDetailViewModel requestInfo)
     {
-        var outputMessage = message.DeepClone();
+        var outputMessage = message.Clone();
 
         RemoveSabaLeagueNameByMatch(match, outputMessage);
         RemoveSabaLeagueNameByInput(requestInfo, outputMessage);
