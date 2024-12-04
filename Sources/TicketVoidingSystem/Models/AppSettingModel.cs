@@ -12,10 +12,6 @@ public class AppSettingModel
 
     public string ServiceName { get; init; }
 
-    public string SentryClientKey { get; init; }
-
-    public string CategorySentryLog { get; init; }
-
     public string TVSWebSiteUrl { get; init; }
 
     public string FanexRemotingRefServiceUrl { get; init; }

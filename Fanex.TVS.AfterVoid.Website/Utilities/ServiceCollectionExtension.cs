@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Fanex.Caching.Redis;
 using Fanex.Data.Repository;
 using Fanex.LetstalkService.Client;
-using Fanex.Logging;
 using Fanex.Logging.Extensions;
 using Fanex.Logging.Extensions.AspNetCore;
 using Fanex.RemotingRef;
@@ -34,8 +31,6 @@ using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
 
-using Logging.Sentry.RavenClient;
-using SharpRaven;
 
 [ExcludeFromCodeCoverage(Justification = "non-logic")]
 public static class ServiceCollectionExtensions
@@ -43,24 +38,6 @@ public static class ServiceCollectionExtensions
     public static void LoadConfig(this IServiceCollection services, IConfiguration configuration)
     {
         AppSettingService.InitSetting(configuration);
-    }
-
-    public static void AddSentry(this IServiceCollection services)
-    {
-        LogManager
-            .SetDefaultLogCategory(AppSettingService.AppSetting.CategorySentryLog)
-            .Use(new List<ILogEngine>
-            {
-                new SentryLogging(new SentryEngineOptions
-                {
-                    Dsn = new Dsn(AppSettingService.AppSetting.SentryClientKey)
-                })
-            });
-
-        ExceptionHandler
-            .UseConfig(new LoggingConfiguration());
-
-        services.AddSingleton<ILogger, Logger>();
     }
 
     public static void AddTvsSignalR(this IServiceCollection services)
@@ -90,11 +67,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IPHelper, IPHelperImpl>();
         services.AddSingleton<IHttpContextHelper, CustomHttpContextHelper>();
         services.AddSingleton<IMaintenanceService, MaintenanceService>();
-    }
-
-    public static void AddFanexCaching(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddRedisCache(configuration.GetSection("FanexCachingRedis"));
     }
 
     public static void AddRemotingRef(this IServiceCollection services)
@@ -166,9 +138,8 @@ public static class ServiceCollectionExtensions
 
         services.AddQuartz(q =>
         {
-            // handy when part of cluster or you want to otherwise identify multiple schedulers
+            // handy when part of cluster, or you want to otherwise identify multiple schedulers
             q.SchedulerId = "Scheduler-TVS-After-Void-Service";
-            q.UseMicrosoftDependencyInjectionJobFactory();
 
             // these are the defaults
             q.UseSimpleTypeLoader();
@@ -191,13 +162,6 @@ public static class ServiceCollectionExtensions
             );
 
             q.AddSchedulerListener<CustomSchedulerListener>();
-
-            //// auto-interrupt long-running job
-            //// q.UseJobAutoInterrupt(options =>
-            //// {
-            ////    // this is the default
-            ////    options.DefaultMaxRunTime = TimeSpan.FromMinutes(5);
-            //// });
         });
 
         services.AddQuartzHostedService(options =>

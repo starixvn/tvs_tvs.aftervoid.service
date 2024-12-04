@@ -1,4 +1,6 @@
+using Fanex.Caching.Redis;
 using Fanex.Data;
+using Fanex.Logging.Sentry.RavenClient;
 using Fanex.TVS.AfterVoid.Website.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,18 +9,19 @@ using TicketVoidingSystem.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
+var configuration = builder.Configuration;
 
 // Add services to the container.
-services.LoadConfig(builder.Configuration);
+services.LoadConfig(configuration);
 services.AddControllers();
 services.AddMemoryCache();
 services.AddHttpClient<TVSWebSiteHttpClientService, TVSWebSiteHttpClientServiceImp>();
 services.AddHttpClient<CashOutHttpClientService, CashOutHttpClientServiceImp>();
-services.AddFanexData(builder.Configuration);
+services.AddFanexData(configuration);
 services.AddExceptionHandler();
-services.AddSentry();
-services.AddOneBookUm(builder.Configuration);
-services.AddFanexCaching(builder.Configuration);
+services.AddFanexLogSentry(configuration);
+services.AddOneBookUm(configuration);
+services.AddRedisCache(configuration.GetSection("Fanex.Caching.Redis"));
 services.AddRemotingRef();
 services.AddLetstalk();
 services.AddAutoMapper();
