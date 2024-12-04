@@ -22,6 +22,7 @@ using ONEbook.UM.Configurations;
 using ONEbook.UM.Helpers;
 using ONEbook.UM.Services;
 using ONEbook.UM.Transport;
+using StackExchange.Redis;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Services;
 
@@ -40,10 +41,11 @@ public static class ServiceCollectionExtensions
     {
         services.AddSignalR().AddStackExchangeRedis(options =>
         {
-            options.Configuration.EndPoints.Add(AppSettingService.AppSetting.RedisConfig.EndPoint);
-            options.Configuration.Password = AppSettingService.AppSetting.RedisConfig.Password;
-            options.Configuration.DefaultDatabase = AppSettingService.AppSetting.RedisConfig.DefaultDatabase;
-            options.Configuration.ChannelPrefix = AppSettingService.AppSetting.RedisConfig.SignalRChannelPrefix;
+            var redisConfig = AppSettingService.AppSetting.RedisConfig;
+            options.Configuration.EndPoints.Add(redisConfig.EndPoint);
+            options.Configuration.Password = redisConfig.Password;
+            options.Configuration.DefaultDatabase = redisConfig.DefaultDatabase;
+            options.Configuration.ChannelPrefix = RedisChannel.Literal(redisConfig.SignalRChannelPrefix);
         });
     }
 
