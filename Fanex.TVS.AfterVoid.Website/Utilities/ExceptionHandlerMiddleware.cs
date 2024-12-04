@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Threading.Tasks;
 using Fanex.Logging.Extensions.AspNetCore;
@@ -8,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
 
-[ExcludeFromCodeCoverage(Justification = "non-logic")]
 public class ExceptionHandlerMiddleware(RequestDelegate next, IConfiguration configuration)
 {
     public IConfiguration Configuration { get; } = configuration;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using Fanex.Data.Repository;
 using Fanex.LetstalkService.Client;
 using Fanex.Logging.Extensions;
@@ -15,8 +14,6 @@ using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestVoid14;
 using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using Fanex.TVS.AfterVoid.Service.Utilities.AutoMapper;
-using Fanex.TVS.AfterVoid.Website.Jobs;
-using Fanex.TVS.AfterVoid.Website.Jobs.Listener;
 using Fanex.TVS.AfterVoid.Website.Utilities.CustomServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,14 +22,13 @@ using ONEbook.UM.Configurations;
 using ONEbook.UM.Helpers;
 using ONEbook.UM.Services;
 using ONEbook.UM.Transport;
-using Quartz;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
 
+using Jobs;
 
-[ExcludeFromCodeCoverage(Justification = "non-logic")]
 public static class ServiceCollectionExtensions
 {
     public static void LoadConfig(this IServiceCollection services, IConfiguration configuration)
@@ -130,44 +126,14 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<MainRecoverProcessStageService, MainRecoverProcessStageServiceImp>();
     }
 
-    public static void AddQuartzScheduler(this IServiceCollection services)
+    public static IServiceCollection AddBackgroundService(this IServiceCollection services)
     {
-        const int maxConcurrencyThread = 10;
-        services.AddTransient<AfterVoidJob>();
-        services.AddTransient<LetstalkJob>();
+        services.AddSingleton<AfterVoidJob>();
+        services.AddSingleton<LetstalkJob>();
 
-        services.AddQuartz(q =>
-        {
-            // handy when part of cluster, or you want to otherwise identify multiple schedulers
-            q.SchedulerId = "Scheduler-TVS-After-Void-Service";
+        services.AddHostedService<AfterVoidJob>();
+        services.AddHostedService < LetstalkJob>();
 
-            // these are the defaults
-            q.UseSimpleTypeLoader();
-            q.UseInMemoryStore();
-            q.UseDefaultThreadPool(tp =>
-            {
-                tp.MaxConcurrency = maxConcurrencyThread;
-            });
-
-            q.ScheduleJob<AfterVoidJob>(trigger => trigger
-                .WithIdentity("AfterVoidJob Trigger")
-                .StartNow()
-                .WithSimpleSchedule(x => x.WithIntervalInSeconds(1).RepeatForever())
-            );
-
-            q.ScheduleJob<LetstalkJob>(trigger => trigger
-                .WithIdentity("NotificationLetstalkJob Trigger")
-                .StartNow()
-                .WithSimpleSchedule(x => x.WithIntervalInSeconds(1).RepeatForever())
-            );
-
-            q.AddSchedulerListener<CustomSchedulerListener>();
-        });
-
-        services.AddQuartzHostedService(options =>
-        {
-            // when shutting down we want jobs to complete gracefully
-            options.WaitForJobsToComplete = true;
-        });
+        return services;
     }
 }

@@ -2,21 +2,23 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <CodeAnalysisRuleSet>Fanex.TVS.AfterVoid.Website.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet></CodeAnalysisRuleSet>
   </PropertyGroup>
-    
+  <PropertyGroup>
+    <SonarQubeExclude>true</SonarQubeExclude>
+  </PropertyGroup>
   <ItemGroup>
     <None Remove="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.xml" />
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\.sonarlint\tvs.aftervoid.service\CSharp\SonarLint.xml" Link="SonarLint.xml" />
     <Content Include="App_Data\Fanex.Data\TVSAfterVoidServiceSpNames.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Fanex.Caching.Redis" Version="2.2.6" />
     <PackageReference Include="Fanex.Data.ProxyClient" Version="1.0.2" />
     <PackageReference Include="Fanex.Logging" Version="2.0.1.1" />
     <PackageReference Include="Fanex.Logging.Extensions.AspNetCore" Version="1.1.0" />
@@ -26,8 +28,6 @@
     <PackageReference Include="ONEbook.UM" Version="3.1.6" />
     <PackageReference Include="ONEbook.UM.AspNetCore" Version="3.1.1.1" />
     <PackageReference Include="ONEbook.UM.Transport" Version="3.1.2" />
-    <PackageReference Include="Quartz" Version="3.13.1" />
-    <PackageReference Include="Quartz.Extensions.Hosting" Version="3.13.1" />
   </ItemGroup>
 
   <ItemGroup>

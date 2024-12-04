@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
@@ -18,7 +17,6 @@ public interface CashOutHttpClientService
     Task UndoVoidBet(CashOutApiModel requestModel);
 }
 
-[ExcludeFromCodeCoverage]
 public class CashOutHttpClientServiceImp : CashOutHttpClientService
 {
     private readonly HttpClient httpClient;
