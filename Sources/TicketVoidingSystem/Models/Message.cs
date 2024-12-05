@@ -28,20 +28,6 @@ public class Message
 
     public Message Clone()
     {
-        return new Message
-        {
-            MessageId = MessageId,
-            ContentChineseSimplified = ContentChineseSimplified,
-            ContentChineseTraditional = ContentChineseTraditional,
-            ContentEnglish = ContentEnglish,
-            ContentItalian = ContentItalian,
-            ContentJapanese = ContentJapanese,
-            ContentKorean = ContentKorean,
-            ContentNewChineseSimplified = ContentNewChineseSimplified,
-            ContentSpanish = ContentSpanish,
-            ContentThai = ContentThai,
-            CreatorId = CreatorId,
-            CreatorName = CreatorName
-        };
+        return (Message)MemberwiseClone();
     }
 }
