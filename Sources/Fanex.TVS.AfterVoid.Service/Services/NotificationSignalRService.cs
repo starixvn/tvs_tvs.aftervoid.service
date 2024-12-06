@@ -13,7 +13,7 @@ public interface NotificationSignalRService
 {
     Task UpdateFailedStatusForRequest(int requestId);
 
-    Task UpdateCompletedStatusForRequests(int requestId, int matchId);
+    Task UpdateCompletedStatusForRequests(int requestId, int? matchId, int? requestDetailId);
 
     Task NotifyVoidResultToUser(string userName, IEnumerable<Result> results);
 
@@ -31,9 +31,9 @@ public class NotificationSignalRServiceImp(
         await hubContext.Clients.All.updateRequestStatus(failedRequests);
     }
 
-    public async Task UpdateCompletedStatusForRequests(int requestId, int matchId)
+    public async Task UpdateCompletedStatusForRequests(int requestId, int? matchId, int? requestDetailId)
     {
-        var requestInfo = await voidBetAutomationService.GetRequestSimpleInfo(requestId, matchId);
+        var requestInfo = await voidBetAutomationService.GetRequestSimpleInfo(requestId, matchId, requestDetailId);
         var completedRequests = new List<RequestStatus> { new() { RequestId = requestId, Status = RequestStatusConstant.Completed, SimpleInfo = requestInfo } };
         await hubContext.Clients.All.updateRequestStatus(completedRequests);
     }

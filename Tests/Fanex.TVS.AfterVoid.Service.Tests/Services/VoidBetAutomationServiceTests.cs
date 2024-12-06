@@ -172,7 +172,6 @@ public class VoidBetAutomationServiceTests
     {
         // Arrange
         const int fakeRequestId = 113;
-        const int fakeVoidingHistoryId = 211;
         var expectedRequestInfo = new RequestSimpleInfo { MatchId = 111 };
         InItService();
         repository.GetAsync<RequestSimpleInfo>(
@@ -181,7 +180,7 @@ public class VoidBetAutomationServiceTests
         service = new VoidBetAutomationServiceImp(repository, matchService, messageContentParameterService);
 
         // Act
-        var actual = await service.GetRequestSimpleInfo(fakeRequestId, fakeVoidingHistoryId);
+        var actual = await service.GetRequestSimpleInfo(113, 211, 1);
 
         // Assert
         Assert.StrictEqual(expectedRequestInfo, actual);

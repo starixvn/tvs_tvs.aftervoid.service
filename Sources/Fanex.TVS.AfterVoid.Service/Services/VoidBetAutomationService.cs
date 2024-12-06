@@ -20,7 +20,7 @@ public interface VoidBetAutomationService
 
     Task<RequestDetailViewModel> GetRequestViewModelById(int requestId, int matchId);
 
-    Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int matchId);
+    Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int? matchId, int? requestDetailId);
 
     Task UpdateServiceStatusByVoidingHistory(int requestId, int voidingHistoryId, int statusId);
 
@@ -100,12 +100,13 @@ public class VoidBetAutomationServiceImp(
         return issueTypeHasMatchId.Contains(issueTypeId);
     }
 
-    public async Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int matchId)
+    public async Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int? matchId, int? requestDetailId)
     {
         var criteria = new GetRequestSimpleInfoCriteria
         {
             RequestId = requestId,
-            MatchId = matchId
+            MatchId = matchId,
+            RequestDetailId = requestDetailId
         };
         var request = await repository.GetAsync<RequestSimpleInfo>(criteria);
 
