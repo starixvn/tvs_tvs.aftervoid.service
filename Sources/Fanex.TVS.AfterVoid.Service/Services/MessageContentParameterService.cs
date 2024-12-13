@@ -58,20 +58,20 @@ public class MessageContentParameterServiceImp(TVSWebSiteHttpClientService tvsWe
         var betTypeSpecial = specialTickets.Select(x => x.IsMixParlay ? x.SubBetType : x.BetTypeId);
         var distinctBetType = betTypeNormal.Union(betTypeSpecial).Distinct().ToList();
 
-        if (distinctBetType.Count == 1)
+        if (distinctBetType.Count != 1)
         {
-            var emailTickets = normalTickets.Union(specialTickets).Select(x => new TicketEmailModel
-            {
-                IsMixParlay = x.IsMixParlay,
-                BetTypeId = x.BetTypeId,
-                BetId = x.BetId,
-                SubBetType = x.SubBetType,
-                SubBetCheck = x.SubBetCheck
-            }).DistinctBy(x => (x.IsMixParlay, x.BetTypeId, x.BetId, x.SubBetType, x.SubBetCheck));
-
-            return await tvsWebSiteHttpClientService.GetSpecialBetTypeContent(emailTickets);
+            return new ContentByLanguageModel();
         }
 
-        return new ContentByLanguageModel();
+        var emailTickets = normalTickets.Union(specialTickets).Select(x => new TicketEmailModel
+        {
+            IsMixParlay = x.IsMixParlay,
+            BetTypeId = x.BetTypeId,
+            BetId = x.BetId,
+            SubBetType = x.SubBetType,
+            SubBetCheck = x.SubBetCheck
+        }).DistinctBy(x => (x.IsMixParlay, x.BetTypeId, x.BetId, x.SubBetType, x.SubBetCheck));
+
+        return await tvsWebSiteHttpClientService.GetSpecialBetTypeContent(emailTickets);
     }
 }

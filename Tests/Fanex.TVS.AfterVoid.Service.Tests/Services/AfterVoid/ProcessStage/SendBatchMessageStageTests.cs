@@ -81,7 +81,7 @@ public class SendBatchMessageStageTests
             AutomationInfo = automationInfo,
             NormalMessageId = 1,
             NormalTickets = emailTickets,
-            SpecialTickets = new List<TicketEmailModel>(),
+            SpecialTickets = new List<TicketEmailModel>()
         };
 
         InItService();
@@ -172,7 +172,7 @@ public class SendBatchMessageStageTests
             AutomationInfo = automationInfo,
             NormalMessageId = 1,
             NormalTickets = emailTickets,
-            SpecialTickets = new List<TicketEmailModel>(),
+            SpecialTickets = new List<TicketEmailModel>()
         };
         const string error = "ERROR: SendBatchMessageStage.Execute - SessionId: 1 - VDHistoryId: 1 - RequestId: 1";
         InItService();

@@ -68,7 +68,7 @@ public class SpecialPlatformServiceTests
         var tickets = new List<TicketEmailModel>
         {
             new() { LeagueGroupId = 42, IsChinaView = true, SpecialPlatform = 1 },
-            new() { LeagueGroupId = 42, IsChinaView = false, SpecialPlatform = SpecialPlatformConstant.JollySports },
+            new() { LeagueGroupId = 42, IsChinaView = false, SpecialPlatform = SpecialPlatformConstant.JollySports }
         };
         var service = new SpecialPlatformServiceImp();
 

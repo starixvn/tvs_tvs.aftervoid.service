@@ -260,21 +260,23 @@ public class VoidBetAutomationServiceImp(
 
     public void UpdateRequestDetailProperties(int issueTypeId, IEnumerable<RequestEventModel> models)
     {
-        if (!IsIssueTypesHaveExtraInfoJsonFormat(issueTypeId))
+        if (IsIssueTypesHaveExtraInfoJsonFormat(issueTypeId))
         {
-            foreach (var model in models)
-            {
-                var root = model.RequestExtraInfo.ParseXmlToObject<RequestExtraInfoXml>();
+            return;
+        }
 
-                model.CurrencyIds = root.CurrencyIds;
-                model.LicenseeNames = root.LicenseeNames;
-                model.WrongName = root.WrongName;
-                model.ActualName = root.ActualName;
-                model.WrongNameT = root.WrongNameT;
-                model.ActualNameT = root.ActualNameT;
-                model.WrongNameS = root.WrongNameS;
-                model.ActualNameS = root.ActualNameS;
-            }
+        foreach (var model in models)
+        {
+            var root = model.RequestExtraInfo.ParseXmlToObject<RequestExtraInfoXml>();
+
+            model.CurrencyIds = root.CurrencyIds;
+            model.LicenseeNames = root.LicenseeNames;
+            model.WrongName = root.WrongName;
+            model.ActualName = root.ActualName;
+            model.WrongNameT = root.WrongNameT;
+            model.ActualNameT = root.ActualNameT;
+            model.WrongNameS = root.WrongNameS;
+            model.ActualNameS = root.ActualNameS;
         }
     }
 

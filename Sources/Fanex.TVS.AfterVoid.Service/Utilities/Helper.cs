@@ -12,12 +12,7 @@ public static class Helper
             return MessageContentType.VoidAbnormal;
         }
 
-        if (messageContent.ToLowerInvariant().Contains("kindly double check your statement again"))
-        {
-            return MessageContentType.VoidSettled;
-        }
-
-        return MessageContentType.VoidUnsettled;
+        return messageContent.ToLowerInvariant().Contains("kindly double check your statement again") ? MessageContentType.VoidSettled : MessageContentType.VoidUnsettled;
     }
 
     public static bool IsAbnormalBet(int issueTypeId)

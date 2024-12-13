@@ -24,7 +24,7 @@ public class CashOutHttpClientServiceImp : CashOutHttpClientService
 
     public CashOutHttpClientServiceImp(HttpClient client, IConfiguration configuration)
     {
-        jackTimeCashOutUrl = configuration.GetSection("JackTimeCashOutUrl").Value;
+        jackTimeCashOutUrl = configuration.GetSection("JackTimeCashOutUrl").Value ?? string.Empty;
         httpClient = client;
         httpClient.BaseAddress = new Uri(jackTimeCashOutUrl);
         httpClient.Timeout = TimeSpan.FromMinutes(5);
@@ -32,7 +32,7 @@ public class CashOutHttpClientServiceImp : CashOutHttpClientService
         httpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Json);
     }
 
-    private StringContent CreateRequestStringContent<T>(T data)
+    private static StringContent CreateRequestStringContent<T>(T data)
     {
         var dataJson = new StringContent(
             JsonSerializer.Serialize(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }),
@@ -70,7 +70,7 @@ public class CashOutHttpClientServiceImp : CashOutHttpClientService
 
     private async Task<string> CreateLogResponse(string actionName, HttpResponseMessage response)
     {
-        var requestContent = response.RequestMessage.Content != null ? await response.RequestMessage.Content.ReadAsStringAsync() : string.Empty;
+        var requestContent = response.RequestMessage?.Content != null ? await response.RequestMessage.Content.ReadAsStringAsync() : string.Empty;
         var responseContent = await response.Content.ReadAsStringAsync();
 
         return $"{jackTimeCashOutUrl}{actionName}" +

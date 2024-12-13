@@ -63,12 +63,14 @@ public class SpecialPlatformServiceImp : SpecialPlatformService
         const int leagueNameChinese = 129;
         var subIssueTypeId = requestInfo.EventByMatch.SubIssueTypeId;
 
-        if (requestInfo.Request.IssueTypeId is IssueTypeConstant.WrongOfferedName
-            && subIssueTypeId is leagueNameEnglish or leagueNameChinese)
+        if (requestInfo.Request.IssueTypeId is not IssueTypeConstant.WrongOfferedName
+            || subIssueTypeId is not (leagueNameEnglish or leagueNameChinese))
         {
-            RemoveSabaWrongName(requestInfo, outputMessage);
-            RemoveSabaActualName(requestInfo, outputMessage);
+            return;
         }
+
+        RemoveSabaWrongName(requestInfo, outputMessage);
+        RemoveSabaActualName(requestInfo, outputMessage);
     }
 
     private static void RemoveSabaWrongName(RequestDetailViewModel requestInfo, Message outputMessage)
