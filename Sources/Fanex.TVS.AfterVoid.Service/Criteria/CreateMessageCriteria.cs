@@ -30,9 +30,9 @@ public class CreateMessageCriteria : CriteriaBase
 
     public string CreatorName { get; set; }
 
-    public bool IsSticky { get; }
+    public bool IsSticky => false;
 
-    public bool IsTest { get; }
+    public bool IsTest => false;
 
     public int MatchId { get; set; }
 

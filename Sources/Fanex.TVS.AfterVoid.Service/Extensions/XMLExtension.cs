@@ -17,11 +17,13 @@ public static class XMLExtension
         var stringBuilder = new StringBuilder();
         foreach (var result in results)
         {
-            if (!string.IsNullOrWhiteSpace(result.ErrorMsg))
+            if (string.IsNullOrWhiteSpace(result.ErrorMsg))
             {
-                var line = $"<VoidResult Message='{result.ErrorMsg}' Type='{result.ErrorCode}' Licensees='{result.Data}' />";
-                stringBuilder.AppendLine(line);
+                continue;
             }
+
+            var line = $"<VoidResult Message='{result.ErrorMsg}' Type='{result.ErrorCode}' Licensees='{result.Data}' />";
+            stringBuilder.AppendLine(line);
         }
 
         return $"<VoidResults>{stringBuilder.ToString().Trim()}</VoidResults>";

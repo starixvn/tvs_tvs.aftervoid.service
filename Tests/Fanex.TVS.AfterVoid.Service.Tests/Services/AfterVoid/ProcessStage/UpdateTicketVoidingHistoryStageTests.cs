@@ -19,7 +19,7 @@ public class UpdateTicketVoidingHistoryStageTests
     private VoidBetAutomationService voidBetAutomationService;
     private NotificationSignalRService notificationSignalRService;
     private LoggingService loggingService;
-    public UpdateTicketVoidingHistoryStage Service;
+    public UpdateTicketVoidingHistoryStage service;
 
     internal void InItService()
     {
@@ -38,10 +38,10 @@ public class UpdateTicketVoidingHistoryStageTests
         };
         var parameter = new UpdateTicketVoidingHistoryStageParameter { AutomationInfo = automationInfo };
         InItService();
-        Service = new UpdateTicketVoidingHistoryStageImp(null, null, null);
+        service = new UpdateTicketVoidingHistoryStageImp(null, null, null);
 
         // Act
-        var actual = await Service.Execute(parameter);
+        var actual = await service.Execute(parameter);
 
         // Assert
         Assert.True(actual);
@@ -78,13 +78,14 @@ public class UpdateTicketVoidingHistoryStageTests
             SpecialMessageId = 2
         };
         InItService();
-        Service = new UpdateTicketVoidingHistoryStageImp(voidBetAutomationService, null, null);
+        service = new UpdateTicketVoidingHistoryStageImp(voidBetAutomationService, null, null);
 
         // Act
-        var actual = await Service.Execute(parameter);
+        var actual = await service.Execute(parameter);
 
         // Assert
-        await voidBetAutomationService.Received(1).UpdateTicketVoidingHistory(parameter.AutomationInfo.VoidingHistoryId, parameter.VoidReasonId, parameter.NormalMessageId, parameter.SpecialMessageId);
+        await voidBetAutomationService.Received(1)
+            .UpdateTicketVoidingHistory(parameter.AutomationInfo.VoidingHistoryId, parameter.VoidReasonId, parameter.NormalMessageId, parameter.SpecialMessageId);
         await voidBetAutomationService.Received(1).UpdateAfterVoidStep(parameter.AutomationInfo.RequestId, parameter.AutomationInfo.VoidingHistoryId, Arg.Any<VoidBetAutomationInfo>());
         Assert.True(actual);
     }
@@ -120,10 +121,10 @@ public class UpdateTicketVoidingHistoryStageTests
             SpecialMessageId = 2
         };
         InItService();
-        Service = new UpdateTicketVoidingHistoryStageImp(voidBetAutomationService, null, null);
+        service = new UpdateTicketVoidingHistoryStageImp(voidBetAutomationService, null, null);
 
         // Act
-        var actual = await Service.Execute(parameter);
+        var actual = await service.Execute(parameter);
 
         // Assert
         await voidBetAutomationService.Received(1).UpdateTicketVoidingHistory(parameter.AutomationInfo.VoidingHistoryId, parameter.VoidReasonId,
@@ -162,10 +163,10 @@ public class UpdateTicketVoidingHistoryStageTests
         voidBetAutomationService.When(x => x.UpdateTicketVoidingHistory(Arg.Any<int>(), Arg.Any<int?>(), Arg.Any<int?>(), Arg.Any<int?>()))
             .Do(x => x.Throws(new Exception()));
         const string error = "ERROR: UpdateTicketVoidingHistoryStage.Execute - BroadcastSessionId: 1 - VDHistoryId: 1 - RequestId: 1";
-        Service = new UpdateTicketVoidingHistoryStageImp(voidBetAutomationService, notificationSignalRService, loggingService);
+        service = new UpdateTicketVoidingHistoryStageImp(voidBetAutomationService, notificationSignalRService, loggingService);
 
         // Act
-        var actual = await Service.Execute(parameter);
+        var actual = await service.Execute(parameter);
 
         // Assert
         await loggingService.Received(1).ErrorAsync(error, Arg.Any<Exception>());

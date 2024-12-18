@@ -55,7 +55,7 @@ public class MatchServiceTests
             SportTypeNameTraditional = "SportName",
             MatchEvent = "TeamName - vs - TeamName",
             MatchEventSimplified = "TeamName - vs - TeamName",
-            MatchEventNewSimplified = "TeamName - vs - TeamName",
+            MatchEventNewSimplified = "TeamName - vs - TeamName"
         };
         // Act
         var actual = service.UpdateMatchInfoFromRemotingRef(query);
@@ -99,7 +99,7 @@ public class MatchServiceTests
             SportTypeNameTraditional = "SportName",
             MatchEvent = "TeamName (N) - LeagueName",
             MatchEventSimplified = "TeamName (中) - LeagueName",
-            MatchEventNewSimplified = "TeamName (中) - LeagueName",
+            MatchEventNewSimplified = "TeamName (中) - LeagueName"
         };
         // Act
         var actual = service.UpdateMatchInfoFromRemotingRef(query);

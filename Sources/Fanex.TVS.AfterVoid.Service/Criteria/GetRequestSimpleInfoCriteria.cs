@@ -6,7 +6,9 @@ public class GetRequestSimpleInfoCriteria : CriteriaBase
 {
     public int RequestId { get; set; }
 
-    public int MatchId { get; set; }
+    public int? MatchId { get; set; }
+
+    public int? RequestDetailId { get; set; }
 
     public override string GetSettingKey() => "TicketVoiding_RequestInfo_Select";
 

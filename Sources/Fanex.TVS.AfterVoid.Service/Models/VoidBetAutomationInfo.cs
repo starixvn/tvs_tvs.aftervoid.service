@@ -16,6 +16,8 @@ public class VoidBetAutomationInfo
 
     public int MatchId { get; set; }
 
+    public int RequestDetailId { get; set; }
+
     public string NegativeBalanceUsers { get; set; }
 
     public bool IsAutoVoid { get; set; }
@@ -37,8 +39,6 @@ public class VoidBetAutomationInfo
     public bool? IsUpdatedVoidingHistory { get; set; }
 
     public bool? IsSentEmail { get; set; }
-
-    public bool? IsSentLetsTalk { get; set; }
 
     public string VoidResults { get; set; }
 

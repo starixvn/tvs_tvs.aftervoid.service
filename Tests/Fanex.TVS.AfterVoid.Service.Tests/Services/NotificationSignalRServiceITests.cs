@@ -32,14 +32,14 @@ public class NotificationSignalRServiceITests
     {
         var fakeRequestSimple = Builder<RequestSimpleInfo>.CreateNew().Build();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
-        voidBetAutomationService.GetRequestSimpleInfo(default, default).ReturnsForAnyArgs(fakeRequestSimple);
+        voidBetAutomationService.GetRequestSimpleInfo(default, default, default).ReturnsForAnyArgs(fakeRequestSimple);
         var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
         var service = new NotificationSignalRServiceImp(voidBetAutomationService, hubContext);
 
-        await service.UpdateCompletedStatusForRequests(1, 1);
+        await service.UpdateCompletedStatusForRequests(1, 1, 1);
 
         await voidBetAutomationService.Received(1)
-            .GetRequestSimpleInfo(Arg.Is<int>(x => x == 1), Arg.Is<int>(x => x == 1));
+            .GetRequestSimpleInfo(Arg.Is<int>(x => x == 1), Arg.Is<int>(x => x == 1), Arg.Is<int>(x => x == 1));
         await hubContext.Clients.All.Received(1).updateRequestStatus(Arg.Is<IEnumerable<RequestStatus>>(x =>
             x.Count() == 1
             && x.Any(y => y.RequestId == 1)));

@@ -21,20 +21,20 @@ public class MessageContentParameterServiceImp(TVSWebSiteHttpClientService tvsWe
 {
     public ContentByLanguageModel GetPlayerNamesSelected(int issueTypeId, PlayerName playerName)
     {
-        if (issueTypeId == IssueTypeConstant.NotParticipate)
+        if (issueTypeId != IssueTypeConstant.NotParticipate)
         {
-            var playerNamesSelected = new ContentByLanguageModel
-            {
-                ContentEnglish = playerName.PlayerNamesEnglish,
-                ContentChineseSimplified = playerName.PlayerNamesChineseSimplified,
-                ContentNewChineseSimplified = playerName.PlayerNamesChineseSimplified,
-                ContentChineseTraditional = playerName.PlayerNamesChineseTraditional
-            };
-
-            return playerNamesSelected;
+            return null;
         }
 
-        return null;
+        var playerNamesSelected = new ContentByLanguageModel
+        {
+            ContentEnglish = playerName.PlayerNamesEnglish,
+            ContentChineseSimplified = playerName.PlayerNamesChineseSimplified,
+            ContentNewChineseSimplified = playerName.PlayerNamesChineseSimplified,
+            ContentChineseTraditional = playerName.PlayerNamesChineseTraditional
+        };
+
+        return playerNamesSelected;
     }
 
     public bool IsAllLiveTickets(IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets)
@@ -58,20 +58,20 @@ public class MessageContentParameterServiceImp(TVSWebSiteHttpClientService tvsWe
         var betTypeSpecial = specialTickets.Select(x => x.IsMixParlay ? x.SubBetType : x.BetTypeId);
         var distinctBetType = betTypeNormal.Union(betTypeSpecial).Distinct().ToList();
 
-        if (distinctBetType.Count == 1)
+        if (distinctBetType.Count != 1)
         {
-            var emailTickets = normalTickets.Union(specialTickets).Select(x => new TicketEmailModel
-            {
-                IsMixParlay = x.IsMixParlay,
-                BetTypeId = x.BetTypeId,
-                BetId = x.BetId,
-                SubBetType = x.SubBetType,
-                SubBetCheck = x.SubBetCheck
-            }).DistinctBy(x => (x.IsMixParlay, x.BetTypeId, x.BetId, x.SubBetType, x.SubBetCheck));
-
-            return await tvsWebSiteHttpClientService.GetSpecialBetTypeContent(emailTickets);
+            return new ContentByLanguageModel();
         }
 
-        return new ContentByLanguageModel();
+        var emailTickets = normalTickets.Union(specialTickets).Select(x => new TicketEmailModel
+        {
+            IsMixParlay = x.IsMixParlay,
+            BetTypeId = x.BetTypeId,
+            BetId = x.BetId,
+            SubBetType = x.SubBetType,
+            SubBetCheck = x.SubBetCheck
+        }).DistinctBy(x => (x.IsMixParlay, x.BetTypeId, x.BetId, x.SubBetType, x.SubBetCheck));
+
+        return await tvsWebSiteHttpClientService.GetSpecialBetTypeContent(emailTickets);
     }
 }

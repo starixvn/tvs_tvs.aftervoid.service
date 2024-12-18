@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Fanex.Logging;
 using Fanex.Logging.Extensions;
@@ -15,7 +14,6 @@ public interface LoggingService
     Task InfoAsync(string message);
 }
 
-[ExcludeFromCodeCoverage(Justification = "non-logic")]
 public class LoggingServiceImp : LoggingService
 {
     public async Task ErrorAsync(string message, Exception exception)

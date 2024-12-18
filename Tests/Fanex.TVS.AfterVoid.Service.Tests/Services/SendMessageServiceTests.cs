@@ -185,27 +185,6 @@ public class SendMessageServiceTests
     }
 
     [Fact]
-    public async Task GetMessage_ReturnMessageModel()
-    {
-        // Arrange
-        var getMessageCriteria = new GetMessageCriteria { MessageId = 12345 };
-        var expected = new Message
-        {
-            MessageId = 12345
-        };
-        repository.GetAsync<Message>(getMessageCriteria).ReturnsForAnyArgs(expected);
-
-        var service = new SendMessageServiceImp(repository, null, null);
-
-        // Act
-        var actual = await service.GetMessage(getMessageCriteria.MessageId);
-
-        // Assert
-        Assert.Equal(expected, actual);
-        await repository.Received(1).GetAsync<Message>(Arg.Compat.Is<GetMessageCriteria>(x => x.MessageId == 12345));
-    }
-
-    [Fact]
     public async Task InsertMessage_ShouldReturnExpectedId()
     {
         const int fakeMatchId = 11;

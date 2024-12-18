@@ -20,7 +20,7 @@ public interface VoidBetAutomationService
 
     Task<RequestDetailViewModel> GetRequestViewModelById(int requestId, int matchId);
 
-    Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int matchId);
+    Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int? matchId, int? requestDetailId);
 
     Task UpdateServiceStatusByVoidingHistory(int requestId, int voidingHistoryId, int statusId);
 
@@ -90,19 +90,23 @@ public class VoidBetAutomationServiceImp(
 
     private static bool IsIssueTypeHasMatchId(int issueTypeId)
     {
-        int[] issueTypeHasMatchId = { IssueTypeConstant.WrongHDP, IssueTypeConstant.Wrong1stHDP, IssueTypeConstant.WrongOU,
+        int[] issueTypeHasMatchId =
+        [
+            IssueTypeConstant.WrongHDP, IssueTypeConstant.Wrong1stHDP, IssueTypeConstant.WrongOU,
             IssueTypeConstant.Wrong1stOU, IssueTypeConstant.DangerAccepted, IssueTypeConstant.RedCard,
-            IssueTypeConstant.EarlyKickOffTime, IssueTypeConstant.WrongKickOffTime };
+            IssueTypeConstant.EarlyKickOffTime, IssueTypeConstant.WrongKickOffTime
+        ];
 
         return issueTypeHasMatchId.Contains(issueTypeId);
     }
 
-    public async Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int matchId)
+    public async Task<RequestSimpleInfo> GetRequestSimpleInfo(int requestId, int? matchId, int? requestDetailId)
     {
         var criteria = new GetRequestSimpleInfoCriteria
         {
             RequestId = requestId,
-            MatchId = matchId
+            MatchId = matchId,
+            RequestDetailId = requestDetailId
         };
         var request = await repository.GetAsync<RequestSimpleInfo>(criteria);
 
@@ -150,7 +154,6 @@ public class VoidBetAutomationServiceImp(
             criteria.IsInsertedVoidedTransaction = afterVoidHistory.IsInsertedVoidedTransaction;
             criteria.IsUpdatedVoidingHistory = afterVoidHistory.IsUpdatedVoidingHistory;
             criteria.IsSentEmail = afterVoidHistory.IsSentEmail;
-            criteria.IsSentLetsTalk = afterVoidHistory.IsSentLetsTalk;
             criteria.IsDeletedZzzBetTrans = afterVoidHistory.IsDeletedZzzBetTrans;
             criteria.IsDeletedMessage = afterVoidHistory.IsDeletedMessage;
             criteria.IsDeletedVoidedTransaction = afterVoidHistory.IsDeletedVoidedTransaction;
@@ -162,20 +165,20 @@ public class VoidBetAutomationServiceImp(
 
     public async Task<IEnumerable<TicketEmailModel>> GetVoidedTicketsByVoidingHistory(int voidingHistoryId, int siteDbGroupId, bool isInsertRoutineTask)
     {
-        var checkITUser = await CheckRequestOfITUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
+        var checkItUser = await CheckRequestOfItUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
         var criteria = new GetTicketsEmailCriteria
         {
             SiteDbGroupId = siteDbGroupId,
             VoidingHistoryId = voidingHistoryId,
-            IsITSupport = checkITUser.IsITSupport,
-            IsITSupportCreatedRequest = checkITUser.IsITSupportCreatedRequest,
+            IsITSupport = checkItUser.IsITSupport,
+            IsITSupportCreatedRequest = checkItUser.IsITSupportCreatedRequest,
             IsInsertRoutineTask = isInsertRoutineTask
         };
 
         return await repository.FetchAsync<TicketEmailModel>(criteria);
     }
 
-    private async Task<CheckRequestOfITUserModel> CheckRequestOfITUser(int voidingHistoryId)
+    private async Task<CheckRequestOfITUserModel> CheckRequestOfItUser(int voidingHistoryId)
     {
         var criteria = new CheckRequestOfITUserCriteria
         {
@@ -230,13 +233,13 @@ public class VoidBetAutomationServiceImp(
 
     public async Task<IEnumerable<TicketRecoverEmailModel>> GetRecoveredTicketsByVoidingHistory(string singleTransIds, int voidingHistoryId, int siteDbGroupId)
     {
-        var checkITUser = await CheckRequestOfITUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
+        var checkItUser = await CheckRequestOfItUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
         var criteria = new GetTicketsRecoverEmailCriteria
         {
             SiteDbGroupId = siteDbGroupId,
             SingleTransIds = singleTransIds,
-            IsITSupport = checkITUser.IsITSupport,
-            IsITSupportCreatedRequest = checkITUser.IsITSupportCreatedRequest,
+            IsITSupport = checkItUser.IsITSupport,
+            IsITSupportCreatedRequest = checkItUser.IsITSupportCreatedRequest,
             IsInsertRoutineTask = true
         };
 
@@ -257,21 +260,23 @@ public class VoidBetAutomationServiceImp(
 
     public void UpdateRequestDetailProperties(int issueTypeId, IEnumerable<RequestEventModel> models)
     {
-        if (!IsIssueTypesHaveExtraInfoJsonFormat(issueTypeId))
+        if (IsIssueTypesHaveExtraInfoJsonFormat(issueTypeId))
         {
-            foreach (var model in models)
-            {
-                var root = model.RequestExtraInfo.ParseXmlToObject<RequestExtraInfoXml>();
+            return;
+        }
 
-                model.CurrencyIds = root.CurrencyIds;
-                model.LicenseeNames = root.LicenseeNames;
-                model.WrongName = root.WrongName;
-                model.ActualName = root.ActualName;
-                model.WrongNameT = root.WrongNameT;
-                model.ActualNameT = root.ActualNameT;
-                model.WrongNameS = root.WrongNameS;
-                model.ActualNameS = root.ActualNameS;
-            }
+        foreach (var model in models)
+        {
+            var root = model.RequestExtraInfo.ParseXmlToObject<RequestExtraInfoXml>();
+
+            model.CurrencyIds = root.CurrencyIds;
+            model.LicenseeNames = root.LicenseeNames;
+            model.WrongName = root.WrongName;
+            model.ActualName = root.ActualName;
+            model.WrongNameT = root.WrongNameT;
+            model.ActualNameT = root.ActualNameT;
+            model.WrongNameS = root.WrongNameS;
+            model.ActualNameS = root.ActualNameS;
         }
     }
 

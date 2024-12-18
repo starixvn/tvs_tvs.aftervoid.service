@@ -125,7 +125,7 @@ public class InsertVoidedTransactionStageTests
             SpecialMessageId = 2,
             SpecialTickets = emailTickets,
             VoidReasonId = 1,
-            NormalTickets = emailTickets,
+            NormalTickets = emailTickets
         };
 
         InItService();

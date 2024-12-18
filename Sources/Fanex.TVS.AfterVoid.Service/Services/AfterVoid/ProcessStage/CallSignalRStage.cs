@@ -26,7 +26,7 @@ public class CallSignalRStageImp(NotificationSignalRService notificationSignalRS
     {
         if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
         {
-            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
+            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId, automationInfo.RequestDetailId);
         }
     }
 
@@ -34,7 +34,7 @@ public class CallSignalRStageImp(NotificationSignalRService notificationSignalRS
     {
         if (isLastedInRequest && currentRequestStatus != RequestStatusConstant.Failed)
         {
-            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId);
+            await notificationSignalRService.UpdateCompletedStatusForRequests(automationInfo.RequestId, automationInfo.MatchId, automationInfo.RequestDetailId);
 
             var messageSuccessful = $"Request ID: {automationInfo.RequestId} recovered successfully!";
             if (automationInfo.RequestInfo.Request.IsHasResettledTicket)
@@ -50,7 +50,7 @@ public class CallSignalRStageImp(NotificationSignalRService notificationSignalRS
     {
         if (parameter.IsLastedInRequest && parameter.CurrentRequestStatus != RequestStatusConstant.Failed)
         {
-            await notificationSignalRService.UpdateCompletedStatusForRequests(parameter.AutomationInfo.RequestId, parameter.AutomationInfo.MatchId);
+            await notificationSignalRService.UpdateCompletedStatusForRequests(parameter.AutomationInfo.RequestId, parameter.AutomationInfo.MatchId, parameter.AutomationInfo.RequestDetailId);
             await NotifyVoidResult(parameter.AutomationInfo, parameter.CurrentEmailResults, parameter.CreatorName, parameter.EmailResultsHistory);
         }
     }

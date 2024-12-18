@@ -17,8 +17,8 @@ public interface SettledBetLetstalkService
 
 public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientService) : SettledBetLetstalkService
 {
-    private const int maxContent = 1024;
-    private const int currency20 = 20;
+    private const int MaxContent = 1024;
+    private const int Currency20 = 20;
 
     public bool Send(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets)
     {
@@ -68,7 +68,7 @@ public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientSe
         content.AppendLine($"Voided by: {model.UserName}");
         content.AppendLine($"Void Time: {model.VoidFromTime} - {model.VoidToTime}");
         content.Append($"(Single Count: {model.SingleCount}, Instant OU: {model.InstantOUCount}, Cash Out: {model.CashOutCount}, Parlay Count: {model.ParlayCount})");
-        return new List<string> { content.ToString() };
+        return [content.ToString()];
     }
 
     private static List<string> CreateMessageContentWithMemberTemplate(IEnumerable<TicketEmailModel> tickets, NotificationLetstalkModel model)
@@ -86,7 +86,7 @@ public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientSe
         content.AppendLine($"Voided by: {model.UserName}");
         content.AppendLine($"(Settled ticket: Single Count: {model.SingleCount}, Instant OU: {model.InstantOUCount}, Cash Out: {model.CashOutCount}, Parlay Count: {model.ParlayCount}");
         content.AppendLine($"Outstanding: Single Count: {model.OutstandingSingleCount}, Parlay Count: {model.OutstandingParlayCount})");
-        if ($"{content}{userNames}".Length > maxContent)
+        if ($"{content}{userNames}".Length > MaxContent)
         {
             messages.AddRange(GenerateMultipleContent(content, members));
         }
@@ -106,7 +106,7 @@ public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientSe
         var index = 0;
         foreach (var member in members)
         {
-            if ($"{tempContent}, {member}".Length > maxContent)
+            if ($"{tempContent}, {member}".Length > MaxContent)
             {
                 results.Add(tempContent);
                 patch++;
@@ -140,7 +140,7 @@ public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientSe
                      && ticket.Status.IsSettled();
         if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
         {
-            return result && ticket.Currency != currency20;
+            return result && ticket.Currency != Currency20;
         }
 
         return result;
@@ -152,7 +152,7 @@ public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientSe
             : ticket.BetTypeId.IsParlay() && ticket.Status.IsSettled();
         if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
         {
-            return result && ticket.Currency != currency20;
+            return result && ticket.Currency != Currency20;
         }
 
         return result;
@@ -162,7 +162,7 @@ public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientSe
     {
         if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
         {
-            return ticket.IsCashOut && ticket.Currency != currency20;
+            return ticket.IsCashOut && ticket.Currency != Currency20;
         }
 
         return ticket.IsCashOut;

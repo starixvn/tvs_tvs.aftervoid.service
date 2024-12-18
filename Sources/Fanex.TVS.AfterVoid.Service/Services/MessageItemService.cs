@@ -18,26 +18,25 @@ public class MessageItemServiceImp : MessageItemService
     public string CreateMessageItems(IEnumerable<ReceivedUser> receivedUsers, int messageId)
     {
         var messages = new StringBuilder();
-        var creditTranses = receivedUsers;
-        var customer = CustomerItem(creditTranses, messageId);
+        var customer = CustomerItem(receivedUsers, messageId);
         if (customer.Length > 0)
         {
             messages.Append(customer);
         }
 
-        var agent = AgentItem(creditTranses, messageId);
+        var agent = AgentItem(receivedUsers, messageId);
         if (agent.Length > 0)
         {
             messages.Append(agent);
         }
 
-        var master = MasterItem(creditTranses, messageId);
+        var master = MasterItem(receivedUsers, messageId);
         if (master.Length > 0)
         {
             messages.Append(master);
         }
 
-        var super = SuperItem(creditTranses, messageId);
+        var super = SuperItem(receivedUsers, messageId);
         if (super.Length > 0)
         {
             messages.Append(super);
@@ -46,15 +45,15 @@ public class MessageItemServiceImp : MessageItemService
         return $"<Messages>{messages}</Messages>";
     }
 
-    private StringBuilder CustomerItem(IEnumerable<ReceivedUser> creditTranses, int messageId)
+    private static StringBuilder CustomerItem(IEnumerable<ReceivedUser> creditTrans, int messageId)
     {
         var messageItems = new StringBuilder();
-        var users = creditTranses.Where(c => c.CustId > DummyAccountMaxId)
+        var users = creditTrans.Where(c => c.CustId > DummyAccountMaxId)
             .Select(c => new { c.CustId, UserName = c.CustUserName }).Distinct();
         foreach (var user in users)
         {
             var customer = new UserInfo { CustId = user.CustId, UserName = user.UserName };
-            var transIds = creditTranses.Where(c => c.CustId == user.CustId).Select(c => c.TransId).OrderBy(t => t).ToArray();
+            var transIds = creditTrans.Where(c => c.CustId == user.CustId).Select(c => c.TransId).OrderBy(t => t).ToArray();
             var messageItem = SetValueMessageItem(customer, transIds, messageId);
 
             messageItems.Append(messageItem.CreateItem());
@@ -63,15 +62,15 @@ public class MessageItemServiceImp : MessageItemService
         return messageItems;
     }
 
-    private StringBuilder AgentItem(IEnumerable<ReceivedUser> creditTranses, int messageId)
+    private static StringBuilder AgentItem(IEnumerable<ReceivedUser> creditTrans, int messageId)
     {
         var messageItems = new StringBuilder();
-        var users = creditTranses.Where(c => c.Recommend > DummyAccountMaxId)
+        var users = creditTrans.Where(c => c.Recommend > DummyAccountMaxId)
             .Select(c => new { CustId = c.Recommend, UserName = c.AgUserName }).Distinct();
         foreach (var item in users)
         {
             var agent = new UserInfo { CustId = item.CustId, UserName = item.UserName };
-            var transIds = creditTranses.Where(c => c.Recommend == item.CustId).Select(c => c.TransId).OrderBy(t => t).ToArray();
+            var transIds = creditTrans.Where(c => c.Recommend == item.CustId).Select(c => c.TransId).OrderBy(t => t).ToArray();
             var messageItem = SetValueMessageItem(agent, transIds, messageId);
 
             messageItems.Append(messageItem.CreateItem());
@@ -80,15 +79,15 @@ public class MessageItemServiceImp : MessageItemService
         return messageItems;
     }
 
-    private StringBuilder MasterItem(IEnumerable<ReceivedUser> creditTranses, int messageId)
+    private static StringBuilder MasterItem(IEnumerable<ReceivedUser> creditTrans, int messageId)
     {
         var messageItems = new StringBuilder();
-        var users = creditTranses.Where(c => c.Mrecommend > DummyAccountMaxId)
+        var users = creditTrans.Where(c => c.Mrecommend > DummyAccountMaxId)
             .Select(c => new { CustId = c.Mrecommend, UserName = c.MagUserName }).Distinct();
         foreach (var item in users)
         {
             var master = new UserInfo { CustId = item.CustId, UserName = item.UserName };
-            var transIds = creditTranses.Where(c => c.Mrecommend == item.CustId).Select(c => c.TransId).OrderBy(t => t).ToArray();
+            var transIds = creditTrans.Where(c => c.Mrecommend == item.CustId).Select(c => c.TransId).OrderBy(t => t).ToArray();
             var messageItem = SetValueMessageItem(master, transIds, messageId);
 
             messageItems.Append(messageItem.CreateItem());
@@ -97,15 +96,15 @@ public class MessageItemServiceImp : MessageItemService
         return messageItems;
     }
 
-    private StringBuilder SuperItem(IEnumerable<ReceivedUser> creditTranses, int messageId)
+    private static StringBuilder SuperItem(IEnumerable<ReceivedUser> creditTrans, int messageId)
     {
         var messageItems = new StringBuilder();
-        var users = creditTranses.Where(c => c.Srecommend > DummyAccountMaxId)
+        var users = creditTrans.Where(c => c.Srecommend > DummyAccountMaxId)
             .Select(c => new { CustId = c.Srecommend, UserName = c.SagUserName }).Distinct();
         foreach (var user in users)
         {
             var super = new UserInfo { CustId = user.CustId, UserName = user.UserName };
-            var transIds = creditTranses.Where(c => c.Srecommend == user.CustId).Select(c => c.TransId).OrderBy(t => t).ToArray();
+            var transIds = creditTrans.Where(c => c.Srecommend == user.CustId).Select(c => c.TransId).OrderBy(t => t).ToArray();
             var messageItem = SetValueMessageItem(super, transIds, messageId);
 
             messageItems.Append(messageItem.CreateItem());
@@ -114,7 +113,7 @@ public class MessageItemServiceImp : MessageItemService
         return messageItems;
     }
 
-    private MessageItem SetValueMessageItem(UserInfo user, IEnumerable<long> transIdList, int messageId)
+    private static MessageItem SetValueMessageItem(UserInfo user, IEnumerable<long> transIdList, int messageId)
     {
         return new MessageItem
         {

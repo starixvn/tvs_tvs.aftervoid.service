@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using Fanex.Caching.Redis;
 using Fanex.Data.Repository;
 using Fanex.LetstalkService.Client;
-using Fanex.Logging;
 using Fanex.Logging.Extensions;
 using Fanex.Logging.Extensions.AspNetCore;
 using Fanex.RemotingRef;
@@ -18,8 +14,6 @@ using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestVoid14;
 using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using Fanex.TVS.AfterVoid.Service.Utilities.AutoMapper;
-using Fanex.TVS.AfterVoid.Website.Jobs;
-using Fanex.TVS.AfterVoid.Website.Jobs.Listener;
 using Fanex.TVS.AfterVoid.Website.Utilities.CustomServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,16 +22,14 @@ using ONEbook.UM.Configurations;
 using ONEbook.UM.Helpers;
 using ONEbook.UM.Services;
 using ONEbook.UM.Transport;
-using Quartz;
+using StackExchange.Redis;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
 
-using Logging.Sentry.RavenClient;
-using SharpRaven;
+using Jobs;
 
-[ExcludeFromCodeCoverage(Justification = "non-logic")]
 public static class ServiceCollectionExtensions
 {
     public static void LoadConfig(this IServiceCollection services, IConfiguration configuration)
@@ -45,32 +37,15 @@ public static class ServiceCollectionExtensions
         AppSettingService.InitSetting(configuration);
     }
 
-    public static void AddSentry(this IServiceCollection services)
-    {
-        LogManager
-            .SetDefaultLogCategory(AppSettingService.AppSetting.CategorySentryLog)
-            .Use(new List<ILogEngine>
-            {
-                new SentryLogging(new SentryEngineOptions
-                {
-                    Dsn = new Dsn(AppSettingService.AppSetting.SentryClientKey)
-                })
-            });
-
-        ExceptionHandler
-            .UseConfig(new LoggingConfiguration());
-
-        services.AddSingleton<ILogger, Logger>();
-    }
-
     public static void AddTvsSignalR(this IServiceCollection services)
     {
         services.AddSignalR().AddStackExchangeRedis(options =>
         {
-            options.Configuration.EndPoints.Add(AppSettingService.AppSetting.RedisConfig.EndPoint);
-            options.Configuration.Password = AppSettingService.AppSetting.RedisConfig.Password;
-            options.Configuration.DefaultDatabase = AppSettingService.AppSetting.RedisConfig.DefaultDatabase;
-            options.Configuration.ChannelPrefix = AppSettingService.AppSetting.RedisConfig.SignalRChannelPrefix;
+            var redisConfig = AppSettingService.AppSetting.RedisConfig;
+            options.Configuration.EndPoints.Add(redisConfig.EndPoint);
+            options.Configuration.Password = redisConfig.Password;
+            options.Configuration.DefaultDatabase = redisConfig.DefaultDatabase;
+            options.Configuration.ChannelPrefix = RedisChannel.Literal(redisConfig.SignalRChannelPrefix);
         });
     }
 
@@ -90,11 +65,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IPHelper, IPHelperImpl>();
         services.AddSingleton<IHttpContextHelper, CustomHttpContextHelper>();
         services.AddSingleton<IMaintenanceService, MaintenanceService>();
-    }
-
-    public static void AddFanexCaching(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddRedisCache(configuration.GetSection("FanexCachingRedis"));
     }
 
     public static void AddRemotingRef(this IServiceCollection services)
@@ -158,52 +128,14 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<MainRecoverProcessStageService, MainRecoverProcessStageServiceImp>();
     }
 
-    public static void AddQuartzScheduler(this IServiceCollection services)
+    public static IServiceCollection AddBackgroundService(this IServiceCollection services)
     {
-        const int maxConcurrencyThread = 10;
-        services.AddTransient<AfterVoidJob>();
-        services.AddTransient<LetstalkJob>();
+        services.AddSingleton<AfterVoidJob>();
+        services.AddSingleton<LetstalkJob>();
 
-        services.AddQuartz(q =>
-        {
-            // handy when part of cluster or you want to otherwise identify multiple schedulers
-            q.SchedulerId = "Scheduler-TVS-After-Void-Service";
-            q.UseMicrosoftDependencyInjectionJobFactory();
+        services.AddHostedService<AfterVoidJob>();
+        services.AddHostedService < LetstalkJob>();
 
-            // these are the defaults
-            q.UseSimpleTypeLoader();
-            q.UseInMemoryStore();
-            q.UseDefaultThreadPool(tp =>
-            {
-                tp.MaxConcurrency = maxConcurrencyThread;
-            });
-
-            q.ScheduleJob<AfterVoidJob>(trigger => trigger
-                .WithIdentity("AfterVoidJob Trigger")
-                .StartNow()
-                .WithSimpleSchedule(x => x.WithIntervalInSeconds(1).RepeatForever())
-            );
-
-            q.ScheduleJob<LetstalkJob>(trigger => trigger
-                .WithIdentity("NotificationLetstalkJob Trigger")
-                .StartNow()
-                .WithSimpleSchedule(x => x.WithIntervalInSeconds(1).RepeatForever())
-            );
-
-            q.AddSchedulerListener<CustomSchedulerListener>();
-
-            //// auto-interrupt long-running job
-            //// q.UseJobAutoInterrupt(options =>
-            //// {
-            ////    // this is the default
-            ////    options.DefaultMaxRunTime = TimeSpan.FromMinutes(5);
-            //// });
-        });
-
-        services.AddQuartzHostedService(options =>
-        {
-            // when shutting down we want jobs to complete gracefully
-            options.WaitForJobsToComplete = true;
-        });
+        return services;
     }
 }

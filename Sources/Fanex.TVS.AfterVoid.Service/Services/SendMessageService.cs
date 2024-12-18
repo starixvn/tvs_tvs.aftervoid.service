@@ -21,8 +21,6 @@ public interface SendMessageService
 
     Message InitializeMessageContentForManualVoid(VoidDataXmlModel voidData);
 
-    Task<Message> GetMessage(int messageId);
-
     Task<int> InsertMessage(Message message, int matchId, int? leagueGroupId, int issueTypeId);
 
     Task<VoidedReason> InitializeVoidReason(bool isAutoVoid, int subIssueTypeId, int sportType, VoidDataXmlModel voidData);
@@ -46,8 +44,8 @@ public class SendMessageServiceImp(
 {
     public async Task SendMessage(IEnumerable<TicketEmailModel> tickets, int messageId, int issueTypeId, int creatorId)
     {
-        var excludedCN88Tickets = ExcludeCN88Tickets(tickets, Helper.IsAbnormalBet(issueTypeId));
-        var receivedUsers = GetListSendMessageDb(excludedCN88Tickets);
+        var excludedCn88Tickets = ExcludeCN88Tickets(tickets, Helper.IsAbnormalBet(issueTypeId));
+        var receivedUsers = GetListSendMessageDb(excludedCn88Tickets);
         var messageXml = messageItemService.CreateMessageItems(receivedUsers, messageId);
         if (!string.IsNullOrWhiteSpace(messageXml))
         {
@@ -105,16 +103,6 @@ public class SendMessageServiceImp(
         };
     }
 
-    public async Task<Message> GetMessage(int messageId)
-    {
-        var criteria = new GetMessageCriteria
-        {
-            MessageId = messageId
-        };
-
-        return await repository.GetAsync<Message>(criteria);
-    }
-
     public async Task<int> InsertMessage(Message message, int matchId, int? leagueGroupId, int issueTypeId)
     {
         var messageContentType = Helper.GetMessageContentType(issueTypeId, message.ContentEnglish);
@@ -168,9 +156,9 @@ public class SendMessageServiceImp(
         }
 
         var sportEn = sportType > 0 ? $"{remotingRefWrapperService.GetSportName(sportType.ToString(), LanguageCode.English)} - " : string.Empty;
-        var sportCS = sportType > 0 ? $"{remotingRefWrapperService.GetSportName(sportType.ToString(), LanguageCode.ChineseSimplified)} - " : string.Empty;
+        var sportCs = sportType > 0 ? $"{remotingRefWrapperService.GetSportName(sportType.ToString(), LanguageCode.ChineseSimplified)} - " : string.Empty;
         reason.ReasonEnglish = $"{sportEn}{reason.ReasonEnglish}";
-        reason.ReasonChineseSimplified = $"{sportCS}{reason.ReasonChineseSimplified}";
+        reason.ReasonChineseSimplified = $"{sportCs}{reason.ReasonChineseSimplified}";
 
         return reason;
     }

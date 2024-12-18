@@ -71,7 +71,7 @@ public class CreateVoidReasonStageTests
         {
             AutomationInfo = automationInfo,
             SportTypeId = 1,
-            VoidData = null,
+            VoidData = null
         };
         InItService();
         sendMessageService.InitializeVoidReason(true, 1, 1, null).ReturnsForAnyArgs(reason);

@@ -71,7 +71,6 @@ public class SendLetstalkServiceTests
         const int requestId2 = 2;
         var voidBetAutomationInfoList = new List<VoidBetAutomationInfo>
         {
-            new() { IsSentLetsTalk = true },
             new() { RequestId = requestId1, IsAutoVoid = true },
             new() { RequestId = requestId2, IsAutoVoid = false },
             new() { RequestId = requestId2 }
@@ -120,7 +119,6 @@ public class SendLetstalkServiceTests
         const int requestId2 = 2;
         var voidBetAutomationInfoList = new List<VoidBetAutomationInfo>
         {
-            new() { IsSentLetsTalk = true },
             new() { RequestId = requestId1, IsAutoVoid = true },
             new() { RequestId = requestId2, IsAutoVoid = false },
             new() { RequestId = requestId2 }

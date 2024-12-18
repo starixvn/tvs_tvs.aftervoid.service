@@ -24,7 +24,8 @@ public class CallSignalRStageTests
         var automationInfo = new VoidBetAutomationInfo
         {
             RequestId = 1,
-            MatchId = 1
+            MatchId = 1,
+            RequestDetailId = 1
         };
         notificationSignalRService = Substitute.For<NotificationSignalRService>();
         Service = new CallSignalRStageImp(notificationSignalRService);
@@ -33,7 +34,7 @@ public class CallSignalRStageTests
         await Service.ExecuteForAutoVoid(true, RequestStatusConstant.Completed, automationInfo);
 
         // Assert
-        await notificationSignalRService.Received(1).UpdateCompletedStatusForRequests(1, 1);
+        await notificationSignalRService.Received(1).UpdateCompletedStatusForRequests(1, 1, 1);
     }
 
     [Theory]
@@ -46,7 +47,8 @@ public class CallSignalRStageTests
         var automationInfo = new VoidBetAutomationInfo
         {
             RequestId = 1,
-            MatchId = 1
+            MatchId = 1,
+            RequestDetailId = 1
         };
         notificationSignalRService = Substitute.For<NotificationSignalRService>();
         Service = new CallSignalRStageImp(notificationSignalRService);
@@ -55,7 +57,7 @@ public class CallSignalRStageTests
         await Service.ExecuteForAutoVoid(isLastedInRequest, currentRequestStatus, automationInfo);
 
         // Assert
-        await notificationSignalRService.Received(0).UpdateCompletedStatusForRequests(1, 1);
+        await notificationSignalRService.Received(0).UpdateCompletedStatusForRequests(1, 1, 1);
     }
 
     [Theory]
@@ -67,6 +69,7 @@ public class CallSignalRStageTests
         var automationInfo = new VoidBetAutomationInfo
         {
             RequestId = 1,
+            RequestDetailId = 1,
             MatchId = matchId
         };
         var currentEmailResults = new List<Result>
@@ -95,7 +98,7 @@ public class CallSignalRStageTests
         await Service.ExecuteForManualVoid(parameter);
 
         // Assert
-        await notificationSignalRService.Received(1).UpdateCompletedStatusForRequests(1, matchId);
+        await notificationSignalRService.Received(1).UpdateCompletedStatusForRequests(1, matchId, 1);
         await notificationSignalRService.Received(1).NotifyVoidResultToUser("a", Arg.Any<List<Result>>());
     }
 
@@ -119,7 +122,8 @@ public class CallSignalRStageTests
         {
             RequestInfo = requestInfo,
             MatchId = 1,
-            RequestId = 1
+            RequestId = 1,
+            RequestDetailId = 1
         };
         notificationSignalRService = Substitute.For<NotificationSignalRService>();
         Service = new CallSignalRStageImp(notificationSignalRService);
@@ -128,7 +132,7 @@ public class CallSignalRStageTests
         await Service.ExecuteForAutoRecover(isLastedInRequest, currentRequestStatus, automationInfo);
 
         // Assert
-        await notificationSignalRService.Received(1).UpdateCompletedStatusForRequests(1, 1);
+        await notificationSignalRService.Received(1).UpdateCompletedStatusForRequests(1, 1, 1);
         await notificationSignalRService.Received(1).NotifyVoidResultToUser("a", Arg.Any<List<Result>>());
     }
 
@@ -149,7 +153,7 @@ public class CallSignalRStageTests
         await Service.ExecuteForAutoRecover(isLastedInRequest, currentRequestStatus, automationInfo);
 
         // Assert
-        await notificationSignalRService.Received(0).UpdateCompletedStatusForRequests(1, 1);
+        await notificationSignalRService.Received(0).UpdateCompletedStatusForRequests(1, 1, 1);
         await notificationSignalRService.Received(0).NotifyVoidResultToUser("a", Arg.Any<List<Result>>());
     }
 
@@ -172,6 +176,6 @@ public class CallSignalRStageTests
         await Service.ExecuteForManualVoid(parameter);
 
         // Assert
-        await notificationSignalRService.Received(0).UpdateCompletedStatusForRequests(1, 1);
+        await notificationSignalRService.Received(0).UpdateCompletedStatusForRequests(1, 1, 1);
     }
 }

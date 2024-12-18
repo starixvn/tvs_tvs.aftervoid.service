@@ -29,7 +29,7 @@ public class RequestModel
             var operators = root.OperatorXmls;
             var result = operators.Count > 0 ? operators.Select(x =>
                 new OperatorQuery { OperatorId = x.OperatorId, OperatorType = x.TypeId }
-            ).ToList() : new List<OperatorQuery>();
+            ).ToList() : [];
             return result;
         }
     }
@@ -53,7 +53,7 @@ public class OperatorXml
 public class RootOperators
 {
     [XmlElement(ElementName = "r")]
-    public List<OperatorXml> OperatorXmls { get; set; } = new();
+    public List<OperatorXml> OperatorXmls { get; set; } = [];
 }
 
 public class RequestEventModel

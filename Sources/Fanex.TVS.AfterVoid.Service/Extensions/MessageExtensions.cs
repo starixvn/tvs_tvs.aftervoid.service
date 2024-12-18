@@ -63,11 +63,11 @@ public static class MessageExtensions
             return string.Empty;
         }
 
-        const string Pattern = "\\s*@@\\s*";
-        const string Replacement = " @@ ";
-        var regex = new Regex(Pattern, RegexOptions.None, Regex.InfiniteMatchTimeout);
+        const string pattern = "\\s*@@\\s*";
+        const string replacement = " @@ ";
+        var regex = new Regex(pattern, RegexOptions.None, Regex.InfiniteMatchTimeout);
 
-        return regex.Replace(text, Replacement).Trim();
+        return regex.Replace(text, replacement).Trim();
     }
 
     public static XElement CreateItem(this MessageItem messageItem)

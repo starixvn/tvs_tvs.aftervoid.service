@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Fanex.TVS.AfterVoid.Service.Models;
-using Force.DeepCloner;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Extensions;
 using TicketVoidingSystem.Models;
@@ -37,7 +36,7 @@ public class SpecialPlatformServiceImp : SpecialPlatformService
 
     public Message RemoveSabaInMessageContent(MatchModel match, Message message, RequestDetailViewModel requestInfo)
     {
-        var outputMessage = message.DeepClone();
+        var outputMessage = message.Clone();
 
         RemoveSabaLeagueNameByMatch(match, outputMessage);
         RemoveSabaLeagueNameByInput(requestInfo, outputMessage);
@@ -45,7 +44,7 @@ public class SpecialPlatformServiceImp : SpecialPlatformService
         return outputMessage;
     }
 
-    public void RemoveSabaLeagueNameByMatch(MatchModel match, Message outputMessage)
+    private static void RemoveSabaLeagueNameByMatch(MatchModel match, Message outputMessage)
     {
         if (match == null)
         {
@@ -58,21 +57,23 @@ public class SpecialPlatformServiceImp : SpecialPlatformService
         outputMessage.ContentNewChineseSimplified = ProcessLeagueNameReplacement(match.OriginLeagueNameNewSimplified, outputMessage.ContentNewChineseSimplified);
     }
 
-    public void RemoveSabaLeagueNameByInput(RequestDetailViewModel requestInfo, Message outputMessage)
+    private static void RemoveSabaLeagueNameByInput(RequestDetailViewModel requestInfo, Message outputMessage)
     {
         const int leagueNameEnglish = 128;
         const int leagueNameChinese = 129;
         var subIssueTypeId = requestInfo.EventByMatch.SubIssueTypeId;
 
-        if (requestInfo.Request.IssueTypeId is IssueTypeConstant.WrongOfferedName
-            && subIssueTypeId is leagueNameEnglish or leagueNameChinese)
+        if (requestInfo.Request.IssueTypeId is not IssueTypeConstant.WrongOfferedName
+            || subIssueTypeId is not (leagueNameEnglish or leagueNameChinese))
         {
-            RemoveSabaWrongName(requestInfo, outputMessage);
-            RemoveSabaActualName(requestInfo, outputMessage);
+            return;
         }
+
+        RemoveSabaWrongName(requestInfo, outputMessage);
+        RemoveSabaActualName(requestInfo, outputMessage);
     }
 
-    public void RemoveSabaWrongName(RequestDetailViewModel requestInfo, Message outputMessage)
+    private static void RemoveSabaWrongName(RequestDetailViewModel requestInfo, Message outputMessage)
     {
         outputMessage.ContentEnglish = ProcessLeagueNameReplacement(requestInfo.EventByMatch.WrongName, outputMessage.ContentEnglish);
         outputMessage.ContentChineseSimplified = ProcessLeagueNameReplacement(requestInfo.EventByMatch.WrongNameS, outputMessage.ContentChineseSimplified);
@@ -80,22 +81,12 @@ public class SpecialPlatformServiceImp : SpecialPlatformService
         outputMessage.ContentNewChineseSimplified = ProcessLeagueNameReplacement(requestInfo.EventByMatch.WrongNameS, outputMessage.ContentNewChineseSimplified);
     }
 
-    public void RemoveSabaActualName(RequestDetailViewModel requestInfo, Message outputMessage)
+    private static void RemoveSabaActualName(RequestDetailViewModel requestInfo, Message outputMessage)
     {
         outputMessage.ContentEnglish = ProcessLeagueNameReplacement(requestInfo.EventByMatch.ActualName, outputMessage.ContentEnglish);
         outputMessage.ContentChineseSimplified = ProcessLeagueNameReplacement(requestInfo.EventByMatch.ActualNameS, outputMessage.ContentChineseSimplified);
         outputMessage.ContentChineseTraditional = ProcessLeagueNameReplacement(requestInfo.EventByMatch.ActualNameT, outputMessage.ContentChineseTraditional);
         outputMessage.ContentNewChineseSimplified = ProcessLeagueNameReplacement(requestInfo.EventByMatch.ActualNameS, outputMessage.ContentNewChineseSimplified);
-    }
-
-    public string ReplaceEachChineseLanguage(string source, string oldValue, string newValue)
-    {
-        var replaced = source.Replace(oldValue, "", StringComparison.InvariantCultureIgnoreCase)
-            .Replace(BrandNameSaba, "", StringComparison.InvariantCultureIgnoreCase);
-        var serializedSource = JsonSerializer.Serialize(source);
-        var deSerializedSource = JsonSerializer.Deserialize<string>(serializedSource);
-
-        return deSerializedSource.Replace(source, replaced, StringComparison.InvariantCultureIgnoreCase);
     }
 
     private static string ProcessLeagueNameReplacement(string originalLeagueName, string content)

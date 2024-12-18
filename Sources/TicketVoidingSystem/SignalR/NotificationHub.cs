@@ -5,9 +5,7 @@ using TicketVoidingSystem.Models;
 
 namespace TicketVoidingSystem.SignalR;
 
-public class NotificationHub : Hub<ClientEvent>
-{
-}
+public class NotificationHub : Hub<ClientEvent>;
 
 public interface ClientEvent
 {
