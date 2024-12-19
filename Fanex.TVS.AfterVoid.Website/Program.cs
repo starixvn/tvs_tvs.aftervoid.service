@@ -6,6 +6,7 @@ using Fanex.Logging.Sentry.RavenClient;
 using Fanex.TVS.AfterVoid.Website.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using ONEbook.UM.DependencyInjection;
 using TicketVoidingSystem.Services;
 using TicketVoidingSystem.SignalR;
 
