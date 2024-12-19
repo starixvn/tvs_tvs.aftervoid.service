@@ -17,11 +17,6 @@ using Fanex.TVS.AfterVoid.Service.Utilities.AutoMapper;
 using Fanex.TVS.AfterVoid.Website.Utilities.CustomServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ONEbook.UM.AspNetCore;
-using ONEbook.UM.Configurations;
-using ONEbook.UM.Helpers;
-using ONEbook.UM.Services;
-using ONEbook.UM.Transport;
 using StackExchange.Redis;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Services;
@@ -56,17 +51,7 @@ public static class ServiceCollectionExtensions
             .GetHttpSessionInfo();
         ExceptionHandler.UseConfig(configuration);
     }
-
-    public static void AddOneBookUm(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddSingleton(new UMClientConfiguration().Initialize(configuration));
-        services.AddSingleton<IUMCacheService, MemoryUMCacheService>();
-        services.AddSingleton<IUMRestClient, UMRestClient>();
-        services.AddSingleton<IPHelper, IPHelperImpl>();
-        services.AddSingleton<IHttpContextHelper, CustomHttpContextHelper>();
-        services.AddSingleton<IMaintenanceService, MaintenanceService>();
-    }
-
+    
     public static void AddRemotingRef(this IServiceCollection services)
     {
         RefDataTypeContainer
