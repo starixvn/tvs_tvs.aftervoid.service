@@ -14,7 +14,7 @@ COPY ./Sources/Fanex.TVS.AfterVoid.Service ./Sources/Fanex.TVS.AfterVoid.Service
 COPY ./Fanex.TVS.AfterVoid.Website/Fanex.TVS.AfterVoid.Website.csproj ./Fanex.TVS.AfterVoid.Website/Fanex.TVS.AfterVoid.Website.csproj
 
 WORKDIR /src/Fanex.TVS.AfterVoid.Website
-RUN dotnet nuget add source http://nuget.nexdev.net/api/v2
+RUN dotnet nuget add source https://nuget.nexdev.net/api/v2
 RUN dotnet restore -v n -r linux-x64 
 
 COPY ./Fanex.TVS.AfterVoid.Website .
