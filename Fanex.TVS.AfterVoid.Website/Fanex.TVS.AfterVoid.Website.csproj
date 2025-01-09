@@ -25,7 +25,7 @@
     <PackageReference Include="Fanex.Logging.Sentry.RavenClient" Version="2.0.2" />
     <PackageReference Include="Fanex.RemotingRef" Version="1.5.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="9.0.0" />
-    <PackageReference Include="ONEbook.UM" Version="3.1.8" />
+    <PackageReference Include="ONEbook.UM" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup>
