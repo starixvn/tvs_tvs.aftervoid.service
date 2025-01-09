@@ -16,7 +16,7 @@ public class VoidBetAutomationInfo
 
     public int MatchId { get; set; }
 
-    public int RequestDetailId { get; set; }
+    public int? RequestDetailId { get; set; }
 
     public string NegativeBalanceUsers { get; set; }
 
