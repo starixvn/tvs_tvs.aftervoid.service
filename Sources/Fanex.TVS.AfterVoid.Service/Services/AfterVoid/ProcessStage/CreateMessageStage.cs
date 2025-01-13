@@ -57,7 +57,6 @@ public class CreateMessageStageImp(
         await loggingService.ErrorAsync(
             $"ERROR: {nameof(CreateMessageStage)}.{nameof(Execute)} - BroadcastSessionId: {automationInfo.BroadcastSessionId}", exception);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-        await sendLetstalkServiceStage.InsertLetstalk(automationInfo.RequestId, automationInfo.BroadcastSessionId, ExecuteStatus.Failed);
         await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
         return (0, 0, null, null);
     }

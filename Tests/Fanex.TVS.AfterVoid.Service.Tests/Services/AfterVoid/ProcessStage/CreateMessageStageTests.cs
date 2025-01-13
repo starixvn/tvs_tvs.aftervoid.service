@@ -246,7 +246,6 @@ public class CreateMessageStageTests
         await loggingService.Received(1).ErrorAsync(error, Arg.Any<Exception>());
         await voidBetAutomationService.Received(1).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId,
             automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-        await sendLetstalkServiceStage.Received(1).InsertLetstalk(automationInfo.RequestId, automationInfo.BroadcastSessionId, ExecuteStatus.Failed);
         await notificationSignalRService.Received(1).UpdateFailedStatusForRequest(automationInfo.RequestId);
         Assert.Equal(0, normalMessageId);
         Assert.Equal(0, specialMessageId);

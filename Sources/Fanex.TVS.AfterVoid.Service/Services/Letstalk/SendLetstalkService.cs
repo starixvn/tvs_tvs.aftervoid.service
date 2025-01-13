@@ -53,7 +53,6 @@ public class SendLetstalkServiceImp(
         group.RequestInfo = await voidBetAutomationService.GetRequestViewModelById(group.RequestId, group.MatchId);
         if (Helper.IsCanSendLetstalk(group.RequestInfo.Request.IssueTypeId))
         {
-            await letstalkServiceStage.InsertLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Running);
             var voidedTickets = await letstalkServiceStage.GetVoidedTickets(group.VoidBetAutomationList);
             var matchInfo = await voidBetAutomationService.GetMatchInfo(group.MatchId);
             var voidDataXmlList = await letstalkServiceStage.GetVoidDataXml(group.VoidBetAutomationList.Select(x => x.VoidingHistoryId));
