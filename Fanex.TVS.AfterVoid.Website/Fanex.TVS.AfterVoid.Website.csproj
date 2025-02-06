@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <PackageReference Include="Fanex.Caching.Redis" Version="2.2.7" />
-    <PackageReference Include="Fanex.Data.ProxyClient" Version="1.0.3" />
     <PackageReference Include="Fanex.Logging" Version="2.0.2" />
     <PackageReference Include="Fanex.Logging.Extensions.AspNetCore" Version="1.1.0" />
     <PackageReference Include="Fanex.Logging.Sentry.RavenClient" Version="2.0.2" />
