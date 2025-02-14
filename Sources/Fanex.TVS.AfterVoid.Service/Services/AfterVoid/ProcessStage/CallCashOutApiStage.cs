@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Constants;
+using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Models.SendEmailRecover;
@@ -41,12 +41,12 @@ public class CallCashOutApiStageImp(
         {
             return;
         }
-        var basketballCashOutTickets = emailTickets.Where(x => x.IsCashOut && x.SportType == SportTypeConstant.Basketball);
-        if (!basketballCashOutTickets.Any())
+        var jackTimeCashOutTickets = emailTickets.Where(x => x.IsCashOut && x.SportType.IsHaveJackTimeCashOutTickets());
+        if (!jackTimeCashOutTickets.Any())
         {
             return;
         }
-        var requestModel = new CashOutApiModel { VoidBetInfos = basketballCashOutTickets.Select(x => new VoidBetInfo { TransId = x.TransId.ToString(), CustId = x.CustId.ToString() }) };
+        var requestModel = new CashOutApiModel { VoidBetInfos = jackTimeCashOutTickets.Select(x => new VoidBetInfo { TransId = x.TransId.ToString(), CustId = x.CustId.ToString() }) };
         await cashOutHttpClientService.VoidBet(requestModel);
         await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsRunExternalService = true });
     }
@@ -75,12 +75,12 @@ public class CallCashOutApiStageImp(
         {
             return;
         }
-        var basketballCashOutTickets = emailTickets.Where(x => x.IsCashOut && x.SportType == SportTypeConstant.Basketball);
-        if (!basketballCashOutTickets.Any())
+        var jackTimeCashOutTickets = emailTickets.Where(x => x.IsCashOut && x.SportType.IsHaveJackTimeCashOutTickets());
+        if (!jackTimeCashOutTickets.Any())
         {
             return;
         }
-        var requestModel = new CashOutApiModel { VoidBetInfos = basketballCashOutTickets.Select(x => new VoidBetInfo { TransId = x.TransId.ToString(), CustId = x.CustId.ToString() }) };
+        var requestModel = new CashOutApiModel { VoidBetInfos = jackTimeCashOutTickets.Select(x => new VoidBetInfo { TransId = x.TransId.ToString(), CustId = x.CustId.ToString() }) };
         await cashOutHttpClientService.UndoVoidBet(requestModel);
         await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId, new VoidBetAutomationInfo { IsRunExternalService = true });
     }
