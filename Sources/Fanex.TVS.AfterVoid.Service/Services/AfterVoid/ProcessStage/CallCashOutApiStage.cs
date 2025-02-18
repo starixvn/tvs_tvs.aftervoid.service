@@ -41,7 +41,7 @@ public class CallCashOutApiStageImp(
         {
             return;
         }
-        var jackTimeCashOutTickets = emailTickets.Where(x => x.IsCashOut && x.SportType.IsHaveJackTimeCashOutTickets());
+        var jackTimeCashOutTickets = emailTickets.Where(x => x.IsCashOut && JackTimeCashOutExtension.IsHasJackTimeCashOut(x.SportType, x.ExtraInfo));
         if (!jackTimeCashOutTickets.Any())
         {
             return;
@@ -75,7 +75,7 @@ public class CallCashOutApiStageImp(
         {
             return;
         }
-        var jackTimeCashOutTickets = emailTickets.Where(x => x.IsCashOut && x.SportType.IsHaveJackTimeCashOutTickets());
+        var jackTimeCashOutTickets = emailTickets.Where(x => x.IsCashOut && JackTimeCashOutExtension.IsHasJackTimeCashOut(x.SportType, x.ExtraInfo));
         if (!jackTimeCashOutTickets.Any())
         {
             return;
