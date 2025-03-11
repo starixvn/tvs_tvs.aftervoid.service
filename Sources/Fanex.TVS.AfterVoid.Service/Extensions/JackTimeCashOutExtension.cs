@@ -9,7 +9,13 @@ public static class JackTimeCashOutExtension
 {
     public static bool IsHasJackTimeCashOut(int sportType, string extraInfo)
     {
-        if (!sportType.IsSportTypeOfferJackTimeCashOut() || string.IsNullOrWhiteSpace(extraInfo))
+        return sportType is SportTypeConstant.Basketball
+               || sportType is SportTypeConstant.Soccer && IsHasJackTimeText(extraInfo);
+    }
+
+    private static bool IsHasJackTimeText(string extraInfo)
+    {
+        if (string.IsNullOrWhiteSpace(extraInfo))
         {
             return false;
         }
@@ -33,10 +39,5 @@ public static class JackTimeCashOutExtension
         }
 
         return false;
-    }
-
-    private static bool IsSportTypeOfferJackTimeCashOut(this int sportType)
-    {
-        return sportType is SportTypeConstant.Soccer or SportTypeConstant.Basketball;
     }
 }

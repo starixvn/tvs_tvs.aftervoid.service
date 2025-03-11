@@ -32,7 +32,7 @@ public class CallCashOutApiStageTests
         // Arrange
         var emailTickets = new List<TicketEmailModel>
         {
-            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1, ExtraInfo = "jtseqid"},
+            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1, ExtraInfo = "<p25 jtseqid='1' />"},
             new() { IsCashOut = true, SportType = 1},
             new() { IsCashOut = false, SportType = 2}
         };
@@ -59,7 +59,7 @@ public class CallCashOutApiStageTests
         // Arrange
         var emailTickets = new List<TicketEmailModel>
         {
-            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1, ExtraInfo = "jtseqid"},
+            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1, ExtraInfo = "<p25 jtseqid='1' />"},
             new() { IsCashOut = true, SportType = 1},
             new() { IsCashOut = false, SportType = 2}
         };
@@ -141,7 +141,7 @@ public class CallCashOutApiStageTests
         // Arrange
         var emailTickets = new List<TicketRecoverEmailModel>
         {
-            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1, ExtraInfo = "jtseqid"},
+            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1, ExtraInfo = "<p25 jtseqid='1' />"},
             new() { IsCashOut = true, SportType = 1},
             new() { IsCashOut = false, SportType = 2}
         };
@@ -168,7 +168,7 @@ public class CallCashOutApiStageTests
         // Arrange
         var emailTickets = new List<TicketRecoverEmailModel>
         {
-            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1, ExtraInfo = "jtseqid"},
+            new() { IsCashOut = true, SportType = 2, TransId = 1, CustId = 1, ExtraInfo = "<p25 jtseqid='1' />"},
             new() { IsCashOut = true, SportType = 1},
             new() { IsCashOut = false, SportType = 2}
         };
