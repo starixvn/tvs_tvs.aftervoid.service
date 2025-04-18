@@ -22,7 +22,7 @@ public class SendLetstalkServiceImp(
     VoidBetAutomationService voidBetAutomationService,
     AbnormalBetLetstalkService abnormalBetLetstalkServiceImp,
     SettledBetLetstalkService settledBetLetstalkService,
-    NotificationSignalRService notificationSignalRService,
+    SignalRService signalRService,
     SendLetstalkServiceStage letstalkServiceStage,
     LoggingService loggingService)
     : SendLetstalkService
@@ -90,7 +90,7 @@ public class SendLetstalkServiceImp(
                $"ERROR: RequestId: {group.RequestId} - {nameof(SendLetstalk)} - BroadcastSessionId: {group.BroadcastSessionId}",
                exception);
             await letstalkServiceStage.UpdateLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Failed);
-            await notificationSignalRService.UpdateFailedStatusForRequest(group.RequestId);
+            await signalRService.UpdateFailedStatusForRequest(group.RequestId);
 
             return new List<Result>();
         }

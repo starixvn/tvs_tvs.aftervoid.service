@@ -19,7 +19,7 @@ public interface CreateMessageStage
 public class CreateMessageStageImp(
     VoidBetAutomationService voidBetAutomationService,
     SendMessageService sendMessageService,
-    NotificationSignalRService notificationSignalRService,
+    SignalRService signalRService,
     LoggingService loggingService,
     SendLetstalkServiceStage sendLetstalkServiceStage,
     SpecialPlatformService specialPlatformService,
@@ -57,7 +57,7 @@ public class CreateMessageStageImp(
         await loggingService.ErrorAsync(
             $"ERROR: {nameof(CreateMessageStage)}.{nameof(Execute)} - BroadcastSessionId: {automationInfo.BroadcastSessionId}", exception);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-        await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
+        await signalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
         return (0, 0, null, null);
     }
 

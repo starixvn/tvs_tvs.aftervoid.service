@@ -19,7 +19,7 @@ public interface DeleteTransactionStage
 public class DeleteTransactionStageImp(
     IDynamicRepository repository,
     VoidBetAutomationService voidBetAutomationService,
-    NotificationSignalRService notificationSignalRService,
+    SignalRService signalRService,
     LoggingService loggingService)
     : DeleteTransactionStage
 {
@@ -61,7 +61,7 @@ public class DeleteTransactionStageImp(
             $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
             exception);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-        await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
+        await signalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
         return false;
     }

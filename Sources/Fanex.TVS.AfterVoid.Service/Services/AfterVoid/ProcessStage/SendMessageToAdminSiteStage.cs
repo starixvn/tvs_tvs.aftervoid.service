@@ -15,7 +15,7 @@ public interface SendMessageToAdminSiteStage
 public class SendMessageToAdminSiteStageImp(
     VoidBetAutomationService voidBetAutomationService,
     SendMessageService sendMessageService,
-    NotificationSignalRService notificationSignalRService,
+    SignalRService signalRService,
     LoggingService loggingService)
     : SendMessageToAdminSiteStage
 {
@@ -51,7 +51,7 @@ public class SendMessageToAdminSiteStageImp(
             $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
             exception);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-        await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
+        await signalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
         return false;
     }

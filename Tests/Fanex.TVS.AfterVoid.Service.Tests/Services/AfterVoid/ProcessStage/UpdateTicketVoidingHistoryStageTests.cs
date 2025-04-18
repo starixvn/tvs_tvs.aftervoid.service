@@ -17,14 +17,14 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 public class UpdateTicketVoidingHistoryStageTests
 {
     private VoidBetAutomationService voidBetAutomationService;
-    private NotificationSignalRService notificationSignalRService;
+    private SignalRService notificationSignalRService;
     private LoggingService loggingService;
     public UpdateTicketVoidingHistoryStage service;
 
     internal void InItService()
     {
         loggingService = Substitute.For<LoggingService>();
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        notificationSignalRService = Substitute.For<SignalRService>();
         voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
     }
 

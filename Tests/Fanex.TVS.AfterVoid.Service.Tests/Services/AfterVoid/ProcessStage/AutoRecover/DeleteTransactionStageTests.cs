@@ -54,7 +54,7 @@ public class DeleteTransactionStageTests
         };
         var betIds = new List<BetId> { new() { TransId = "1" } };
         var loggingService = Substitute.For<LoggingService>();
-        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var notificationSignalRService = Substitute.For<SignalRService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         const string error = "ERROR: DeleteTransactionStage.Execute - BroadcastSessionId: 1 - VDHistoryId: 1 - RequestId: 1";
 

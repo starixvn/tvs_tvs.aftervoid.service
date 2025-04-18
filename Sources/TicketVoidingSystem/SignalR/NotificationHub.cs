@@ -12,4 +12,6 @@ public interface ClientEvent
     Task showVoidResult(IEnumerable<Result> results);
 
     Task updateRequestStatus(IEnumerable<RequestStatus> status);
+
+    Task pushNotification(NotificationModel notification);
 }

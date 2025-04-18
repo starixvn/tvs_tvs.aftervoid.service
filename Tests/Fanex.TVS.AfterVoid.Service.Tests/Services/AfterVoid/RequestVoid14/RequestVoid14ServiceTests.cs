@@ -6,6 +6,7 @@ using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestVoid14;
+using Fanex.TVS.AfterVoid.Service.Services.Notification;
 using NSubstitute;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
@@ -16,11 +17,12 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.RequestVoid14;
 public class RequestVoid14ServiceTests
 {
     private VoidBetAutomationService voidBetAutomationService;
-    private NotificationSignalRService notificationSignalRService;
+    private SignalRService signalRService;
     private MainProcessStageService mainProcessStageService;
     private CallCashOutApiStage callCashOutApiStage;
     private WriteLogAfterVoidStage writeLogAfterVoidStage;
     private CallSignalRStage callSignalRStage;
+    private NotificationService notificationService;
     public RequestVoid14Service Service;
 
     internal void InItService()
@@ -30,7 +32,8 @@ public class RequestVoid14ServiceTests
         callCashOutApiStage = Substitute.For<CallCashOutApiStage>();
         writeLogAfterVoidStage = Substitute.For<WriteLogAfterVoidStage>();
         callSignalRStage = Substitute.For<CallSignalRStage>();
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        notificationService = Substitute.For<NotificationService>();
+        signalRService = Substitute.For<SignalRService>();
     }
 
     [Fact]
@@ -79,7 +82,7 @@ public class RequestVoid14ServiceTests
         mainProcessStageService.IsHaveVoidReason(Arg.Any<VoidedReason>()).ReturnsForAnyArgs(true);
         mainProcessStageService.InsertVoidedTransaction(isSentMessageToAdminSite, Arg.Any<InsertVoidedTransactionStageParameter>()).ReturnsForAnyArgs(isInsertedVoidedTransaction);
         mainProcessStageService.UpdateTicketVoidingHistory(isInsertedVoidedTransaction, Arg.Any<UpdateTicketVoidingHistoryStageParameter>()).ReturnsForAnyArgs(isUpdatedVoidingHistory);
-        Service = new RequestVoid14ServiceImp(voidBetAutomationService, mainProcessStageService, notificationSignalRService, callCashOutApiStage, writeLogAfterVoidStage, callSignalRStage);
+        Service = new RequestVoid14ServiceImp(voidBetAutomationService, mainProcessStageService, notificationService, callCashOutApiStage, writeLogAfterVoidStage, callSignalRStage);
 
         // Act
         await Service.Execute(automationInfo, true, "");
@@ -123,13 +126,12 @@ public class RequestVoid14ServiceTests
         mainProcessStageService.IsHaveVoidReason(Arg.Any<VoidedReason>()).ReturnsForAnyArgs(true);
         mainProcessStageService.InsertVoidedTransaction(isSentMessageToAdminSite, Arg.Any<InsertVoidedTransactionStageParameter>()).ReturnsForAnyArgs(isInsertedVoidedTransaction);
         mainProcessStageService.UpdateTicketVoidingHistory(isInsertedVoidedTransaction, Arg.Any<UpdateTicketVoidingHistoryStageParameter>()).ReturnsForAnyArgs(isUpdatedVoidingHistory);
-        Service = new RequestVoid14ServiceImp(voidBetAutomationService, mainProcessStageService, notificationSignalRService, callCashOutApiStage, writeLogAfterVoidStage, callSignalRStage);
+        Service = new RequestVoid14ServiceImp(voidBetAutomationService, mainProcessStageService, notificationService, callCashOutApiStage, writeLogAfterVoidStage, callSignalRStage);
 
         // Act
         await Service.Execute(automationInfo, true, "");
 
         // Assert
-        await notificationSignalRService.Received(1).NotifyErrorWhenExecuteAfterVoidServiceToUser("a");
         await callCashOutApiStage.Received(0).ExecuteForVoid(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<TicketEmailModel>>());
         await voidBetAutomationService.Received(0).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await callSignalRStage.Received(0).ExecuteForManualVoid(Arg.Any<CallSignalRManualVoidParameter>());

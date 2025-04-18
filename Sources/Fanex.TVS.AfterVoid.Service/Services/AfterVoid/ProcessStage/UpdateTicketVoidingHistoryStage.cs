@@ -14,7 +14,7 @@ public interface UpdateTicketVoidingHistoryStage
 
 public class UpdateTicketVoidingHistoryStageImp(
     VoidBetAutomationService voidBetAutomationService,
-    NotificationSignalRService notificationSignalRService,
+    SignalRService signalRService,
     LoggingService loggingService)
     : UpdateTicketVoidingHistoryStage
 {
@@ -49,7 +49,7 @@ public class UpdateTicketVoidingHistoryStageImp(
            $"ERROR: {nameof(UpdateTicketVoidingHistoryStage)}.{nameof(Execute)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
            $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-        await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
+        await signalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
         return false;
     }

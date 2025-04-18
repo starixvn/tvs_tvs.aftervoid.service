@@ -14,7 +14,6 @@ using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestVoid14;
 using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using Fanex.TVS.AfterVoid.Service.Utilities.AutoMapper;
-using Fanex.TVS.AfterVoid.Website.Utilities.CustomServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
@@ -23,6 +22,7 @@ using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
 
+using Fanex.TVS.AfterVoid.Service.Services.Notification;
 using Jobs;
 
 public static class ServiceCollectionExtensions
@@ -51,7 +51,7 @@ public static class ServiceCollectionExtensions
             .GetHttpSessionInfo();
         ExceptionHandler.UseConfig(configuration);
     }
-    
+
     public static void AddRemotingRef(this IServiceCollection services)
     {
         RefDataTypeContainer
@@ -81,7 +81,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<RequestManualVoidService, RequestManualVoidServiceImp>();
         services.AddSingleton<RequestVoid14Service, RequestVoid14ServiceImp>();
         services.AddSingleton<MessageItemService, MessageItemServiceImp>();
-        services.AddSingleton<NotificationSignalRService, NotificationSignalRServiceImp>();
+        services.AddSingleton<SignalRService, SignalRServiceImp>();
         services.AddSingleton<MessageContentParameterService, MessageContentParameterServiceImp>();
         services.AddSingleton<SendMessageService, SendMessageServiceImp>();
         services.AddSingleton<LetstalkClientService, LetstalkClientServiceImp>();
@@ -111,6 +111,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<DeleteZzzBetTransStage, DeleteZzzBetTransStageImp>();
         services.AddSingleton<RequestAutoRecoverService, RequestAutoRecoverServiceImp>();
         services.AddSingleton<MainRecoverProcessStageService, MainRecoverProcessStageServiceImp>();
+        services.AddSingleton<NotificationService, NotificationServiceImp>();
     }
 
     public static IServiceCollection AddBackgroundService(this IServiceCollection services)
@@ -119,7 +120,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<LetstalkJob>();
 
         services.AddHostedService<AfterVoidJob>();
-        services.AddHostedService < LetstalkJob>();
+        services.AddHostedService<LetstalkJob>();
 
         return services;
     }

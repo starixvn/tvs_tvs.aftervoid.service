@@ -19,7 +19,7 @@ public interface SendBatchMessageStage
 public class SendBatchMessageStageImp(
     VoidBetAutomationService voidBetAutomationService,
     SendMessageService sendMessageService,
-    NotificationSignalRService notificationSignalRService,
+    SignalRService signalRService,
     LoggingService loggingService)
     : SendBatchMessageStage
 {
@@ -54,7 +54,7 @@ public class SendBatchMessageStageImp(
         await loggingService.ErrorAsync($"ERROR: {nameof(SendBatchMessageStage)}.{nameof(Execute)} - SessionId: {automationInfo.BroadcastSessionId}" +
                                         $" - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-        await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
+        await signalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
         return false;
     }

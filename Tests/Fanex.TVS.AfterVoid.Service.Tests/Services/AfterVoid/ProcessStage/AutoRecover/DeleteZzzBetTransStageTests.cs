@@ -55,7 +55,7 @@ public class DeleteZzzBetTransStageTests : IClassFixture<AppSettingFixture>
             BroadcastSessionId = "1"
         };
         var loggingService = Substitute.For<LoggingService>();
-        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var notificationSignalRService = Substitute.For<SignalRService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         const string error = "ERROR: DeleteZzzBetTransStage.Execute - BroadcastSessionId: 1 - VDHistoryId: 1 - RequestId: 1";
 

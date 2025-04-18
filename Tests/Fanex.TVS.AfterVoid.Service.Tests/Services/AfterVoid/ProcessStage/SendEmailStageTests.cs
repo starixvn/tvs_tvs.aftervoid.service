@@ -16,7 +16,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 public class SendEmailStageTests
 {
     private LoggingService loggingService;
-    private NotificationSignalRService notificationSignalRService;
+    private SignalRService notificationSignalRService;
     private VoidBetAutomationService voidBetAutomationService;
     private AfterVoidEmailService afterVoidEmailService;
     public SendEmailStage Service;
@@ -24,7 +24,7 @@ public class SendEmailStageTests
     internal void InItService()
     {
         loggingService = Substitute.For<LoggingService>();
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        notificationSignalRService = Substitute.For<SignalRService>();
         voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         afterVoidEmailService = Substitute.For<AfterVoidEmailService>();
     }

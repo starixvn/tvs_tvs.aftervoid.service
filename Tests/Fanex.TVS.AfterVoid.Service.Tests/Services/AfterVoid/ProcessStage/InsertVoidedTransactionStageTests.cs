@@ -17,14 +17,14 @@ public class InsertVoidedTransactionStageTests
 {
     private VoidBetAutomationService voidBetAutomationService;
     private SendMessageService sendMessageService;
-    private NotificationSignalRService notificationSignalRService;
+    private SignalRService notificationSignalRService;
     private LoggingService loggingService;
     public InsertVoidedTransactionStage Service;
 
     internal void InItService()
     {
         loggingService = Substitute.For<LoggingService>();
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        notificationSignalRService = Substitute.For<SignalRService>();
         voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         sendMessageService = Substitute.For<SendMessageService>();
     }
