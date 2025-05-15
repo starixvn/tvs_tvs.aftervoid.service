@@ -18,8 +18,7 @@ public interface AfterVoidService
     Task Execute();
 }
 
-public class AfterVoidServiceImp(
-    VoidBetAutomationService voidBetAutomationService,
+public class AfterVoidServiceImp(VoidBetAutomationService voidBetAutomationService,
     RequestAutoVoidService requestAutoVoidService,
     RequestManualVoidService requestManualVoidService,
     RequestVoid14Service requestVoid14Service,

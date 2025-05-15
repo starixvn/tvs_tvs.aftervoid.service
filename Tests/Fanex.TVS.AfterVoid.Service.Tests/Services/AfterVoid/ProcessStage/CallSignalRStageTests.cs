@@ -5,6 +5,7 @@ using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
+using Fanex.TVS.AfterVoid.Service.Services.Notification;
 using NSubstitute;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
@@ -14,8 +15,9 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 
 public class CallSignalRStageTests
 {
-    private NotificationSignalRService notificationSignalRService;
-    public CallSignalRStageImp Service;
+    private SignalRService signalRService = Substitute.For<SignalRService>();
+    private readonly NotificationService notificationService = Substitute.For<NotificationService>();
+    public CallSignalRStageImp service;
 
     [Fact]
     public async Task ExecuteForAutoVoid_HasValidData_CalledExpected()
@@ -27,14 +29,14 @@ public class CallSignalRStageTests
             MatchId = 1,
             RequestDetailId = 1
         };
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        Service = new CallSignalRStageImp(notificationSignalRService);
+        signalRService = Substitute.For<SignalRService>();
+        service = new CallSignalRStageImp(signalRService, notificationService);
 
         // Act
-        await Service.ExecuteForAutoVoid(true, RequestStatusConstant.Completed, automationInfo);
+        await service.ExecuteForAutoVoid(true, RequestStatusConstant.Completed, automationInfo);
 
         // Assert
-        await notificationSignalRService.Received(1).UpdateCompletedStatusForRequests(1, 1, 1);
+        await signalRService.Received(1).UpdateCompletedStatusForRequests(1, 1, 1);
     }
 
     [Theory]
@@ -50,14 +52,14 @@ public class CallSignalRStageTests
             MatchId = 1,
             RequestDetailId = 1
         };
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        Service = new CallSignalRStageImp(notificationSignalRService);
+        signalRService = Substitute.For<SignalRService>();
+        service = new CallSignalRStageImp(signalRService, notificationService);
 
         // Act
-        await Service.ExecuteForAutoVoid(isLastedInRequest, currentRequestStatus, automationInfo);
+        await service.ExecuteForAutoVoid(isLastedInRequest, currentRequestStatus, automationInfo);
 
         // Assert
-        await notificationSignalRService.Received(0).UpdateCompletedStatusForRequests(1, 1, 1);
+        await signalRService.Received(0).UpdateCompletedStatusForRequests(1, 1, 1);
     }
 
     [Theory]
@@ -91,15 +93,14 @@ public class CallSignalRStageTests
             EmailResultsHistory = emailResultsHistory,
             CurrentEmailResults = currentEmailResults
         };
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        Service = new CallSignalRStageImp(notificationSignalRService);
+        signalRService = Substitute.For<SignalRService>();
+        service = new CallSignalRStageImp(signalRService, notificationService);
 
         // Act
-        await Service.ExecuteForManualVoid(parameter);
+        await service.ExecuteForManualVoid(parameter);
 
         // Assert
-        await notificationSignalRService.Received(1).UpdateCompletedStatusForRequests(1, matchId, 1);
-        await notificationSignalRService.Received(1).NotifyVoidResultToUser("a", Arg.Any<List<Result>>());
+        await signalRService.Received(1).UpdateCompletedStatusForRequests(1, matchId, 1);
     }
 
     [Theory]
@@ -125,15 +126,14 @@ public class CallSignalRStageTests
             RequestId = 1,
             RequestDetailId = 1
         };
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        Service = new CallSignalRStageImp(notificationSignalRService);
+        signalRService = Substitute.For<SignalRService>();
+        service = new CallSignalRStageImp(signalRService, notificationService);
 
         // Act
-        await Service.ExecuteForAutoRecover(isLastedInRequest, currentRequestStatus, automationInfo);
+        await service.ExecuteForAutoRecover(isLastedInRequest, currentRequestStatus, automationInfo);
 
         // Assert
-        await notificationSignalRService.Received(1).UpdateCompletedStatusForRequests(1, 1, 1);
-        await notificationSignalRService.Received(1).NotifyVoidResultToUser("a", Arg.Any<List<Result>>());
+        await signalRService.Received(1).UpdateCompletedStatusForRequests(1, 1, 1);
     }
 
     [Theory]
@@ -146,15 +146,14 @@ public class CallSignalRStageTests
     {
         // Arrange
         var automationInfo = new VoidBetAutomationInfo();
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        Service = new CallSignalRStageImp(notificationSignalRService);
+        signalRService = Substitute.For<SignalRService>();
+        service = new CallSignalRStageImp(signalRService, notificationService);
 
         // Act
-        await Service.ExecuteForAutoRecover(isLastedInRequest, currentRequestStatus, automationInfo);
+        await service.ExecuteForAutoRecover(isLastedInRequest, currentRequestStatus, automationInfo);
 
         // Assert
-        await notificationSignalRService.Received(0).UpdateCompletedStatusForRequests(1, 1, 1);
-        await notificationSignalRService.Received(0).NotifyVoidResultToUser("a", Arg.Any<List<Result>>());
+        await signalRService.Received(0).UpdateCompletedStatusForRequests(1, 1, 1);
     }
 
     [Theory]
@@ -169,13 +168,13 @@ public class CallSignalRStageTests
             IsLastedInRequest = isLastedInRequest,
             CurrentRequestStatus = currentRequestStatus
         };
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
-        Service = new CallSignalRStageImp(notificationSignalRService);
+        signalRService = Substitute.For<SignalRService>();
+        service = new CallSignalRStageImp(signalRService, notificationService);
 
         // Act
-        await Service.ExecuteForManualVoid(parameter);
+        await service.ExecuteForManualVoid(parameter);
 
         // Assert
-        await notificationSignalRService.Received(0).UpdateCompletedStatusForRequests(1, 1, 1);
+        await signalRService.Received(0).UpdateCompletedStatusForRequests(1, 1, 1);
     }
 }

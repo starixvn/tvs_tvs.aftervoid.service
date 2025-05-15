@@ -6,6 +6,7 @@ using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
+using Fanex.TVS.AfterVoid.Service.Services.Notification;
 using NSubstitute;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
@@ -17,7 +18,7 @@ public class RequestManualVoidServiceTests
 {
     private VoidBetAutomationService voidBetAutomationService;
     private MainProcessStageService mainProcessStageService;
-    private NotificationSignalRService notificationSignalRService;
+    private NotificationService notificationService;
     private SpecialPlatformService specialPlatformService;
     private UpdateEmailResultStage updateEmailResultStage;
     private CallCashOutApiStage callCashOutApiStage;
@@ -34,7 +35,7 @@ public class RequestManualVoidServiceTests
         writeLogAfterVoidStage = Substitute.For<WriteLogAfterVoidStage>();
         callSignalRStage = Substitute.For<CallSignalRStage>();
         specialPlatformService = Substitute.For<SpecialPlatformService>();
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        notificationService = Substitute.For<NotificationService>();
     }
 
     [Fact]
@@ -106,7 +107,7 @@ public class RequestManualVoidServiceTests
         mainProcessStageService.InsertVoidedTransaction(isSentMessageToAdminSite, Arg.Any<InsertVoidedTransactionStageParameter>()).ReturnsForAnyArgs(isInsertedVoidedTransaction);
         mainProcessStageService.UpdateTicketVoidingHistory(isInsertedVoidedTransaction, Arg.Any<UpdateTicketVoidingHistoryStageParameter>()).ReturnsForAnyArgs(isUpdatedVoidingHistory);
         mainProcessStageService.SendEmail(isUpdatedVoidingHistory, Arg.Any<SendEmailStageParameter>()).ReturnsForAnyArgs((isSentEmail, null));
-        Service = new RequestManualVoidServiceImp(voidBetAutomationService, mainProcessStageService, notificationSignalRService, specialPlatformService,
+        Service = new RequestManualVoidServiceImp(voidBetAutomationService, mainProcessStageService, notificationService, specialPlatformService,
             updateEmailResultStage, callCashOutApiStage, writeLogAfterVoidStage, callSignalRStage);
 
         // Act
@@ -179,7 +180,7 @@ public class RequestManualVoidServiceTests
         mainProcessStageService.InsertVoidedTransaction(isSentMessageToAdminSite, Arg.Any<InsertVoidedTransactionStageParameter>()).ReturnsForAnyArgs(isInsertedVoidedTransaction);
         mainProcessStageService.UpdateTicketVoidingHistory(isInsertedVoidedTransaction, Arg.Any<UpdateTicketVoidingHistoryStageParameter>()).ReturnsForAnyArgs(isUpdatedVoidingHistory);
         mainProcessStageService.SendEmail(isUpdatedVoidingHistory, Arg.Any<SendEmailStageParameter>()).ReturnsForAnyArgs((isSentEmail, null));
-        Service = new RequestManualVoidServiceImp(voidBetAutomationService, mainProcessStageService, notificationSignalRService, specialPlatformService,
+        Service = new RequestManualVoidServiceImp(voidBetAutomationService, mainProcessStageService, notificationService, specialPlatformService,
             updateEmailResultStage, callCashOutApiStage, writeLogAfterVoidStage, callSignalRStage);
 
         // Act
@@ -191,6 +192,5 @@ public class RequestManualVoidServiceTests
         await voidBetAutomationService.Received(0).UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await callSignalRStage.Received(0).ExecuteForManualVoid(Arg.Any<CallSignalRManualVoidParameter>());
         await writeLogAfterVoidStage.Received(0).Execute(Arg.Any<VoidBetAutomationInfo>(), Arg.Any<IEnumerable<Result>>());
-        await notificationSignalRService.Received(1).NotifyErrorWhenExecuteAfterVoidServiceToUser(Arg.Any<string>());
     }
 }

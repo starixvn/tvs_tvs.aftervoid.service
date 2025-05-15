@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Services;
 using FizzWare.NBuilder;
 using Microsoft.AspNetCore.SignalR;
@@ -19,7 +18,7 @@ public class NotificationSignalRServiceITests
     {
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
-        var service = new NotificationSignalRServiceImp(voidBetAutomationService, hubContext);
+        var service = new SignalRServiceImp(voidBetAutomationService, hubContext);
 
         await service.UpdateFailedStatusForRequest(1);
         await hubContext.Clients.All.Received(1).updateRequestStatus(Arg.Is<IEnumerable<RequestStatus>>(x =>
@@ -34,7 +33,7 @@ public class NotificationSignalRServiceITests
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         voidBetAutomationService.GetRequestSimpleInfo(default, default, default).ReturnsForAnyArgs(fakeRequestSimple);
         var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
-        var service = new NotificationSignalRServiceImp(voidBetAutomationService, hubContext);
+        var service = new SignalRServiceImp(voidBetAutomationService, hubContext);
 
         await service.UpdateCompletedStatusForRequests(1, 1, 1);
 
@@ -43,32 +42,5 @@ public class NotificationSignalRServiceITests
         await hubContext.Clients.All.Received(1).updateRequestStatus(Arg.Is<IEnumerable<RequestStatus>>(x =>
             x.Count() == 1
             && x.Any(y => y.RequestId == 1)));
-    }
-
-    [Fact]
-    public async Task NotifyVoidResultToUser_ShouldCallUpdateApi()
-    {
-        var fakeResults = Builder<Result>.CreateListOfSize(3).Build();
-        var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
-        var service = new NotificationSignalRServiceImp(default, hubContext);
-
-        await service.NotifyVoidResultToUser("SA", fakeResults);
-
-        await hubContext.Clients.User("SA").Received(1)
-            .showVoidResult(Arg.Is<IEnumerable<Result>>(x => Equals(x, fakeResults)));
-    }
-
-    [Fact]
-    public async Task NotifyErrorWhenExecuteAfterVoidServiceToUser_ShouldCallUpdateApi()
-    {
-        const string fakeUsername = "SA";
-        var hubContext = Substitute.For<IHubContext<NotificationHub, ClientEvent>>();
-        var service = new NotificationSignalRServiceImp(default, hubContext);
-
-        await service.NotifyErrorWhenExecuteAfterVoidServiceToUser(fakeUsername);
-
-        await hubContext.Clients.User(fakeUsername).Received(1)
-            .showVoidResult(Arg.Is<IEnumerable<Result>>(x =>
-                x.Count() == 1 && x.Any(y => y.ErrorCode == ErrorCode.ExceptionWhenRunAfterVoid)));
     }
 }

@@ -77,7 +77,7 @@ public class SendEmailRecoverStageTests
         var tickets = new List<TicketRecoverEmailModel> { new() };
         var expectedResults = new List<Result>();
         var loggingService = Substitute.For<LoggingService>();
-        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var notificationSignalRService = Substitute.For<SignalRService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
 
         var service = new SendEmailRecoverStageImp(voidBetAutomationService, notificationSignalRService, loggingService, null);
@@ -109,7 +109,7 @@ public class SendEmailRecoverStageTests
         var expectedResults = new List<Result>();
         var tvsWebSiteHttpClientService = Substitute.For<TVSWebSiteHttpClientService>();
         var loggingService = Substitute.For<LoggingService>();
-        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var notificationSignalRService = Substitute.For<SignalRService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         tvsWebSiteHttpClientService.SendEmailRecover(Arg.Any<SendEmailRecoverApiModel>()).ReturnsForAnyArgs((false, expectedResults));
 

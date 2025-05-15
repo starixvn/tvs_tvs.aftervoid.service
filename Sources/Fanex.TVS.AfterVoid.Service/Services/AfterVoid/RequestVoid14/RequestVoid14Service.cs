@@ -3,8 +3,10 @@ using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
+using Fanex.TVS.AfterVoid.Service.Services.Notification;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
+using TVS.Void.Service.Constants;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestVoid14;
 
@@ -16,7 +18,7 @@ public interface RequestVoid14Service
 public class RequestVoid14ServiceImp(
     VoidBetAutomationService voidBetAutomationService,
     MainProcessStageService mainProcessStageService,
-    NotificationSignalRService notificationSignalRService,
+    NotificationService notificationService,
     CallCashOutApiStage callCashOutApiStage,
     WriteLogAfterVoidStage writeLogAfterVoidStage,
     CallSignalRStage callSignalRStage)
@@ -65,7 +67,7 @@ public class RequestVoid14ServiceImp(
 
         if (!isUpdatedVoidingHistory)
         {
-            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            notificationService.ExecuteBackground(() => notificationService.InsertNotification(NotificationType.Error, MessageHelper.CreateFailed(automationInfo.RequestId), automationInfo.RequestId));
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
             return;
         }

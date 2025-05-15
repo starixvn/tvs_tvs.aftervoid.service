@@ -50,7 +50,7 @@ public class DeletedMessageStageTests
             BroadcastSessionId = "1"
         };
         var loggingService = Substitute.For<LoggingService>();
-        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var notificationSignalRService = Substitute.For<SignalRService>();
         var voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
 
         var service = new DeleteMessageStageImp(null, voidBetAutomationService, notificationSignalRService, loggingService);

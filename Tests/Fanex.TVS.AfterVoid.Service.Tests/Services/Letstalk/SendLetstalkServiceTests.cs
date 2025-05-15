@@ -27,7 +27,7 @@ public class SendLetstalkServiceTests
         voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         var abnormalBetLetstalkServiceImp = Substitute.For<AbnormalBetLetstalkService>();
         settledBetLetstalkService = Substitute.For<SettledBetLetstalkService>();
-        var notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        var notificationSignalRService = Substitute.For<SignalRService>();
         letstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
         loggingService = Substitute.For<LoggingService>();
         service = new SendLetstalkServiceImp(voidBetAutomationService, abnormalBetLetstalkServiceImp,

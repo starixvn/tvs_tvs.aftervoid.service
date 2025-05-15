@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
+using Fanex.TVS.AfterVoid.Service.Services.Notification;
 using TicketVoidingSystem.Constants;
+using TVS.Void.Service.Constants;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
 
@@ -15,7 +17,7 @@ public interface RequestManualVoidService
 public class RequestManualVoidServiceImp(
     VoidBetAutomationService voidBetAutomationService,
     MainProcessStageService mainProcessStageService,
-    NotificationSignalRService notificationSignalRService,
+    NotificationService notificationService,
     SpecialPlatformService specialPlatformService,
     UpdateEmailResultStage updateEmailResultStage,
     CallCashOutApiStage callCashOutApiStage,
@@ -103,7 +105,7 @@ public class RequestManualVoidServiceImp(
 
         if (!isSentEmail)
         {
-            await notificationSignalRService.NotifyErrorWhenExecuteAfterVoidServiceToUser(voidDataXml.CreatorName);
+            notificationService.ExecuteBackground(() => notificationService.InsertNotification(NotificationType.Error, MessageHelper.CreateFailed(automationInfo.RequestId), automationInfo.RequestId));
             await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
             return;
         }

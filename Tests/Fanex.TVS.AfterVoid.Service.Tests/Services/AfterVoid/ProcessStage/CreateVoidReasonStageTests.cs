@@ -15,7 +15,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.ProcessStage;
 public class CreateVoidReasonStageTests
 {
     private LoggingService loggingService;
-    private NotificationSignalRService notificationSignalRService;
+    private SignalRService notificationSignalRService;
     private SendMessageService sendMessageService;
     private VoidBetAutomationService voidBetAutomationService;
     public CreateVoidReasonStage Service;
@@ -23,7 +23,7 @@ public class CreateVoidReasonStageTests
     internal void InItService()
     {
         loggingService = Substitute.For<LoggingService>();
-        notificationSignalRService = Substitute.For<NotificationSignalRService>();
+        notificationSignalRService = Substitute.For<SignalRService>();
         voidBetAutomationService = Substitute.For<VoidBetAutomationService>();
         sendMessageService = Substitute.For<SendMessageService>();
     }

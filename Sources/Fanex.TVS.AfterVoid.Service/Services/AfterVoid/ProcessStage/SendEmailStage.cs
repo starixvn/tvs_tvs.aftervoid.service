@@ -16,7 +16,7 @@ public interface SendEmailStage
 
 public class SendEmailStageImp(
     VoidBetAutomationService voidBetAutomationService,
-    NotificationSignalRService notificationSignalRService,
+    SignalRService signalRService,
     LoggingService loggingService,
     AfterVoidEmailService afterVoidEmailService)
     : SendEmailStage
@@ -52,7 +52,7 @@ public class SendEmailStageImp(
             $"ERROR: {nameof(SendEmailStage)}.{nameof(Execute)} - BroadcastSessionId: {automationInfo.BroadcastSessionId} - " +
             $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-        await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
+        await signalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
         return (false, new List<Result>());
     }

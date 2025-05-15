@@ -16,7 +16,7 @@ public interface CreateVoidReasonStage
 public class CreateVoidReasonStageImp(
     VoidBetAutomationService voidBetAutomationService,
     SendMessageService sendMessageService,
-    NotificationSignalRService notificationSignalRService,
+    SignalRService signalRService,
     LoggingService loggingService)
     : CreateVoidReasonStage
 {
@@ -57,7 +57,7 @@ public class CreateVoidReasonStageImp(
             $"ERROR: {nameof(CreateVoidReasonStage)}.{nameof(Execute)} - SessionId: {automationInfo.BroadcastSessionId}" +
             $" - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Failed);
-        await notificationSignalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
+        await signalRService.UpdateFailedStatusForRequest(automationInfo.RequestId);
 
         return null;
     }
