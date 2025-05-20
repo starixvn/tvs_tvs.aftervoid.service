@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
@@ -13,7 +14,7 @@ public interface MessageContentParameterService
 
     bool IsAllLiveTickets(IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets);
 
-    Task<ContentByLanguageModel> GetSpecialBetTypeContent(int issueTypeId, IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets);
+    Task<ContentByLanguageModel> GetSpecialBetTypeContent(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets);
 }
 
 public class MessageContentParameterServiceImp(TVSWebSiteHttpClientService tvsWebSiteHttpClientService)
@@ -42,9 +43,12 @@ public class MessageContentParameterServiceImp(TVSWebSiteHttpClientService tvsWe
         return normalTickets.All(x => x.IsLive) && specialTickets.All(x => x.IsLive);
     }
 
-    public async Task<ContentByLanguageModel> GetSpecialBetTypeContent(int issueTypeId, IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets)
+    public async Task<ContentByLanguageModel> GetSpecialBetTypeContent(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> normalTickets, IEnumerable<TicketEmailModel> specialTickets)
     {
-        if (issueTypeId is IssueTypeConstant.WrongMarketOffered or IssueTypeConstant.TechnicalError)
+        var issueTypeId = automationInfo.RequestInfo.Request.IssueTypeId;
+        var subIssueTypeId = automationInfo.RequestInfo.EventByMatch.SubIssueTypeId;
+        if (issueTypeId == IssueTypeConstant.WrongMarketOffered
+        || (issueTypeId == IssueTypeConstant.TechnicalError && subIssueTypeId != SubIssueTypeConstant.TechnicalError_ProviderMistake))
         {
             return await GetSpecialBetTypeContent(normalTickets, specialTickets);
         }
