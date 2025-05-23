@@ -4,6 +4,7 @@ using Fanex.LetstalkService.Client;
 using Fanex.Logging.Extensions;
 using Fanex.Logging.Extensions.AspNetCore;
 using Fanex.RemotingRef;
+using Fanex.SiteDbConnectionManager.Client;
 using Fanex.TVS.AfterVoid.Service.Services;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
@@ -23,6 +24,7 @@ using TicketVoidingSystem.Services;
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
 
 using Fanex.TVS.AfterVoid.Service.Services.Notification;
+using Fanex.TVS.AfterVoid.Website.Utilities.CustomServices;
 using Jobs;
 
 public static class ServiceCollectionExtensions
@@ -30,18 +32,6 @@ public static class ServiceCollectionExtensions
     public static void LoadConfig(this IServiceCollection services, IConfiguration configuration)
     {
         AppSettingService.InitSetting(configuration);
-    }
-
-    public static void AddTvsSignalR(this IServiceCollection services)
-    {
-        services.AddSignalR().AddStackExchangeRedis(options =>
-        {
-            var redisConfig = AppSettingService.AppSetting.RedisConfig;
-            options.Configuration.EndPoints.Add(redisConfig.EndPoint);
-            options.Configuration.Password = redisConfig.Password;
-            options.Configuration.DefaultDatabase = redisConfig.DefaultDatabase;
-            options.Configuration.ChannelPrefix = RedisChannel.Literal(redisConfig.SignalRChannelPrefix);
-        });
     }
 
     public static void AddExceptionHandler(this IServiceCollection services)
@@ -68,6 +58,29 @@ public static class ServiceCollectionExtensions
     public static void AddAutoMapper(this IServiceCollection services)
     {
         services.AddAutoMapper(typeof(OrganizationProfile));
+    }
+
+    public static void AddTvsSignalR(this IServiceCollection services)
+    {
+        services.AddSignalR().AddStackExchangeRedis(options =>
+        {
+            var redisConfig = AppSettingService.AppSetting.RedisConfig;
+            options.Configuration.EndPoints.Add(redisConfig.EndPoint);
+            options.Configuration.Password = redisConfig.Password;
+            options.Configuration.DefaultDatabase = redisConfig.DefaultDatabase;
+            options.Configuration.ChannelPrefix = RedisChannel.Literal(redisConfig.SignalRChannelPrefix);
+        });
+    }
+
+    public static void AddTvsSiteDbStatus(this IServiceCollection services)
+    {
+        services.AddSiteDbConnectionManager();
+        services.AddSingleton<IConnectionMultiplexer>(sp =>
+        {
+            var config = LazyRedisMultiplexer.GetRedisConfig();
+            config.ChannelPrefix = RedisChannel.Literal(AppSettingService.AppSetting.RedisConfig.SiteDbChannelPrefix);
+            return ConnectionMultiplexer.Connect(config);
+        });
     }
 
     public static void AddBusinessService(this IServiceCollection services)
@@ -119,9 +132,11 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<AfterVoidJob>();
         services.AddSingleton<LetstalkJob>();
+        services.AddSingleton<CheckServerStatusJob>();
 
         services.AddHostedService<AfterVoidJob>();
         services.AddHostedService<LetstalkJob>();
+        services.AddHostedService<CheckServerStatusJob>();
 
         return services;
     }
