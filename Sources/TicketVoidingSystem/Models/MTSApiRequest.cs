@@ -2,7 +2,7 @@ namespace TicketVoidingSystem.Models
 {
     public class MTSApiRequest
     {
-        public long BetId { get; set; }
+        public long TransId { get; set; }
     }
 
     public class MTSApiResponse

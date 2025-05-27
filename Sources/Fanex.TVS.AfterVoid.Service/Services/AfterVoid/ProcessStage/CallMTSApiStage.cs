@@ -14,7 +14,10 @@ public interface CallMTSApiStage
     Task Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> voidedTickets);
 }
 
-public class CallMTSApiStageImp(MTSHttpClientService mtsHttpClientService, LoggingService loggingService) : CallMTSApiStage
+public class CallMTSApiStageImp(
+    VoidBetAutomationService voidBetAutomationService,
+    MTSHttpClientService mtsHttpClientService,
+    LoggingService loggingService) : CallMTSApiStage
 {
     //TODO: Phase 2 update IsCallMTSApi to table voidbetautomation 
     public async Task Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> voidedTickets)
@@ -31,9 +34,15 @@ public class CallMTSApiStageImp(MTSHttpClientService mtsHttpClientService, Loggi
 
     private async Task TryExecute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> voidedTickets)
     {
+        if (automationInfo.IsSentToMTS == true)
+        {
+            return;
+        }
+
         var issueTypeId = automationInfo.RequestInfo?.Request?.IssueTypeId;
         var subIssueTypeId = automationInfo.RequestInfo?.EventByMatch?.SubIssueTypeId;
-        if (!(issueTypeId == IssueTypeConstant.TechnicalError && subIssueTypeId == SubIssueTypeConstant.TechnicalError_ProviderMistake))
+        if (!(issueTypeId == IssueTypeConstant.TechnicalError &&
+              subIssueTypeId == SubIssueTypeConstant.TechnicalError_ProviderMistake))
         {
             return;
         }
@@ -46,14 +55,20 @@ public class CallMTSApiStageImp(MTSHttpClientService mtsHttpClientService, Loggi
         //TODO: Phase 2: Consider this List Tickets, because MTS just call 1 ticket at a time, if create Void in UI, will have multiple tickets
         foreach (var ticket in voidedTickets)
         {
-            var request = new MTSApiRequest { BetId = ticket.TransId };
+            var request = new MTSApiRequest { TransId = ticket.TransId };
             var response = await mtsHttpClientService.VoidBetAsync(request);
-            await loggingService.InfoAsync($"MTS API Response for TransId {ticket.TransId}: Success={response.Success}, Message={response.Message}");
+            await loggingService.InfoAsync(
+                $"MTS API Response for TransId {ticket.TransId}: Success={response.Success}, Message={response.Message}");
         }
+
+        await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId,
+            new VoidBetAutomationInfo { IsSentToMTS = true });
     }
 
     private async Task CatchException(Exception exception, VoidBetAutomationInfo automationInfo)
     {
-        await loggingService.ErrorAsync($"ERROR: {nameof(CallMTSApiStage)}.{nameof(Execute)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}", exception);
+        await loggingService.ErrorAsync(
+            $"ERROR: {nameof(CallMTSApiStage)}.{nameof(Execute)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
+            exception);
     }
 }

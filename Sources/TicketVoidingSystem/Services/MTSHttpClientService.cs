@@ -15,17 +15,24 @@ public interface MTSHttpClientService
     Task<MTSApiResponse> VoidBetAsync(MTSApiRequest request);
 }
 
-public class MTSHttpClientServiceImp(HttpClient httpClient, IConfiguration configuration) : MTSHttpClientService
+public class MTSHttpClientServiceImp: MTSHttpClientService
 {
-    private readonly string mtsApiBaseUrl = configuration.GetSection("MTSApiBaseUrl").Value ?? string.Empty;
+    
+    private readonly HttpClient httpClient;
+    private readonly string mtsApiBaseUrl;
 
-    public async Task<MTSApiResponse> VoidBetAsync(MTSApiRequest request)
+    public MTSHttpClientServiceImp(HttpClient client, IConfiguration configuration)
     {
+        mtsApiBaseUrl = configuration.GetSection("MTSApiBaseUrl").Value ?? string.Empty;
+        httpClient = client;
         httpClient.BaseAddress = new Uri(mtsApiBaseUrl);
         httpClient.Timeout = TimeSpan.FromMinutes(5);
         httpClient.DefaultRequestHeaders.Clear();
         httpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Json);
-
+    }
+    
+    public async Task<MTSApiResponse> VoidBetAsync(MTSApiRequest request)
+    {
         const string actionName = "api/bet/void";
         using var response = await httpClient.PostAsync(actionName, CreateRequestStringContent(request));
         if (response.IsSuccessStatusCode)
