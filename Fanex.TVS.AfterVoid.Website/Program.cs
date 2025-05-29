@@ -20,6 +20,7 @@ services.AddControllers();
 services.AddMemoryCache();
 services.AddHttpClient<TVSWebSiteHttpClientService, TVSWebSiteHttpClientServiceImp>();
 services.AddHttpClient<CashOutHttpClientService, CashOutHttpClientServiceImp>();
+services.AddHttpClient<MTSHttpClientService, MTSHttpClientServiceImp>();
 services.AddFanexData(configuration);
 services.AddExceptionHandler();
 services.AddFanexLogSentry(configuration);

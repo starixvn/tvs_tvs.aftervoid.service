@@ -20,7 +20,8 @@ public class RequestAutoVoidServiceImp(
     CallCashOutApiStage callCashOutApiStage,
     WriteLogAfterVoidStage writeLogAfterVoidStage,
     CallSignalRStage callSignalRStage,
-    SpecialPlatformService specialPlatformService)
+    SpecialPlatformService specialPlatformService,
+    CallMTSApiStage callMTSApiStage)
     : RequestAutoVoidService
 {
     public async Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus)
@@ -62,6 +63,7 @@ public class RequestAutoVoidServiceImp(
 
         await updateEmailResultStage.Execute(automationInfo, currentEmailResults);
         await callCashOutApiStage.ExecuteForVoid(automationInfo, voidedTickets);
+        await callMTSApiStage.Execute(automationInfo, voidedTickets);
         await voidBetAutomationService.UpdateServiceStatusByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, ExecuteStatus.Done);
         await callSignalRStage.ExecuteForAutoVoid(isLastedInRequest, currentRequestStatus, automationInfo);
         await writeLogAfterVoidStage.Execute(automationInfo, currentEmailResults);

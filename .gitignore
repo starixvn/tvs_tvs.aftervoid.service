@@ -37,3 +37,4 @@ msbuild.wrn
 node_modules
 /.config/
 /tools/
+/.idea/

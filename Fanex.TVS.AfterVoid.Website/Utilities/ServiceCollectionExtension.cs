@@ -112,6 +112,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<RequestAutoRecoverService, RequestAutoRecoverServiceImp>();
         services.AddSingleton<MainRecoverProcessStageService, MainRecoverProcessStageServiceImp>();
         services.AddSingleton<NotificationService, NotificationServiceImp>();
+        services.AddSingleton<CallMTSApiStage, CallMTSApiStageImp>();
     }
 
     public static IServiceCollection AddBackgroundService(this IServiceCollection services)

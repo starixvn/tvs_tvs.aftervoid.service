@@ -157,6 +157,7 @@ public class VoidBetAutomationServiceImp(
             criteria.IsDeletedZzzBetTrans = afterVoidHistory.IsDeletedZzzBetTrans;
             criteria.IsDeletedMessage = afterVoidHistory.IsDeletedMessage;
             criteria.IsDeletedVoidedTransaction = afterVoidHistory.IsDeletedVoidedTransaction;
+            criteria.IsSentToMTS = afterVoidHistory.IsSentToMTS;
             criteria.VoidResults = afterVoidHistory.VoidResults;
         }
 
