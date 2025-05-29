@@ -4,10 +4,4 @@ namespace TicketVoidingSystem.Models
     {
         public long TransId { get; set; }
     }
-
-    public class MTSApiResponse
-    {
-        public bool Success { get; set; }
-        public string Message { get; set; }
-    }
 } 

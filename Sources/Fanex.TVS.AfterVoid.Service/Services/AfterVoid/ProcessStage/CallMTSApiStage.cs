@@ -52,14 +52,10 @@ public class CallMTSApiStageImp(
             return;
         }
 
-        //TODO: Phase 2: Consider this List Tickets, because MTS just call 1 ticket at a time, if create Void in UI, will have multiple tickets
-        foreach (var ticket in voidedTickets)
-        {
-            var request = new MTSApiRequest { TransId = ticket.TransId };
-            var response = await mtsHttpClientService.VoidBetAsync(request);
-            await loggingService.InfoAsync(
-                $"MTS API Response for TransId {ticket.TransId}: Success={response.Success}, Message={response.Message}");
-        }
+        //TODO: Consider this List Tickets, because MTS just call 1 ticket at a time, if create Void in UI, will have multiple tickets
+        var firstTicket = voidedTickets.First();
+        var request = new MTSApiRequest { TransId = firstTicket.TransId };
+        await mtsHttpClientService.VoidBetAsync(request);
 
         await voidBetAutomationService.UpdateAfterVoidStep(automationInfo.RequestId, automationInfo.VoidingHistoryId,
             new VoidBetAutomationInfo { IsSentToMTS = true });
