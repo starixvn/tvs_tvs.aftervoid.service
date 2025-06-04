@@ -36,6 +36,7 @@ public class LetstalkConfig
     public string VoidAbnormalBets { get; init; }
     public string TicketListingAlert { get; init; }
     public string AbnormalBetRequest { get; init; }
+    public string TechnicalErrorProviderMistake { get; init; }
     public string LetstalkServiceApi { get; init; }
     public bool IsProdEnv { get; init; }
 }

@@ -24,7 +24,8 @@ public class SendLetstalkServiceImp(
     SettledBetLetstalkService settledBetLetstalkService,
     SignalRService signalRService,
     SendLetstalkServiceStage letstalkServiceStage,
-    LoggingService loggingService)
+    LoggingService loggingService,
+    TechnicalErrorProviderMistakeLetstalkService technicalErrorProviderMistakeLetstalkService)
     : SendLetstalkService
 {
     public async Task Execute()
@@ -66,34 +67,79 @@ public class SendLetstalkServiceImp(
     {
         try
         {
-            var results = new List<Result>();
             var notificationLetstalkModel = CreateNotificationLetstalkModel(group, matchInfo, voidDataXmlList, emailTickets);
-            var isSendLetstalkSettledBet = settledBetLetstalkService.Send(notificationLetstalkModel, emailTickets);
-            var isSendLetstalkAbnormalBet = true;
-            if (Helper.IsAbnormalBet(group.RequestInfo.Request.IssueTypeId))
-            {
-                isSendLetstalkAbnormalBet = await abnormalBetLetstalkServiceImp.Send(notificationLetstalkModel, emailTickets);
-            }
-
+            var sendResults = await SendAllLetstalkNotifications(group, notificationLetstalkModel, emailTickets);
+            
             await letstalkServiceStage.UpdateLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Done);
-
-            if (!isSendLetstalkSettledBet || !isSendLetstalkAbnormalBet)
-            {
-                results.Add(new Result { ErrorCode = ErrorCode.SendLetstalkFail, ErrorMsg = "Failed to send message via Letstalk." });
-            }
-
-            return results;
+            
+            return sendResults.Any() ? sendResults : new List<Result>();
         }
         catch (Exception exception)
         {
-            await loggingService.ErrorAsync(
-               $"ERROR: RequestId: {group.RequestId} - {nameof(SendLetstalk)} - BroadcastSessionId: {group.BroadcastSessionId}",
-               exception);
-            await letstalkServiceStage.UpdateLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Failed);
-            await signalRService.UpdateFailedStatusForRequest(group.RequestId);
-
+            await HandleSendLetstalkError(group, exception);
             return new List<Result>();
         }
+    }
+
+    private async Task<IEnumerable<Result>> SendAllLetstalkNotifications(
+        GroupVoidBetAutomationInfo group,
+        NotificationLetstalkModel model,
+        IEnumerable<TicketEmailModel> emailTickets)
+    {
+        var results = new List<Result>();
+        var sendResults = new Dictionary<string, bool>
+        {
+            { "SettledBet", settledBetLetstalkService.Send(model, emailTickets) },
+            { "AbnormalBet", await SendAbnormalBetIfNeeded(group, model, emailTickets) },
+            { "TechnicalError", SendTechnicalErrorIfNeeded(group, model, emailTickets) }
+        };
+
+        foreach (var result in sendResults.Where(x => !x.Value))
+        {
+            results.Add(new Result 
+            { 
+                ErrorCode = ErrorCode.SendLetstalkFail, 
+                ErrorMsg = $"Failed to send {result.Key} message via Letstalk." 
+            });
+        }
+
+        return results;
+    }
+
+    private async Task<bool> SendAbnormalBetIfNeeded(
+        GroupVoidBetAutomationInfo group,
+        NotificationLetstalkModel model,
+        IEnumerable<TicketEmailModel> emailTickets)
+    {
+        if (!Helper.IsAbnormalBet(group.RequestInfo.Request.IssueTypeId))
+        {
+            return true;
+        }
+
+        return await abnormalBetLetstalkServiceImp.Send(model, emailTickets);
+    }
+
+    private bool SendTechnicalErrorIfNeeded(
+        GroupVoidBetAutomationInfo group,
+        NotificationLetstalkModel model,
+        IEnumerable<TicketEmailModel> emailTickets)
+    {
+        if (!IsTechnicalErrorProviderMistake(group.RequestInfo))
+        {
+            return true;
+        }
+
+        return technicalErrorProviderMistakeLetstalkService.Send(model, emailTickets);
+    }
+
+    private async Task HandleSendLetstalkError(GroupVoidBetAutomationInfo group, Exception exception)
+    {
+        await loggingService.ErrorAsync(
+            $"ERROR: RequestId: {group.RequestId} - {nameof(SendLetstalk)} - BroadcastSessionId: {group.BroadcastSessionId}",
+            exception);
+            
+        await letstalkServiceStage.UpdateLetstalk(group.RequestId, group.BroadcastSessionId, ExecuteStatus.Failed);
+        await signalRService.UpdateFailedStatusForRequest(group.RequestId);
     }
 
     private static NotificationLetstalkModel CreateNotificationLetstalkModel(GroupVoidBetAutomationInfo group,
@@ -156,4 +202,20 @@ public class SendLetstalkServiceImp(
     {
         return group.IsAutoVoid && group.RequestInfo.Request.IssueTypeId is IssueTypeConstant.AbnormalAccount;
     }
+
+    private static bool IsTechnicalErrorProviderMistake(RequestDetailViewModel requestInfo)
+    {
+
+        if (requestInfo.Request.IssueTypeId == IssueTypeConstant.TechnicalError)
+        {
+            var subIssueTypeId = requestInfo.EventByMatch.SubIssueTypeId;
+            if (subIssueTypeId == SubIssueTypeConstant.TechnicalError_ProviderMistake)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

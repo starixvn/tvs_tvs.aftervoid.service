@@ -17,6 +17,7 @@ public class NotificationLetstalkModel
     public int ParlayCount { get; set; }
     public int OutstandingSingleCount { get; set; }
     public int OutstandingParlayCount { get; set; }
+    public int TotalTicketsCount { get; set; }
     public bool IsMemberTemplate { get; set; }
     public int IssueTypeId { get; set; }
     public int? FilterBy { get; set; }
