@@ -101,6 +101,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<AfterVoidEmailService, AfterVoidEmailServiceImp>();
         services.AddSingleton<SendLetstalkService, SendLetstalkServiceImp>();
         services.AddSingleton<AbnormalBetLetstalkService, AbnormalBetLetstalkServiceImp>();
+        services.AddSingleton<TechnicalErrorProviderMistakeLetstalkService, TechnicalErrorProviderMistakeLetstalkServiceImp>();
         services.AddSingleton<SendLetstalkServiceStage, SendLetstalkServiceStageImp>();
         services.AddSingleton<SettledBetLetstalkService, SettledBetLetstalkServiceImp>();
         services.AddSingleton<UpdateTicketVoidingHistoryStage, UpdateTicketVoidingHistoryStageImp>();
@@ -126,6 +127,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<MainRecoverProcessStageService, MainRecoverProcessStageServiceImp>();
         services.AddSingleton<NotificationService, NotificationServiceImp>();
         services.AddSingleton<CallMTSApiStage, CallMTSApiStageImp>();
+        
     }
 
     public static IServiceCollection AddBackgroundService(this IServiceCollection services)

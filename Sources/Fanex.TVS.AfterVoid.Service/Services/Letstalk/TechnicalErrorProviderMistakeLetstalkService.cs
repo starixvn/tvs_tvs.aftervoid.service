@@ -47,10 +47,10 @@ public class TechnicalErrorProviderMistakeLetstalkServiceImp(LetstalkClientServi
     {
         return new LetstalkModel
         {
-            TargetName = "Ticket-Voiding-System",
+            TargetName = "oneback-os-bc-auto-void",
             Subject = "",
             Content = content,
-            Group = AppSettingService.AppSetting.LetstalkConfig.TechnicalErrorProviderMistake
+            Group = ""
         };
     }
 

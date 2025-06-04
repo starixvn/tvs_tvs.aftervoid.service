@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -6,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Criteria;
+using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Models;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
@@ -28,6 +30,14 @@ public interface SendLetstalkServiceStage
     Task InsertLetstalk(int requestId, string broadcastSessionId, int statusId);
 
     Task UpdateLetstalk(int requestId, string broadcastSessionId, int statusId);
+
+    NotificationLetstalkModel CreateNotificationModel(
+        GroupVoidBetAutomationInfo group,
+        Match matchInfo,
+        IEnumerable<VoidDataXmlModel> voidDataXmlList,
+        IEnumerable<TicketEmailModel> emailTickets);
+
+    bool IsTechnicalErrorProviderMistake(RequestDetailViewModel requestInfo);
 }
 
 public class SendLetstalkServiceStageImp(
@@ -113,5 +123,83 @@ public class SendLetstalkServiceStageImp(
         };
 
         await repository.ExecuteAsync(command);
+    }
+
+    public NotificationLetstalkModel CreateNotificationModel(
+        GroupVoidBetAutomationInfo group,
+        Match matchInfo,
+        IEnumerable<VoidDataXmlModel> voidDataXmlList,
+        IEnumerable<TicketEmailModel> emailTickets)
+    {
+        var model = new NotificationLetstalkModel
+        {
+            Match = matchInfo,
+            UserName = group.RequestInfo.Request.VoidedBy,
+            DecidedBy = group.RequestInfo.Request.DecidedBy,
+            IsMemberTemplate = !(matchInfo?.MatchId > 0),
+            IssueTypeId = group.RequestInfo.Request.IssueTypeId,
+            FilterBy = group.RequestInfo.EventByMatch.FilterBy,
+            RequestId = group.RequestId,
+            RequestedBy = group.RequestInfo.Request.RequestedBy,
+            VoidingHistoryIds = string.Join(",", group.VoidBetAutomationList.Select(x => x.VoidingHistoryId))
+        };
+
+        if (IsAbnormalAccountVoidInstant(group))
+        {
+            UpdateTimeByTickets(model, emailTickets);
+        }
+        else
+        {
+            UpdateTimeByVoidDataXml(model, voidDataXmlList);
+        }
+
+        return model;
+    }
+
+    private static void UpdateTimeByVoidDataXml(NotificationLetstalkModel letstalkModel, IEnumerable<VoidDataXmlModel> voidDataXmlList)
+    {
+        letstalkModel.VoidFromTime = voidDataXmlList.Any()
+            ? voidDataXmlList.Select(x => x.VoidFromTime).Select(DateTime.Parse).Min(x => x)
+                .ToString(FormatKey.TimeWithAmPm)
+            : null;
+        letstalkModel.VoidToTime = voidDataXmlList.Any()
+            ? voidDataXmlList.Select(x => x.VoidToTime).Select(DateTime.Parse).Max(x => x)
+                .ToString(FormatKey.TimeWithAmPm)
+            : null;
+        letstalkModel.VoidFromDate = voidDataXmlList.Any()
+            ? voidDataXmlList.Select(x => x.VoidFromDate).Select(DateTime.Parse).Min(x => x)
+                .ToString(FormatKey.ShortDateFormatWithSlash)
+            : null;
+        letstalkModel.VoidToDate = voidDataXmlList.Any()
+            ? voidDataXmlList.Select(x => x.VoidToDate).Select(DateTime.Parse).Min(x => x)
+                .ToString(FormatKey.ShortDateFormatWithSlash)
+            : null;
+    }
+
+    private static void UpdateTimeByTickets(NotificationLetstalkModel letstalkModel, IEnumerable<TicketEmailModel> emailTickets)
+    {
+        letstalkModel.VoidFromDate = emailTickets.Select(x => x?.WinLostDate).Min(x => x)?.ZoneManila()
+            .ToString(FormatKey.ShortDateFormatWithSlash);
+        letstalkModel.VoidToDate = emailTickets.Select(x => x.WinLostDate).Max(x => x)?.ZoneManila()
+            .ToString(FormatKey.ShortDateFormatWithSlash);
+    }
+
+    private static bool IsAbnormalAccountVoidInstant(GroupVoidBetAutomationInfo group)
+    {
+        return group.IsAutoVoid && group.RequestInfo.Request.IssueTypeId is IssueTypeConstant.AbnormalAccount;
+    }
+
+    public bool IsTechnicalErrorProviderMistake(RequestDetailViewModel requestInfo)
+    {
+        if (requestInfo.Request.IssueTypeId == IssueTypeConstant.TechnicalError)
+        {
+            var subIssueTypeId = requestInfo.EventByMatch.SubIssueTypeId;
+            if (subIssueTypeId == SubIssueTypeConstant.TechnicalError_ProviderMistake)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
