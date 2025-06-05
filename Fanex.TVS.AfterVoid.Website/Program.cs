@@ -24,7 +24,7 @@ services.AddHttpClient<MTSHttpClientService, MTSHttpClientServiceImp>();
 services.AddFanexData(configuration);
 services.AddExceptionHandler();
 services.AddFanexLogSentry(configuration);
-services.AddOneBookUm(configuration);
+services.AddOneBookUmForWeb(configuration);
 services.AddRedisCache(configuration.GetSection("Fanex.Caching.Redis"));
 services.AddRemotingRef();
 services.AddLetstalk();
