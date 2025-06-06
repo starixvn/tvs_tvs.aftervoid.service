@@ -28,6 +28,7 @@ public static class AppSettingService
                 IsProdEnv = configuration.GetValue<bool>($"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.IsProdEnv)}")
             },
             TVSWebSiteUrl = configuration.GetValue<string>(nameof(AppSettingModel.TVSWebSiteUrl)),
+            MTSApiBaseUrl = configuration.GetValue<string>(nameof(AppSettingModel.MTSApiBaseUrl)),
             ServiceName = configuration.GetValue<string>(nameof(AppSettingModel.ServiceName)),
             FanexRemotingRefServiceUrl = configuration.GetValue<string>(nameof(AppSettingModel.FanexRemotingRefServiceUrl)),
             IgnoreSiteDb = configuration.GetValue<string>(nameof(AppSettingModel.IgnoreSiteDb))

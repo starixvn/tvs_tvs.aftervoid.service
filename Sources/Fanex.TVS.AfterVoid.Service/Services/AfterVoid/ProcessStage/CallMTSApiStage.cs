@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TicketVoidingSystem.Models;
 using Fanex.TVS.AfterVoid.Service.Models;
-using TicketVoidingSystem.Services;
 using TicketVoidingSystem.Constants;
+using TicketVoidingSystem.Models;
+using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 
@@ -19,7 +19,7 @@ public class CallMTSApiStageImp(
     MTSHttpClientService mtsHttpClientService,
     LoggingService loggingService) : CallMTSApiStage
 {
-    //TODO: Phase 2 update IsCallMTSApi to table voidbetautomation 
+    //TODO: Phase 2 update IsCallMTSApi to table voidbetautomation
     public async Task Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> voidedTickets)
     {
         try
@@ -34,7 +34,7 @@ public class CallMTSApiStageImp(
 
     private async Task TryExecute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> voidedTickets)
     {
-        if (automationInfo.IsSentToMTS == true)
+        if (automationInfo.IsSentToMTS == true || string.IsNullOrWhiteSpace(AppSettingService.AppSetting.MTSApiBaseUrl))
         {
             return;
         }

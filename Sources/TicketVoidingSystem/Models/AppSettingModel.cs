@@ -14,6 +14,8 @@ public class AppSettingModel
 
     public string TVSWebSiteUrl { get; init; }
 
+    public string MTSApiBaseUrl { get; init; }
+
     public string FanexRemotingRefServiceUrl { get; init; }
 
     public string IgnoreSiteDb { get; init; }
