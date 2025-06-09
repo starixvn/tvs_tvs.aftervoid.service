@@ -283,7 +283,7 @@ public class VoidBetAutomationServiceImp(
 
     private static bool IsIssueTypesHaveExtraInfoJsonFormat(int issueTypeId)
     {
-        var issueTypesHasJsonFormat = new[] { IssueTypeConstant.WrongMarketOffered, IssueTypeConstant.TechnicalError };
+        var issueTypesHasJsonFormat = new[] { IssueTypeConstant.WrongMarketOffered, IssueTypeConstant.TechnicalError, IssueTypeConstant.MatchEarlyCompleted };
         return issueTypesHasJsonFormat.Contains(issueTypeId);
     }
 }
