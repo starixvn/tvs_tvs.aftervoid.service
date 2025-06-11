@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Fanex.Data.Repository;
 using Fanex.TVS.AfterVoid.Service.Criteria;
 using Fanex.TVS.AfterVoid.Service.Models;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 
@@ -38,7 +39,10 @@ public class SendLetstalkServiceStageImp(
 {
     public async Task<IEnumerable<VoidBetAutomationInfo>> GetVoidBetAutomationRunLetstalk()
     {
-        var criteria = new GetAutomationInfoLetstalkCriteria();
+        var criteria = new GetAutomationInfoLetstalkCriteria
+        {
+            OnlineServerId = string.Join(",", SiteDbGroupConstant.ServerList.Select(x => x.Id))
+        };
 
         return await repository.FetchAsync<VoidBetAutomationInfo>(criteria);
     }
