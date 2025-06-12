@@ -22,7 +22,7 @@ public class MTSHttpClientServiceImp : MTSHttpClientService
 
     public MTSHttpClientServiceImp(HttpClient client, IConfiguration configuration)
     {
-        mtsApiBaseUrl = configuration.GetSection("MTSApiBaseUrl").Value ?? string.Empty;
+        mtsApiBaseUrl = AppSettingService.AppSetting.MTSApiBaseUrl;
         httpClient = client;
         httpClient.BaseAddress = new Uri(mtsApiBaseUrl);
         httpClient.Timeout = TimeSpan.FromMinutes(5);

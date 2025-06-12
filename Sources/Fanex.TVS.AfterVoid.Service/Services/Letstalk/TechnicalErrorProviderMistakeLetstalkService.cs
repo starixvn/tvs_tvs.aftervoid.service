@@ -44,13 +44,24 @@ public class TechnicalErrorProviderMistakeLetstalkServiceImp(LetstalkClientServi
         return !(AppSettingService.AppSetting.LetstalkConfig.IsProdEnv && ticket.Currency != Currency20);
     }
     private static LetstalkModel CreateLetstalkModel(string content)
-    {
+    {             
+        if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
+        {
+            return new LetstalkModel
+            {
+                TargetName = AppSettingService.AppSetting.LetstalkConfig.TargetName.BCAutoVoid,
+                Subject = "",
+                Content = content,
+                Group = ""
+            };
+        }
+        
         return new LetstalkModel
         {
-            TargetName = "oneback-os-bc-auto-void",
-            Subject = "",
+            TargetName = AppSettingService.AppSetting.LetstalkConfig.TargetName.TicketVoidingSystem,
+            Subject = "[BC Auto Void]",
             Content = content,
-            Group = ""
+            Group = AppSettingService.AppSetting.LetstalkConfig.VoidAbnormalBets
         };
     }
 

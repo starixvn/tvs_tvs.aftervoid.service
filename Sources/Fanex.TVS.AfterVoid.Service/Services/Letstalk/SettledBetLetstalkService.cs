@@ -46,7 +46,7 @@ public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientSe
     {
         return new LetstalkModel
         {
-            TargetName = "Ticket-Voiding-System",
+            TargetName = AppSettingService.AppSetting.LetstalkConfig.TargetName.TicketVoidingSystem,
             Subject = "Void Settled Bet Notification",
             Content = content,
             Group = AppSettingService.AppSetting.LetstalkConfig.VoidSettledBets

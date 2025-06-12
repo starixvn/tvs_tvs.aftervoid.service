@@ -52,7 +52,7 @@ public class AbnormalBetLetstalkServiceImp(
             model.IssueTypeId, model.VoidingHistoryIds);
         return new LetstalkModel
         {
-            TargetName = "Ticket-Voiding-System",
+            TargetName = AppSettingService.AppSetting.LetstalkConfig.TargetName.TicketVoidingSystem,
             Subject = subject,
             Content = content,
             Group = AppSettingService.AppSetting.LetstalkConfig.VoidAbnormalBets,
