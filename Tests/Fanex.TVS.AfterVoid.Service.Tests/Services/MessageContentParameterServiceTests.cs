@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Services;
 using NSubstitute;
 using TicketVoidingSystem.Constants;
@@ -106,10 +107,18 @@ public class MessageContentParameterServiceTests
             ContentChineseTraditional = "C",
             ContentNewChineseSimplified = "C"
         };
+        var model = new VoidBetAutomationInfo
+        {
+            RequestInfo = new RequestDetailViewModel
+            {
+                Request = new RequestModel { IssueTypeId = issueTypeId },
+                EventByMatch = new RequestEventModel { SubIssueTypeId = 0 }
+            }
+        };
         tvsWebSiteHttpClientService.GetSpecialBetTypeContent(Arg.Any<IEnumerable<TicketEmailModel>>()).Returns(expected);
 
         // Act
-        var actual = await service.GetSpecialBetTypeContent(issueTypeId, normalTickets, specialTickets);
+        var actual = await service.GetSpecialBetTypeContent(model, normalTickets, specialTickets);
 
         // Assert
         AssertExtension.Equal(expected, actual);
@@ -122,10 +131,18 @@ public class MessageContentParameterServiceTests
         List<TicketEmailModel> normalTickets = [new() { IsMixParlay = false, TransId = 1, BetTypeId = 1 }, new() { IsMixParlay = true, TransId = 2, SubBetType = 2 }];
         List<TicketEmailModel> specialTickets = [new() { IsMixParlay = false, TransId = 3, BetTypeId = 1 }, new() { IsMixParlay = true, TransId = 4, SubBetType = 1 }];
         var expected = new ContentByLanguageModel();
+        var model = new VoidBetAutomationInfo
+        {
+            RequestInfo = new RequestDetailViewModel
+            {
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.WrongMarketOffered },
+                EventByMatch = new RequestEventModel { SubIssueTypeId = SubIssueTypeConstant.TechnicalError_ProviderMistake }
+            }
+        };
         tvsWebSiteHttpClientService.GetSpecialBetTypeContent(Arg.Any<IEnumerable<TicketEmailModel>>()).Returns(expected);
 
         // Act
-        var actual = await service.GetSpecialBetTypeContent(IssueTypeConstant.WrongMarketOffered, normalTickets, specialTickets);
+        var actual = await service.GetSpecialBetTypeContent(model, normalTickets, specialTickets);
 
         // Assert
         AssertExtension.Equal(expected, actual);
@@ -138,9 +155,16 @@ public class MessageContentParameterServiceTests
         List<TicketEmailModel> normalTickets = [new() { IsMixParlay = false, TransId = 1, BetTypeId = 1 }, new() { IsMixParlay = true, TransId = 2, SubBetType = 2 }];
         List<TicketEmailModel> specialTickets = [new() { IsMixParlay = false, TransId = 3, BetTypeId = 1 }, new() { IsMixParlay = true, TransId = 4, SubBetType = 1 }];
         var expected = new ContentByLanguageModel();
-
+        var model = new VoidBetAutomationInfo
+        {
+            RequestInfo = new RequestDetailViewModel
+            {
+                Request = new RequestModel { IssueTypeId = IssueTypeConstant.DangerAccepted },
+                EventByMatch = new RequestEventModel { SubIssueTypeId = 0 }
+            }
+        };
         // Act
-        var actual = await service.GetSpecialBetTypeContent(IssueTypeConstant.DangerAccepted, normalTickets, specialTickets);
+        var actual = await service.GetSpecialBetTypeContent(model, normalTickets, specialTickets);
 
         // Assert
         AssertExtension.Equal(expected, actual);
