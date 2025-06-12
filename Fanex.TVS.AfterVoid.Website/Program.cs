@@ -30,6 +30,7 @@ services.AddRemotingRef();
 services.AddLetstalk();
 services.AddAutoMapper();
 services.AddTvsSignalR();
+services.AddTvsSiteDbStatus();
 services.AddBusinessService();
 services.AddBackgroundService();
 

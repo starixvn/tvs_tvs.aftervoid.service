@@ -8,6 +8,7 @@ namespace Fanex.TVS.AfterVoid.Website.Jobs;
 
 using System.Threading;
 using Microsoft.Extensions.Hosting;
+using TicketVoidingSystem.Constants;
 
 public class LetstalkJob(
     IMaintenanceService maintenanceService,
@@ -42,7 +43,7 @@ public class LetstalkJob(
 
     private async Task DoTask()
     {
-        if (AppSettingService.AppSetting.OnProcessingLetstalk)
+        if (AppSettingService.AppSetting.OnProcessingLetstalk || SiteDbGroupConstant.ServerList.Count == 0)
         {
             return;
         }

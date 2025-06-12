@@ -8,6 +8,7 @@ namespace Fanex.TVS.AfterVoid.Website.Jobs;
 
 using System.Threading;
 using Microsoft.Extensions.Hosting;
+using TicketVoidingSystem.Constants;
 
 public class AfterVoidJob(
     IMaintenanceService maintenanceService,
@@ -42,7 +43,7 @@ public class AfterVoidJob(
 
     private async Task DoTask()
     {
-        if (AppSettingService.AppSetting.OnProcessingAfterVoid)
+        if (AppSettingService.AppSetting.OnProcessingAfterVoid || SiteDbGroupConstant.ServerList.Count == 0)
         {
             return;
         }

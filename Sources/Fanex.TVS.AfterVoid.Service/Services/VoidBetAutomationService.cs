@@ -50,7 +50,10 @@ public class VoidBetAutomationServiceImp(
 {
     public async Task<(VoidBetAutomationInfo, bool, string, IEnumerable<EmailResultModel>)> GetVoidBetAutomationRunAfterVoid()
     {
-        var criteria = new GetAutomationInfoAfterVoidCriteria();
+        var criteria = new GetAutomationInfoAfterVoidCriteria
+        {
+            OnlineServerId = string.Join(",", SiteDbGroupConstant.ServerList.Select(x => x.Id))
+        };
         var (voidBetAutomationInfoList, voidingHistoryModels, emailResultsHistory) =
             await repository.FetchMultipleAsync<VoidBetAutomationInfo, VoidingHistoryModel, EmailResultModel>(criteria);
 

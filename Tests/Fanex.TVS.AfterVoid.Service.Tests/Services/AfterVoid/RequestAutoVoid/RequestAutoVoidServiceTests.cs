@@ -24,6 +24,7 @@ public class RequestAutoVoidServiceTests
     private CallSignalRStage callSignalRStage;
     private SpecialPlatformService specialPlatformService;
     public RequestAutoVoidService Service;
+    public CallMTSApiStage callMTSApiStage;
 
     internal void InItService()
     {
@@ -34,6 +35,7 @@ public class RequestAutoVoidServiceTests
         writeLogAfterVoidStage = Substitute.For<WriteLogAfterVoidStage>();
         callSignalRStage = Substitute.For<CallSignalRStage>();
         specialPlatformService = Substitute.For<SpecialPlatformService>();
+        callMTSApiStage = Substitute.For<CallMTSApiStage>();
     }
 
     [Fact]
@@ -45,7 +47,7 @@ public class RequestAutoVoidServiceTests
             StatusId = ExecuteStatus.Done
         };
         InItService();
-        Service = new RequestAutoVoidServiceImp(null, null, null, null, null, null, null);
+        Service = new RequestAutoVoidServiceImp(null, null, null, null, null, null, null, null);
 
         // Act
         await Service.Execute(automationInfo, true, "");
@@ -106,7 +108,7 @@ public class RequestAutoVoidServiceTests
         mainProcessStageService.UpdateTicketVoidingHistory(isInsertedVoidedTransaction, Arg.Any<UpdateTicketVoidingHistoryStageParameter>()).ReturnsForAnyArgs(isUpdatedVoidingHistory);
         mainProcessStageService.SendEmail(isUpdatedVoidingHistory, Arg.Any<SendEmailStageParameter>()).ReturnsForAnyArgs((isSentEmail, null));
         Service = new RequestAutoVoidServiceImp(voidBetAutomationService, mainProcessStageService, updateEmailResultStage, callCashOutApiStage, writeLogAfterVoidStage,
-            callSignalRStage, specialPlatformService);
+            callSignalRStage, specialPlatformService, callMTSApiStage);
 
         // Act
         await Service.Execute(automationInfo, true, "");
@@ -179,7 +181,7 @@ public class RequestAutoVoidServiceTests
         mainProcessStageService.UpdateTicketVoidingHistory(isInsertedVoidedTransaction, Arg.Any<UpdateTicketVoidingHistoryStageParameter>()).ReturnsForAnyArgs(isUpdatedVoidingHistory);
         mainProcessStageService.SendEmail(isUpdatedVoidingHistory, Arg.Any<SendEmailStageParameter>()).ReturnsForAnyArgs((isSentEmail, null));
         Service = new RequestAutoVoidServiceImp(voidBetAutomationService, mainProcessStageService, updateEmailResultStage, callCashOutApiStage, writeLogAfterVoidStage,
-            callSignalRStage, specialPlatformService);
+            callSignalRStage, specialPlatformService, callMTSApiStage);
 
         // Act
         await Service.Execute(automationInfo, true, "");
