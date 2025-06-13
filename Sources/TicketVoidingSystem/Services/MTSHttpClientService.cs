@@ -24,7 +24,8 @@ public class MTSHttpClientServiceImp : MTSHttpClientService
     {
         mtsApiBaseUrl = AppSettingService.AppSetting.MTSApiBaseUrl;
         httpClient = client;
-        httpClient.BaseAddress = new Uri(mtsApiBaseUrl);
+        httpClient.BaseAddress
+            = string.IsNullOrWhiteSpace(mtsApiBaseUrl) ? null : new Uri(mtsApiBaseUrl);
         httpClient.Timeout = TimeSpan.FromMinutes(5);
         httpClient.DefaultRequestHeaders.Clear();
         httpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Json);
