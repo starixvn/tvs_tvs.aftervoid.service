@@ -17,9 +17,9 @@ public interface TechnicalErrorProviderMistakeLetstalkService
 public class TechnicalErrorProviderMistakeLetstalkServiceImp(LetstalkClientService letstalkClientService) : TechnicalErrorProviderMistakeLetstalkService
 {
     private const int Currency20 = 20;
+
     public bool Send(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets)
     {
-
         UpdateNotificationLetstalkModel(tickets, model);
         if (model.TotalTicketsCount == 0)
         {
@@ -31,9 +31,8 @@ public class TechnicalErrorProviderMistakeLetstalkServiceImp(LetstalkClientServi
         var letstalkModel = CreateLetstalkModel(content);
         var isSentSuccessfully = letstalkClientService.SendMessage(letstalkModel);
         return isSentSuccessfully;
-
-
     }
+
     private static void UpdateNotificationLetstalkModel(IEnumerable<TicketEmailModel> tickets, NotificationLetstalkModel model)
     {
         model.TotalTicketsCount = tickets.Count(IsValidTicketForSendLetstalk);
@@ -43,8 +42,9 @@ public class TechnicalErrorProviderMistakeLetstalkServiceImp(LetstalkClientServi
     {
         return !(AppSettingService.AppSetting.LetstalkConfig.IsProdEnv && ticket.Currency != Currency20);
     }
+
     private static LetstalkModel CreateLetstalkModel(string content)
-    {             
+    {
         if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
         {
             return new LetstalkModel
@@ -55,11 +55,11 @@ public class TechnicalErrorProviderMistakeLetstalkServiceImp(LetstalkClientServi
                 Group = ""
             };
         }
-        
+
         return new LetstalkModel
         {
             TargetName = AppSettingService.AppSetting.LetstalkConfig.TargetName.TicketVoidingSystem,
-            Subject = "[BC Auto Void]",
+            Subject = "BC Auto Void",
             Content = content,
             Group = AppSettingService.AppSetting.LetstalkConfig.VoidAbnormalBets
         };
