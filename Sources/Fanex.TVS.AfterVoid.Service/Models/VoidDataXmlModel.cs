@@ -53,4 +53,6 @@ public class VoidDataXmlModel
     public int TotalTicket { get; set; }
 
     public string SingleTransIds { get; set; }
+
+    public string SubParlayTransIds { get; set; }
 }
