@@ -34,7 +34,7 @@ public class RequestAutoRecoverServiceImp(
     {
         var recoveredTickets = await voidBetAutomationService.GetRecoveredTicketsByVoidingHistory(automationInfo.RequestId, automationInfo.VoidingHistoryId, automationInfo.SiteDbGroupId);
         var betIds = recoveredTickets.Select(x => new BetId { TransId = x.TransId.ToString(), MatchId = x.MatchId });
-        var isDeletedZzzBetTrans = await mainRecoverProcessStageService.DeleteZzzBetTrans(automationInfo, string.Join(",", recoveredTickets.Select(x => x.TransId)));
+        var isDeletedZzzBetTrans = await mainRecoverProcessStageService.DeleteZzzBetTrans(automationInfo, string.Join(",", recoveredTickets.Select(x => x.SubTransId)));
         var isDeletedMessage = await mainRecoverProcessStageService.DeleteMessage(isDeletedZzzBetTrans, automationInfo, string.Join(",", recoveredTickets.Select(x => x.TransId)));
         var isDeleteTransaction = await mainRecoverProcessStageService.DeleteTransaction(isDeletedMessage, automationInfo, betIds);
         var isUpdatedVoidingHistory = await mainRecoverProcessStageService.UpdateTicketVoidingHistory(isDeleteTransaction,

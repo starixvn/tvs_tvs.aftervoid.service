@@ -6,6 +6,8 @@ public class TicketRecoverEmailModel
 {
     public long TransId { get; set; }
 
+    public long SubTransId { get; set; }
+
     public int MatchId { get; set; }
 
     public string UserName { get; set; }
