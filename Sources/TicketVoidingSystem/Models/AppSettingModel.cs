@@ -36,6 +36,13 @@ public class LetstalkConfig
     public string VoidAbnormalBets { get; init; }
     public string TicketListingAlert { get; init; }
     public string AbnormalBetRequest { get; init; }
+    public LetstalkTargetName TargetName { get; init; }
     public string LetstalkServiceApi { get; init; }
     public bool IsProdEnv { get; init; }
+}
+
+public class LetstalkTargetName
+{
+    public string TicketVoidingSystem { get; init; }
+    public string BCAutoVoid { get; init; }
 }

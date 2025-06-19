@@ -53,7 +53,7 @@ public class SettledBetLetstalkServiceTests
     [Fact]
     public void SendToSettledBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceFail()
     {
-        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true } };
+        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true, TargetName = new LetstalkTargetName() } };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(10)
             .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
@@ -74,7 +74,7 @@ public class SettledBetLetstalkServiceTests
     [Fact]
     public void SendToSettledBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceSuccessMultipleTimes()
     {
-        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true } };
+        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true, TargetName = new LetstalkTargetName() } };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(200)
             .Random(40).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
@@ -113,7 +113,7 @@ public class SettledBetLetstalkServiceTests
     public void SendToSettledBetGroup_WhenRequestNotHaveUsername_ShouldRunLetstalkServiceSuccess(bool isProdEnv)
     {
         SetupTestEnv();
-        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = isProdEnv } };
+        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = isProdEnv, TargetName = new LetstalkTargetName() } };
         var fakeMatch = Builder<Match>.CreateNew().Build();
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = false).Build();
         fakeNotificationLetstalkModel.Match = fakeMatch;

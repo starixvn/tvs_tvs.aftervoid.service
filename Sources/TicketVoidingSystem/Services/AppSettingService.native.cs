@@ -15,23 +15,42 @@ public static class AppSettingService
             {
                 EndPoint = configuration.GetValue<string>($"{nameof(RedisConfig)}:{nameof(RedisConfig.EndPoint)}"),
                 Password = configuration.GetValue<string>($"{nameof(RedisConfig)}:{nameof(RedisConfig.Password)}"),
-                DefaultDatabase = configuration.GetValue<int>($"{nameof(RedisConfig)}:{nameof(RedisConfig.DefaultDatabase)}"),
-                SignalRChannelPrefix = configuration.GetValue<string>($"{nameof(RedisConfig)}:{nameof(RedisConfig.SignalRChannelPrefix)}"),
-                SiteDbChannelPrefix = configuration.GetValue<string>($"{nameof(RedisConfig)}:{nameof(RedisConfig.SiteDbChannelPrefix)}")
+                DefaultDatabase =
+                    configuration.GetValue<int>($"{nameof(RedisConfig)}:{nameof(RedisConfig.DefaultDatabase)}"),
+                SignalRChannelPrefix =
+                    configuration.GetValue<string>($"{nameof(RedisConfig)}:{nameof(RedisConfig.SignalRChannelPrefix)}"),
+                SiteDbChannelPrefix =
+                    configuration.GetValue<string>($"{nameof(RedisConfig)}:{nameof(RedisConfig.SiteDbChannelPrefix)}")
             },
             LetstalkConfig = new LetstalkConfig
             {
-                LetstalkServiceApi = configuration.GetValue<string>($"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.LetstalkServiceApi)}"),
-                VoidSettledBets = configuration.GetValue<string>($"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.VoidSettledBets)}"),
-                VoidAbnormalBets = configuration.GetValue<string>($"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.VoidAbnormalBets)}"),
-                TicketListingAlert = configuration.GetValue<string>($"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.TicketListingAlert)}"),
-                AbnormalBetRequest = configuration.GetValue<string>($"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.AbnormalBetRequest)}"),
+                LetstalkServiceApi =
+                    configuration.GetValue<string>(
+                        $"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.LetstalkServiceApi)}"),
+                VoidSettledBets =
+                    configuration.GetValue<string>(
+                        $"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.VoidSettledBets)}"),
+                VoidAbnormalBets =
+                    configuration.GetValue<string>(
+                        $"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.VoidAbnormalBets)}"),
+                TicketListingAlert =
+                    configuration.GetValue<string>(
+                        $"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.TicketListingAlert)}"),
+                AbnormalBetRequest =
+                    configuration.GetValue<string>(
+                        $"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.AbnormalBetRequest)}"),
+                TargetName = new LetstalkTargetName
+                {
+                    TicketVoidingSystem = configuration.GetValue<string>($"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.TargetName)}:{nameof(LetstalkTargetName.TicketVoidingSystem)}"),
+                    BCAutoVoid = configuration.GetValue<string>($"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.TargetName)}:{nameof(LetstalkTargetName.BCAutoVoid)}")
+                },
                 IsProdEnv = configuration.GetValue<bool>($"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.IsProdEnv)}")
             },
             TVSWebSiteUrl = configuration.GetValue<string>(nameof(AppSettingModel.TVSWebSiteUrl)),
             MTSApiBaseUrl = configuration.GetValue<string>(nameof(AppSettingModel.MTSApiBaseUrl)),
             ServiceName = configuration.GetValue<string>(nameof(AppSettingModel.ServiceName)),
-            FanexRemotingRefServiceUrl = configuration.GetValue<string>(nameof(AppSettingModel.FanexRemotingRefServiceUrl)),
+            FanexRemotingRefServiceUrl =
+                configuration.GetValue<string>(nameof(AppSettingModel.FanexRemotingRefServiceUrl)),
             IgnoreSiteDb = configuration.GetValue<string>(nameof(AppSettingModel.IgnoreSiteDb))
         };
 

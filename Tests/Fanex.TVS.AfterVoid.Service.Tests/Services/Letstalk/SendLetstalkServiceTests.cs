@@ -21,6 +21,7 @@ public class SendLetstalkServiceTests
     private readonly SendLetstalkServiceImp service;
     private readonly SettledBetLetstalkService settledBetLetstalkService;
     private readonly VoidBetAutomationService voidBetAutomationService;
+    private readonly TechnicalErrorProviderMistakeLetstalkService technicalErrorProviderMistakeLetstalkService;
 
     public SendLetstalkServiceTests()
     {
@@ -30,9 +31,9 @@ public class SendLetstalkServiceTests
         var notificationSignalRService = Substitute.For<SignalRService>();
         letstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
         loggingService = Substitute.For<LoggingService>();
-        service = new SendLetstalkServiceImp(voidBetAutomationService, abnormalBetLetstalkServiceImp,
-            settledBetLetstalkService, notificationSignalRService
-            , letstalkServiceStage, loggingService);
+        technicalErrorProviderMistakeLetstalkService = Substitute.For<TechnicalErrorProviderMistakeLetstalkService>();
+        service = new SendLetstalkServiceImp(voidBetAutomationService, abnormalBetLetstalkServiceImp, settledBetLetstalkService,
+            notificationSignalRService, letstalkServiceStage, loggingService, technicalErrorProviderMistakeLetstalkService);
     }
 
     private static RequestDetailViewModel CreateRequestDetailViewModel(int issueTypeId)
