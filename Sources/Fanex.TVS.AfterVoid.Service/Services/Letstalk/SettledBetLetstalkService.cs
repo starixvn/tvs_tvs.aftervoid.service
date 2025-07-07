@@ -5,6 +5,7 @@ using Fanex.LetstalkService.Client;
 using Fanex.LetstalkService.Client.Models;
 using Fanex.TVS.AfterVoid.Service.Extensions;
 using Fanex.TVS.AfterVoid.Service.Models;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 
@@ -18,7 +19,6 @@ public interface SettledBetLetstalkService
 public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientService) : SettledBetLetstalkService
 {
     private const int MaxContent = 1024;
-    private const int Currency20 = 20;
 
     public bool Send(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets)
     {
@@ -128,43 +128,21 @@ public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientSe
         model.SingleCount = voidedTickets.Where(IsValidSettledSingleTicket).Count(ticket => !ticket.IsInstantSettlementTicket);
         model.InstantOUCount = voidedTickets.Where(IsValidSettledSingleTicket).Count(ticket => ticket.IsInstantSettlementTicket);
         model.ParlayCount = voidedTickets.Count(ticket => IsValidSettledParlayTicket(ticket, !model.IsMemberTemplate));
-        model.CashOutCount = voidedTickets.Count(IsValidCashOutTicket);
+        model.CashOutCount = voidedTickets.Count(ticket => ticket.IsCashOut);
         model.OutstandingSingleCount = voidedTickets.Count(ticket => !ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
         model.OutstandingParlayCount = voidedTickets.Count(ticket => ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
+        model.IsHasUusTicket = voidedTickets.Any(ticket => ticket.Currency == CurrencyConstant.UusId);
     }
 
     private static bool IsValidSettledSingleTicket(TicketEmailModel ticket)
     {
-        var result = !ticket.BetTypeId.IsParlay()
-                     && !ticket.IsCashOut
-                     && ticket.Status.IsSettled();
-        if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
-        {
-            return result && ticket.Currency != Currency20;
-        }
-
-        return result;
+        return !ticket.BetTypeId.IsParlay() && !ticket.IsCashOut && ticket.Status.IsSettled();
     }
 
     private static bool IsValidSettledParlayTicket(TicketEmailModel ticket, bool isCheckSubParlay)
     {
-        var result = isCheckSubParlay ? ticket.IsMixParlay && ticket.SubStatus.IsSettled()
+        return isCheckSubParlay
+            ? ticket.IsMixParlay && ticket.SubStatus.IsSettled()
             : ticket.BetTypeId.IsParlay() && ticket.Status.IsSettled();
-        if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
-        {
-            return result && ticket.Currency != Currency20;
-        }
-
-        return result;
-    }
-
-    private static bool IsValidCashOutTicket(TicketEmailModel ticket)
-    {
-        if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
-        {
-            return ticket.IsCashOut && ticket.Currency != Currency20;
-        }
-
-        return ticket.IsCashOut;
     }
 }

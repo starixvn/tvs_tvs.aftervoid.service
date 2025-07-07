@@ -23,8 +23,6 @@ public class AbnormalBetLetstalkServiceImp(
     LetstalkClientService letstalkClientService)
     : AbnormalBetLetstalkService
 {
-    private const int Currency20 = 20;
-
     public async Task<bool> Send(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets)
     {
         var creditTickets = tickets.Where(x => !x.IsDeposit);
@@ -55,7 +53,7 @@ public class AbnormalBetLetstalkServiceImp(
             TargetName = AppSettingService.AppSetting.LetstalkConfig.TargetName.TicketVoidingSystem,
             Subject = subject,
             Content = content,
-            Group = AppSettingService.AppSetting.LetstalkConfig.VoidAbnormalBets,
+            Group = GroupFactory.GetGroup(LetstalkGroupType.VoidAbnormalBets, model.IsHasUusTicket),
             LetstalkAttachments =
             [
                 new LetstalkAttachment
@@ -134,26 +132,16 @@ public class AbnormalBetLetstalkServiceImp(
         model.ParlayCount = tickets.Count(IsValidParlayTicketAbnormalBetGroup);
         model.OutstandingSingleCount = tickets.Count(ticket => !ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
         model.OutstandingParlayCount = tickets.Count(ticket => ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
+        model.IsHasUusTicket = tickets.Any(ticket => ticket.Currency == CurrencyConstant.UusId);
     }
 
     private static bool IsValidSingleTicketAbnormalBetGroup(TicketEmailModel ticket)
     {
-        var result = !ticket.BetTypeId.IsParlay() && !ticket.IsCashOut;
-        if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
-        {
-            return result && ticket.Currency != Currency20;
-        }
-
-        return result;
+        return !ticket.BetTypeId.IsParlay() && !ticket.IsCashOut;
     }
 
     private static bool IsValidParlayTicketAbnormalBetGroup(TicketEmailModel ticket)
     {
-        if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
-        {
-            return ticket.BetTypeId.IsParlay() && ticket.Currency != Currency20;
-        }
-
         return ticket.BetTypeId.IsParlay();
     }
 }

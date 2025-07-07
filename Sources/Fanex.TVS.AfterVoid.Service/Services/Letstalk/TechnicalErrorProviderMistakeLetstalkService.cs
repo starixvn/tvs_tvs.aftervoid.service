@@ -4,6 +4,7 @@ using System.Text;
 using Fanex.LetstalkService.Client;
 using Fanex.LetstalkService.Client.Models;
 using Fanex.TVS.AfterVoid.Service.Models;
+using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
 
@@ -16,8 +17,6 @@ public interface TechnicalErrorProviderMistakeLetstalkService
 
 public class TechnicalErrorProviderMistakeLetstalkServiceImp(LetstalkClientService letstalkClientService) : TechnicalErrorProviderMistakeLetstalkService
 {
-    private const int Currency20 = 20;
-
     public bool Send(NotificationLetstalkModel model, IEnumerable<TicketEmailModel> tickets)
     {
         UpdateNotificationLetstalkModel(tickets, model);
@@ -35,12 +34,8 @@ public class TechnicalErrorProviderMistakeLetstalkServiceImp(LetstalkClientServi
 
     private static void UpdateNotificationLetstalkModel(IEnumerable<TicketEmailModel> tickets, NotificationLetstalkModel model)
     {
-        model.TotalTicketsCount = tickets.Count(IsValidTicketForSendLetstalk);
-    }
-
-    private static bool IsValidTicketForSendLetstalk(TicketEmailModel ticket)
-    {
-        return !(AppSettingService.AppSetting.LetstalkConfig.IsProdEnv && ticket.Currency != Currency20);
+        model.TotalTicketsCount = tickets.Count();
+        model.IsHasUusTicket = tickets.Any(ticket => ticket.Currency is CurrencyConstant.UusId);
     }
 
     private static LetstalkModel CreateLetstalkModel(string content)
