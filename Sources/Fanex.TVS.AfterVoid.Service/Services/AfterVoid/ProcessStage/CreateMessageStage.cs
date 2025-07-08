@@ -40,8 +40,10 @@ public class CreateMessageStageImp(
 
     public async Task<(int, int, Message, Message)> TryExecute(CreateMessageStageParameter parameter)
     {
-        parameter.AutomationInfo.RequestInfo.IsAllLiveTickets = messageContentParameterService.IsAllLiveTickets(parameter.NormalTickets, parameter.SpecialTickets);
-        parameter.AutomationInfo.RequestInfo.SpecialBetTypeContent = await messageContentParameterService.GetSpecialBetTypeContent(parameter.AutomationInfo, parameter.NormalTickets, parameter.SpecialTickets);
+        parameter.AutomationInfo.RequestInfo.IsAllLiveTickets
+            = messageContentParameterService.IsAllLiveTickets(parameter.NormalTickets, parameter.SpecialTickets);
+        parameter.AutomationInfo.RequestInfo.SpecialBetTypeContent
+            = await messageContentParameterService.GetSpecialBetTypeContent(parameter.AutomationInfo, parameter.NormalTickets, parameter.SpecialTickets);
 
         var normalMessageContent = await InitializeMessageContent(parameter.AutomationInfo, parameter.MatchInfo, parameter.VoidDataXml);
         var specialMessageContent = specialPlatformService.RemoveSabaInMessageContent(parameter.MatchInfo, normalMessageContent, parameter.AutomationInfo.RequestInfo);

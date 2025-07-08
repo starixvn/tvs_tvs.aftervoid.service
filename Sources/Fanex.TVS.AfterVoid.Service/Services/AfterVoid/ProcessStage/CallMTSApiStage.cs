@@ -64,7 +64,8 @@ public class CallMTSApiStageImp(
     private async Task CatchException(Exception exception, VoidBetAutomationInfo automationInfo)
     {
         await loggingService.ErrorAsync(
-            $"ERROR: {nameof(CallMTSApiStage)}.{nameof(Execute)} - SessionId: {automationInfo.BroadcastSessionId} - VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
+            $"ERROR: {nameof(CallMTSApiStage)}.{nameof(Execute)} - SessionId: {automationInfo.BroadcastSessionId} - " +
+            $"VDHistoryId: {automationInfo.VoidingHistoryId} - RequestId: {automationInfo.RequestId}",
             exception);
     }
 }
