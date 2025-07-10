@@ -28,10 +28,11 @@ public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientSe
             return true;
         }
 
+        var isHasUusTicket = tickets.Any(ticket => ticket.Currency == CurrencyConstant.UusId);
         var contents = model.IsMemberTemplate ? CreateMessageContentWithMemberTemplate(tickets, model) : CreateMessageContent(model);
         foreach (var item in contents)
         {
-            var letstalkModel = CreateLetstalkModelSettledBet(item);
+            var letstalkModel = CreateLetstalkModelSettledBet(item, isHasUusTicket);
             var isSentSuccessfully = letstalkClientService.SendMessage(letstalkModel);
             if (!isSentSuccessfully)
             {
@@ -42,14 +43,14 @@ public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientSe
         return true;
     }
 
-    private static LetstalkModel CreateLetstalkModelSettledBet(string content)
+    private static LetstalkModel CreateLetstalkModelSettledBet(string content, bool isHasUusTicket)
     {
         return new LetstalkModel
         {
             TargetName = AppSettingService.AppSetting.LetstalkConfig.TargetName.TicketVoidingSystem,
             Subject = "Void Settled Bet Notification",
             Content = content,
-            Group = AppSettingService.AppSetting.LetstalkConfig.VoidSettledBets
+            Group = GroupFactory.GetGroup(LetstalkGroupType.VoidSettledBets, isHasUusTicket)
         };
     }
 
