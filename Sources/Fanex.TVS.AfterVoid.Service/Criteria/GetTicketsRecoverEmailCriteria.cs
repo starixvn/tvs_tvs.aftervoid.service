@@ -6,7 +6,7 @@ namespace Fanex.TVS.AfterVoid.Service.Criteria;
 public class GetTicketsRecoverEmailCriteria : CriteriaBase
 {
     public int SiteDbGroupId { get; set; }
-    public string SingleTransIds { get; set; }
+    public int RequestId { get; set; }
     public bool IsITSupport { get; set; }
     public bool IsITSupportCreatedRequest { get; set; }
     public bool IsInsertRoutineTask { get; set; }

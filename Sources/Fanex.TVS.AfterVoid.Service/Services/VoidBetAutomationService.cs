@@ -39,7 +39,7 @@ public interface VoidBetAutomationService
 
     Task UpdateTicketVoidingHistory(int voidingHistoryId, int? reasonId, int? messageId, int? messageIdSpecial);
 
-    Task<IEnumerable<TicketRecoverEmailModel>> GetRecoveredTicketsByVoidingHistory(string singleTransIds, int voidingHistoryId, int siteDbGroupId);
+    Task<IEnumerable<TicketRecoverEmailModel>> GetRecoveredTicketsByVoidingHistory(int requestId, int voidingHistoryId, int siteDbGroupId);
 }
 
 public class VoidBetAutomationServiceImp(
@@ -235,13 +235,13 @@ public class VoidBetAutomationServiceImp(
         await repository.ExecuteAsync(command);
     }
 
-    public async Task<IEnumerable<TicketRecoverEmailModel>> GetRecoveredTicketsByVoidingHistory(string singleTransIds, int voidingHistoryId, int siteDbGroupId)
+    public async Task<IEnumerable<TicketRecoverEmailModel>> GetRecoveredTicketsByVoidingHistory(int requestId, int voidingHistoryId, int siteDbGroupId)
     {
         var checkItUser = await CheckRequestOfItUser(voidingHistoryId) ?? new CheckRequestOfITUserModel();
         var criteria = new GetTicketsRecoverEmailCriteria
         {
+            RequestId = requestId,
             SiteDbGroupId = siteDbGroupId,
-            SingleTransIds = singleTransIds,
             IsITSupport = checkItUser.IsITSupport,
             IsITSupportCreatedRequest = checkItUser.IsITSupportCreatedRequest,
             IsInsertRoutineTask = true

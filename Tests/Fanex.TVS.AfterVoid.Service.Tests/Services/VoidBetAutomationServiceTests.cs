@@ -344,7 +344,7 @@ public class VoidBetAutomationServiceTests
         service = new VoidBetAutomationServiceImp(repository, matchService, messageContentParameterService);
 
         // Act
-        _ = await service.GetRecoveredTicketsByVoidingHistory("1, 2", 1, 0);
+        _ = await service.GetRecoveredTicketsByVoidingHistory(1, 1, 0);
 
         // Assert
         await repository.Received(1).FetchAsync<TicketRecoverEmailModel>(Arg.Any<GetTicketsRecoverEmailCriteria>());
@@ -363,7 +363,7 @@ public class VoidBetAutomationServiceTests
         service = new VoidBetAutomationServiceImp(repository, matchService, messageContentParameterService);
 
         // Act
-        _ = await service.GetRecoveredTicketsByVoidingHistory("1, 2", 1, 0);
+        _ = await service.GetRecoveredTicketsByVoidingHistory(1, 1, 0);
 
         // Assert
         await repository.Received(1).FetchAsync<TicketRecoverEmailModel>(Arg.Any<GetTicketsRecoverEmailCriteria>());
