@@ -25,6 +25,7 @@ services.AddFanexData(configuration);
 services.AddExceptionHandler();
 services.AddFanexLogSentry(configuration);
 services.AddOneBookUmForWeb(configuration);
+services.AddHealthChecks();
 services.AddRedisCache(configuration.GetSection("Fanex.Caching.Redis"));
 services.AddRemotingRef();
 services.AddLetstalk();
@@ -38,6 +39,7 @@ services.AddBackgroundService();
 var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionHandlerMiddleware>();
+app.MapHealthChecks("/healthz");
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
