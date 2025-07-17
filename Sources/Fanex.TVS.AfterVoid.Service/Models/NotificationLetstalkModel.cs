@@ -25,4 +25,5 @@ public class NotificationLetstalkModel
     public string RequestedBy { get; set; }
     public int MatchId { get; set; }
     public string VoidingHistoryIds { get; set; }
+    public bool IsHasUusTicket { get; set; }
 }

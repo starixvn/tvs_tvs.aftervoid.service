@@ -32,6 +32,7 @@ public class RedisConfig
 
 public class LetstalkConfig
 {
+    public string ItGroup { get; init; }
     public string VoidSettledBets { get; init; }
     public string VoidAbnormalBets { get; init; }
     public string TicketListingAlert { get; init; }
