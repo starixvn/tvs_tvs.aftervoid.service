@@ -27,6 +27,9 @@ public static class AppSettingService
                 LetstalkServiceApi =
                     configuration.GetValue<string>(
                         $"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.LetstalkServiceApi)}"),
+                ItGroup =
+                    configuration.GetValue<string>(
+                        $"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.ItGroup)}"),
                 VoidSettledBets =
                     configuration.GetValue<string>(
                         $"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.VoidSettledBets)}"),
