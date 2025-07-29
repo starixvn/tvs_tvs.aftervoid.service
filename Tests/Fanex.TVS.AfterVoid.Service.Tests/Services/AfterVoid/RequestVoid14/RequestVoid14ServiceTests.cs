@@ -17,7 +17,6 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.AfterVoid.RequestVoid14;
 public class RequestVoid14ServiceTests
 {
     private VoidBetAutomationService voidBetAutomationService;
-    private SignalRService signalRService;
     private MainProcessStageService mainProcessStageService;
     private CallCashOutApiStage callCashOutApiStage;
     private WriteLogAfterVoidStage writeLogAfterVoidStage;
@@ -33,7 +32,6 @@ public class RequestVoid14ServiceTests
         writeLogAfterVoidStage = Substitute.For<WriteLogAfterVoidStage>();
         callSignalRStage = Substitute.For<CallSignalRStage>();
         notificationService = Substitute.For<NotificationService>();
-        signalRService = Substitute.For<SignalRService>();
     }
 
     [Fact]
