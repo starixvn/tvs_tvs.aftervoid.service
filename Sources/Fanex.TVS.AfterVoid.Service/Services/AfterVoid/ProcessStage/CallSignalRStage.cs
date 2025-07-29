@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services.Notification;
 using TicketVoidingSystem.Constants;
-using TVS.Void.Service.Constants;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 

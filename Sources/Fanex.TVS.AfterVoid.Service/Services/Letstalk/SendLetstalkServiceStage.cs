@@ -27,8 +27,6 @@ public interface SendLetstalkServiceStage
 
     Task WriteLogLetstalk(IEnumerable<Result> results, GroupVoidBetAutomationInfo group, Stopwatch startTime);
 
-    Task InsertLetstalk(int requestId, string broadcastSessionId, int statusId);
-
     Task UpdateLetstalk(int requestId, string broadcastSessionId, int statusId);
 
     NotificationLetstalkModel CreateNotificationModel(
@@ -99,18 +97,6 @@ public class SendLetstalkServiceStageImp(
         }
 
         await loggingService.InfoAsync(logBuilder.ToString());
-    }
-
-    public async Task InsertLetstalk(int requestId, string broadcastSessionId, int statusId)
-    {
-        var command = new InsertLetstalkCommand
-        {
-            RequestId = requestId,
-            BroadcastSessionId = broadcastSessionId,
-            StatusId = statusId
-        };
-
-        await repository.ExecuteAsync(command);
     }
 
     public async Task UpdateLetstalk(int requestId, string broadcastSessionId, int statusId)

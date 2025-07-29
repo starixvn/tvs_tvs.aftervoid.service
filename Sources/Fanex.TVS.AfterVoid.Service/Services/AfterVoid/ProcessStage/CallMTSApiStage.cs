@@ -19,7 +19,7 @@ public class CallMTSApiStageImp(
     MTSHttpClientService mtsHttpClientService,
     LoggingService loggingService) : CallMTSApiStage
 {
-    //TODO: Phase 2 update IsCallMTSApi to table voidbetautomation
+    //TODO: Phase 2 update IsCallMTSApi to table void bet automation
     public async Task Execute(VoidBetAutomationInfo automationInfo, IEnumerable<TicketEmailModel> voidedTickets)
     {
         try
