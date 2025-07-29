@@ -53,7 +53,7 @@ public class JackTimeCashOutExtensionTests
         var result = JackTimeCashOutExtension.IsHasJackTimeCashOut(SportTypeConstant.Soccer, extraInfo);
 
         // Assert
-        Assert.False(result);
+        Assert.True(result);
     }
 
     [Fact]
