@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services.Letstalk;
 
-public class SendLetstalkServiceTests
+public class SendLetstalkServiceTests : IClassFixture<AppSettingFixture>
 {
     private readonly SendLetstalkServiceStage letstalkServiceStage;
     private readonly LoggingService loggingService;

@@ -7,12 +7,11 @@ using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using FizzWare.NBuilder;
 using NSubstitute;
 using TicketVoidingSystem.Models;
-using TicketVoidingSystem.Services;
 using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services.Letstalk;
 
-public class TechnicalErrorProviderMistakeLetstalkServiceTests
+public class TechnicalErrorProviderMistakeLetstalkServiceTests : IClassFixture<AppSettingFixture>
 {
     private readonly LetstalkClientService letstalkClientService;
     private readonly TechnicalErrorProviderMistakeLetstalkServiceImp service;
@@ -23,28 +22,10 @@ public class TechnicalErrorProviderMistakeLetstalkServiceTests
         service = new TechnicalErrorProviderMistakeLetstalkServiceImp(letstalkClientService);
     }
 
-    private static void SetupAppSetting(bool isProdEnv = false)
-    {
-        AppSettingService.AppSetting = new AppSettingModel
-        {
-            LetstalkConfig = new LetstalkConfig
-            {
-                IsProdEnv = isProdEnv,
-                TargetName = new LetstalkTargetName
-                {
-                    TicketVoidingSystem = "test-ticket-voiding-system",
-                    BCAutoVoid = "test-bc-auto-void"
-                },
-                ItGroup = "test-it-group"
-            }
-        };
-    }
-
     [Fact]
     public void Send_WhenNoTickets_ShouldReturnTrue()
     {
         // Arrange
-        SetupAppSetting();
         var model = new NotificationLetstalkModel();
         var tickets = new List<TicketEmailModel>();
 
@@ -60,8 +41,6 @@ public class TechnicalErrorProviderMistakeLetstalkServiceTests
     public void Send_WhenNonProdEnvironment_ShouldCreateCorrectLetstalkModel()
     {
         // Arrange
-        SetupAppSetting();
-
         var model = new NotificationLetstalkModel
         {
             RequestId = 123,
@@ -93,8 +72,6 @@ public class TechnicalErrorProviderMistakeLetstalkServiceTests
     public void Send_ShouldCreateCorrectMessageContent()
     {
         // Arrange
-        SetupAppSetting();
-
         var model = new NotificationLetstalkModel
         {
             RequestId = 123,
@@ -136,7 +113,6 @@ public class TechnicalErrorProviderMistakeLetstalkServiceTests
     public void Send_WhenEmptyTickets_ShouldHandleGracefully()
     {
         // Arrange
-        SetupAppSetting();
         var model = new NotificationLetstalkModel();
         var tickets = new List<TicketEmailModel>();
 
@@ -153,7 +129,6 @@ public class TechnicalErrorProviderMistakeLetstalkServiceTests
     public void Send_WhenModelIsNull_ShouldThrowException()
     {
         // Arrange
-        SetupAppSetting();
         NotificationLetstalkModel model = null;
         var tickets = Builder<TicketEmailModel>.CreateListOfSize(5).Build();
 
@@ -165,7 +140,6 @@ public class TechnicalErrorProviderMistakeLetstalkServiceTests
     public void Send_WhenMatchIsNull_ShouldHandleGracefully()
     {
         // Arrange
-        SetupAppSetting();
         var model = new NotificationLetstalkModel
         {
             RequestId = 123,

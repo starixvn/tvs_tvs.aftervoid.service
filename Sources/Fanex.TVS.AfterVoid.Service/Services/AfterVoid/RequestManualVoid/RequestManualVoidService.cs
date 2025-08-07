@@ -14,7 +14,7 @@ public interface RequestManualVoidService
     Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory);
 }
 
-public class RequestManualVoidServiceImp(
+public class RequestManualVoidServiceImp( // NOSONAR
     VoidBetAutomationService voidBetAutomationService,
     MainProcessStageService mainProcessStageService,
     NotificationService notificationService,

@@ -8,12 +8,11 @@ using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using FizzWare.NBuilder;
 using NSubstitute;
 using TicketVoidingSystem.Models;
-using TicketVoidingSystem.Services;
 using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services.Letstalk;
 
-public class AbnormalBetLetstalkServiceTests
+public class AbnormalBetLetstalkServiceTests : IClassFixture<AppSettingFixture>
 {
     [Fact]
     public async Task SendToAbnormalBetGroup_ShouldNotRunCreateTemplate()
@@ -30,18 +29,6 @@ public class AbnormalBetLetstalkServiceTests
     [Fact]
     public async Task SendToAbnormalBetGroup_ShouldReturnTrueWhenHaveNotContent()
     {
-        AppSettingService.AppSetting = new AppSettingModel 
-        { 
-            LetstalkConfig = new LetstalkConfig 
-            { 
-                IsProdEnv = true, 
-                TargetName = new LetstalkTargetName 
-                { 
-                    TicketVoidingSystem = "Ticket-Voiding-System",
-                    BCAutoVoid = ""
-                } 
-            } 
-        };
         var fakeTicketEmail = new List<TicketEmailModel>
         {
             new(){ IsInstantSettlementTicket = true, BetTypeId = 1, IsCashOut = false },
@@ -59,18 +46,6 @@ public class AbnormalBetLetstalkServiceTests
     [Fact]
     public async Task SendToAbnormalBetGroup_ShouldReturnTrue()
     {
-        AppSettingService.AppSetting = new AppSettingModel 
-        { 
-            LetstalkConfig = new LetstalkConfig 
-            { 
-                IsProdEnv = false, 
-                TargetName = new LetstalkTargetName 
-                { 
-                    TicketVoidingSystem = "Ticket-Voiding-System",
-                    BCAutoVoid = ""
-                } 
-            } 
-        };
         var fakeNotificationLetstalkModel =
             Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         fakeNotificationLetstalkModel.IssueTypeId = 11;

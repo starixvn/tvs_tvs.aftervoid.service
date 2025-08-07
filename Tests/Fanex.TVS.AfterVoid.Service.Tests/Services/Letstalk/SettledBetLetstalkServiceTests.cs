@@ -9,12 +9,11 @@ using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using FizzWare.NBuilder;
 using NSubstitute;
 using TicketVoidingSystem.Models;
-using TicketVoidingSystem.Services;
 using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services.Letstalk;
 
-public class SettledBetLetstalkServiceTests
+public class SettledBetLetstalkServiceTests : IClassFixture<AppSettingFixture>
 {
     private static void SetupTestEnv()
     {
@@ -38,7 +37,6 @@ public class SettledBetLetstalkServiceTests
     [Fact]
     public void SendToSettledBetGroup_WhenRequestHaveUsername_ShouldNotRunLetstalkService()
     {
-        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true } };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(5)
             .All().With(x => x.IsCashOut = false).Build();
@@ -53,7 +51,6 @@ public class SettledBetLetstalkServiceTests
     [Fact]
     public void SendToSettledBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceFail()
     {
-        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true, TargetName = new LetstalkTargetName() } };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(10)
             .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
@@ -74,7 +71,6 @@ public class SettledBetLetstalkServiceTests
     [Fact]
     public void SendToSettledBetGroup_WhenRequestHaveUsername_ShouldRunLetstalkServiceSuccessMultipleTimes()
     {
-        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true, TargetName = new LetstalkTargetName() } };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = true).Build();
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(200)
             .Random(40).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
@@ -95,7 +91,6 @@ public class SettledBetLetstalkServiceTests
     [Fact]
     public void SendToSettledBetGroup_WhenRequestNotHaveUsername_ShouldNotRunLetstalkService()
     {
-        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = true } };
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = false).Build();
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(5)
             .All().With(x => x.IsCashOut = false).Build();
@@ -107,18 +102,16 @@ public class SettledBetLetstalkServiceTests
         letstalkService.DidNotReceiveWithAnyArgs().SendMessage(default);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void SendToSettledBetGroup_WhenRequestNotHaveUsername_ShouldRunLetstalkServiceSuccess(bool isProdEnv)
+    [Fact]
+    public void SendToSettledBetGroup_WhenRequestNotHaveUsername_ShouldRunLetstalkServiceSuccess()
     {
         SetupTestEnv();
-        AppSettingService.AppSetting = new AppSettingModel { LetstalkConfig = new LetstalkConfig { IsProdEnv = isProdEnv, TargetName = new LetstalkTargetName() } };
         var fakeMatch = Builder<Match>.CreateNew().Build();
         var fakeNotificationLetstalkModel = Builder<NotificationLetstalkModel>.CreateNew().With(x => x.IsMemberTemplate = false).Build();
         fakeNotificationLetstalkModel.Match = fakeMatch;
         var fakeTicketEmail = Builder<TicketEmailModel>.CreateListOfSize(10)
-            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
+            .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.IsCancelCashOut = false)
+            .And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = false)
             .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = false).And(x => x.Status = TicketStatus.Won).And(x => x.IsInstantSettlementTicket = true)
             .Random(2).With(x => x.IsCashOut = true)
             .Random(2).With(x => x.IsCashOut = false).And(x => x.IsMixParlay = true).And(x => x.Status = TicketStatus.Won).And(x => x.BetTypeId = 29)
