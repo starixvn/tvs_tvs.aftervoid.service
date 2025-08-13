@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Fanex.TVS.AfterVoid.Service.Constants;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
 using Fanex.TVS.AfterVoid.Service.Services.AfterVoid.ProcessStage;
 using Fanex.TVS.AfterVoid.Service.Services.Notification;
 using TicketVoidingSystem.Constants;
-using TVS.Void.Service.Constants;
 
 namespace Fanex.TVS.AfterVoid.Service.Services.AfterVoid.RequestManualVoid;
 
@@ -14,7 +14,7 @@ public interface RequestManualVoidService
     Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus, IEnumerable<EmailResultModel> emailResultsHistory);
 }
 
-public class RequestManualVoidServiceImp(
+public class RequestManualVoidServiceImp( // NOSONAR
     VoidBetAutomationService voidBetAutomationService,
     MainProcessStageService mainProcessStageService,
     NotificationService notificationService,

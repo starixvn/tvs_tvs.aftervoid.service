@@ -8,7 +8,7 @@ namespace Fanex.TVS.AfterVoid.Service.Tests.Services.TicketVoidingSystem.Service
 public class MatchServiceTests
 {
     private RemotingRefWrapperService remotingRefWrapperService;
-    private MatchService service;
+    public MatchService service;
 
     [Fact]
     public void UpdateMatchInfoFromRemotingRef_HasMatchIsNull_ReturnNull()

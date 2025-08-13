@@ -1,5 +1,5 @@
 ARG CI_REGISTRY_IMAGE
-FROM $CI_REGISTRY_IMAGE:builder as deps
+FROM $CI_REGISTRY_IMAGE:builder AS deps
 RUN mkdir -p /src/packages
 
 FROM hub.nexdev.net/base/dotnet/core/sdk:9.0-alpine AS builder

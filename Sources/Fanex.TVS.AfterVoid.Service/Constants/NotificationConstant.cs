@@ -1,11 +1,4 @@
-﻿namespace TVS.Void.Service.Constants;
-
-public static class NotificationMessage
-{
-    public const string Notification = "Notification";
-    public const string NotificationType = "NotificationType";
-    public const string NotificationId = "NotificationId";
-}
+﻿namespace Fanex.TVS.AfterVoid.Service.Constants;
 
 public static class NotificationType
 {

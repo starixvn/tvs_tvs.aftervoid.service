@@ -14,14 +14,13 @@ using Xunit;
 
 namespace Fanex.TVS.AfterVoid.Service.Tests.Services.Letstalk;
 
-public class SendLetstalkServiceTests
+public class SendLetstalkServiceTests : IClassFixture<AppSettingFixture>
 {
     private readonly SendLetstalkServiceStage letstalkServiceStage;
     private readonly LoggingService loggingService;
     private readonly SendLetstalkServiceImp service;
     private readonly SettledBetLetstalkService settledBetLetstalkService;
     private readonly VoidBetAutomationService voidBetAutomationService;
-    private readonly TechnicalErrorProviderMistakeLetstalkService technicalErrorProviderMistakeLetstalkService;
 
     public SendLetstalkServiceTests()
     {
@@ -31,7 +30,7 @@ public class SendLetstalkServiceTests
         var notificationSignalRService = Substitute.For<SignalRService>();
         letstalkServiceStage = Substitute.For<SendLetstalkServiceStage>();
         loggingService = Substitute.For<LoggingService>();
-        technicalErrorProviderMistakeLetstalkService = Substitute.For<TechnicalErrorProviderMistakeLetstalkService>();
+        var technicalErrorProviderMistakeLetstalkService = Substitute.For<TechnicalErrorProviderMistakeLetstalkService>();
         service = new SendLetstalkServiceImp(voidBetAutomationService, abnormalBetLetstalkServiceImp, settledBetLetstalkService,
             notificationSignalRService, letstalkServiceStage, loggingService, technicalErrorProviderMistakeLetstalkService);
     }
@@ -41,7 +40,7 @@ public class SendLetstalkServiceTests
         return new RequestDetailViewModel
         {
             Request = new RequestModel { IssueTypeId = issueTypeId },
-            Messages = new List<Message>(),
+            Messages = [],
             EventByMatch = new RequestEventModel()
         };
     }
@@ -50,7 +49,7 @@ public class SendLetstalkServiceTests
     public async Task Execute_HasNotAnyRequest_ReturnExpectedResults()
     {
         // Arrange
-        letstalkServiceStage.GetVoidBetAutomationRunLetstalk().Returns(new List<VoidBetAutomationInfo>());
+        letstalkServiceStage.GetVoidBetAutomationRunLetstalk().Returns([]);
 
         // Act
         await service.Execute();
@@ -127,7 +126,7 @@ public class SendLetstalkServiceTests
         var voidedTickets = Builder<TicketEmailModel>.CreateListOfSize(5).Build();
         letstalkServiceStage.GetVoidBetAutomationRunLetstalk().ReturnsForAnyArgs(voidBetAutomationInfoList);
         letstalkServiceStage.GetVoidedTickets(default).ReturnsForAnyArgs(voidedTickets);
-        letstalkServiceStage.GetVoidDataXml(default).ReturnsForAnyArgs(new List<VoidDataXmlModel>());
+        letstalkServiceStage.GetVoidDataXml(default).ReturnsForAnyArgs([]);
         voidBetAutomationService.GetRequestViewModelById(requestId1, default)
             .Returns(CreateRequestDetailViewModel(IssueTypeConstant.AbnormalBet));
         voidBetAutomationService.GetRequestViewModelById(requestId2, default)
@@ -153,7 +152,7 @@ public class SendLetstalkServiceTests
             EventByMatch = new RequestEventModel()
         };
         letstalkServiceStage.GetVoidBetAutomationRunLetstalk()
-            .ReturnsForAnyArgs(new List<VoidBetAutomationInfo> { new() });
+            .ReturnsForAnyArgs([new VoidBetAutomationInfo()]);
         voidBetAutomationService.GetRequestViewModelById(default, default).ReturnsForAnyArgs(requestInfo);
         settledBetLetstalkService
             .When(x => x.Send(Arg.Any<NotificationLetstalkModel>(), Arg.Any<IEnumerable<TicketEmailModel>>()))

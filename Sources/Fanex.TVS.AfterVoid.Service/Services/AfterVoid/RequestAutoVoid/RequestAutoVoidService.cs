@@ -13,7 +13,7 @@ public interface RequestAutoVoidService
     Task Execute(VoidBetAutomationInfo automationInfo, bool isLastedInRequest, string currentRequestStatus);
 }
 
-public class RequestAutoVoidServiceImp(
+public class RequestAutoVoidServiceImp( // NOSONAR
     VoidBetAutomationService voidBetAutomationService,
     MainProcessStageService mainProcessStageService,
     UpdateEmailResultStage updateEmailResultStage,

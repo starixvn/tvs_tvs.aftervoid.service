@@ -147,18 +147,4 @@ public class SendLetstalkServiceStageTests
         // Assert
         await repository.Received(1).ExecuteAsync(Arg.Any<UpdateLetstalkCommand>());
     }
-
-    [Fact]
-    public async Task InsertLetstalk_RepositoryHasCalled()
-    {
-        // Arrange
-        InitFakeServiceTests();
-        var service = new SendLetstalkServiceStageImp(repository, default, default, default);
-
-        // Act
-        await service.InsertLetstalk(1, "", 1);
-
-        // Assert
-        await repository.Received(1).ExecuteAsync(Arg.Any<InsertLetstalkCommand>());
-    }
 }

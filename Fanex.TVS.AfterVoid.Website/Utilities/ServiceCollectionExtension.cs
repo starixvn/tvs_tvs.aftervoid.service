@@ -23,9 +23,9 @@ using TicketVoidingSystem.Services;
 
 namespace Fanex.TVS.AfterVoid.Website.Utilities;
 
-using Fanex.TVS.AfterVoid.Service.Services.Notification;
-using Fanex.TVS.AfterVoid.Website.Utilities.CustomServices;
+using CustomServices;
 using Jobs;
+using Service.Services.Notification;
 
 public static class ServiceCollectionExtensions
 {
@@ -75,7 +75,7 @@ public static class ServiceCollectionExtensions
     public static void AddTvsSiteDbStatus(this IServiceCollection services)
     {
         services.AddSiteDbConnectionManager();
-        services.AddSingleton<IConnectionMultiplexer>(sp =>
+        services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
             var config = LazyRedisMultiplexer.GetRedisConfig();
             config.ChannelPrefix = RedisChannel.Literal(AppSettingService.AppSetting.RedisConfig.SiteDbChannelPrefix);
@@ -127,7 +127,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<MainRecoverProcessStageService, MainRecoverProcessStageServiceImp>();
         services.AddSingleton<NotificationService, NotificationServiceImp>();
         services.AddSingleton<CallMTSApiStage, CallMTSApiStageImp>();
-        
     }
 
     public static IServiceCollection AddBackgroundService(this IServiceCollection services)

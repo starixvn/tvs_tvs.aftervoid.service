@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Fanex.TVS.AfterVoid.Service.Models;
 using Fanex.TVS.AfterVoid.Service.Models.Parameters;
-using Fanex.TVS.AfterVoid.Service.Services.Letstalk;
 using TicketVoidingSystem.Constants;
 using TicketVoidingSystem.Models;
 using TicketVoidingSystem.Services;
@@ -21,7 +20,6 @@ public class CreateMessageStageImp(
     SendMessageService sendMessageService,
     SignalRService signalRService,
     LoggingService loggingService,
-    SendLetstalkServiceStage sendLetstalkServiceStage,
     SpecialPlatformService specialPlatformService,
     MessageContentParameterService messageContentParameterService)
     : CreateMessageStage
