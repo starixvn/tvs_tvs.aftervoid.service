@@ -11,11 +11,11 @@ public enum LetstalkGroupType
 
 public static class GroupFactory
 {
-    public static string GetGroup(LetstalkGroupType type, bool isHasUusTicket)
+    public static string GetGroup(LetstalkGroupType type, bool isAllUusTicket)
     {
         var config = AppSettingService.AppSetting.LetstalkConfig;
 
-        if (!config.IsProdEnv || isHasUusTicket)
+        if (!config.IsProdEnv || isAllUusTicket)
         {
             return config.ItGroup;
         }

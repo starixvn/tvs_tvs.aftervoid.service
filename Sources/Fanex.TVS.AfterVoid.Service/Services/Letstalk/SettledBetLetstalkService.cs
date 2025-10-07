@@ -28,11 +28,11 @@ public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientSe
             return true;
         }
 
-        var isHasUusTicket = tickets.Any(ticket => ticket.Currency == CurrencyConstant.UusId);
+        var isAllUusTicket = tickets.All(ticket => ticket.Currency == CurrencyConstant.UusId);
         var contents = model.IsMemberTemplate ? CreateMessageContentWithMemberTemplate(tickets, model) : CreateMessageContent(model);
         foreach (var item in contents)
         {
-            var letstalkModel = CreateLetstalkModelSettledBet(item, isHasUusTicket);
+            var letstalkModel = CreateLetstalkModelSettledBet(item, isAllUusTicket);
             var isSentSuccessfully = letstalkClientService.SendMessage(letstalkModel);
             if (!isSentSuccessfully)
             {
@@ -43,14 +43,14 @@ public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientSe
         return true;
     }
 
-    private static LetstalkModel CreateLetstalkModelSettledBet(string content, bool isHasUusTicket)
+    private static LetstalkModel CreateLetstalkModelSettledBet(string content, bool isAllUusTicket)
     {
         return new LetstalkModel
         {
             TargetName = AppSettingService.AppSetting.LetstalkConfig.TargetName.TicketVoidingSystem,
             Subject = "Void Settled Bet Notification",
             Content = content,
-            Group = GroupFactory.GetGroup(LetstalkGroupType.VoidSettledBets, isHasUusTicket)
+            Group = GroupFactory.GetGroup(LetstalkGroupType.VoidSettledBets, isAllUusTicket)
         };
     }
 
@@ -132,7 +132,7 @@ public class SettledBetLetstalkServiceImp(LetstalkClientService letstalkClientSe
         model.CashOutCount = voidedTickets.Count(ticket => ticket.IsCashOut);
         model.OutstandingSingleCount = voidedTickets.Count(ticket => !ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
         model.OutstandingParlayCount = voidedTickets.Count(ticket => ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
-        model.IsHasUusTicket = voidedTickets.Any(ticket => ticket.Currency == CurrencyConstant.UusId);
+        model.IsAllUusTicket = voidedTickets.All(ticket => ticket.Currency == CurrencyConstant.UusId);
     }
 
     private static bool IsValidSettledSingleTicket(TicketEmailModel ticket)
