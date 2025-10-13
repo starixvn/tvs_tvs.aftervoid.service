@@ -30,6 +30,9 @@ public static class AppSettingService
                 ItGroup =
                     configuration.GetValue<string>(
                         $"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.ItGroup)}"),
+                ItGroupMockProd =
+                    configuration.GetValue<string>(
+                        $"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.ItGroupMockProd)}"),
                 VoidSettledBets =
                     configuration.GetValue<string>(
                         $"{nameof(LetstalkConfig)}:{nameof(LetstalkConfig.VoidSettledBets)}"),

@@ -53,7 +53,7 @@ public class AbnormalBetLetstalkServiceImp(
             TargetName = AppSettingService.AppSetting.LetstalkConfig.TargetName.TicketVoidingSystem,
             Subject = subject,
             Content = content,
-            Group = GroupFactory.GetGroup(LetstalkGroupType.VoidAbnormalBets, model.IsHasUusTicket),
+            Group = GroupFactory.GetGroup(LetstalkGroupType.VoidAbnormalBets, model.IsAllUusTicket),
             LetstalkAttachments =
             [
                 new LetstalkAttachment
@@ -132,7 +132,7 @@ public class AbnormalBetLetstalkServiceImp(
         model.ParlayCount = tickets.Count(IsValidParlayTicketAbnormalBetGroup);
         model.OutstandingSingleCount = tickets.Count(ticket => !ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
         model.OutstandingParlayCount = tickets.Count(ticket => ticket.BetTypeId.IsParlay() && ticket.Status.IsRunningOrWaiting());
-        model.IsHasUusTicket = tickets.Any(ticket => ticket.Currency == CurrencyConstant.UusId);
+        model.IsAllUusTicket = tickets.All(ticket => ticket.Currency == CurrencyConstant.UusId);
     }
 
     private static bool IsValidSingleTicketAbnormalBetGroup(TicketEmailModel ticket)

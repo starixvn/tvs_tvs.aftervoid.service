@@ -24,9 +24,9 @@ public class TechnicalErrorProviderMistakeLetstalkServiceImp(LetstalkClientServi
         {
             return true;
         }
-        var isHasUusTicket = tickets.Any(ticket => ticket.Currency == CurrencyConstant.UusId);
+        var isAllUusTicket = tickets.All(ticket => ticket.Currency == CurrencyConstant.UusId);
         var content = CreateMessageContent(model);
-        var letstalkModel = CreateLetstalkModel(content, isHasUusTicket);
+        var letstalkModel = CreateLetstalkModel(content, isAllUusTicket);
         var isSentSuccessfully = letstalkClientService.SendMessage(letstalkModel);
         return isSentSuccessfully;
     }
@@ -34,10 +34,10 @@ public class TechnicalErrorProviderMistakeLetstalkServiceImp(LetstalkClientServi
     private static void UpdateNotificationLetstalkModel(IEnumerable<TicketEmailModel> tickets, NotificationLetstalkModel model)
     {
         model.TotalTicketsCount = tickets.Count();
-        model.IsHasUusTicket = tickets.Any(ticket => ticket.Currency is CurrencyConstant.UusId);
+        model.IsAllUusTicket = tickets.All(ticket => ticket.Currency is CurrencyConstant.UusId);
     }
 
-    private static LetstalkModel CreateLetstalkModel(string content, bool isHasUusTicket)
+    private static LetstalkModel CreateLetstalkModel(string content, bool isAllUusTicket)
     {
         if (AppSettingService.AppSetting.LetstalkConfig.IsProdEnv)
         {
@@ -55,7 +55,7 @@ public class TechnicalErrorProviderMistakeLetstalkServiceImp(LetstalkClientServi
             TargetName = AppSettingService.AppSetting.LetstalkConfig.TargetName.TicketVoidingSystem,
             Subject = "BC Auto Void",
             Content = content,
-            Group = GroupFactory.GetGroup(LetstalkGroupType.VoidAbnormalBets, isHasUusTicket)
+            Group = GroupFactory.GetGroup(LetstalkGroupType.VoidAbnormalBets, isAllUusTicket)
         };
     }
 

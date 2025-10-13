@@ -11,11 +11,21 @@ public enum LetstalkGroupType
 
 public static class GroupFactory
 {
-    public static string GetGroup(LetstalkGroupType type, bool isHasUusTicket)
+    public static string GetGroup(LetstalkGroupType type, bool isAllUusTicket)
+    {
+        var config = AppSettingService.AppSetting.LetstalkConfig;
+        return config.IsProdEnv switch
+        {
+            true => GetConfigProdEnv(type, isAllUusTicket),
+            false => GetConfigNonProdEnv(isAllUusTicket),
+        };
+    }
+
+    private static string GetConfigProdEnv(LetstalkGroupType type, bool isAllUusTicket)
     {
         var config = AppSettingService.AppSetting.LetstalkConfig;
 
-        if (!config.IsProdEnv || isHasUusTicket)
+        if (isAllUusTicket)
         {
             return config.ItGroup;
         }
@@ -27,5 +37,12 @@ public static class GroupFactory
             LetstalkGroupType.BcAutoVoid => config.TargetName.BCAutoVoid,
             _ => config.ItGroup
         };
+    }
+
+    private static string GetConfigNonProdEnv(bool isAllUusTicket)
+    {
+        var config = AppSettingService.AppSetting.LetstalkConfig;
+
+        return isAllUusTicket ? config.ItGroup : config.ItGroupMockProd;
     }
 }

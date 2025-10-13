@@ -122,7 +122,7 @@ public class TechnicalErrorProviderMistakeLetstalkServiceTests : IClassFixture<A
         // Assert
         Assert.True(result);
         Assert.Equal(0, model.TotalTicketsCount);
-        Assert.False(model.IsHasUusTicket);
+        Assert.True(model.IsAllUusTicket);
     }
 
     [Fact]
