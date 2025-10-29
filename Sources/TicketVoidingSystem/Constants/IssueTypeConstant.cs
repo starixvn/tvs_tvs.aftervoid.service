@@ -24,4 +24,5 @@ public static class IssueTypeConstant
     public const int TechnicalError = 24;
     public const int WrongOfferedName = 26;
     public const int MatchEarlyCompleted = 27;
+    public const int SecondTeamBatting = 28;
 }
