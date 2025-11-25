@@ -25,6 +25,7 @@ public class TicketEmailModel : EmailSupport, SendMessageDbModel
     public decimal MasterOdds { get; set; }
     public decimal Odds { get; set; }
     public decimal OddsSpread { get; set; }
+    public decimal SubOddsSpread { get; set; }
     public int OddsType { get; set; }
     public long RefCode { get; set; }
     public string RefNo { get; set; }
