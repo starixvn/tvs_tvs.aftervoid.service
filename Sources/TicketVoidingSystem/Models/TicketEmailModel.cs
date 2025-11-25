@@ -44,6 +44,7 @@ public class TicketEmailModel : EmailSupport, SendMessageDbModel
     public bool IsMixParlay { get; set; }
     public string SubStatus { get; set; }
     public long SubTransId { get; set; }
+    public bool IsHybrid { get; set; }
     public string SubBetCheck { get; set; }
     public decimal SubOdds { get; set; }
     public string SubBetTeam { get; set; }
